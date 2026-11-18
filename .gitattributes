@@ -1,0 +1,6 @@
+# Normalise line endings; the extracted CSVs are tracked data and must diff cleanly
+* text=auto eol=lf
+*.csv text eol=lf
+*.json text eol=lf
+*.pdf binary
+*.xlsx binary

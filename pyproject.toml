@@ -1,0 +1,41 @@
+[project]
+name = "hbsir-questionnaire"
+version = "0.1.0"
+description = "Extract the HBSIR household budget survey questionnaires (code lists) from the PDF forms"
+readme = "README.md"
+authors = [
+    { name = "Mohammad Amin Alavian", email = "m.amin.alavian@gmail.com" }
+]
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = [
+    "fonttools>=4.68.0",
+    "pymupdf>=2.1",
+]
+
+[project.scripts]
+hbsir-questionnaire = "hbsir_questionnaire:main"
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.5",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "SIM", "C4", "RUF"]
+# Persian text legitimately contains characters ruff flags as "ambiguous"
+ignore = ["RUF001", "RUF002", "RUF003"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["slow: re-extracts every PDF (needs data/); skip with -m 'not slow'"]
