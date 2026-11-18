@@ -1,6 +1,7 @@
-# Normalise line endings; the extracted CSVs are tracked data and must diff cleanly
+# Normalise line endings; the CSVs in curated/ and output/ are tracked data and must diff cleanly
 * text=auto eol=lf
 *.csv text eol=lf
 *.json text eol=lf
 *.pdf binary
 *.xlsx binary
+output/** linguist-generated=true

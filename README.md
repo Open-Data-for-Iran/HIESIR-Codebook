@@ -3,25 +3,38 @@
 Extracts the expenditure code list (sections, group headers, items) from the
 HBSIR questionnaire PDFs.
 
-The pipeline has two stages, each writing tracked CSVs:
+The pipeline has two stages so far:
 
 ```
-PDFs ──extract──▶ extracted/ ──correct──▶ corrected/
-                  as printed   ▲           as intended
-                               corrections/source.csv, labels.csv
+data/pdf ──extract──▶ 1_extracted ──correct──▶ 2_corrected
+                      as printed       ▲        as intended
+                                   curated/
 ```
+
+The repository separates what people write from what the pipeline writes:
+
+| Folder | Content | In git | Edited by |
+|---|---|---|---|
+| `data/` | external inputs: the PDFs, the household occurrence tables | no | nobody (only replaced) |
+| `curated/` | hand-kept decisions: `source.csv` (item fixes), `labels.csv` (spelling fixes) | yes | people |
+| `output/` | every stage's result: `1_extracted/`, `2_corrected/` | yes | the pipeline only |
+| `reports/` | review aids such as `hazm_suggestions.csv` | no | the pipeline only |
 
 ```bash
-uv run hbsir-questionnaire all                    # PDFs -> extracted/questionnaire_<year>.csv
-uv run hbsir-questionnaire 1382 1403              # or just some years
-uv run python -m hbsir_questionnaire.correct --check   # extracted/ + corrections -> corrected/
-uv run python -m hbsir_questionnaire.validate     # check extracted codes against the raw data
+uv run hbsir-questionnaire build                 # regenerate every stage of output/
+uv run hbsir-questionnaire build --no-extract    # keep 1_extracted/ (no PDFs needed)
+uv run hbsir-questionnaire all                   # just extract: PDFs -> output/1_extracted/
+uv run hbsir-questionnaire 1382 1403             # or just some years
+uv run python -m hbsir_questionnaire.correct --check   # correct and check against the raw data
+uv run python -m hbsir_questionnaire.validate    # check extracted codes against the raw data
 ```
 
-`extracted/` reproduces each PDF exactly, typos included, so it shows what
-changes when the extractor changes or a PDF is replaced. Every deviation from
-the print is a row in `corrections/source.csv`, applied to produce
-`corrected/`, which has the same columns.
+`output/1_extracted/` reproduces each PDF exactly, typos included, so it
+shows what changes when the extractor changes or a PDF is replaced. Every
+deviation from the print is a row in `curated/`, applied to produce
+`output/2_corrected/`, which has the same columns. `output/` is tracked so
+that each change shows up as a diff, and the tests fail when a stage is out
+of date; GitHub folds these files in diffs (`.gitattributes`).
 
 ## CSV columns
 
@@ -52,7 +65,7 @@ with LF line endings (enforced by `.gitattributes`) so diffs are clean on every 
 
 ## Corrections
 
-`corrections/source.csv` lists the errors in the questionnaires themselves,
+`curated/source.csv` lists the errors in the questionnaires themselves,
 one row per fix, each with its evidence:
 
 | Column | Meaning |
@@ -88,7 +101,7 @@ style (`utils.tidy_punctuation`), about 2,500 rows in all:
 - a slash between words gets a space on each side: `دبیرستان/ متوسطه` →
   `دبیرستان / متوسطه` (`1/2` stays).
 
-Then `corrections/labels.csv` fixes spellings that recur across rows and
+Then `curated/labels.csv` fixes spellings that recur across rows and
 years, applied to every description in file order:
 
 | Column | Meaning |
@@ -118,7 +131,7 @@ changed, and the run warns about rows that match nothing.
 not a dependency: it only suggests rows for `labels.csv`.
 
 ```bash
-uv run --with hazm python scripts/suggest_labels.py   # -> corrections/hazm_suggestions.csv
+uv run --with hazm python scripts/suggest_labels.py   # -> reports/hazm_suggestions.csv
 ```
 
 The script runs hazm's normalizer (affix spacing, ZWNJ, diacritics; no
@@ -153,8 +166,8 @@ passes.
   `uv run python -m hbsir_questionnaire.build_glyph_db`.
 - `parse.py` finds code lines and attaches wrapped description lines to them,
   using the table rules and column borders.
-- `correct.py` applies `corrections/source.csv` and `corrections/labels.csv`
-  to `extracted/` and checks the result against the household occurrence
+- `correct.py` applies `curated/source.csv` and `curated/labels.csv`
+  to `output/1_extracted/` and checks the result against the household occurrence
   table. `scripts/suggest_labels.py` uses hazm to suggest rows for
   `labels.csv`.
 - `validate.py` checks each year's extracted codes against the codes that
@@ -205,17 +218,16 @@ Use `--data <folder>` to point the CLI somewhere else.
 Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 
 ```bash
-uv run pytest                 # unit tests + regression against extracted/ (needs data/)
+uv run pytest                 # unit tests + regression against output/1_extracted/ (needs data/)
 uv run pytest -m "not slow"   # unit tests only
 uv run ruff check . && uv run ruff format --check .
 ```
 
 The regression tests re-extract every year and compare byte-for-byte with
-`extracted/`. When an extractor change is intended, regenerate with
+`output/1_extracted/`. When an extractor change is intended, regenerate with
 `uv run hbsir-questionnaire all` and review the CSV diff before committing.
-A fast test also checks that `corrected/` is up to date with `extracted/`
-and `corrections/`; after changing either, run
-`uv run python -m hbsir_questionnaire.correct`.
+A fast test also checks that `output/2_corrected/` is up to date; after changing `curated/` or the code, run
+`uv run hbsir-questionnaire build --no-extract` and review the diff.
 
 ## License
 

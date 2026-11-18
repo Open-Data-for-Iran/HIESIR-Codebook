@@ -1,9 +1,9 @@
 """Apply hand-kept corrections to the extracted questionnaires.
 
-``extracted/`` holds each questionnaire exactly as printed, typos included.
-``corrections/source.csv`` lists every deviation from the print, one row
-each, with the reason; this module applies them and writes the result to
-``corrected/``, which the matcher reads.
+``output/1_extracted/`` holds each questionnaire exactly as printed, typos
+included. ``curated/source.csv`` lists every deviation from the print, one
+row each, with the reason; this module applies them and writes the result to
+``output/2_corrected/``, which the matcher reads.
 
 Columns of ``source.csv``:
 
@@ -26,7 +26,7 @@ spacing (:func:`hbsir_questionnaire.utils.tidy_punctuation`): "،" and ":"
 attach to the word before them, brackets hug their content, "..." has three
 dots.
 
-Then ``corrections/labels.csv`` fixes spellings that recur across rows and
+Then ``curated/labels.csv`` fixes spellings that recur across rows and
 years (typos, joined words, missing ZWNJs), applied to every description in
 file order:
 
@@ -57,11 +57,11 @@ from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
 
-from . import CSV_COLUMNS, DATA_DIR, SUPPORTED_YEARS
+from . import CORRECTED, CSV_COLUMNS, CURATED, DATA_DIR, EXTRACTED, SUPPORTED_YEARS
 from .utils import ZWNJ, collapse_whitespace, tidy_punctuation
 
-CORRECTIONS = Path("corrections") / "source.csv"
-LABELS = Path("corrections") / "labels.csv"
+CORRECTIONS = CURATED / "source.csv"
+LABELS = CURATED / "labels.csv"
 # a letter or digit of a word (Arabic-script letters, not punctuation such as "،")
 _WORD_CHAR = f"[ء-ٟٮ-ۓە۰-۹{ZWNJ}A-Za-z0-9]"
 OCCURRENCE = DATA_DIR / "commodity_code_occurrence_1383-1403.csv"
@@ -239,8 +239,8 @@ def apply(
 
 def correct(
     years: Iterable[int] = SUPPORTED_YEARS,
-    extracted: Path = Path("extracted"),
-    out: Path = Path("corrected"),
+    extracted: Path = EXTRACTED,
+    out: Path = CORRECTED,
     corrections: Path = CORRECTIONS,
     labels: Path = LABELS,
     hits: dict[str, int] | None = None,
@@ -355,9 +355,9 @@ def verify(corrections: list[Correction], extracted: Path, occurrence: Path) -> 
 
 
 def main(argv: list[str] | None = None) -> None:
-    ap = argparse.ArgumentParser(description="Apply corrections/source.csv to extracted/ -> corrected/.")
-    ap.add_argument("--extracted", type=Path, default=Path("extracted"))
-    ap.add_argument("--out", type=Path, default=Path("corrected"))
+    ap = argparse.ArgumentParser(description="Apply curated/ to output/1_extracted/ -> output/2_corrected/.")
+    ap.add_argument("--extracted", type=Path, default=EXTRACTED)
+    ap.add_argument("--out", type=Path, default=CORRECTED)
     ap.add_argument("--corrections", type=Path, default=CORRECTIONS)
     ap.add_argument("--check", action="store_true", help="compare with the household occurrence table")
     ap.add_argument("--labels", type=Path, default=LABELS)

@@ -1,16 +1,16 @@
-"""Suggest label fixes for corrections/labels.csv, using hazm as an advisor.
+"""Suggest label fixes for curated/labels.csv, using hazm as an advisor.
 
 hazm is not a dependency of the project; run this with a temporary install:
 
     uv run --with hazm python scripts/suggest_labels.py
 
-It normalises every description in corrected/ with hazm's Normalizer (only
+It normalises every description in output/2_corrected/ with hazm's Normalizer (only
 the options that fit the house style: affix spacing, ZWNJ, diacritics,
 Unicode variants; no Persian digits, no punctuation restyling), brings the
 result back to the house punctuation style, and lists each word-level
 change with how many descriptions it affects.  Nothing is applied: review
-corrections/hazm_suggestions.csv and copy the rows you accept into
-corrections/labels.csv.
+reports/hazm_suggestions.csv and copy the rows you accept into
+curated/labels.csv.
 """
 
 from __future__ import annotations
@@ -19,15 +19,14 @@ import csv
 import difflib
 import re
 from collections import defaultdict
-from pathlib import Path
 
 from hazm import Normalizer
 
+from hbsir_questionnaire import CORRECTED, REPORTS
 from hbsir_questionnaire.correct import load_label_fixes
 from hbsir_questionnaire.utils import tidy_punctuation
 
-CORRECTED = Path("corrected")
-OUT = Path("corrections") / "hazm_suggestions.csv"
+OUT = REPORTS / "hazm_suggestions.csv"
 
 normalizer = Normalizer(
     correct_spacing=True,  # ها / های / تر / ترین / می with ZWNJ, spacing

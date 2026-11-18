@@ -1,4 +1,4 @@
-"""Re-extract every year and compare with the tracked CSVs in extracted/.
+"""Re-extract every year and compare with the tracked CSVs in output/1_extracted/.
 
 The PDFs are not in git, so these tests skip when data/pdf/ is missing.
 A failure means the extractor's output changed: if the change is intended,
@@ -14,7 +14,7 @@ from hbsir_questionnaire.parse import extract_year, pdf_path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
-EXTRACTED = ROOT / "extracted"
+EXTRACTED = ROOT / "output" / "1_extracted"
 
 
 @pytest.mark.slow

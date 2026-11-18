@@ -60,18 +60,18 @@ def test_add_section(tmp_path):
 
 
 def test_corrected_is_up_to_date(tmp_path):
-    """corrected/ must equal extracted/ + corrections/source.csv; if this
+    """output/2_corrected/ must equal output/1_extracted/ + curated/; if this
     fails, run `uv run python -m hbsir_questionnaire.correct`."""
     correct(
         SUPPORTED_YEARS,
-        ROOT / "extracted",
+        ROOT / "output" / "1_extracted",
         tmp_path,
-        ROOT / "corrections" / "source.csv",
-        ROOT / "corrections" / "labels.csv",
+        ROOT / "curated" / "source.csv",
+        ROOT / "curated" / "labels.csv",
     )
     for year in SUPPORTED_YEARS:
         name = f"questionnaire_{year}.csv"
-        assert (tmp_path / name).read_bytes() == (ROOT / "corrected" / name).read_bytes(), name
+        assert (tmp_path / name).read_bytes() == (ROOT / "output" / "2_corrected" / name).read_bytes(), name
 
 
 def test_delete_removes_empty_group_headers():
