@@ -1,5 +1,7 @@
+import pytest
+
 from hbsir_questionnaire import utils
-from hbsir_questionnaire.utils import ZWNJ
+from hbsir_questionnaire.utils import ZWNJ, tidy_punctuation
 
 
 def test_unify_letters():
@@ -54,3 +56,37 @@ def test_classification():
     assert not utils.has_letters("3 - 4")
     assert utils.joins_next("ب")
     assert not utils.joins_next("ا")
+
+
+@pytest.mark.parametrize(
+    ("raw", "tidy"),
+    [
+        ("آرد ، رشته ،غلات", "آرد، رشته، غلات"),
+        ("نان ماشینی(لواش ،سنگک)", "نان ماشینی (لواش، سنگک)"),
+        ("ورمیشل ( رشته فرنگی )", "ورمیشل (رشته فرنگی)"),
+        ("هویج(ایرانی)چغندر", "هویج (ایرانی) چغندر"),
+        ("ویزیت (دولتی) ، ویزیت", "ویزیت (دولتی)، ویزیت"),
+        ("خردکردن و..... )", "خردکردن و ...)"),
+        ("از قبیل:سبد", "از قبیل: سبد"),
+        ("پارافین,وازلین", "پارافین، وازلین"),
+        ("سینی، دیس،، کتری", "سینی، دیس، کتری"),
+        ("(... نظایر)، سکه، ...", "(... نظایر)، سکه، ..."),
+        ("دیس، ، کتری", "دیس، کتری"),
+        ("1,000 ریال ساعت 10:30", "1,000 ریال ساعت 10:30"),
+        ("انواع ویدئو (VHS)، سی دی", "انواع ویدئو (VHS)، سی دی"),
+        ("کاهدان و. . .)", "کاهدان و ...)"),
+        ("کله‌پاچه و...وسایر", "کله‌پاچه و ... وسایر"),
+        ("در12ماه گذشته", "در 12 ماه گذشته"),
+        ("پژو405", "پژو 405"),
+        ("MP3، MP4 Player", "MP3، MP4 Player"),
+        ("راهنمایی/ متوسطه1و2", "راهنمایی / متوسطه 1 و 2"),
+        ("1/2 کیلو", "1/2 کیلو"),
+    ],
+)
+def test_tidy_punctuation(raw, tidy):
+    assert tidy_punctuation(raw) == tidy
+
+
+def test_conjunction_after_zwnj_becomes_a_word():
+    assert tidy_punctuation("وسایل‌و لوازم") == "وسایل و لوازم"
+    assert tidy_punctuation("حمل‌ونقل") == "حمل‌ونقل"  # a compound, not a conjunction

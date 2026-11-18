@@ -70,6 +70,8 @@ def normalize_code(raw: str) -> str:
 def _classify(text: str) -> tuple[str, str, str | None, str] | None:
     if SKIP_RE.search(text):
         return None
+    # a stray comma inside the code, read right-to-left: "69 312,0" = 0312 69 (1384, 1385)
+    text = re.sub(r"^(\d{2}) (\d{3}),(\d)(?= |$)", r"\1 \3\2", text)
     m = ITEM_RE.match(text)
     if m and len(re.sub(r"\D", "", m.group(2))) in (3, 4):
         return "item", m.group(2), m.group(1), (m.group(3) or "").strip()
@@ -185,6 +187,36 @@ def _page_entries(lines: list[Line], rules: list[Rule], vrules: list[VRule]) -> 
     return coded
 
 
+def _join_split_codes(entries: list[_Entry]) -> list[_Entry]:
+    """COICOP scheme: repair entries whose code is just two digits.
+
+    In a tall cell the sub-code can sit on the first line and the code
+    centred a line below ("13 رادیولوژی، ..." / "0623", 1391-1394): join them
+    into one item.  Any other two-digit header (other than the investment
+    groups 33/34) is stray text from outside the tables and is dropped.
+    """
+    out = []
+    for e in entries:
+        if e.kind != "header" or not re.fullmatch(r"\d{2}", e.code) or e.code.startswith("3"):
+            out.append(e)
+            continue
+        code = next(
+            (
+                f
+                for f in entries
+                if f.kind == "header" and re.fullmatch(r"\d{3,4}", f.code) and 0 < f.line.y - e.line.y <= 20
+            ),
+            None,
+        )
+        if code is None:
+            continue
+        e.kind, e.sub, e.code = "item", e.code, code.code
+        e.after.extend([*code.before, *([Segment(code.desc, 0, 0)] if code.desc else []), *code.after])
+        code.kind = "absorbed"
+        out.append(e)
+    return [e for e in out if e.kind != "absorbed"]
+
+
 def extract(pdf_path: str | Path, old_scheme: bool = False) -> list[Row]:
     """Rows (sections, group headers, items) of the expenditure part.
 
@@ -205,14 +237,15 @@ def extract(pdf_path: str | Path, old_scheme: bool = False) -> list[Row]:
             continue
         body = [ln for ln in lines if not SECTION_RE.match(ln.text)]
         entries = _page_entries(body, page_rules(pdf, p), page_vrules(pdf, p))
+        if not old_scheme:
+            entries = _join_split_codes(entries)
         # walk entries and headings top-to-bottom; a heading switches the section
         events = [(y, 0, h) for y, *h in headings] + [(e.line.y, 1, e) for e in entries]
         for _y, is_entry, ev in sorted(events, key=lambda t: (t[0], t[1])):
             if not is_entry:
                 num, title = ev
                 if section is not None and num < section:
-                    _assign_levels(rows, old_scheme)
-                    return rows
+                    return _finish(rows, old_scheme)
                 if num != section:
                     section = num
                     rows.append(Row("section", num, "", None, title, p))
@@ -229,8 +262,35 @@ def extract(pdf_path: str | Path, old_scheme: bool = False) -> list[Row]:
             desc = " ".join([*(s.text for s in e.before), e.desc, *(s.text for s in e.after)])
             desc = FOOTNOTE_TAIL_RE.sub("", collapse_whitespace(desc))
             rows.append(Row(e.kind, section, normalize_code(e.code), e.sub, desc, p))
+    return _finish(rows, old_scheme)
+
+
+def _finish(rows: list[Row], old_scheme: bool) -> list[Row]:
+    rows = _merge_page_breaks(rows)
     _assign_levels(rows, old_scheme)
     return rows
+
+
+def _merge_page_breaks(rows: list[Row]) -> list[Row]:
+    """Join an item whose description continues on the next page.
+
+    Some PDFs repeat the code on the next page next to the tail of the text
+    ("ملزومات جمع آوری تمبر(... آلبوم تمبر" / "واقلام دیگر)"), which would
+    otherwise give two rows with the same code.
+    """
+    out: list[Row] = []
+    for r in rows:
+        prev = out[-1] if out else None
+        if (
+            prev is not None
+            and r.kind == prev.kind == "item"
+            and (r.section, r.code, r.sub) == (prev.section, prev.code, prev.sub)
+            and r.page == prev.page + 1
+        ):
+            prev.desc = collapse_whitespace(f"{prev.desc} {r.desc}")
+            continue
+        out.append(r)
+    return out
 
 
 # 1382 and earlier use the pre-COICOP 3+2 digit code scheme

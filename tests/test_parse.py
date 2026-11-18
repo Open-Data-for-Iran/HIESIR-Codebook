@@ -95,3 +95,8 @@ def test_cell_labels_are_not_descriptions():
 )
 def test_glyph_name_to_text(name, text):
     assert glyph_name_to_text(name) == text
+
+
+def test_stray_comma_in_code():
+    # 1384/1385 print "0312" as "312,0" (read right-to-left)
+    assert _classify("69 312,0 سایر انواع پوشاک بچگانه") == ("item", "0312", "69", "سایر انواع پوشاک بچگانه")

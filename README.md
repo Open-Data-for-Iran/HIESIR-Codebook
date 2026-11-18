@@ -3,16 +3,25 @@
 Extracts the expenditure code list (sections, group headers, items) from the
 HBSIR questionnaire PDFs.
 
-The extracts live in `extracted/questionnaire_<year>.csv`, one file per year,
-regenerated from the PDFs. Keeping them under version control shows exactly
-what changes when the extractor changes or a PDF is replaced.
+The pipeline has two stages, each writing tracked CSVs:
+
+```
+PDFs ──extract──▶ extracted/ ──correct──▶ corrected/
+                  as printed   ▲           as intended
+                               corrections/source.csv, labels.csv
+```
 
 ```bash
-uv run hbsir-questionnaire all                  # write every extracted/questionnaire_<year>.csv
-uv run hbsir-questionnaire 1382 1403            # or just some years
-uv run python -m hbsir_questionnaire.validate   # check extracted codes against the raw data
-uv run python -m hbsir_questionnaire.validate 1400 -v   # list the codes that differ
+uv run hbsir-questionnaire all                    # PDFs -> extracted/questionnaire_<year>.csv
+uv run hbsir-questionnaire 1382 1403              # or just some years
+uv run python -m hbsir_questionnaire.correct --check   # extracted/ + corrections -> corrected/
+uv run python -m hbsir_questionnaire.validate     # check extracted codes against the raw data
 ```
+
+`extracted/` reproduces each PDF exactly, typos included, so it shows what
+changes when the extractor changes or a PDF is replaced. Every deviation from
+the print is a row in `corrections/source.csv`, applied to produce
+`corrected/`, which has the same columns.
 
 ## CSV columns
 
@@ -41,6 +50,96 @@ set those columns to Text.
 The files are UTF-8 with a BOM so Excel displays the Persian text correctly,
 with LF line endings (enforced by `.gitattributes`) so diffs are clean on every OS.
 
+## Corrections
+
+`corrections/source.csv` lists the errors in the questionnaires themselves,
+one row per fix, each with its evidence:
+
+| Column | Meaning |
+|---|---|
+| `year` | questionnaire year |
+| `action` | `recode` (set an item's expenditure code), `retext` (set its description), `delete` (remove an item, with any group header left empty), or `add_section` (copy a section missing from the PDF from another year) |
+| `expenditure_code`, `description` | the item as printed; the description tells two rows apart when a code is printed twice |
+| `value` | the corrected code or text (for `add_section`: the source year, with the section number in `description`) |
+| `reason` | evidence: neighbouring years, the raw data |
+
+The first corrections fix the 1386 code typos (the imputed-rent items printed
+under 0412 instead of 0421/0422, 0144 for 0411, 0341 for 0431, 0736 for 0735),
+1384's 102216 for 103116, two 1386 descriptions copied from the wrong row, a
+cell label read into a 1387 description, and section 2 (tobacco), whose page
+is blank in the 1383 PDF (copied from 1384 without 023111, which no
+household reports in 1383).
+
+After the listed fixes every description is brought to one punctuation
+style (`utils.tidy_punctuation`), about 2,500 rows in all:
+
+- "،", "؛", ":", "؟", "!" attach to the word before them and are followed by
+  one space: `آرد ، رشته ،غلات` → `آرد، رشته، غلات`;
+- a Latin comma between words becomes "،" (`1,000` stays);
+- a repeated mark is written once: `دیس،،` → `دیس،`;
+- the conjunction و after a ZWNJ becomes its own word: `وسایل‌و لوازم` → `وسایل و لوازم`;
+- an opening bracket has one space before it and none after, a closing one
+  none before and one after: `نان ماشینی( لواش )سنگک` → `نان ماشینی (لواش) سنگک`;
+- two or more dots, spaced or not, become `...` with a space before it
+  (except after an opening bracket) and before a following word:
+  `و. . .` → `و ...`, `و...وسایر` → `و ... وسایر`;
+- a Persian word and a number get a space between them: `در12ماه` → `در 12 ماه`,
+  `پژو405` → `پژو 405` (Latin `MP3` stays);
+- a slash between words gets a space on each side: `دبیرستان/ متوسطه` →
+  `دبیرستان / متوسطه` (`1/2` stays).
+
+Then `corrections/labels.csv` fixes spellings that recur across rows and
+years, applied to every description in file order:
+
+| Column | Meaning |
+|---|---|
+| `find` | the wrong form (may be several words), as it reads after the punctuation rules |
+| `replace` | the right form |
+| `match` | `word`: whole words only (`بجز` does not touch `بجزروانی`); `text`: anywhere in the label |
+| `years` | empty for all years, or years and ranges: `1386`, `1383-1385 1390` |
+| `reason` | why |
+
+Its 935 rows change about 7,600 descriptions:
+
+- typos (`دیبرستان` → `دبیرستان`, `رایو` → `رادیو`, `کارت کدملی` → `کارت ملی`),
+  one spelling per word (`بجز` → `به جز`, `جابجایی` → `جابه‌جایی`, `پینگ‌پنگ`,
+  ی preferred over ئ where both are in use: `ویدیو`, `آینه`, `تزیینی`);
+- a و glued to the next word (`وپلاستیکی` → `و پلاستیکی`), words glued
+  together or joined by a stray ZWNJ (`لباسزیر` → `لباس زیر`,
+  `پزشک‌متخصص` → `پزشک متخصص`), following how the questionnaires
+  themselves usually write the pair;
+- ZWNJs that standard spelling requires: plural `ها`/`های`, `ه` + `ای`, `می`;
+- compounds written with a ZWNJ where the questionnaires write them joined
+  (`ثبت‌نام`, `سیب‌زمینی`, `پاک‌کن`); compounds they always write spaced stay
+  spaced (`سی دی`, `پرداخت شده`). `--check` lists how many descriptions each row
+changed, and the run warns about rows that match nothing.
+
+**hazm as an advisor.** [hazm](https://github.com/roshan-research/hazm) is
+not a dependency: it only suggests rows for `labels.csv`.
+
+```bash
+uv run --with hazm python scripts/suggest_labels.py   # -> corrections/hazm_suggestions.csv
+```
+
+The script runs hazm's normalizer (affix spacing, ZWNJ, diacritics; no
+Persian digits, no punctuation restyling) over every corrected label and
+lists each word-level change with how many labels it affects, sorted into
+`plural` (ها/های attached with a ZWNJ, the standard spelling), `compound`
+(two words joined with a ZWNJ, e.g. `پرداخت‌شده`, optional), and `other`.
+Nothing is applied: accepted rows are copied into `labels.csv` with a reason.
+
+`--check` tests both against the household occurrence table:
+
+- each correction: a recoded item's new code must be reported by households
+  that year, a deleted item's code must not be, and every item copied into a
+  year must be reported in it;
+- each corrected questionnaire: a code that households report but the
+  questionnaire lacks, or a code printed twice, points to a typo or an
+  extraction miss.
+
+All corrections are backed by the data, and every year from 1383 to 1403
+passes.
+
 ## How it works
 
 - `pdf_text.py` rebuilds right-to-left text from glyph positions. Glyphs without
@@ -54,6 +153,10 @@ with LF line endings (enforced by `.gitattributes`) so diffs are clean on every 
   `uv run python -m hbsir_questionnaire.build_glyph_db`.
 - `parse.py` finds code lines and attaches wrapped description lines to them,
   using the table rules and column borders.
+- `correct.py` applies `corrections/source.csv` and `corrections/labels.csv`
+  to `extracted/` and checks the result against the household occurrence
+  table. `scripts/suggest_labels.py` uses hazm to suggest rows for
+  `labels.csv`.
 - `validate.py` checks each year's extracted codes against the codes that
   occur in the raw data (`data/commodity_code_occurrence_*.csv`).
 - `utils.py` holds the Persian text normalisation helpers, usable on their own:
@@ -65,15 +168,17 @@ with LF line endings (enforced by `.gitattributes`) so diffs are clean on every 
 ## Coverage
 
 "Raw-data codes missing" counts codes that occur in that year's raw data but
-were not found in the extract.
+not in the questionnaire, before → after the corrections.
 
 | Years | Raw-data codes missing | Notes |
 |---|---|---|
 | 1382 | 0 | Old 3+2 digit code scheme |
-| 1383–1385 | 7, 3, 1 | |
-| 1386–1389 | 9, 0, 5, 1 | Not reviewed in detail |
-| 1390–1394 | 0–1 | |
-| 1395–1400, 1402, 1403 | 0 | 1395, 1396, 1399 and 1402 go through the glyph repair |
+| 1383 | 7 → 1 | Section 2 page blank in the PDF; the one left, `231`, is not an item code |
+| 1384 | 1 → 0 | |
+| 1385 | 0 | |
+| 1386 | 9 → 0 | Code typos on page 27 and elsewhere |
+| 1387–1389 | 0, 5, 1 | The ones left are reported by 1–2 households each |
+| 1390–1400, 1402, 1403 | 0 | 1395, 1396, 1399 and 1402 go through the glyph repair |
 | 1401 | n/a | The PDF is a data dictionary, not a questionnaire |
 | 1363–1381 | n/a | Scanned images only; needs OCR |
 
@@ -108,6 +213,9 @@ uv run ruff check . && uv run ruff format --check .
 The regression tests re-extract every year and compare byte-for-byte with
 `extracted/`. When an extractor change is intended, regenerate with
 `uv run hbsir-questionnaire all` and review the CSV diff before committing.
+A fast test also checks that `corrected/` is up to date with `extracted/`
+and `corrections/`; after changing either, run
+`uv run python -m hbsir_questionnaire.correct`.
 
 ## License
 

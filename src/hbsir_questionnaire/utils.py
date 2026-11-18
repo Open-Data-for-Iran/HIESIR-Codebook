@@ -96,6 +96,51 @@ def normalize_persian(s: str) -> str:
     return collapse_whitespace(tidy_zwnj(s))
 
 
+_OPENING = re.escape("([«")
+_CLOSING = re.escape(")]»")
+_MARKS = "،؛:؟!"  # marks that attach to the word before them
+_PERSIAN_LETTER = "ء-يپچژکگی"  # ء-ي and پ چ ژ ک گ ی
+
+
+def tidy_punctuation(s: str) -> str:
+    """Persian punctuation spacing.
+
+    - a Latin comma between words becomes "،" (not inside numbers: 1,000)
+    - a mark repeated is written once: "دیس،، کتری" -> "دیس، کتری"
+    - the conjunction و is a separate word: "وسایل‌و لوازم" -> "وسایل و لوازم"
+    - "،", "؛", ":", "؟", "!" attach to the word before them and are followed
+      by one space: "آرد ، رشته ،غلات" -> "آرد، رشته، غلات"
+    - an opening bracket has one space before it and none after; a closing
+      bracket has none before it and one space after (unless punctuation
+      follows): "نان ماشینی( لواش )سنگک" -> "نان ماشینی (لواش) سنگک"
+    - two or more dots, spaced or not, become "..." with a space before it
+      (not after an opening bracket) and before a following word:
+      "و.." / "و. . ." -> "و ...", "و...وسایر" -> "و ... وسایر"
+    - a Persian word and a number are separated by a space:
+      "در12ماه" -> "در 12 ماه", "پژو405" -> "پژو 405" (Latin "MP3" stays)
+    - a slash between words has a space on each side:
+      "دبیرستان/ متوسطه" -> "دبیرستان / متوسطه" (not between digits: 1/2)
+    - runs of spaces collapse to one
+
+    A colon or comma between digits ("10:30", "1,000") is left alone.
+    """
+    s = re.sub(r"(?<!\d),|,(?!\d)", "،", s)
+    s = re.sub(rf"([{_MARKS}])(?:\s*\1)+", r"\1", s)  # "دیس،،" -> "دیس،"
+    s = re.sub(rf"{ZWNJ}و(?=\s|$)", " و", s)  # "وسایل‌و لوازم" -> "وسایل و لوازم"
+    s = re.sub(r"\.(?:\s*\.)+", "...", s)
+    s = re.sub(rf"\.\.\.(?=[{_PERSIAN_LETTER}])", "... ", s)
+    s = re.sub(rf"(?<=[^\s{_OPENING}])\.\.\.", " ...", s)
+    s = re.sub(rf"(?<=[{_PERSIAN_LETTER}])(?=\d)|(?<=\d)(?=[{_PERSIAN_LETTER}])", " ", s)
+    s = re.sub(r"\s*(?<!\d)/(?!\d)\s*", " / ", s)
+    s = re.sub(rf"\s*((?<!\d)[{_MARKS}]|[{_MARKS}](?!\d))\s*", r"\1 ", s)
+    s = re.sub(rf"([{_OPENING}])\s+", r"\1", s)
+    s = re.sub(rf"\s+([{_CLOSING}])", r"\1", s)
+    s = re.sub(rf"(?<=[^\s{_OPENING}])([{_OPENING}])", r" \1", s)
+    s = re.sub(rf"([{_CLOSING}])(?=[^\s{_CLOSING}{_MARKS}.])", r"\1 ", s)
+    s = re.sub(rf"\s+([{_CLOSING}{_MARKS}])", r"\1", s)  # "آشپز، )" -> "آشپز،)"
+    return collapse_whitespace(s)
+
+
 # --- right-to-left visual text ------------------------------------------------
 
 
@@ -137,12 +182,34 @@ def normalize_visual(s: str) -> str:
 
 
 def loose_key(s: str) -> str:
-    """Key for fuzzy equality: ignores spacing, ZWNJ, punctuation, hamza/madda.
+    """Key for fuzzy equality: ignores spacing, ZWNJ, punctuation, hamza/madda,
+    tatweel, presentation forms and digit style.
 
     'هزینه‌های (ریال)' and 'هزينه هاي ريال' get the same key.
     """
-    s = unify_letters(s).translate(str.maketrans({"ؤ": "و", "أ": "ا", "آ": "ا"}))
+    s = strip_tatweel(to_ascii_digits(canonical(s)))
+    s = s.translate(str.maketrans({"ؤ": "و", "أ": "ا", "إ": "ا", "آ": "ا", "ة": "ه"}))
     return _PUNCT.sub("", s)
+
+
+_STOPWORDS = frozenset(
+    ["و", "یا", "از", "به", "در", "با", "که", "را", "برای", "آن", "این", "آنها", "ها", "های", "انواع", "نوع"]
+)
+
+
+def words(s: str) -> list[str]:
+    """Content words of a description, each reduced to its :func:`loose_key`.
+
+    Splits on spaces, ZWNJ and punctuation and drops function words and
+    generic qualifiers (و، از، انواع ...), which carry no item identity.
+    """
+    s = strip_tatweel(to_ascii_digits(canonical(s)))
+    out = []
+    for w in re.split(rf"[\s{ZWNJ}()\[\]،,.\-:؛;«»\"'/…]+", s):
+        k = loose_key(w)
+        if k and k not in _STOPWORDS:
+            out.append(k)
+    return out
 
 
 # --- classification -----------------------------------------------------------
