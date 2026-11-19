@@ -14,7 +14,7 @@
 011224-1383,011224-1384,change,same,label_narrowed,"گوشت‌های کنسرو شده -> گوشت‌های قرمز کنسرو شده: a qualifier was added, so the item covers less; households 1383: 85 -> 1384: 70, x0.78 relative to the group (x1.06); too few"
 011224-1384,011224-1385,confirm,,,"households 1384: 70 -> 1385: 85, x1.11 relative to the group (x1.09); too few"
 011241-1383,011241-1384,confirm,,,"households 1383: 2073 -> 1384: 2446, x1.11 relative to the group (x1.06); fits"
-011244-1383,011244-1389,confirm,,,"households 1388: 65 -> 1389: 71, x1.07 relative to the group (x1.02); too few"
+011244-1383,011244-1389,reject,,,not a broadening alone: replaced by the merged relation 011244-1383 011245-1387 -> 011244-1389 in relations.csv
 011245-1383,011245-1387,change,same,minor,"آماده برای طبخ only makes the item explicit; households 1386: 13 -> 1387: 18, x1.19 relative to the group (x1.16); too few"
 011321-1383,011321-1395,confirm,,,"households 1394: 188 -> 1395: 458, x2.32 relative to the group (x1.05); fits"
 011414-1384,011414-1389,confirm,,,"households 1388: 126 -> 1389: 228, x1.74 relative to the group (x1.04); fits"
@@ -86,7 +86,7 @@
 056154-1384,056154-1387,confirm,,,"households 1386: 242 -> 1387: 446, x1.63 relative to the group (x1.13); fits"
 056211-1383,056211-1384,confirm,,,"households 1383: 129 -> 1384: 65, x0.38 relative to the group (x1.33); fits"
 056218-1383,056218-1384,confirm,,,"households 1383: 96 -> 1384: 132, x1.04 relative to the group (x1.33); fits"
-056218-1384,056215-1386,change,recoded,label_broadened,"سایر was dropped and خشکشویی added: all occasional household services; households 1385: 122 -> 1386: 138, x1.13; fits"
+056218-1384,056215-1386,reject,,,not a broadening alone: replaced by the merged relation 056218-1384 056219-1383 -> 056215-1386 in relations.csv
 061117-1386,061117-1395,confirm,,,"households 1394: 176 -> 1395: 308, x1.75; fits"
 061118-1384,061118-1386,confirm,,,"households 1385: 234 -> 1386: 246, x1.08 relative to the group (x0.98); fits"
 061211-1386,061211-1389,confirm,,,"households 1388: 36 -> 1389: 28, x0.87 relative to the group (x0.89); too few"
@@ -132,18 +132,18 @@
 083121-1383,083121-1387,confirm,,,"households 1386: 20 -> 1387: 27, x0.99 relative to the group (x1.37); too few"
 083122-1383,083122-1384,confirm,,,"households 1383: 21 -> 1384: 10, x0.27 relative to the group (x1.75); too few"
 091412-1383,091412-1387,change,same,minor,"only the verb خرید was dropped; households 1386: 664 -> 1387: 490, x0.67 relative to the group (x1.09); fits"
-091413-1383,091413-1386,confirm,,,"households 1385: 40 -> 1386: 49, x1.84 relative to the group (x0.66); too few"
+091413-1383,091413-1386,reject,,,not a broadening alone: replaced by the merged relation 091413-1383 091414-1383 -> 091413-1386 in relations.csv
 091415-1386,091415-1387,change,same,minor,"only the verb خرید was dropped; households 1386: 221 -> 1387: 224, x0.93 relative to the group (x1.09); fits"
 091417-1383,091417-1385,confirm,,,"households 1384: 1179 -> 1385: 1448, x1.35 relative to the group (x0.91); fits"
-091417-1385,091417-1386,change,same,label_broadened,"recorded discs (educational CDs ...) were added to blank ones; households 1385: 1448 -> 1386: 2960, x3.08 relative to the group (x0.66); fits"
+091417-1385,091417-1386,reject,,,not a broadening alone: replaced by the merged relation 091417-1385 091418-1383 -> 091417-1386 in relations.csv
 091417-1386,091417-1387,change,same,minor,"only the verb خرید was dropped; households 1386: 2960 -> 1387: 2547, x0.79 relative to the group (x1.09); fits"
 093311-1383,093311-1384,confirm,,,"households 1383: 372 -> 1384: 330, x0.47 relative to the group (x1.9); does not fit; the group comparison rests on few siblings; raw counts held (372 -> 330)"
-093312-1383,093312-1386,change,same,label_broadened,"کود گیاهی و حیوانی -> انواع کود: chemical fertiliser too; households 1385: 55 -> 1386: 43, x0.71 relative to the group (x1.1); too few"
+093312-1383,093312-1386,reject,,,not a broadening alone: replaced by the merged relation 093312-1383 093313-1383 -> 093312-1386 in relations.csv
 093511-1383,093511-1387,confirm,,,"households 1386: 28 -> 1387: 33, x1.18; too few"
 094111-1384,094111-1385,confirm,,,"households 1384: 134 -> 1385: 308, x2.2 relative to the group (x1.04); fits"
 094113-1383,094113-1387,confirm,,,"households 1386: 207 -> 1387: 180, x0.79 relative to the group (x1.1); fits"
 094119-1386,094119-1387,confirm,,,"households 1386: 35 -> 1387: 22, x0.57 relative to the group (x1.1); too few"
-094217-1383,094217-1386,confirm,,,"households 1385: 40 -> 1386: 84, x2.62 relative to the group (x0.8); too few"
+094217-1383,094217-1386,reject,,,not a broadening alone: replaced by the merged relation 094217-1383 094218-1383 -> 094217-1386 in relations.csv
 094217-1386,094217-1387,change,same,label_broadened,"مراسم عروسی -> مراسم و ...: any ceremony; households 1386: 84 -> 1387: 93, x1.37 relative to the group (x0.81); too few"
 095116-1383,095116-1387,change,same,minor,"کتب -> کتاب; households 1386: 49 -> 1387: 54, x0.92 relative to the group (x1.2); too few"
 095122-1383,095122-1389,confirm,,,"households 1388: 620 -> 1389: 733, x1.19 relative to the group (x0.99); fits"
@@ -160,12 +160,12 @@
 111144-1384,111144-1385,confirm,,,"households 1384: 277 -> 1385: 303, x1.11 relative to the group (x0.99); fits"
 111144-1385,111144-1390,confirm,,,"households 1389: 134 -> 1390: 229, x1.63 relative to the group (x1.05); fits"
 112015-1384,112015-1386,confirm,,,"households 1385: 33 -> 1386: 31, x1.04 relative to the group (x0.9); too few"
-121114-1383,121114-1386,confirm,,,"households 1385: 427 -> 1386: 475, x1.1 relative to the group (x1.01); fits"
+121114-1383,121114-1386,reject,,,not a broadening alone: replaced by the merged relation 121114-1383 121116-1383 -> 121114-1386 in relations.csv
 121312-1387,121312-1390,confirm,,,"households 1389: 2975 -> 1390: 2589, x0.86 relative to the group (x1.01); fits"
-121313-1383,121313-1386,change,same,label_broadened,"شانه ساده زنانه -> شانه و برس: all combs, and brushes; households 1385: 2362 -> 1386: 3825, x1.6 relative to the group (x1.01); fits"
-121319-1383,121319-1386,change,same,label_broadened,"ساخت داخل was dropped: imported toothbrushes too; households 1385: 6335 -> 1386: 7270, x1.14 relative to the group (x1.01); fits"
-121333-1383,121333-1386,change,same,label_broadened,"ساخت داخل was dropped and floss and toothpicks were added; households 1385: 15147 -> 1386: 15110, x0.99 relative to the group (x1.01); fits"
-121337-1383,121337-1386,change,same,label_broadened,"تولید داخل was dropped: imported creams too; households 1385: 10960 -> 1386: 11657, x1.05 relative to the group (x1.01); fits"
+121313-1383,121313-1386,reject,,,not a broadening alone: replaced by the merged relation 121313-1383 121314-1383 121315-1383 -> 121313-1386 in relations.csv
+121319-1383,121319-1386,reject,,,not a broadening alone: replaced by the merged relation 121319-1383 121321-1383 -> 121319-1386 in relations.csv
+121333-1383,121333-1386,reject,,,not a broadening alone: replaced by the merged relation 121333-1383 121334-1383 121335-1383 -> 121333-1386 in relations.csv
+121337-1383,121337-1386,reject,,,not a broadening alone: replaced by the merged relation 121337-1383 121338-1383 -> 121337-1386 in relations.csv
 121356-1383,121356-1385,confirm,,,"households 1384: 67 -> 1385: 264, x3.63 relative to the group (x1.08); fits"
 123214-1383,123214-1389,confirm,,,"households 1388: 74 -> 1389: 178, x2.44 relative to the group (x0.99); fits"
 123215-1383,123215-1384,confirm,,,"households 1383: 111 -> 1384: 130, x1.15 relative to the group (x1.02); fits"
@@ -175,7 +175,7 @@
 125311-1383,125311-1384,confirm,,,"households 1383: 3681 -> 1384: 4513, x1.06 relative to the group (x1.15); fits"
 125413-1383,125413-1389,confirm,,,"households 1388: 1985 -> 1389: 5619, x2.83; does not fit; 125411 (vehicle insurance) fell 4665 -> 3175 the same year: reports moved to 125413 once its label named personal vehicles"
 043111-1383,043111-1399,confirm,,,"households 1398: 277 -> 1399: 279, x1.06 relative to the group (x0.95); fits"
-043132-1383,043132-1386,confirm,,,"households 1385: 85 -> 1386: 113, x1.53 relative to the group (x0.87); fits"
+043132-1383,043132-1386,reject,,,not a broadening alone: replaced by the merged relation 043132-1383 043133-1383 -> 043132-1386 in relations.csv
 043211-1383,043211-1385,confirm,,,"households 1384: 2948 -> 1385: 3187, x1.26 relative to the group (x0.86); fits"
 051112-1383,051112-1384,confirm,,,"households 1383: 1464 -> 1384: 1883, x1.14 relative to the group (x1.13); fits"
 051122-1383,051122-1384,confirm,,,"households 1383: 574 -> 1384: 677, x1.05 relative to the group (x1.13); fits"
@@ -192,21 +192,21 @@
 053138-1383,053138-1388,confirm,,,"households 1387: 55 -> 1388: 82, x1.58 relative to the group (x0.94); too few"
 053139-1383,053139-1387,confirm,,,"households 1386: 551 -> 1387: 638, x1.09 relative to the group (x1.06); fits"
 053217-1383,053217-1384,change,same,label_broadened,"the closed list became an open one (و نظایر آن); households 1383: 74 -> 1384: 170, x1.85 relative to the group (x1.24); fits"
-053225-1384,053225-1386,change,same,label_broadened,"کوچک was dropped: a qualifier was dropped, so the item covers more; households 1385: 242 -> 1386: 217, x0.93 relative to the group (x0.96); fits"
+053225-1384,053225-1386,reject,,,not a broadening alone: replaced by the merged relation 053225-1384 053218-1383 053219-1383 -> 053225-1386 in relations.csv
 053311-1383,053311-1387,confirm,,,"households 1386: 111 -> 1387: 139, x1.25; fits"
 053312-1386,053312-1390,confirm,,,"households 1389: 272 -> 1390: 148, x0.54; does not fit; 240-308 households a year in 1386-1389, then 148: not explained by the label; the item continues"
-055113-1383,055113-1386,change,same,label_broadened,"اجاره (rental) was added; households 1385: 39 -> 1386: 27, x0.69; too few"
+055113-1383,055113-1386,reject,,,not a broadening alone: replaced by the merged relation 055113-1383 055114-1383 -> 055113-1386 in relations.csv
 056221-1383,056221-1385,change,same,label_broadened,"the exclusion (به غیر از مراسم و جشن‌ها) was dropped; households 1384: 5 -> 1385: 14, x2.46 relative to the group (x1.14); too few"
 063145-1395,063145-1397,confirm,,,"households 1396: 965 -> 1397: 920, x0.8 relative to the group (x1.2); fits"
 063146-1395,063146-1397,confirm,,,"households 1396: 430 -> 1397: 368, x0.71 relative to the group (x1.2); fits"
 063147-1395,063147-1397,confirm,,,"households 1396: 1062 -> 1397: 268, x0.21 relative to the group (x1.2); fits"
 063148-1395,063148-1397,confirm,,,"households 1396: 666 -> 1397: 243, x0.3 relative to the group (x1.2); fits"
-071311-1383,071311-1390,change,same,label_broadened,"(نمره 28) was dropped: a qualifier was dropped, so the item covers more; households 1389: 67 -> 1390: 195, x2.91; fits"
+071311-1383,071311-1390,reject,,,not a broadening alone: replaced by the regrouped relation 071311-1383 071312-1384 071313-1383 -> 071311-1390 071312-1390 in relations.csv
 071312-1383,071312-1384,confirm,,,"households 1383: 256 -> 1384: 239, x0.86 relative to the group (x1.09); fits"
-071312-1384,071312-1390,change,same,label_broadened,"(نمره 16) was dropped: a qualifier was dropped, so the item covers more; households 1389: 162 -> 1390: 161, x0.99; fits"
+071312-1384,071312-1390,reject,,,not a broadening alone: replaced by the regrouped relation 071311-1383 071312-1384 071313-1383 -> 071311-1390 071312-1390 in relations.csv
 072119-1386,072119-1400,confirm,,,"households 1399: 11634 -> 1400: 12040, x1.07 relative to the group (x0.97); fits"
 072127-1383,072127-1386,change,same,label_broadened,"چادر اتومبیل -> چادر و روکش: covers too; households 1385: 189 -> 1386: 332, x1.63 relative to the group (x1.08); fits"
-072131-1383,072131-1386,confirm,,,"households 1385: 613 -> 1386: 613, x0.93 relative to the group (x1.08); fits"
+072131-1383,072131-1386,reject,,,not a broadening alone: replaced by the merged relation 072131-1383 072128-1383 072129-1383 -> 072131-1386 in relations.csv
 072311-1386,072311-1392,confirm,,,"households 1391: 984 -> 1392: 1432, x1.49 relative to the group (x0.98); fits"
 072323-1384,072323-1385,confirm,,,"households 1384: 1251 -> 1385: 2589, x1.83 relative to the group (x1.13); fits"
 072323-1385,072323-1396,confirm,,,"households 1395: 6812 -> 1396: 5698, x0.79 relative to the group (x1.06); fits"

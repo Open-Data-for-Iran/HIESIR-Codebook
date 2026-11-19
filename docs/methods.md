@@ -209,9 +209,9 @@ the conjunction (`،` / `و`), word order, spacing, generic words (`انواع`)
 or "etc." markers (`و نظایر آن` / `و ...`) differ: `جگر، دل، قلوه` →
 `جگر، دل و قلوه`. Every other relation, and every merge, split or
 regrouping, needs a check. Everything is now settled: of 447 links, 162 are
-definite and `curated/3_items/links.csv` decides the rest (200 confirmed, 73
-changed, 8 rejected, 4 added); `curated/3_items/relations.csv` decides all 133
-merges, splits and regroupings (93 confirmed, 14 rejected, 26 added).
+definite and `curated/3_items/links.csv` decides the rest (194 confirmed, 60
+changed, 27 rejected, 4 added); `curated/3_items/relations.csv` decides all 151
+merges, splits and regroupings (93 confirmed, 14 rejected, 44 added).
 
 Decisions go in `curated/3_items/links.csv` and `curated/3_items/relations.csv`, one row per
 link or relation, named by its chains:
@@ -279,6 +279,16 @@ What the verification found:
 - **Left out of merges.** The tonsil and appendix surgeries (1386),
   hearing-aid repair (1386) and game meat 011219, which went to 011221 (it
   added `شکار`), not to the game birds.
+- **Broadenings that were merges.** An item whose label drops an exclusion
+  or a qualifier, or adds words, just as another item that those words name
+  stops being asked, has absorbed that item: «انواع سیگار ایرانی به جز بهمن»
+  plus «سیگار بهمن» became «انواع سیگار ایرانی» (1390), and in 1386 the
+  foreign-made toothbrushes, toothpaste and face cream joined the domestic
+  ones, filming joined photography, recorded tapes and CDs joined the blank
+  ones. 18 links read as broadenings were such merges (17 merges and the
+  1390 bicycles, three items regrouped into two). The household counts
+  agree in every case, and decide two: read as broadenings, recorded CDs
+  and 28-inch bicycles would have tripled.
 
 Where the counts still do not fit, the note says why, for example: landline
 phones declining as mobiles spread; internet cafés closing under COVID in
