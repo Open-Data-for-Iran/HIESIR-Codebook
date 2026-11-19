@@ -1,0 +1,58 @@
+from hbsir_questionnaire.chains import build_chains, read_chains, write_chains
+from hbsir_questionnaire.compare import Item
+
+YEARS = [1, 2, 3, 4, 5]
+
+
+def _items(year, *rows):
+    return [Item(year, 1, code, text) for code, text in rows]
+
+
+DATA = {
+    1: _items(1, ("011", "برنج طارم"), ("012", "آبگرمکن گازی"), ("013", "پاکت نامه"), ("014", "سمعک")),
+    2: _items(2, ("011", "برنج  طارم،"), ("012", "کولرگازی"), ("013", "پاکت‌نامه و هزینه بسته‌بندی")),
+    3: _items(3, ("012", "کولرگازی"), ("013", "پاکت‌نامه و هزینه بسته‌بندی")),
+    4: _items(4, ("011", "برنج طارم"), ("012", "کولر گازی")),
+    5: _items(5, ("014", "سمعک")),
+}
+
+
+def test_one_code_and_one_label_per_chain():
+    chains = {c.id: c for c in build_chains(DATA, max_gap=2)}
+    assert chains["011-1"].years == [1, 2, 4]  # trivial differences, missing in year 3
+    assert chains["012-1"].years == [1]
+    assert chains["012-2"].years == [2, 3, 4]  # "کولرگازی" / "کولر گازی": same label
+    assert chains["013-1"].years == [1]
+    assert chains["013-2"].years == [2, 3]  # broadened label: a new chain
+    # missing from three questionnaires: more than the gap allows
+    assert chains["014-1"].years == [1]
+    assert chains["014-5"].years == [5]
+
+
+def test_every_item_in_one_chain():
+    covered = sorted((y, c.code) for c in build_chains(DATA) for y in c.years)
+    assert covered == sorted((y, it.code) for y, items in DATA.items() for it in items)
+
+
+def test_chains_round_trip(tmp_path):
+    chains = build_chains(DATA)
+    write_chains(chains, tmp_path / "chains.csv", YEARS)
+    back = read_chains(tmp_path / "chains.csv", YEARS)
+    assert sorted((c.id, c.code, c.text, c.years) for c in back) == sorted(
+        (c.id, c.code, c.text, c.years) for c in chains
+    )
+
+
+def test_matched_is_up_to_date(tmp_path):
+    """output/3_matched/chains.csv must match output/2_corrected/;
+    if this fails, run `uv run hbsir-questionnaire build --no-extract`."""
+    from pathlib import Path
+
+    from hbsir_questionnaire.compare import YEARS as ALL_YEARS
+    from hbsir_questionnaire.compare import load_year
+
+    root = Path(__file__).resolve().parents[1]
+    matched = root / "output" / "3_matched"
+    chains = build_chains({y: load_year(y, root / "output" / "2_corrected") for y in ALL_YEARS})
+    write_chains(chains, tmp_path / "chains.csv", ALL_YEARS)
+    assert (tmp_path / "chains.csv").read_bytes() == (matched / "chains.csv").read_bytes()

@@ -3,11 +3,11 @@
 Extracts the expenditure code list (sections, group headers, items) from the
 HBSIR questionnaire PDFs.
 
-The pipeline has two stages so far:
+The pipeline has three stages:
 
 ```
-data/pdf ──extract──▶ 1_extracted ──correct──▶ 2_corrected
-                      as printed       ▲        as intended
+data/pdf ──extract──▶ 1_extracted ──correct──▶ 2_corrected ──chains──▶ 3_matched
+                      as printed       ▲        as intended             chains.csv
                                    curated/
 ```
 
@@ -17,7 +17,7 @@ The repository separates what people write from what the pipeline writes:
 |---|---|---|---|
 | `data/` | external inputs: the PDFs, the household occurrence tables | no | nobody (only replaced) |
 | `curated/` | hand-kept decisions: `source.csv` (item fixes), `labels.csv` (spelling fixes) | yes | people |
-| `output/` | every stage's result: `1_extracted/`, `2_corrected/` | yes | the pipeline only |
+| `output/` | every stage's result: `1_extracted/`, `2_corrected/`, `3_matched/` | yes | the pipeline only |
 | `reports/` | review aids such as `hazm_suggestions.csv` | no | the pipeline only |
 
 ```bash
@@ -153,6 +153,28 @@ Nothing is applied: accepted rows are copied into `labels.csv` with a reason.
 All corrections are backed by the data, and every year from 1383 to 1403
 passes.
 
+## Matching items across years
+
+Matching is built in stages, each a separate step with its own output in
+`output/3_matched/`.
+
+```bash
+uv run python -m hbsir_questionnaire.chains      # stage 1: output/2_corrected/ -> output/3_matched/chains.csv
+```
+
+**Stage 1, chains.** A *chain* is one expenditure code with one label,
+followed from year to year while both stay the same (labels that differ only
+in spacing, ZWNJ, punctuation, hamza or digit style count as the same). Any
+other label change, or the code disappearing for more than two
+questionnaires, starts a new chain. So every chain has one code and one
+text, and every item of every year belongs to exactly one chain.
+`chains.csv` has one row per chain: `chain_id` (code and first year, e.g.
+`011114-1387`), `section`, `expenditure_code`, `first_year`, `last_year`,
+`missing_years`, `text`.
+
+How chains relate to each other (a changed label, a new code, a merge or a
+split) is the next stage.
+
 ## How it works
 
 - `pdf_text.py` rebuilds right-to-left text from glyph positions. Glyphs without
@@ -170,6 +192,9 @@ passes.
   to `output/1_extracted/` and checks the result against the household occurrence
   table. `scripts/suggest_labels.py` uses hazm to suggest rows for
   `labels.csv`.
+- `compare.py` compares two descriptions (`same`, `minor`, `broadened`, ...)
+  and handles provider qualifiers; shared by the matching stages.
+- `chains.py` builds the chains (matching stage 1, see above).
 - `validate.py` checks each year's extracted codes against the codes that
   occur in the raw data (`data/commodity_code_occurrence_*.csv`).
 - `utils.py` holds the Persian text normalisation helpers, usable on their own:
@@ -226,7 +251,8 @@ uv run ruff check . && uv run ruff format --check .
 The regression tests re-extract every year and compare byte-for-byte with
 `output/1_extracted/`. When an extractor change is intended, regenerate with
 `uv run hbsir-questionnaire all` and review the CSV diff before committing.
-A fast test also checks that `output/2_corrected/` is up to date; after changing `curated/` or the code, run
+Fast tests also check that `output/2_corrected/` and `output/3_matched/chains.csv`
+are up to date; after changing `curated/` or the code, run
 `uv run hbsir-questionnaire build --no-extract` and review the diff.
 
 ## License

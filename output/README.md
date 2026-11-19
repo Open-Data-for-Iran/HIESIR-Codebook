@@ -11,6 +11,7 @@ uv run hbsir-questionnaire build --no-extract   # keep 1_extracted/, rebuild the
 |---|---|---|
 | `1_extracted/` | `hbsir-questionnaire all` | the PDFs in `data/pdf/`, exactly as printed |
 | `2_corrected/` | `python -m hbsir_questionnaire.correct` | `1_extracted/` + `curated/source.csv` and `curated/labels.csv` |
+| `3_matched/` | `python -m hbsir_questionnaire.chains` | `2_corrected/` |
 
 To change a result, edit `curated/` (or the code) and rebuild. The files are
 tracked so that every change to the extractor, a correction or the matcher

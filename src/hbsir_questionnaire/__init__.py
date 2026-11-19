@@ -67,9 +67,9 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
     """Regenerate every stage of output/ in order.
 
     extract (PDFs -> 1_extracted, skipped when the PDFs are not available)
-    -> correct (+ curated/ -> 2_corrected).
+    -> correct (+ curated/ -> 2_corrected) -> chains (-> 3_matched).
     """
-    from . import correct
+    from . import chains, correct
 
     if extract_pdfs and (data / "pdf").is_dir():
         for y in SUPPORTED_YEARS:
@@ -80,6 +80,7 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
     else:
         print(f"keeping {EXTRACTED} as it is")
     correct.main([])
+    chains.main([])
 
 
 def main(argv: list[str] | None = None) -> None:
