@@ -13,6 +13,7 @@ nav:
   - Home: index.md
   - Explorer: explorer.md
   - Data files: data.md
+  - Questionnaires: questionnaires.md
   - Methods: methods.md
   - Contributing: contributing.md
 
@@ -38,6 +39,7 @@ plugins:
             Home: خانه
             Explorer: جست‌وجوی اقلام
             Data files: فایل‌های داده
+            Questionnaires: پرسشنامه‌ها
             Methods: روش کار
             Contributing: مشارکت
 

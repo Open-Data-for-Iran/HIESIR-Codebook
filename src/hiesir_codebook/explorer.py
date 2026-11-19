@@ -34,10 +34,12 @@ def _read(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(f))
 
 
-def _questionnaire(path: Path) -> tuple[dict[str, str], dict[str, list[list[str]]]]:
-    """Section titles and, for each expenditure code, its group headers (outermost first)."""
+def _questionnaire(path: Path) -> tuple[dict[str, str], dict[str, list[list[str]]], dict[str, int]]:
+    """Section titles and, for each expenditure code, its group headers (outermost
+    first) and the PDF page it is printed on."""
     sections: dict[str, str] = {}
     paths: dict[str, list[list[str]]] = {}
+    pages: dict[str, int] = {}
     stack: dict[int, list[str]] = {}
     for r in _read(path):
         if r["kind"] == "section":
@@ -49,7 +51,9 @@ def _questionnaire(path: Path) -> tuple[dict[str, str], dict[str, list[list[str]
             stack[level] = [r["code"], r["description"]]
         elif r["kind"] == "item" and r["expenditure_code"] not in paths:
             paths[r["expenditure_code"]] = [stack[k] for k in sorted(stack)]
-    return sections, paths
+            if r["page"]:  # items added by curated/source.csv have no printed page
+                pages[r["expenditure_code"]] = int(r["page"])
+    return sections, paths, pages
 
 
 def collect(
@@ -61,22 +65,27 @@ def collect(
     """Everything the page shows, as plain JSON-able data."""
     sections: dict[str, str] = {}
     paths: dict[int, dict[str, list[list[str]]]] = {}
+    pages: dict[int, dict[str, int]] = {}
     for y in years:
-        s, paths[y] = _questionnaire(corrected / f"questionnaire_{y}.csv")
+        s, paths[y], pages[y] = _questionnaire(corrected / f"questionnaire_{y}.csv")
         sections.update(s)  # the latest year's title wins
     chains = []
     for c in _read(matched / "chains.csv"):
-        last = int(c["last_year"])
+        first, last = int(c["first_year"]), int(c["last_year"])
+        miss = [int(y) for y in c["missing_years"].split()]
+        code = c["expenditure_code"]
         chains.append(
             {
                 "id": c["chain_id"],
                 "s": int(c["section"]),
                 "code": c["expenditure_code"],
-                "first": int(c["first_year"]),
+                "first": first,
                 "last": last,
-                "miss": [int(y) for y in c["missing_years"].split()],
+                "miss": miss,
                 "text": c["text"],
-                "path": paths[last].get(c["expenditure_code"], []),
+                "path": paths[last].get(code, []),
+                # the printed page in each year the chain is asked, in year order
+                "pg": [pages[y].get(code) for y in years if first <= y <= last and y not in miss],
             }
         )
     relations = [

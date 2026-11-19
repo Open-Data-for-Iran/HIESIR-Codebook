@@ -94,6 +94,23 @@ uv run --group docs mkdocs build --strict   # what GitHub runs: fails on broken 
 هر push به `main` آزمون‌ها را اجرا و سایت را در GitHub Pages منتشر می‌کند
 (`.github/workflows/pages.yml`).
 
+## فایل‌های PDF پرسشنامه {#questionnaire-pdfs}
+
+فایل‌های PDF در git نیستند: به انتشار
+[`questionnaires`](https://github.com/Open-Data-for-Iran/HIESIR-Codebook/releases/tag/questionnaires)
+در GitHub پیوست شده‌اند و هر بار ساخت سایت آن‌ها را دریافت و در `pdf/` منتشر
+می‌کند؛ در صفحه [پرسشنامه‌ها](questionnaires.md) فهرست شده‌اند و هر قلم در جست‌وجوی
+اقلام به آن‌ها پیوند دارد. برای افزودن یا جایگزینی یک فایل، آن را در `data/pdf/`
+بگذارید، سپس
+
+```bash
+uv run python -m hiesir_codebook.pdfs stage   # data/pdf -> data/release, renamed questionnaire_<year>[_urban|_rural].pdf
+```
+
+را اجرا کنید و فایل را از `data/release/` به انتشار بارگذاری کنید (Edit release و
+پیوست فایل). برای انتشار، workflow مستندات را دوباره اجرا کنید. ساخت محلی از
+`data/release/` یا `data/pdf/` (اگر باشند) یا پوشه `$HIESIR_PDF_DIR` استفاده می‌کند.
+
 ## مجوز {#license}
 
 MIT؛ فایل `LICENSE` را در مخزن ببینید.

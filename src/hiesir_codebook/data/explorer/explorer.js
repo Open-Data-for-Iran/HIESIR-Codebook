@@ -5,6 +5,8 @@
  *   data-root  URL prefix of the published files (3_matched/, 2_corrected/)
  *   data-src   URL of data.json; omitted when window.HX_DATA is embedded
  *   data-docs  URL of the methods page (optional)
+ *   data-pdf   URL prefix of the questionnaire PDFs (optional); items then link
+ *              to the page they are printed on
  * Used both by the standalone page (output/explorer/index.html) and by the
  * MkDocs page (docs/explorer.md), so the two never drift apart.
  */
@@ -36,6 +38,7 @@
       timeline: "Timeline", series: "Series", cameFrom: "Came from", wentInto: "Went into",
       otherUnder: c => `Other items under code ${c}`, corrections: "Corrections to the printed questionnaire", evidence: "Evidence",
       lgThis: "this item", lgOther: "same series, other code or label (click)", lgGap: "not asked", lgMark: "change year",
+      printed: "Printed form", page: p => `p. ${p}`, openPdf: (y, p) => `${y}: page ${p}, open the printed form`,
       tipNot: "not asked",
       rel: { same: "same item", recoded: "recoded", merged: "merged", split: "split", regrouped: "regrouped" },
       relVerb: { same: "continued", recoded: "recoded", merged: "merged", split: "split", regrouped: "regrouped" },
@@ -90,6 +93,7 @@
       timeline: "خط زمانی", series: "سری", cameFrom: "از کجا آمده", wentInto: "به کجا رفته",
       otherUnder: c => `اقلام دیگر با کد ${c}`, corrections: "اصلاحات پرسشنامه چاپی", evidence: "شاهد",
       lgThis: "همین قلم", lgOther: "همان سری با کد یا عبارت دیگر (کلیک کنید)", lgGap: "پرسیده نشده", lgMark: "سال تغییر",
+      printed: "فرم چاپی", page: p => `ص ${p}`, openPdf: (y, p) => `${y}: صفحه ${p}، باز کردن فرم چاپی`,
       tipNot: "پرسیده نشده",
       rel: { same: "همان قلم", recoded: "تغییر کد", merged: "ادغام", split: "تفکیک", regrouped: "بازگروه‌بندی" },
       relVerb: { same: "ادامه", recoded: "تغییر کد", merged: "ادغام", split: "تفکیک", regrouped: "بازگروه‌بندی" },
@@ -140,6 +144,7 @@
     for (const c of DATA.chains) {
       const miss = new Set(c.miss);
       c.years = YEARS.filter(y => y >= c.first && y <= c.last && !miss.has(y));
+      c.page = new Map(c.years.map((y, i) => [y, c.pg ? c.pg[i] : null]));
       c.ins = []; c.outs = [];
       c.key = norm(c.text + " " + c.path.map(p => p[1]).join(" "));
       c.key0 = norm(c.text);
@@ -202,6 +207,8 @@
     const t = T[lang], fa = lang === "fa";
     const filesRoot = root.dataset.root || "../";
     const docs = root.dataset.docs || "";
+    const pdfBase = root.dataset.pdf || "";
+    const pdfUrl = (c, y) => pdfBase && c.page.get(y) ? `${pdfBase}questionnaire_${y}.pdf#page=${c.page.get(y)}` : "";
     root.setAttribute("dir", fa ? "rtl" : "ltr");
     root.setAttribute("lang", lang);
 
@@ -306,6 +313,10 @@
       h += `<div class="title fa">${esc(c.text)}</div>`;
       h += `<div class="ids">${code(c.code)} <span class="pill">${t.section(yr(c.s))}</span> <span class="pill">${t.asked(ylabel(c))}${c.miss.length ? `، ${t.notIn(yrs(c.miss))}`.replace("،", fa ? "،" : ",") : ""}</span> <span class="pill" title="${t.chainId}">${esc(c.id)}</span></div>`;
 
+      if (pdfBase) {
+        const ends = [...new Set([c.years[0], c.years[c.years.length - 1]])].filter(y => pdfUrl(c, y));
+        if (ends.length) h += `<div class="printed">${t.printed}: ` + ends.map(y => `<a href="${pdfUrl(c, y)}" target="_blank" rel="noopener">${yr(y)}، ${t.page(num(c.page.get(y)))} ↗</a>`.replace("، ", fa ? "، " : ", ")).join(" · ") + `</div>`;
+      }
       const sp = span(sYears[0], sYears[sYears.length - 1]);
       const notes = [];
       if (recodes.length) notes.push(t.codeChanges(yrs(recodes.map(l => l.year))));
@@ -328,6 +339,8 @@
         const o = other.get(y);
         const cls = on.has(y) ? "on" : o ? "other" : "";
         const tip = on.has(y) ? `${yr(y)}: ${c.code}` : o ? `${yr(y)}: ${o.code} ${o.text}` : `${yr(y)}: ${t.tipNot}`;
+        const href = on.has(y) && pdfUrl(c, y);
+        if (href) return `<a class="c ${cls}${marks.has(y) ? " mark" : ""}" href="${href}" target="_blank" rel="noopener" title="${esc(t.openPdf(yr(y), num(c.page.get(y))))}"></a>`;
         return `<div class="c ${cls}${marks.has(y) ? " mark" : ""}" title="${esc(tip)}"${o ? ` data-go="${esc(o.id)}"` : ""}></div>`;
       }).join("");
       h += `</div></div><div class="legend"><span><i style="background:var(--on)"></i>${t.lgThis}</span><span><i style="background:var(--other)"></i>${t.lgOther}</span><span><i style="background:var(--gap)"></i>${t.lgGap}</span><span><i style="box-shadow:inset 0 0 0 2px var(--warn)"></i>${t.lgMark}</span></div>`;

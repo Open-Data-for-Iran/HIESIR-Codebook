@@ -92,6 +92,22 @@ uv run --group docs mkdocs build --strict   # what GitHub runs: fails on broken 
 Every push to `main` runs the tests and publishes the site to GitHub Pages
 (`.github/workflows/pages.yml`).
 
+## Questionnaire PDFs
+
+The PDFs are not in git: they are attached to the GitHub release
+[`questionnaires`](https://github.com/Open-Data-for-Iran/HIESIR-Codebook/releases/tag/questionnaires),
+and every site build downloads them and publishes them under `pdf/`, listed on
+the [Questionnaires](questionnaires.md) page and linked from each item in the
+explorer. To add or replace one, put it in `data/pdf/`, then
+
+```bash
+uv run python -m hiesir_codebook.pdfs stage   # data/pdf -> data/release, renamed questionnaire_<year>[_urban|_rural].pdf
+```
+
+and upload the file from `data/release/` to the release (Edit release, attach
+files). Re-run the Docs workflow to publish it. A local build uses `data/release/`
+or `data/pdf/` if present, or the folder in `$HIESIR_PDF_DIR`.
+
 ## License
 
 MIT, see `LICENSE` in the repository.
