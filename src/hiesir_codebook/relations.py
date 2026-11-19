@@ -52,7 +52,7 @@ questionnaires apart are not related.
 
 Verification
 ------------
-A 1 -> 1 relation is *definite* (``needs_verification`` False) when both
+A 1 -> 1 relation is *definite* (``decided_by`` ``code``) when both
 labels carry the same content words: only punctuation, the conjunction
 (، / و), word order, spacing, generic words (انواع، اقسام) or "etc." markers
 (و نظایر آن، و ...، غیره) differ.  Every other relation, and every merge,
@@ -114,6 +114,16 @@ DETAILS = {
     "reworded": "label_reworded",
 }
 CONTINUES = ("same", "minor", "broadened", "narrowed", "reworded")
+DECIDED_BY = ("code", "curated", "open")
+
+
+def decided_by(needs_verification: bool, verified: str) -> str:
+    """Who decided a link or relation: ``curated`` (a row in ``curated/``;
+    ``verified`` says how), ``code`` (found and sure without one) or
+    ``open`` (found, not sure, not decided yet)."""
+    if verified:
+        return "curated"
+    return "open" if needs_verification else "code"
 
 
 # --- definite label changes ---------------------------------------------------
@@ -168,6 +178,10 @@ class Relation:
     @property
     def rejected(self) -> bool:
         return self.verified == "rejected"
+
+    @property
+    def decided_by(self) -> str:
+        return decided_by(self.needs_verification, self.verified)
 
     def reshape(self) -> None:
         """Name the relation after its shape once chains were added to it."""
@@ -685,7 +699,7 @@ def _write(relations: list[Relation], path: Path, head: tuple[str, str, str]) ->
                 "detail",
                 "year",
                 "score",
-                "needs_verification",
+                "decided_by",
                 "verified",
                 "note",
                 "from_text",
@@ -702,7 +716,7 @@ def _write(relations: list[Relation], path: Path, head: tuple[str, str, str]) ->
                     r.detail,
                     r.year,
                     "" if r.score is None else r.score,
-                    r.needs_verification,
+                    r.decided_by,
                     r.verified,
                     r.note,
                     " | ".join(c.text for c in r.sources),
@@ -733,7 +747,7 @@ def write_evidence(relations: list[Relation], chains: list[Chain], occ: Occurren
                 "relation",
                 "detail",
                 "year",
-                "needs_verification",
+                "decided_by",
                 "verified",
                 "before_year",
                 "before",
@@ -750,7 +764,7 @@ def write_evidence(relations: list[Relation], chains: list[Chain], occ: Occurren
             if r.needs_verification:
                 todo[e.verdict if e else "no data"] += 1
             w.writerow(
-                [r.id, r.relation, r.detail, r.year, r.needs_verification, r.verified]
+                [r.id, r.relation, r.detail, r.year, r.decided_by, r.verified]
                 + (
                     [e.before_year, e.before, e.after, "" if e.group is None else e.group, e.ratio, e.verdict]
                     if e
@@ -793,10 +807,10 @@ def main(argv: list[str] | None = None) -> None:
         print(
             f"{len(rs)} {name} ("
             + ", ".join(f"{k} {v}" for k, v in kinds.most_common())
-            + f"): definite {sum(not r.needs_verification and not r.verified for r in rs)}, "
+            + f"): decided by the code {sum(r.decided_by == 'code' for r in rs)}, "
             + f"in {path.as_posix()}: "
             + (", ".join(f"{k} {v}" for k, v in verified.items()) or "0")
-            + f", still to verify: {sum(r.needs_verification for r in rs)}"
+            + f", open: {sum(r.decided_by == 'open' for r in rs)}"
         )
     print(f"code reused for an unrelated item (no relation): {len(reused)} -> {args.reuse_report.as_posix()}")
     if args.occurrence.exists():

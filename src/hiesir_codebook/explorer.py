@@ -110,7 +110,7 @@ def collect(
             "rel": r["relation"],
             "detail": r["detail"],
             "year": int(r["year"]),
-            "check": r["needs_verification"] == "True",
+            "check": r["decided_by"] == "open",
             "verified": r["verified"],
             "note": r["note"],
         }

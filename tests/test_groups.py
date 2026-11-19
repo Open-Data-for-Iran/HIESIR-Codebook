@@ -10,6 +10,7 @@ from hiesir_codebook.groups import (
     item_steps,
     load_decisions,
     related_codes,
+    same_labels,
 )
 
 
@@ -44,6 +45,14 @@ def test_related_codes():
     assert related_codes("096", "0961")  # one level down
     assert not related_codes("0562 M", "062 M")
     assert not related_codes("06312 A", "06313 A")
+
+
+def test_same_labels():
+    assert same_labels("ادویه‌ها، چاشنی‌ها", "ادویه‌ها، چاشنی‌ها")  # identical
+    assert same_labels("روغن‌ها و چربی‌ها و کره", "روغن‌ها، چربی‌ها و کره")  # و / ،
+    assert same_labels("هزینه آموزشهای سطح‌بندی نشده", "هزینه آموزش‌های سطح‌بندی نشده")  # ZWNJ
+    assert not same_labels("هزینه آموزش", "هزینه آموزش تحصیلات عالی")  # narrowed
+    assert not same_labels("خدمات فرهنگی و تفریحی", "خدمات تفریحی")
 
 
 def test_groups_and_members():
@@ -103,12 +112,12 @@ def test_links_from_item_flows():
     chains = [_chain(c, 1, 2) for c in ("031311", "031421", "031422", "031511")]
     links, stale = build_links(groups, placement, item_steps(chains, [], []), [])
     assert not stale
-    got = {(lk.source.id, lk.target.id): (lk.relation, lk.needs_verification) for lk in links}
+    got = {(lk.source.id, lk.target.id): (lk.relation, lk.decided_by) for lk in links}
     assert got == {
-        ("0313-1", "0313M-2"): ("continued", False),
-        ("0314-1", "0314M-2"): ("split", False),
-        ("0314-1", "0314A-2"): ("split", False),
-        ("0315-1", "0316-1"): ("moved", True),
+        ("0313-1", "0313M-2"): ("continued", "code"),
+        ("0314-1", "0314M-2"): ("split", "code"),
+        ("0314-1", "0314A-2"): ("split", "code"),
+        ("0315-1", "0316-1"): ("moved", "open"),
     }
     assert [lk.id for lk in links] == ["G0001", "G0002", "G0003", "G0004"]
 
@@ -123,11 +132,28 @@ def test_item_links_carry_items_across_codes():
     steps = item_steps(chains, [("056211-1", "056311-2")], [])
     links, _ = build_links(groups, placement, steps, [])
     (lk,) = links
-    assert (lk.key, lk.relation, lk.needs_verification) == (("0562M-1", "0563M-2"), "continued", True)
+    assert (lk.key, lk.relation, lk.decided_by) == (("0562M-1", "0563M-2"), "continued", "open")
     links, stale = build_links(
         groups, placement, steps, [Decision("0562M-1", "0563M-2", "confirm", "", "same services")]
     )
-    assert not stale and (links[0].verified, links[0].needs_verification) == ("confirmed", False)
+    assert not stale and (links[0].verified, links[0].decided_by) == ("confirmed", "curated")
+
+
+@pytest.mark.parametrize(
+    ("new_label", "decided_by"),
+    [
+        ("روغن‌ها، چربی‌ها و کره", "code"),  # only the conjunction differs
+        ("روغن‌ها و چربی‌ها", "open"),  # the label lost a word
+    ],
+)
+def test_related_codes_still_need_matching_labels(new_label, decided_by):
+    rows = {
+        1: _q(("s", 1, "x"), ("h", 1, 3, "0115", "روغن‌ها و چربی‌ها و کره"), ("i", 1, "011511")),
+        2: _q(("s", 1, "x"), ("h", 1, 3, "0115 M", new_label), ("i", 1, "011511")),
+    }
+    groups, placement = build_groups(rows)
+    links, _ = build_links(groups, placement, item_steps([_chain("011511", 1, 2)], [], []), [])
+    assert [(lk.relation, lk.decided_by) for lk in links] == [("continued", decided_by)]
 
 
 def test_decisions_need_a_note(tmp_path):

@@ -134,7 +134,7 @@ The two families do different jobs, so they are kept in separate files:
   `from_chain`, `to_chain`, `relation`, `detail` (`minor`,
   `label_broadened`, `label_narrowed`, `label_reworded`, or empty when the
   label is the same), `year` (of the change), `score`,
-  `needs_verification`, `verified`, `note`, and both texts for reading.
+  `decided_by`, `verified`, `note`, and both texts for reading.
 - **Relations** (`merged`, `split`, `regrouped`) *end* series and start
   others. The question is which chains belong on each side.
   `relations.csv` has the same columns, with `relation_id` (`R0001`…) and
@@ -160,8 +160,16 @@ item. That is no link, so nothing goes into `links.csv`; the 6
 pairs (for example 053125: انواع آبگرمکن گازی → کولرگازی) are listed in
 `reports/code_reuse.csv` for review.
 
-**Verification.** A 1 → 1 relation is *definite* (`needs_verification`
-False) when both labels carry the same content words, so only punctuation,
+**Who decides.** Every link, relation and group link has a `decided_by`
+column:
+
+| `decided_by` | Meaning |
+|---|---|
+| `code` | the code finds it and is sure: no row in `curated/` |
+| `curated` | a row in `curated/` decided it; `verified` says how (`confirmed`, `changed`, `added`, `rejected`) |
+| `open` | the code found it but is not sure, and nobody has decided yet |
+
+A 1 → 1 relation is *definite* (`decided_by` `code`) when both labels carry the same content words, so only punctuation,
 the conjunction (`،` / `و`), word order, spacing, generic words (`انواع`)
 or "etc." markers (`و نظایر آن` / `و ...`) differ: `جگر، دل، قلوه` →
 `جگر، دل و قلوه`. Every other relation, and every merge, split or
@@ -253,7 +261,7 @@ when a merge replaces a link (the "outside the home" items), reject the link.
 the file but later stages ignore them. A decision whose relation is not
 found (for example after a label correction merged two chains) is reported
 as stale, and the tests fail until it is updated. The rows still to check
-are those with `needs_verification` True.
+are those with `decided_by` `open`.
 
 **How labels are compared** (`compare.py`, used by both stages). Two
 descriptions are compared with spacing, ZWNJ, punctuation, hamza and digit
@@ -305,10 +313,17 @@ way the chains follow items:
 | `regrouped` | both at once |
 | `moved` | items moved between groups printed before and after: a reorganisation, or a wrong item link |
 
-A link between related codes (one shares a code with the other, or starts
-it: `0313` → `0313 M`, `096` → `0961`) is definite unless it is `moved`.
-The others wait for a decision in `curated/4_groups/links.csv` (`from_group`,
-`to_group`, `decision`, `relation`, `note`; the decisions of `links.csv`).
+The code decides a group link (`decided_by` `code`) when three things hold:
+it is not `moved`; the codes are related (one shares a code with the other,
+or starts it: `0313` → `0313 M`, `096` → `0961`); and the labels match the
+way item links must: identical, or differing only in spacing, ZWNJ,
+punctuation, the conjunction (`،` / `و`), word order, generic words or
+"etc." markers (`روغن‌ها و چربی‌ها و کره` → `روغن‌ها، چربی‌ها و کره`). The
+others are `open` until a row in `curated/4_groups/links.csv` decides
+them (`from_group`, `to_group`, `decision`, `relation`, `note`; the
+decisions of `links.csv`). So the 1384 split of `هزینه آموزش` into
+`هزینه آموزش ابتدایی و پیش دبستانی` and the other levels is `open`: the
+codes are related but the labels narrowed.
 A `moved` link that comes from a wrong item link is fixed in `links.csv`
 or `relations.csv`, not here. `items` counts the item chains that moved,
 `from_items` and `to_items` the items under each group that year, and
