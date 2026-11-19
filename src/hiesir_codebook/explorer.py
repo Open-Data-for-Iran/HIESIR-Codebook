@@ -86,7 +86,9 @@ def _groups(path: Path) -> tuple[list[list], dict[tuple[int, str], list[int]]]:
     index = {r["group_id"]: i for i, r in enumerate(rows)}
     groups = [[r["code"], r["label"], int(r["level"]), int(r["section"])] for r in rows]
     members = {
-        (int(m["year"]), m["expenditure_code"]): [index[m[k]] for k in ("level_2", "level_3", "level_4") if m[k]]
+        (int(m["year"]), m["expenditure_code"]): [
+            index[m[k]] for k in ("level_2", "level_3", "level_4") if m[k]
+        ]
         for m in _read(path / "members.csv")
     }
     return groups, members
