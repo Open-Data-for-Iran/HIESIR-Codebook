@@ -31,6 +31,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
   --on: #2f7d62; --other: #9db7e8; --gap: #e9e9e6;
   --warn: #a15c07; --warn-soft: #fcefd9; --bad: #b42318; --bad-soft: #fde4e1;
   --ok: #2f7d62; --ok-soft: #dcefe6;
+  --s0: #2f7d62; --s1: #9fd2b6; --s2: #e5b22f; --s3: #d4574e;
   --shadow: 0 1px 2px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.04);
   --sticky-top: 16px;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -46,6 +47,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
   --on: #5fbf98; --other: #4a6aa8; --gap: #2a2d32;
   --warn: #f0b45a; --warn-soft: #3d2f17; --bad: #ff8a7a; --bad-soft: #43221e;
   --ok: #5fbf98; --ok-soft: #1f3a30;
+  --s0: #5fbf98; --s1: #2f6a54; --s2: #c99a2e; --s3: #d9655c;
   --shadow: none;
 }
 @media (prefers-color-scheme: dark) {
@@ -55,6 +57,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
     --on: #5fbf98; --other: #4a6aa8; --gap: #2a2d32;
     --warn: #f0b45a; --warn-soft: #3d2f17; --bad: #ff8a7a; --bad-soft: #43221e;
     --ok: #5fbf98; --ok-soft: #1f3a30;
+    --s0: #5fbf98; --s1: #2f6a54; --s2: #c99a2e; --s3: #d9655c;
     --shadow: none;
   }
 }
@@ -252,6 +255,34 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
 .hx-vmsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); pointer-events: none; }
 .hx-vmsg:empty { display: none; }
 
+/* ---------- comparability colours ---------- */
+.hx .strip i.s0, .hx .tl .c.s0, .hx .sw.s0 { background: var(--s0); }
+.hx .strip i.s1, .hx .tl .c.s1, .hx .sw.s1 { background: var(--s1); }
+.hx .strip i.s2, .hx .tl .c.s2, .hx .sw.s2 { background: var(--s2); }
+.hx .strip i.s3, .hx .tl .c.s3, .hx .sw.s3 { background: var(--s3); }
+.hx .tl .c.ref, .hx .sw.ref { box-shadow: inset 0 0 0 2px var(--ink); }
+.hx .strip i.ref { box-shadow: 0 0 0 1px var(--ink); }
+.hx .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-inline-end: 6px; vertical-align: -1px; background: var(--gap); }
+.hx .legend .sw { margin-inline-end: 5px; }
+.hx .verdict.bad { background: var(--bad-soft); }
+.hx .verdict ul.spans { list-style: none; margin: 6px 0 0; padding: 0; }
+.hx .verdict ul.spans li { margin: 2px 0; }
+.hx .ids .yrs { color: var(--muted); font-size: .9em; }
+.hx .uses { border: 1px solid var(--line); border-radius: 10px; padding: 2px 12px; }
+.hx .use { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.hx .use:last-child { border-bottom: 0; }
+.hx .use .yrs { min-width: 96px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.hx .use .codes { flex: 1; }
+.hx .use .st { color: var(--muted); font-size: .9em; white-space: nowrap; }
+.hx .muted { color: var(--muted); }
+.hx .copy { margin-top: 8px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); cursor: pointer; }
+.hx .copy:hover { border-color: var(--accent); color: var(--accent); }
+.hx .row .was { grid-column: 2; font-size: .82em; color: var(--muted); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hx .step.focus { background: var(--accent-soft); border-radius: 8px; padding-inline: 8px; }
+.hx a.doc { display: inline-block; width: 1.1em; height: 1.2em; vertical-align: -.25em; background: var(--accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6m0 2h7v5h5v11H6V4m2 8v2h8v-2H8m0 4v2h5v-2H8z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6m0 2h7v5h5v11H6V4m2 8v2h8v-2H8m0 4v2h5v-2H8z'/%3E%3C/svg%3E") center / contain no-repeat; }
+
 @media (max-width: 860px) {
   .hx .split { grid-template-columns: 1fr; }
   .hx-list { max-height: 45vh; min-height: 0; }
@@ -324,7 +355,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
     en: {
       tabs: { items: "Items", years: "Changes by year", about: "How to read" },
       placeholder: "Search a code (011114, 11114) or Persian text (برنج، تلویزیون …)",
-      allSections: "All sections", changedOnly: "Linked only", current: "Still asked in {y}",
+      allSections: "All sections", changedOnly: "Changed only", current: "Still asked in {y}",
       hint: "ZWNJ, spacing and Arabic/Persian letter forms are ignored · a 5-digit code like the raw data's <span class=\"code\">11114</span> matches <span class=\"code\">011114</span>",
       count: (n, s) => `${n} item${n === "1" ? "" : "s"}${s ? " match" : ""}`,
       noMatch: "No item matches. Try fewer words or part of a word.",
@@ -346,6 +377,22 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
       lgThis: "this item", lgOther: "same series, other code or label (click)", lgGap: "not asked", lgMark: "change year",
       openPdf: (y, p) => `${y}: page ${p}, open the printed form`,
       pdfHint: "Click a year to see the item on the printed questionnaire.",
+      cm: {
+        st: ["strictly comparable", "same item, scope changed", "recoverable by adding codes", "not recoverable"],
+        ref: "reference year", na: "not asked",
+        seenFrom: y => `Compared with the item as asked in ${y}`,
+        sum: c => `sum of ${c}`, inside: c => `inside ${c}, together with other items`,
+        partial: c => `part of ${c} was not asked this year`,
+        useTitle: "Codes to use, year by year",
+        useNote: y => `Add up the codes listed for a year to rebuild the item as asked in ${y}. This is exact for expenditure amounts; household counts can't be added up, since one household may report several codes.`,
+        copy: "Copy as Python", copied: "Copied",
+        history: "Wording history", earlier: "earlier wording",
+        yearLabel: "Year", yearAll: "All items",
+        yearTip: "Show the items asked in this year, and compare every other year with it; All items: every item, each compared with its latest year",
+        notInRef: y => `Not asked in ${y}; compared with its latest year instead.`,
+        changed: "changed", changedTip: "reworded, recoded, merged or split at some point",
+        openForm: "open the printed form",
+      },
       notPrinted: "not in that year's printed form (added by a correction)",
       pv: { title: (y, p, n) => `Questionnaire ${y} · page ${p}${n ? ` of ${n}` : ""}`, prev: "Previous page", next: "Next page",
            zoomOut: "Zoom out", zoomIn: "Zoom in", tab: "Open in a new tab", close: "Close", loading: "Loading the questionnaire…",
@@ -370,7 +417,8 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
           <dt>Verification</dt><dd><span class="pill ok">definite</span> only the wording differs; <span class="pill ok">confirmed</span>, <span class="pill info">changed by review</span> and <span class="pill info">added by review</span> were decided by hand in <span class="code">curated/3_items/links.csv</span> and <span class="code">curated/3_items/relations.csv</span>, mostly by checking how many households reported each code.</dd>
         </dl>
         <h4>Timeline colours</h4>
-        <div class="legend"><span><i style="background:var(--on)"></i>asked as this item</span><span><i style="background:var(--other)"></i>same series, other code or label</span><span><i style="background:var(--gap)"></i>not asked</span></div>
+        <p>Every year is coloured by how it can express the item <b>as asked in the reference year</b>: the year picked in the Year field, else the item's latest year (outlined).</p>
+        <div class="legend"><span><i class="sw s0"></i>strictly comparable: same item, same scope</span><span><i class="sw s1"></i>same item, scope broadened or narrowed</span><span><i class="sw s2"></i>recoverable by adding codes (after a merge or split)</span><span><i class="sw s3"></i>not recoverable without estimating</span><span><i class="sw"></i>not asked</span></div>
         <h4>Joining with the raw data</h4>
         <p>Codes keep their leading zero (<span class="code">011111</span>); the raw data's <span class="code">Commodity_Code</span> stores them as numbers (<span class="code">11111</span>), so join on <span class="code">int(expenditure_code)</span>.</p>
         <h4>Download</h4>
@@ -384,7 +432,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
     fa: {
       tabs: { items: "اقلام", years: "تغییرات هر سال", about: "راهنما" },
       placeholder: "جست‌وجوی کد (011114، 11114) یا متن (برنج، تلویزیون …)",
-      allSections: "همه بخش‌ها", changedOnly: "فقط اقلام پیونددار", current: "هنوز پرسیده می‌شود ({y})",
+      allSections: "همه بخش‌ها", changedOnly: "فقط اقلام تغییرکرده", current: "هنوز پرسیده می‌شود ({y})",
       hint: "نیم‌فاصله، فاصله و شکل عربی یا فارسی حروف نادیده گرفته می‌شود · کد ۵ رقمی داده خام مانند <span class=\"code\">11114</span> با <span class=\"code\">011114</span> جور می‌شود",
       count: (n, s) => `${n} قلم${s ? " یافت شد" : ""}`,
       noMatch: "قلمی یافت نشد. واژه‌های کمتر یا بخشی از واژه را امتحان کنید.",
@@ -406,6 +454,22 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
       lgThis: "همین قلم", lgOther: "همان سری با کد یا عبارت دیگر (کلیک کنید)", lgGap: "پرسیده نشده", lgMark: "سال تغییر",
       openPdf: (y, p) => `${y}: صفحه ${p}، باز کردن فرم چاپی`,
       pdfHint: "برای دیدن قلم در پرسشنامه چاپی، روی یک سال کلیک کنید.",
+      cm: {
+        st: ["کاملاً قابل مقایسه", "همان قلم، با تغییر دامنه", "قابل بازسازی با جمع کدها", "غیرقابل بازسازی"],
+        ref: "سال مرجع", na: "پرسیده نشده",
+        seenFrom: y => `در مقایسه با قلم در سال ${y}`,
+        sum: c => `جمع ${c}`, inside: c => `درون ${c}، همراه با اقلام دیگر`,
+        partial: c => `بخشی از ${c} در این سال پرسیده نشده`,
+        useTitle: "کدهای مورد استفاده در هر سال",
+        useNote: y => `برای ساختن قلمِ سال ${y}، کدهای هر سال را با هم جمع کنید. این برای مبلغ هزینه دقیق است؛ تعداد خانوارها را نمی‌توان جمع زد، چون یک خانوار ممکن است چند کد را گزارش کند.`,
+        copy: "کپی به‌صورت Python", copied: "کپی شد",
+        history: "تاریخچه عبارت", earlier: "عبارت پیشین",
+        yearLabel: "سال", yearAll: "همه اقلام",
+        yearTip: "اقلامی را که در این سال پرسیده شده‌اند نشان بده و سال‌های دیگر را با آن مقایسه کن؛ همه اقلام: همه اقلام، هر کدام در مقایسه با آخرین سالِ خود",
+        notInRef: y => `در ${y} پرسیده نشده؛ مقایسه نسبت به آخرین سالِ آن است.`,
+        changed: "تغییرکرده", changedTip: "زمانی تغییر عبارت، تغییر کد، ادغام یا تفکیک داشته",
+        openForm: "باز کردن فرم چاپی",
+      },
       notPrinted: "در فرم چاپی آن سال نیست (با اصلاح افزوده شده)",
       pv: { title: (y, p, n) => `پرسشنامه ${y} · صفحه ${p}${n ? ` از ${n}` : ""}`, prev: "صفحه قبل", next: "صفحه بعد",
            zoomOut: "کوچک‌نمایی", zoomIn: "بزرگ‌نمایی", tab: "باز کردن در زبانه تازه", close: "بستن", loading: "در حال بارگذاری پرسشنامه…",
@@ -430,7 +494,8 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
           <dt>راستی‌آزمایی</dt><dd><span class="pill ok">قطعی</span> فقط عبارت فرق دارد؛ <span class="pill ok">تأییدشده</span>، <span class="pill info">اصلاح در بازبینی</span> و <span class="pill info">افزوده در بازبینی</span> را یک نفر در <span class="code">curated/3_items/links.csv</span> و <span class="code">curated/3_items/relations.csv</span>، بیشتر با بررسی تعداد خانوارهای گزارش‌دهنده هر کد، تعیین کرده است.</dd>
         </dl>
         <h4>رنگ‌های خط زمانی</h4>
-        <div class="legend"><span><i style="background:var(--on)"></i>پرسیده‌شده به‌عنوان همین قلم</span><span><i style="background:var(--other)"></i>همان سری با کد یا عبارت دیگر</span><span><i style="background:var(--gap)"></i>پرسیده نشده</span></div>
+        <p>هر سال بر اساس این رنگ می‌گیرد که چگونه می‌تواند <b>قلمِ سال مرجع</b> را نشان دهد: سالی که در فیلد «سال» انتخاب شده، یا آخرین سالِ قلم (با کادر).</p>
+        <div class="legend"><span><i class="sw s0"></i>کاملاً قابل مقایسه: همان قلم با همان دامنه</span><span><i class="sw s1"></i>همان قلم، دامنه گسترده‌تر یا محدودتر</span><span><i class="sw s2"></i>قابل بازسازی با جمع کدها (پس از ادغام یا تفکیک)</span><span><i class="sw s3"></i>بدون برآورد قابل بازسازی نیست</span><span><i class="sw"></i>پرسیده نشده</span></div>
         <h4>اتصال به داده‌های خام</h4>
         <p>کدها صفر ابتدایی‌شان را نگه می‌دارند (<span class="code">011111</span>)؛ ستون <span class="code">Commodity_Code</span> داده‌های خام آن‌ها را عدد ذخیره می‌کند (<span class="code">11111</span>)، پس اتصال را با <span class="code">int(expenditure_code)</span> انجام دهید.</p>
         <h4>دریافت</h4>
@@ -488,48 +553,99 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
     }
     const byCode = new Map();
     for (const c of DATA.chains) (byCode.get(c.code) || byCode.set(c.code, []).get(c.code)).push(c);
-    return { DATA, YEARS, LAST, CH, byCode };
+    // series: chains joined by one-to-one links (the same item reworded, or recoded)
+    const serOf = new Map(), SER = [];
+    for (const c of DATA.chains) {
+      if (serOf.has(c.id)) continue;
+      const comp = [], todo = [c], seen = new Set([c.id]);
+      while (todo.length) {
+        const x = todo.pop(); comp.push(x);
+        for (const r of [...x.ins, ...x.outs]) {
+          if (!is11(r)) continue;
+          for (const id of [r.from[0], r.to[0]]) {
+            const y = CH.get(id);
+            if (y && !seen.has(y.id)) { seen.add(y.id); todo.push(y); }
+          }
+        }
+      }
+      comp.sort((a, b) => a.first - b.first || a.last - b.last);
+      const s = { id: comp[0].id, chains: comp, years: [...new Set(comp.flatMap(x => x.years))].sort((a, b) => a - b) };
+      s.last = s.years[s.years.length - 1];
+      s.changed = comp.length > 1 || comp.some(x => x.ins.some(r => !is11(r)) || x.outs.some(r => !is11(r)));
+      s.key = comp.map(x => x.key).join(" ");
+      s.at = y => s.chains.find(x => x.years.includes(y));
+      comp.forEach(x => serOf.set(x.id, s));
+      SER.push(s);
+    }
+    const RELS = DATA.relations.slice().sort((a, b) => a.year - b.year);
+    return { DATA, YEARS, LAST, CH, byCode, SER, serOf, RELS, cmp: new Map() };
   }
   const is11 = r => (r.rel === "same" || r.rel === "recoded") && r.from.length === 1 && r.to.length === 1;
   const linked = c => c.ins.length || c.outs.length;
 
-  /* series: walk one-to-one links back and forward; links[i] joins steps[i-1] -> steps[i] */
-  function series(M, c) {
-    const back = [], fwd = [], seen = new Set([c.id]);
-    let cur = c;
-    for (;;) {
-      const r = cur.ins.find(is11); if (!r) break;
-      const p = M.CH.get(r.from[0]); if (!p || seen.has(p.id)) break;
-      seen.add(p.id); back.unshift({ chain: p, link: r }); cur = p;
-    }
-    cur = c;
-    for (;;) {
-      const r = cur.outs.find(is11); if (!r) break;
-      const n = M.CH.get(r.to[0]); if (!n || seen.has(n.id)) break;
-      seen.add(n.id); fwd.push({ chain: n, link: r }); cur = n;
-    }
-    return {
-      steps: [...back.map(s => s.chain), c, ...fwd.map(s => s.chain)],
-      links: [null, ...back.map(s => s.link), ...fwd.map(s => s.link)],
+  /* How each year can express the target: the series' item as asked in year R.
+     Every relation says its two sides cover the same ground. Walking away from
+     R, a relation whose whole near side is in the target set swaps it for the
+     far side (exact: add those codes up); one that takes only part of it buries
+     the target inside items that also hold other things (not recoverable).
+     st: "ref" | 0 strictly comparable | 1 scope changed | 2 recoverable by adding
+     codes | 3 not recoverable | null not asked; set: the chains to add up (for 3:
+     the chains it is buried in). */
+  const LEVEL = r => is11(r) ? (r.detail === "label_broadened" || r.detail === "label_narrowed" ? 1 : 0) : 2;
+  function compare(M, s, R) {
+    const key = `${s.id}|${R}`;
+    if (M.cmp.has(key)) return M.cmp.get(key);
+    const out = new Map(), target = s.at(R);
+    M.cmp.set(key, out);
+    if (!target) return out;
+    out.set(R, { st: "ref", set: [target], via: [] });
+    const walk = (years, rels, near, far, applies) => {
+      const S = new Set([target.id]), via = [];
+      let lvl = 0, broken = null, i = 0;
+      for (const y of years) {
+        while (i < rels.length && applies(rels[i], y)) {
+          const r = rels[i++], hit = r[near].filter(id => S.has(id));
+          if (!hit.length) continue;
+          r[near].forEach(id => S.delete(id));
+          r[far].forEach(id => S.add(id));
+          if (broken) continue;
+          if (hit.length === r[near].length) { lvl = Math.max(lvl, LEVEL(r)); if (LEVEL(r)) via.push(r); }
+          else broken = r;
+        }
+        const set = [...S].map(id => M.CH.get(id)).filter(Boolean);
+        const asked = set.filter(x => x.years.includes(y));
+        if (!asked.length) { out.set(y, { st: null, set: [], via: [] }); continue; }
+        const partial = !broken && asked.length < set.length;
+        out.set(y, { st: broken || partial ? 3 : lvl, set: partial ? set : asked, via: [...via], broken, partial });
+      }
     };
+    walk(M.YEARS.filter(y => y > R), M.RELS.filter(r => r.year > R), "from", "to", (r, y) => r.year <= y);
+    walk(M.YEARS.filter(y => y < R).reverse(), M.RELS.filter(r => r.year <= R).reverse(), "to", "from", (r, y) => r.year > y);
+    return out;
   }
 
+  /* series matching a query: [series, rank, the chain that matched] */
   function search(M, q) {
     const raw = q.trim();
     if (!raw) return null;
     const ascii = raw.replace(/[۰-۹]/g, d => FA_DIGITS.indexOf(d)).replace(/[٠-٩]/g, d => AR_DIGITS.indexOf(d));
     const m = ascii.match(/^(\d+)(?:-(\d{4}))?$/);
+    const out = [];
     if (m) {
       const d = m[1], cands = new Set([d]);
       if (d.length === 5 || d.length === 3) cands.add("0" + d);
-      return M.DATA.chains.filter(c => [...cands].some(x => c.code.startsWith(x)) && (!m[2] || c.id.endsWith(m[2])))
-        .map(c => [c, cands.has(c.code) ? 0 : 1]);
+      for (const s of M.SER) {
+        const hit = [...s.chains].reverse().find(c => [...cands].some(x => c.code.startsWith(x)) && (!m[2] || c.id.endsWith(m[2])));
+        if (hit) out.push([s, cands.has(hit.code) ? 0 : 1, hit]);
+      }
+      return out;
     }
     const toks = raw.split(/\s+/).map(norm).filter(Boolean);
-    const out = [];
-    for (const c of M.DATA.chains) {
-      if (!toks.every(t => c.key.includes(t))) continue;
-      out.push([c, (toks.every(t => c.key0.includes(t)) ? 0 : 2) + (c.key0.startsWith(toks[0]) ? 0 : 1)]);
+    for (const s of M.SER) {
+      if (!toks.every(t => s.key.includes(t))) continue;
+      const hit = [...s.chains].reverse().find(c => toks.every(t => c.key0.includes(t)))
+        || [...s.chains].reverse().find(c => toks.every(t => c.key.includes(t))) || s.chains[s.chains.length - 1];
+      out.push([s, (toks.every(t => hit.key0.includes(t)) ? 0 : 2) + (hit.key0.startsWith(toks[0]) ? 0 : 1), hit]);
     }
     return out;
   }
@@ -569,9 +685,22 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
       if (!r.check) return `<span class="pill ok" title="${t.v.definiteTip}">${t.v.definite}</span>`;
       return `<span class="pill bad">${t.v.unverified}</span>`;
     }
-    function strip(c) {
-      const on = new Set(c.years);
-      return `<span class="strip">` + M.YEARS.map(y => `<i class="${on.has(y) ? "on" : ""}"></i>`).join("") + `</span>`;
+    const refOf = s => (ref && s.years.includes(ref) ? ref : s.last);
+    const stCls = e => !e || e.st === null ? "" : e.st === "ref" ? "s0 ref" : `s${e.st}`;
+    function strip(s) {
+      const cmp = compare(M, s, refOf(s));
+      return `<span class="strip">` + M.YEARS.map(y => `<i class="${stCls(cmp.get(y))}"></i>`).join("") + `</span>`;
+    }
+    /* consecutive survey years as ranges: 1383–1389، 1391 */
+    function ranges(list) {
+      const idx = list.map(y => M.YEARS.indexOf(y)).sort((a, b) => a - b), parts = [];
+      for (let i = 0; i < idx.length; i++) {
+        let j = i;
+        while (j + 1 < idx.length && idx[j + 1] === idx[j] + 1) j++;
+        parts.push(span(M.YEARS[idx[i]], M.YEARS[idx[j]]));
+        i = j;
+      }
+      return parts.join(fa ? "، " : ", ");
     }
 
     /* skeleton */
@@ -587,7 +716,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
           <input class="hx-q" type="search" autocomplete="off" spellcheck="false" placeholder="${esc(t.placeholder)}" aria-label="${esc(t.placeholder)}">
           <select class="hx-sec"><option value="">${t.allSections}</option>${sectionOpts}</select>
           <label class="chip"><input type="checkbox" class="hx-linked"> ${t.changedOnly}</label>
-          <label class="chip"><input type="checkbox" class="hx-current"> ${t.current.replace("{y}", yr(M.LAST))}</label>
+          <label class="chip" title="${esc(t.cm.yearTip)}">${t.cm.yearLabel} <select class="hx-ref">${[...M.YEARS].reverse().map(y => `<option value="${y}">${yr(y)}</option>`).join("")}<option value="all">${t.cm.yearAll}</option></select></label>
         </div>
         <div class="hint">${t.hint}</div>
         <div class="split">
@@ -598,26 +727,26 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
       <section class="hx-view" data-view="years"></section>
       <section class="hx-view" data-view="about"><div class="panel about">${t.about(filesRoot, docs)}</div></section>`;
     const $ = s => root.querySelector(s);
-    const elQ = $(".hx-q"), elSec = $(".hx-sec"), elLinked = $(".hx-linked"), elCurrent = $(".hx-current");
+    const elQ = $(".hx-q"), elSec = $(".hx-sec"), elLinked = $(".hx-linked"), elRef = $(".hx-ref");
     const elList = $(".hx-list"), elDetail = $(".hx-detail"), elYears = $('[data-view="years"]');
-    let selected = null;
+    let selected = null, focus = null, ref = M.LAST;  // null: all items
 
     function renderList() {
-      const res = search(M, elQ.value);
-      const sec = elSec.value;
-      let rows = (res || M.DATA.chains.map(c => [c, 0]))
-        .filter(([c]) => (!sec || c.s == sec) && (!elLinked.checked || linked(c)) && (!elCurrent.checked || c.last === M.LAST));
-      rows.sort((a, b) => (res ? a[1] - b[1] : 0) || a[0].s - b[0].s || a[0].code.localeCompare(b[0].code) || a[0].first - b[0].first);
+      const res = search(M, elQ.value), sec = elSec.value;
+      const rows = (res || M.SER.map(s => [s, 0, null])).map(([s, rank, hit]) => [s, rank, hit, s.at(refOf(s))])
+        .filter(([s, , , c]) => c && (!ref || s.years.includes(ref)) && (!sec || c.s == sec) && (!elLinked.checked || s.changed));
+      rows.sort((a, b) => (res ? a[1] - b[1] : 0) || a[3].s - b[3].s || a[3].code.localeCompare(b[3].code) || a[0].years[0] - b[0].years[0]);
       const groups = new Map();
-      for (const [c] of rows) (groups.get(c.s) || groups.set(c.s, []).get(c.s)).push(c);
+      for (const row of rows) (groups.get(row[3].s) || groups.set(row[3].s, []).get(row[3].s)).push(row);
       const open = res || sec || groups.size === 1 || rows.length < 80;
       let h = `<div class="count">${t.count(num(rows.length), !!res)}</div>`;
       if (!rows.length) h += `<div class="empty">${t.noMatch}</div>`;
-      for (const [s, cs] of groups) {
-        h += `<details class="sec" ${open ? "open" : ""}><summary><span>${yr(s)}</span>${fat(secTitle(s))}<span class="n">${num(cs.length)}</span></summary>`;
-        for (const c of cs) {
-          h += `<div class="row${selected === c.id ? " sel" : ""}" data-id="${esc(c.id)}">${code(c.code)}${fat(c.text, "div")}` +
-            `<div class="meta">${strip(c)}<span class="yrs">${ylabel(c)}</span>${linked(c) ? `<span class="pill info" title="${t.linkedTip}">${t.linked}</span>` : ""}</div></div>`;
+      for (const [sn, list] of groups) {
+        h += `<details class="sec" ${open ? "open" : ""}><summary><span>${yr(sn)}</span>${fat(secTitle(sn))}<span class="n">${num(list.length)}</span></summary>`;
+        for (const [s, , hit, c] of list) {
+          h += `<div class="row${selected === s.id ? " sel" : ""}" data-id="${esc(s.id)}">${code(c.code)}${fat(c.text, "div")}` +
+            (hit && hit !== c ? `<div class="was">${t.cm.earlier}: <span class="fa">${esc(hit.text)}</span></div>` : "") +
+            `<div class="meta">${strip(s)}<span class="yrs">${span(s.years[0], s.last)}</span>${s.changed ? `<span class="pill info" title="${t.cm.changedTip}">${t.cm.changed}</span>` : ""}</div></div>`;
         }
         h += `</details>`;
       }
@@ -627,83 +756,118 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
     function emptyDetail() {
       const ex = ["برنج", "11114", "تلویزیون", "دندان"].map(q => `<a data-q="${q}">${q}</a>`);
       elDetail.innerHTML = `<div class="empty"><div class="big">${t.pick}</div>
-        ${t.summary(num(M.DATA.chains.length), num(M.YEARS.length), num(M.DATA.relations.length))}<br>
+        ${t.summary(num(M.SER.length), num(M.YEARS.length), num(M.DATA.relations.length))}<br>
         ${t.tryThese} ${ex.slice(0, 3).join(fa ? "، " : ", ")} ${t.or} ${ex[3]}</div>`;
     }
 
-    function renderDetail(id) {
-      const c = M.CH.get(id);
-      if (!c) { emptyDetail(); return; }
-      const ser = series(M, c);
-      const first = ser.steps[0], last = ser.steps[ser.steps.length - 1];
-      const scope = ser.links.filter(l => l && (l.detail === "label_broadened" || l.detail === "label_narrowed"));
-      const recodes = ser.links.filter(l => l && l.rel === "recoded");
-      const sYears = [...new Set(ser.steps.flatMap(s => s.years))].sort();
-      const before = c.ins.filter(r => !is11(r)), after = c.outs.filter(r => !is11(r));
-      const firstBreak = first.ins.find(r => !is11(r)), lastBreak = last.outs.find(r => !is11(r));
+    function tip(y, e) {
+      if (!e || e.st === null) return `${yr(y)}: ${t.cm.na}`;
+      const codes = e.set.map(x => x.code);
+      if (e.st === "ref") return `${yr(y)}: ${codes[0]} · ${t.cm.ref}`;
+      if (e.st === 3) return `${yr(y)}: ${e.partial ? t.cm.partial(codes.join(" + ")) : t.cm.inside(codes.join(fa ? "، " : ", "))} · ${t.cm.st[3]}`;
+      if (e.st === 2) return `${yr(y)}: ${t.cm.sum(codes.join(" + "))} · ${t.cm.st[2]}`;
+      if (e.st === 1) return `${yr(y)}: ${codes[0]} · ${t.cm.st[1]} (${e.via.filter(is11).map(r => `${t.det[r.detail]} ${yr(r.year)}`).join(fa ? "، " : ", ")})`;
+      return `${yr(y)}: ${codes[0]} · ${t.cm.st[0]}`;
+    }
 
-      let h = `<div class="crumbs fa">${[M.DATA.sections[c.s], ...c.path.map(p => p[1])].filter(Boolean).map(s => `<span>${esc(s)}</span>`).join("")}</div>`;
+    function renderDetail(sid) {
+      const s = M.serOf.get(sid);
+      if (!s) { emptyDetail(); return; }
+      const R = refOf(s), cmp = compare(M, s, R), c = s.at(R);
+      const inSer = new Set(s.chains.map(x => x.id));
+
+      let h = `<div class="crumbs fa">${[M.DATA.sections[c.s], ...c.path.map(p => p[1])].filter(Boolean).map(x => `<span>${esc(x)}</span>`).join("")}</div>`;
       h += `<div class="title fa">${esc(c.text)}</div>`;
-      h += `<div class="ids">${code(c.code)} <span class="pill">${t.section(yr(c.s))}</span> <span class="pill">${t.asked(ylabel(c))}${c.miss.length ? `، ${t.notIn(yrs(c.miss))}`.replace("،", fa ? "،" : ",") : ""}</span> <span class="pill" title="${t.chainId}">${esc(c.id)}</span></div>`;
+      // codes by period: 011837 1383–1385 → 011174 1386–1403
+      const periods = [];
+      for (const x of s.chains) {
+        const p = periods[periods.length - 1];
+        if (p && p.code === x.code) p.b = x.last; else periods.push({ code: x.code, a: x.first, b: x.last });
+      }
+      h += `<div class="ids">${periods.map(p => `${code(p.code)} <span class="yrs">${span(p.a, p.b)}</span>`).join(` <span class="arrow">${ARROW}</span> `)}` +
+        ` <span class="pill">${t.section(yr(c.s))}</span> <span class="pill" title="${t.chainId}">${esc(s.id)}</span></div>`;
+      if (ref && !s.years.includes(ref)) h += `<div class="note">${t.cm.notInRef(yr(ref))}</div>`;
 
-      const sp = span(sYears[0], sYears[sYears.length - 1]);
-      const notes = [];
-      if (recodes.length) notes.push(t.codeChanges(yrs(recodes.map(l => l.year))));
-      if (ser.steps.length > recodes.length + 1) notes.push(t.labels(num(ser.steps.length)));
-      const warn = scope.length > 0;
-      let v = `<div class="verdict ${warn ? "warn" : "ok"}"><b>${ser.steps.length === 1 ? t.comparable(sp) : t.comparableSeries(sp)}${warn ? t.withScope : ""}</b>`;
-      v += ser.steps.length === 1 ? t.sameEveryYear : t.followed(notes.join(fa ? "، " : ", "));
-      if (warn) v += t.scope(scope.map(l => t.scopeIn(t.det[l.detail], yr(l.year))).join(fa ? "، " : ", "), scope.length === 1);
-      if (firstBreak) v += t.before(yr(first.first), t.relVerb[firstBreak.rel]);
-      if (lastBreak) v += t.after(yr(last.last), t.relVerb[lastBreak.rel]);
-      else if (last.last !== M.LAST) v += t.notAfter(yr(last.last));
-      h += v + `</div>`;
+      // verdict: the years of each colour
+      const by = [[], [], [], []];
+      for (const y of M.YEARS) { const e = cmp.get(y); if (e && e.st !== null) by[e.st === "ref" ? 0 : e.st].push(y); }
+      const vcls = by[3].length ? "bad" : by[1].length || by[2].length ? "warn" : "ok";
+      h += `<div class="verdict ${vcls}"><b>${t.cm.seenFrom(yr(R))}</b><ul class="spans">` +
+        by.map((ys, k) => ys.length ? `<li><i class="sw s${k}"></i>${t.cm.st[k]}: ${ranges(ys)}</li>` : "").join("") + `</ul></div>`;
 
-      const on = new Set(c.years), other = new Map();
-      for (const s of ser.steps) if (s !== c) for (const y of s.years) other.set(y, s);
-      const marks = new Set(ser.links.filter(Boolean).map(l => l.year));
+      // timeline
       h += `<h3>${t.timeline}</h3>`;
-      if (pdfBase && c.years.some(y => c.page.get(y))) h += `<div class="pdfhint">${t.pdfHint}</div>`;
+      if (pdfBase && s.chains.some(x => x.years.some(y => x.page.get(y)))) h += `<div class="pdfhint">${t.pdfHint}</div>`;
       h += `<div class="timeline"><div class="tl" style="grid-template-columns:repeat(${M.YEARS.length},1fr)">`;
       h += M.YEARS.map(y => `<div class="y">${yr(y).slice(2)}</div>`).join("");
       h += M.YEARS.map(y => {
-        const o = other.get(y);
-        const cls = on.has(y) ? "on" : o ? "other" : "";
-        const tip = on.has(y) ? `${yr(y)}: ${c.code}${pdfBase && !c.page.get(y) ? ` · ${t.notPrinted}` : ""}`
-          : o ? `${yr(y)}: ${o.code} ${o.text}` : `${yr(y)}: ${t.tipNot}`;
-        const href = on.has(y) && pdfUrl(c, y);
-        if (href) return `<a class="c ${cls}${marks.has(y) ? " mark" : ""}" href="${href}" target="_blank" rel="noopener" data-pdf="${esc(c.id)}" data-year="${y}" title="${esc(t.openPdf(yr(y), num(c.page.get(y))))}"></a>`;
-        return `<div class="c ${cls}${marks.has(y) ? " mark" : ""}" title="${esc(tip)}"${o ? ` data-go="${esc(o.id)}"` : ""}></div>`;
+        const e = cmp.get(y), cls = stCls(e), text = tip(y, e);
+        const printed = e && e.set.filter(x => pdfUrl(x, y));
+        if (pdfBase && printed && printed.length) {
+          return `<a class="c ${cls}" href="${pdfUrl(printed[0], y)}" target="_blank" rel="noopener" data-pdf="${esc(printed.map(x => x.id).join(" "))}" data-year="${y}" title="${esc(text)} · ${t.cm.openForm}"></a>`;
+        }
+        return `<div class="c ${cls}" title="${esc(text)}${e && e.st !== null && pdfBase ? ` · ${t.notPrinted}` : ""}"></div>`;
       }).join("");
-      h += `</div></div><div class="legend"><span><i style="background:var(--on)"></i>${t.lgThis}</span><span><i style="background:var(--other)"></i>${t.lgOther}</span><span><i style="background:var(--gap)"></i>${t.lgGap}</span><span><i style="box-shadow:inset 0 0 0 2px var(--warn)"></i>${t.lgMark}</span></div>`;
+      const present = new Set([...cmp.values()].map(e => (e.st === "ref" ? 0 : e.st)));
+      h += `</div></div><div class="legend">` +
+        [0, 1, 2, 3].filter(k => present.has(k)).map(k => `<span><i class="sw s${k}"></i>${t.cm.st[k]}</span>`).join("") +
+        (present.has(null) ? `<span><i class="sw"></i>${t.cm.na}</span>` : "") +
+        `<span><i class="sw s0 ref"></i>${t.cm.ref}</span></div>`;
 
-      if (ser.steps.length > 1) {
-        h += `<h3>${t.series}</h3><div class="steps">`;
-        ser.steps.forEach((s, i) => {
-          const l = ser.links[i];
+      // codes to use, year by year
+      const use = [];
+      for (const y of M.YEARS) {
+        const e = cmp.get(y);
+        if (!e || e.st === null) continue;
+        const k = e.st === "ref" ? 0 : e.st, codes = e.set.map(x => x.code).join(" + ");
+        const last = use[use.length - 1];
+        if (last && last.k === k && last.codes === codes && M.YEARS.indexOf(y) === M.YEARS.indexOf(last.ys[last.ys.length - 1]) + 1) last.ys.push(y);
+        else use.push({ k, codes, ys: [y], e });
+      }
+      const py = [`# HIESIR Codebook, series ${s.id}: the item as asked in ${R}`,
+        "# codes to add up in each year (the raw data's Commodity_Code)", "codes = {"];
+      for (const y of M.YEARS) {
+        const e = cmp.get(y);
+        if (e && e.st !== null && e.st !== 3) py.push(`    ${y}: [${e.set.map(x => Number(x.code)).join(", ")}],`);
+      }
+      py.push("}");
+      h += `<h3>${t.cm.useTitle}</h3><div class="uses">` + use.map(u => `<div class="use"><span class="yrs">${ranges(u.ys)}</span>` +
+        `<span class="codes">${u.k === 3 ? `<span class="muted">${esc(u.e.partial ? t.cm.partial(u.codes) : t.cm.inside(u.e.set.map(x => x.code).join(fa ? "، " : ", ")))}</span>` : u.codes.split(" + ").map(code).join(" + ")}</span>` +
+        `<span class="st"><i class="sw s${u.k}"></i>${t.cm.st[u.k]}</span></div>`).join("") + `</div>` +
+        `<div class="note">${t.cm.useNote(yr(R))}</div><button type="button" class="copy" data-copy="${esc(py.join("\n"))}">${t.cm.copy}</button>`;
+
+      // wording history: the chains of the series
+      if (s.chains.length > 1) {
+        h += `<h3>${t.cm.history}</h3><div class="steps">`;
+        for (const x of s.chains) {
+          const l = x.ins.find(r => is11(r) && inSer.has(r.from[0]));
+          const y0 = x.years.find(y => x.page.get(y));
           if (l) h += `<div class="link">${yr(l.year)} ${relPills(l)}</div>`;
-          h += `<div class="step${s === c ? " cur" : ""}"><div class="hd">${s === c ? code(s.code) : chainLink(s)} <span class="pill">${ylabel(s)}</span></div>${fat(s.text)}` +
-            (l && l.note ? `<details class="note"><summary>${t.evidence}</summary>${esc(l.note)}</details>` : "") + `</div>`;
-        });
+          h += `<div class="step${x === c ? " cur" : ""}${x.id === focus ? " focus" : ""}"><div class="hd">${code(x.code)} <span class="pill">${ylabel(x)}</span>` +
+            (pdfBase && y0 ? ` <a class="doc" href="${pdfUrl(x, y0)}" target="_blank" rel="noopener" data-pdf="${esc(x.id)}" data-year="${y0}" title="${esc(t.openPdf(yr(y0), num(x.page.get(y0))))}"></a>` : "") +
+            `</div>${fat(x.text)}` + (l && l.note ? `<details class="note"><summary>${t.evidence}</summary>${esc(l.note)}</details>` : "") + `</div>`;
+        }
         h += `</div>`;
       }
 
+      // merges, splits and regroupings at the edges of the series
       const relBlock = r => {
-        const side = ids => `<ul>${ids.map(i => { const x = M.CH.get(i); return x ? `<li class="${x === c ? "me" : ""}">${x === c ? code(x.code) : chainLink(x)}${fat(x.text)}</li>` : ""; }).join("")}</ul>`;
+        const side = ids => `<ul>${ids.map(i => { const x = M.CH.get(i); return x ? `<li class="${inSer.has(x.id) ? "me" : ""}">${inSer.has(x.id) ? code(x.code) : chainLink(x)}${fat(x.text)}</li>` : ""; }).join("")}</ul>`;
         return `<div class="rel"><div class="hd"><b>${yr(r.year)}</b> ${relPills(r)}</div><div class="sides">${side(r.from)}<span class="arrow">${ARROW}</span>${side(r.to)}</div>` +
           (r.note ? `<details class="note"><summary>${t.evidence}</summary>${esc(r.note)}</details>` : "") + `</div>`;
       };
+      const before = [...new Set(s.chains.flatMap(x => x.ins.filter(r => !is11(r))))];
+      const after = [...new Set(s.chains.flatMap(x => x.outs.filter(r => !is11(r))))];
       if (before.length) h += `<h3>${t.cameFrom}</h3>` + before.map(relBlock).join("");
       if (after.length) h += `<h3>${t.wentInto}</h3>` + after.map(relBlock).join("");
 
-      const inSer = new Set(ser.steps.map(s => s.id));
-      const others = (M.byCode.get(c.code) || []).filter(x => !inSer.has(x.id));
+      const codes = [...new Set(s.chains.map(x => x.code))];
+      const others = codes.flatMap(k => M.byCode.get(k) || []).filter(x => !inSer.has(x.id));
       if (others.length) {
-        h += `<h3>${t.otherUnder(code(c.code))}</h3>`;
+        h += `<h3>${t.otherUnder(codes.map(code).join(fa ? "، " : ", "))}</h3>`;
         h += others.map(x => `<div class="link">${chainLink(x)} <span class="pill">${ylabel(x)}</span> ${fat(x.text)}</div>`).join("");
       }
-
-      const corr = M.DATA.corrections.filter(k => k.expenditure_code === c.code || k.value === c.code);
+      const corr = M.DATA.corrections.filter(k => codes.includes(k.expenditure_code) || codes.includes(k.value));
       if (corr.length) {
         h += `<h3>${t.corrections}</h3>`;
         h += corr.map(k => `<div class="rel"><div class="hd"><b>${yr(k.year)}</b> <span class="pill warn">${esc(k.action)}</span> ${code(k.expenditure_code)}${k.value ? ` ${ARROW} ${/^\d+$/.test(k.value) ? code(k.value) : fat(k.value)}` : ""}</div>${fat(k.description, "div")}<div class="note" dir="ltr">${esc(k.reason)}</div></div>`).join("");
@@ -712,12 +876,19 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
       elDetail.scrollTop = 0;
     }
 
-    function select(id, push = true) {
-      selected = id;
+    function hashFor(id) {
+      const p = [];
+      if (id) p.push("item=" + encodeURIComponent(id));
+      if (ref === null) p.push("ref=all");
+      else if (ref !== M.LAST) p.push("ref=" + ref);
+      return "#" + p.join("&");
+    }
+    function select(sid, focusId = null, push = true) {
+      selected = sid; focus = focusId;
       root.querySelectorAll(".row.sel").forEach(e => e.classList.remove("sel"));
-      root.querySelector(`.row[data-id="${CSS.escape(id)}"]`)?.classList.add("sel");
-      renderDetail(id);
-      if (push) history.replaceState(null, "", "#item=" + encodeURIComponent(id));
+      root.querySelector(`.row[data-id="${CSS.escape(sid)}"]`)?.classList.add("sel");
+      renderDetail(sid);
+      if (push) history.replaceState(null, "", hashFor(focus || sid));
       if (window.innerWidth <= 860) elDetail.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
@@ -787,18 +958,22 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
       root.querySelectorAll(".hx-tabs a").forEach(a => a.classList.toggle("active", a.dataset.tab === view));
     }
     function route() {
-      const h = decodeURIComponent(location.hash.slice(1));
-      if (h.startsWith("year")) {
-        const y = +h.split("=")[1];
+      const h = decodeURIComponent(location.hash.slice(1)), p = new URLSearchParams(h);
+      if (p.has("year")) {
+        const y = +p.get("year");
         show("years"); renderYears(M.YEARS.includes(y) && y !== M.YEARS[0] ? y : 1386); return;
       }
       if (h === "about") { show("about"); return; }
       show("items");
-      if (h.startsWith("item=")) {
-        const id = h.slice(5);
-        if (M.CH.has(id) && selected !== id) {
-          if (!root.querySelector(`.row[data-id="${CSS.escape(id)}"]`)) { elQ.value = M.CH.get(id).code; renderList(); }
-          select(id, false);
+      const id = p.get("item"), s = id && M.serOf.get(id);
+      let r = p.get("ref") === "all" ? null : M.YEARS.includes(+p.get("ref")) ? +p.get("ref") : M.LAST;
+      // a link to an item not asked in the default year opens it among all items
+      if (s && !p.has("ref") && !s.years.includes(r)) r = null;
+      if (r !== ref) { ref = r; elRef.value = ref === null ? "all" : String(ref); renderList(); if (selected) renderDetail(selected); }
+      if (s) {
+        if (selected !== s.id || focus !== (id === s.id ? null : id)) {
+          if (!root.querySelector(`.row[data-id="${CSS.escape(s.id)}"]`)) { elQ.value = s.at(refOf(s)).code; renderList(); }
+          select(s.id, id === s.id ? null : id, false);
         }
       } else if (!selected) emptyDetail();
     }
@@ -808,15 +983,26 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
     elQ.addEventListener("keydown", e => {
       if (e.key === "Enter") { clearTimeout(timer); renderList(); const r = elList.querySelector(".row"); if (r) select(r.dataset.id); }
     });
-    [elSec, elLinked, elCurrent].forEach(e => e.addEventListener("change", renderList));
+    [elSec, elLinked].forEach(e => e.addEventListener("change", renderList));
+    elRef.addEventListener("change", () => {
+      ref = elRef.value === "all" ? null : +elRef.value;
+      renderList();
+      if (selected) renderDetail(selected);
+      history.replaceState(null, "", hashFor(selected ? focus || selected : null));
+    });
     root.addEventListener("click", e => {
       const pdfLink = e.target.closest("a[data-pdf]");
       if (pdfLink && !(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button)) {
-        e.preventDefault(); openPdf(M.CH.get(pdfLink.dataset.pdf), +pdfLink.dataset.year, pdfLink); return;
+        e.preventDefault(); openPdf(pdfLink.dataset.pdf.split(" ").map(id => M.CH.get(id)).filter(Boolean), +pdfLink.dataset.year, pdfLink); return;
       }
       const row = e.target.closest(".row"); if (row) { select(row.dataset.id); return; }
       const go = e.target.closest("[data-go]");
-      if (go) { e.preventDefault(); location.hash = "item=" + encodeURIComponent(go.dataset.go); return; }
+      if (go) { e.preventDefault(); location.hash = hashFor(go.dataset.go); return; }
+      const cp = e.target.closest("button[data-copy]");
+      if (cp) {
+        navigator.clipboard?.writeText(cp.dataset.copy).then(() => { cp.textContent = t.cm.copied; setTimeout(() => { cp.textContent = t.cm.copy; }, 1500); });
+        return;
+      }
       const q = e.target.closest("[data-q]");
       if (q) { e.preventDefault(); elQ.value = q.dataset.q; renderList(); elQ.focus(); return; }
       const td = e.target.closest("td[data-year]"); if (td) location.hash = "year=" + td.dataset.year;
@@ -837,12 +1023,12 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
           <a class="hx-vtab" target="_blank" rel="noopener" title="${t.pv.tab}" aria-label="${t.pv.tab}">↗</a>
           <button type="button" data-act="close" title="${t.pv.close}" aria-label="${t.pv.close}">✕</button>
         </div>
-        <div class="hx-vbody"><div class="hx-vpage"><canvas></canvas><div class="hx-vmark" title="${t.pv.here}" hidden></div></div><div class="hx-vmsg"></div></div>
+        <div class="hx-vbody"><div class="hx-vpage"><canvas></canvas><div class="hx-vmarks"></div></div><div class="hx-vmsg"></div></div>
       </div>`;
     root.appendChild(viewer);
     const vEl = s => viewer.querySelector(s);
-    const canvas = vEl("canvas"), mark = vEl(".hx-vmark"), vmsg = vEl(".hx-vmsg"), vbody = vEl(".hx-vbody");
-    const vs = { url: "", year: 0, page: 1, n: 0, zoom: 1, box: null, boxPage: 0, back: null, token: 0, task: null };
+    const canvas = vEl("canvas"), marks = vEl(".hx-vmarks"), vmsg = vEl(".hx-vmsg"), vbody = vEl(".hx-vbody");
+    const vs = { url: "", year: 0, page: 1, n: 0, zoom: 1, boxes: [], boxPage: 0, back: null, token: 0, task: null };
 
     async function showPage() {
       const token = ++vs.token;
@@ -850,7 +1036,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
       vEl(".hx-vtab").href = `${vs.url}#page=${vs.page}`;
       vEl('[data-act="prev"]').disabled = vs.page <= 1;
       vEl('[data-act="next"]').disabled = !!vs.n && vs.page >= vs.n;
-      vmsg.textContent = t.pv.loading; mark.hidden = true;
+      vmsg.textContent = t.pv.loading; marks.innerHTML = "";
       try {
         const doc = await pdfDoc(vs.url);
         if (token !== vs.token) return;
@@ -869,22 +1055,28 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
         await vs.task.promise;
         if (token !== vs.token) return;
         vmsg.textContent = "";
-        if (vs.box && vs.page === vs.boxPage) {
-          const k = vp.scale, [top, bottom, left, right] = vs.box, sides = left != null && right != null;
-          mark.style.top = `${top * k}px`; mark.style.height = `${(bottom - top) * k}px`;
-          mark.style.left = sides ? `${left * k}px` : "0"; mark.style.width = sides ? `${(right - left) * k}px` : "100%";
-          mark.hidden = false;
-          vbody.scrollTop = Math.max(0, vs.box[0] * k - vbody.clientHeight / 3);
+        if (vs.boxes.length && vs.page === vs.boxPage) {
+          const k = vp.scale;
+          marks.innerHTML = vs.boxes.map(([top, bottom, left, right]) => {
+            const sides = left != null && right != null;
+            return `<div class="hx-vmark" title="${esc(t.pv.here)}" style="top:${top * k}px;height:${(bottom - top) * k}px;` +
+              `left:${sides ? left * k : 0}px;width:${sides ? `${(right - left) * k}px` : "100%"}"></div>`;
+          }).join("");
+          vbody.scrollTop = Math.max(0, Math.min(...vs.boxes.map(b => b[0])) * k - vbody.clientHeight / 3);
         }
       } catch (err) {
         if (err && err.name === "RenderingCancelledException") return;
         if (token === vs.token) vmsg.textContent = t.pv.failed;
       }
     }
-    function openPdf(c, y, from) {
-      if (!c || !c.page.get(y)) return;
-      Object.assign(vs, { url: `${pdfBase}questionnaire_${y}.pdf`, year: y, page: c.page.get(y), n: 0, zoom: 1,
-                          box: c.box ? c.box.get(y) || null : null, boxPage: c.page.get(y), back: from || null });
+    /* open year y of the questionnaire at the page of the first printed chain,
+       highlighting every given chain printed on that page */
+    function openPdf(chains, y, from) {
+      const first = chains.find(c => c.page.get(y));
+      if (!first) return;
+      const page = first.page.get(y);
+      const boxes = chains.filter(c => c.page.get(y) === page).map(c => c.box.get(y)).filter(Boolean);
+      Object.assign(vs, { url: `${pdfBase}questionnaire_${y}.pdf`, year: y, page, n: 0, zoom: 1, boxes, boxPage: page, back: from || null });
       viewer.hidden = false; document.documentElement.style.overflow = "hidden";
       vbody.scrollTop = 0; vEl('[data-act="close"]').focus();
       showPage();
