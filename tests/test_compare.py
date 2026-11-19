@@ -1,6 +1,6 @@
 import pytest
 
-from hbsir_questionnaire.compare import compare, relate, split_qualifier
+from hiesir_codebook.compare import compare, relate, split_qualifier
 
 
 @pytest.mark.parametrize(
@@ -45,3 +45,11 @@ def test_relate_requires_same_provider():
     assert relate("ویزیت روانپزشک (دولتی)", "ویزیت روانپزشک G").kind == "same"
     assert relate("خدمات آمبولانس G", "خدمات آمبولانس NG").kind == "different"
     assert relate("خدمات آمبولانس", "خدمات آمبولانس G").kind == "different"
+
+
+def test_added_word_is_broadened_even_when_texts_are_close():
+    # similarity 0.93, but camels are now included
+    assert compare("گاو و گوساله (به صورت زنده)", "گاو و گوساله، شتر (به صورت زنده)").kind == "broadened"
+    assert compare("آرد برنج، آرد جو، آرد نخودچی", "آرد برنج، آرد جو، نخودچی").kind == "narrowed"
+    # glued "etc." is not a content word
+    assert compare("کت، ژیله و نظایرآن", "کت، ژیله و ...").kind == "minor"

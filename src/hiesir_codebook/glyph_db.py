@@ -8,7 +8,7 @@ in a database built from the clean PDFs.
 
 Build (or rebuild) the database with::
 
-    uv run python -m hbsir_questionnaire.build_glyph_db
+    uv run python -m hiesir_codebook.build_glyph_db
 """
 
 from __future__ import annotations

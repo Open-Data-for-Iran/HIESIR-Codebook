@@ -1,6 +1,6 @@
 import pytest
 
-from hbsir_questionnaire.parse import (
+from hiesir_codebook.parse import (
     FOOTNOTE_TAIL_RE,
     NOT_DESC_RE,
     Row,
@@ -8,7 +8,7 @@ from hbsir_questionnaire.parse import (
     _classify,
     normalize_code,
 )
-from hbsir_questionnaire.pdf_text import glyph_name_to_text
+from hiesir_codebook.pdf_text import glyph_name_to_text
 
 
 @pytest.mark.parametrize(

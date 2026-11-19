@@ -1,0 +1,39 @@
+{#- The explorer page: the site's header, tabs, search and footer, with the
+    explorer component in place of the usual article. Used by docs/explorer.md
+    and docs/explorer.fa.md (front matter `template: explorer.html`).
+    Its files are published once, at the site root, by scripts/mkdocs_hooks.py;
+    base_url points at the site root in every language. -#}
+{% extends "main.html" %}
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ base_url }}/assets/explorer/explorer.css">
+  <style>
+    .md-main__inner:has(.hx) { max-width: 82rem; }
+    .md-content__inner.hx-intro { margin-bottom: .6rem; padding-top: .2rem; }
+    .md-content__inner.hx-intro h1 { margin-bottom: .3rem; }
+    .md-content__inner.hx-intro > p { margin: 0; color: var(--md-default-fg-color--light); }
+    .hx-wrap { margin: 0 .8rem 1.2rem; }
+    @media screen and (min-width: 76.25em) { .hx-wrap { margin: 0 1.2rem 1.2rem; } }
+  </style>
+{% endblock %}
+{% block container %}
+  {% set hx_lang = config.theme["language"] or "en" %}
+  {% set docs_root = base_url ~ ("/" ~ hx_lang if hx_lang != "en" else "") %}
+  <div class="md-content" data-md-component="content">
+    <article class="md-content__inner md-typeset hx-intro">
+      {{ page.content }}
+    </article>
+    <div class="hx-wrap">
+      <div class="hx hx-docs"
+           data-lang="{{ hx_lang }}"
+           data-root="{{ base_url }}/"
+           data-src="{{ base_url }}/explorer/data.json"
+           data-docs="{{ docs_root }}/methods/"></div>
+      <noscript>{{ "این صفحه به جاوااسکریپت نیاز دارد." if hx_lang == "fa" else "This page needs JavaScript." }}</noscript>
+    </div>
+  </div>
+{% endblock %}
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ base_url }}/assets/explorer/explorer.js"></script>
+{% endblock %}

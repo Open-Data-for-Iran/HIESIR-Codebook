@@ -66,26 +66,29 @@ class Relation:
     new_kept: float = 0.0  # share of the new text's words found in the old text
 
 
-def _closest(w: str, b: list[str]) -> tuple[int | None, float]:
-    best, best_r = None, 0.0
-    for i, v in enumerate(b):
-        r = 1.0 if w == v else difflib.SequenceMatcher(None, w, v).ratio()
-        if r > best_r:
-            best, best_r = i, r
-    return best, best_r
-
-
 def _found(w: str, b: list[str], b_joined: str) -> int | None:
     """Index of the word in ``b`` matching ``w`` (equal or one letter apart),
     -1 if ``w`` only appears inside the joined text ("قهوه جوش" in
     "قهوه‌جوش"), None if absent.  Short words must match exactly: "شیر"
     (milk) is not found inside "شیرینی" (sweets)."""
-    i, r = _closest(w, b)
-    if i is not None and (r == 1.0 or (r >= 0.75 and len(w) > 3)):
-        return i
-    if len(w) > 3 and w in b_joined:
-        return -1
-    return None
+    if w in b:
+        return b.index(w)
+    if len(w) <= 3:
+        return None
+    best, best_r = None, 0.75 - 1e-9
+    for i, v in enumerate(b):
+        # cheap upper bounds first: the length ratio and quick_ratio
+        if 2 * min(len(w), len(v)) / (len(w) + len(v)) <= best_r:
+            continue
+        m = difflib.SequenceMatcher(None, w, v)
+        if m.quick_ratio() <= best_r:
+            continue
+        r = m.ratio()
+        if r > best_r:
+            best, best_r = i, r
+    if best is not None:
+        return best
+    return -1 if w in b_joined else None
 
 
 def _overlap(a: list[str], b: list[str], b_joined: str) -> int:
@@ -101,6 +104,34 @@ def _overlap(a: list[str], b: list[str], b_joined: str) -> int:
     return n
 
 
+#: words that do not change what an item covers ("and the like", "kinds of"),
+#: in the form words() returns them (hamza and madda dropped: آن -> ان)
+ETC_WORDS = frozenset(["نظایر", "ان", "غیره", "امثال", "اینها", "مانند", "اقسام"])
+
+
+_ETC_RE = re.compile(f"و?(?:{'|'.join(sorted(ETC_WORDS, key=len, reverse=True))})+")
+
+
+def is_etc(w: str) -> bool:
+    """An "etc." word, also when glued: "نظایر", "ان", "ونظایران" (و نظایر آن)."""
+    return bool(_ETC_RE.fullmatch(w))
+
+
+def _missing(a: list[str], b: list[str], b_joined: str) -> list[str]:
+    """Content words of ``a`` not found in ``b`` ("etc." words ignored)."""
+    left = list(b)
+    out = []
+    for w in a:
+        if is_etc(w):
+            continue
+        i = _found(w, left, b_joined)
+        if i is None:
+            out.append(w)
+        elif i >= 0:
+            left.pop(i)
+    return out
+
+
 # words that open many descriptions without saying what the item is
 _GENERIC_HEADS = frozenset(["سایر", "کلیه", "هزینه", "هزینهها", "هزینههای", "خرید", "اجرت", "تهیه"])
 
@@ -112,7 +143,11 @@ def _head(ws: list[str]) -> str | None:
 
 
 def compare(old: str, new: str) -> Relation:
-    """How does description ``new`` relate to ``old``?"""
+    """How does description ``new`` relate to ``old``?
+
+    Words added or dropped decide first (``broadened`` / ``narrowed``); only
+    when content words change on both sides do near-identical texts count as
+    ``minor`` (a respelled word, a typo)."""
     ka, kb = loose_key(old), loose_key(new)
     if ka == kb:
         return Relation("same", 1.0, 1.0, 1.0)
@@ -127,6 +162,15 @@ def compare(old: str, new: str) -> Relation:
     def rel(kind: str) -> Relation:
         return Relation(kind, score, round(old_kept, 3), round(new_kept, 3))
 
+    # content words first: a whole word added or dropped changes what the item
+    # covers, however similar the rest ("گاو و گوساله" -> "گاو و گوساله، شتر")
+    removed, added = _missing(wa, wb, kb), _missing(wb, wa, ka)
+    if not removed and not added:
+        return rel("minor")  # spelling, spacing, punctuation, "etc."
+    if added and not removed:
+        return rel("broadened")
+    if removed and not added:
+        return rel("narrowed")
     if char >= 0.9 or jaccard >= 0.85:
         return rel("minor")
     if old_kept >= 0.85 and len(wb) > len(wa):

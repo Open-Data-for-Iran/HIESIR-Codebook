@@ -934,3 +934,51 @@
 ماشینهای,ماشین‌های,word,,plural missing its ZWNJ
 آجیل خوری,آجیل‌خوری,word,,compound with ZWNJ (also printed joined)
 لوازم التحریر,لوازم‌التحریر,word,,compound with ZWNJ (also printed joined)
+هزنیه,هزینه,text,,typo (found through relations): هزینه
+سبزی خردک,سبزی خردکن,word,,typo (found through relations): truncated خردکن
+قفس کتاب,قفسه کتاب,word,,"typo (found through relations): قفسه (shelf), as from 1387"
+ماهوت پاک کردن,ماهوت پاک‌کن,word,,"typo (found through relations): ماهوت پاک‌کن (clothes brush), as in other years"
+شیرپاک کن,شیرپاک‌کن,word,,one spelling: شیرپاک‌کن
+شیرپاککن,شیرپاک‌کن,word,,one spelling: شیرپاک‌کن
+خوشکارو,خوشکار و,word,,glued words (found through relations)
+باواگن‌های,با واگن‌های,word,,glued words (found through relations)
+دراتومبیل,در اتومبیل,word,,glued words (found through relations)
+وپیشبند,و پیش‌بند,word,,glued words (found through relations)
+ننوپارچه‌ای,ننو پارچه‌ای,word,,glued words (found through relations)
+خانواردر,خانوار در,word,,glued words (found through relations)
+ازخارج,از خارج,word,,glued words (found through relations)
+کشوردریافت,کشور دریافت,word,,glued words (found through relations)
+خودخانوار,خود خانوار,word,,glued words (found through relations)
+ازبوی,از بوی,word,,glued words (found through relations)
+غیراز,غیر از,word,,glued words (found through relations)
+داروجهت,دارو جهت,word,,glued words (found through relations)
+سروصورت,سر و صورت,word,,glued words (found through relations)
+لیمووگردغوره,لیمو و گردغوره,word,,glued words (found through relations)
+پودرسیر,پودر سیر,word,,glued words (found through relations)
+نوارخام,نوار خام,word,,glued words (found through relations)
+خریدانواع,خرید انواع,word,,glued words (found through relations)
+سایرلوازم,سایر لوازم,word,,glued words (found through relations)
+سایرمحصولات,سایر محصولات,word,,glued words (found through relations)
+سایرهزینه‌های,سایر هزینه‌های,word,,glued words (found through relations)
+سایرانواع,سایر انواع,word,,glued words (found through relations)
+اعضاءخانوار,اعضای خانوار,word,,glued words (found through relations)
+تانکرآب,تانکر آب,word,,glued words (found through relations)
+کولرآبی,کولر آبی,word,,glued words (found through relations)
+تمرهندی,تمر هندی,word,,glued words (found through relations)
+ودیسکتها,و دیسکت‌ها,word,,glued words (found through relations)
+گرددندان,گرد دندان,word,,glued words (found through relations)
+واشرسرسیلندر,واشر سرسیلندر,word,,glued words (found through relations)
+بانکها,بانک‌ها,word,,plural missing its ZWNJ
+بانکهای,بانک‌های,word,,plural missing its ZWNJ
+کپسولهای,کپسول‌های,word,,plural missing its ZWNJ
+کفپوشها,کفپوش‌ها,word,,plural missing its ZWNJ
+دایرهالمعارف,دایره‌المعارف,word,,missing ZWNJ
+واستخرشنای باد,و استخر شنای بادی,word,,"typo: بادی, as from 1384; glued words"
+واستخرشنای بادی,و استخر شنای بادی,word,,glued words
+وسایربازی‌های,و سایر بازی‌های,word,,glued words
+سازونظایر,ساز و نظایر,word,,glued words
+براورد,برآورد,text,,"one spelling: برآورد (standard), as in 1383-1385"
+برآوردارزش,برآورد ارزش,word,,glued words
+خدمات مشاورهای,خدمات مشاوره‌ای,text,,"ZWNJ required (ه + ای, consulting services)"
+مشاورهای سرمایه,مشاوره‌های سرمایه,text,,"plural suffix attached (investment consultancies), as printed in 1383-1385"
+وفرزندخواندگی,و فرزندخواندگی,word,,glued و

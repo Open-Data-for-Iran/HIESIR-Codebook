@@ -4,7 +4,7 @@ A *chain* is one expenditure code with one label, followed through the
 corrected questionnaires (``output/2_corrected/``) for as long as both stay the same.
 Labels count as the same when they differ only in spacing, ZWNJ,
 punctuation, hamza or digit style (``same`` in
-:func:`hbsir_questionnaire.match.compare`).
+:func:`hiesir_codebook.match.compare`).
 
 A chain ends when its code disappears for more than ``MAX_GAP``
 questionnaires in a row, or when its label changes in any other way; the
@@ -12,7 +12,7 @@ changed label starts a new chain.  So every chain has exactly one code and
 one text, and every item of every year belongs to exactly one chain.
 
 How chains relate to each other (a reworded label, a new code, a merge) is
-the job of the next stage, :mod:`hbsir_questionnaire.relations`.
+the job of the next stage, :mod:`hiesir_codebook.relations`.
 
 Output: ``chains.csv``, one row per chain.
 """
@@ -98,7 +98,7 @@ def read_chains(path: Path, years: list[int] = YEARS) -> list[Chain]:
 
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(
-        prog="python -m hbsir_questionnaire.chains", description="Matching stage 1: chains."
+        prog="python -m hiesir_codebook.chains", description="Matching stage 1: chains."
     )
     ap.add_argument(
         "--source", type=Path, default=CORRECTED, help="yearly CSVs (default: output/2_corrected/)"

@@ -22,9 +22,9 @@ from collections import defaultdict
 
 from hazm import Normalizer
 
-from hbsir_questionnaire import CORRECTED, REPORTS
-from hbsir_questionnaire.correct import load_label_fixes
-from hbsir_questionnaire.utils import tidy_punctuation
+from hiesir_codebook import CORRECTED, REPORTS
+from hiesir_codebook.correct import load_label_fixes
+from hiesir_codebook.utils import tidy_punctuation
 
 OUT = REPORTS / "hazm_suggestions.csv"
 

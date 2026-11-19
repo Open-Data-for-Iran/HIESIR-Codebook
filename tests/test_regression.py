@@ -2,15 +2,15 @@
 
 The PDFs are not in git, so these tests skip when data/pdf/ is missing.
 A failure means the extractor's output changed: if the change is intended,
-regenerate with `uv run hbsir-questionnaire all` and review the diff.
+regenerate with `uv run hiesir-codebook all` and review the diff.
 """
 
 from pathlib import Path
 
 import pytest
 
-from hbsir_questionnaire import SUPPORTED_YEARS, write_csv
-from hbsir_questionnaire.parse import extract_year, pdf_path
+from hiesir_codebook import SUPPORTED_YEARS, write_csv
+from hiesir_codebook.parse import extract_year, pdf_path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"

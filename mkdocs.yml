@@ -1,0 +1,93 @@
+site_name: HIESIR Codebook
+site_description: The HIES expenditure questionnaires 1383-1403, corrected and matched across years.
+site_url: https://open-data-for-iran.github.io/HIESIR-Codebook/
+repo_url: https://github.com/Open-Data-for-Iran/HIESIR-Codebook
+repo_name: Open-Data-for-Iran/HIESIR-Codebook
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+hooks:
+  - scripts/mkdocs_hooks.py
+
+nav:
+  - Home: index.md
+  - Explorer: explorer.md
+  - Data files: data.md
+  - Methods: methods.md
+  - Contributing: contributing.md
+
+plugins:
+  - search
+  # one page per language: page.md (English, default) and page.fa.md (Farsi, served under /fa/)
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: en
+          name: English
+          default: true
+          build: true
+        - locale: fa
+          name: فارسی
+          build: true
+          site_name: راهنمای کدهای هزینه و درآمد خانوار
+          site_description: اقلام هزینه‌ای پرسشنامه‌های طرح هزینه و درآمد خانوار ۱۳۸۳ تا ۱۴۰۳، اصلاح‌شده و پیوندخورده در طول سال‌ها
+          nav_translations:
+            Home: خانه
+            Explorer: جست‌وجوی اقلام
+            Data files: فایل‌های داده
+            Methods: روش کار
+            Contributing: مشارکت
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: blue
+      toggle: { icon: material/weather-night, name: Dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: blue
+      toggle: { icon: material/weather-sunny, name: Light mode }
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  icon:
+    logo: material/table-search
+
+extra_css:
+  - assets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+validation:
+  links:
+    absolute_links: warn
+    unrecognized_links: warn
+    anchors: warn

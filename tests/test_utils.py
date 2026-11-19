@@ -1,7 +1,7 @@
 import pytest
 
-from hbsir_questionnaire import utils
-from hbsir_questionnaire.utils import ZWNJ, tidy_punctuation
+from hiesir_codebook import utils
+from hiesir_codebook.utils import ZWNJ, tidy_punctuation
 
 
 def test_unify_letters():

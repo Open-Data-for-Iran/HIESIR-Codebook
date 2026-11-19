@@ -22,7 +22,7 @@ reason     why: evidence from neighbouring years, the raw data, ...
 ========== ===================================================================
 
 After the listed corrections, every description gets the same punctuation
-spacing (:func:`hbsir_questionnaire.utils.tidy_punctuation`): "،" and ":"
+spacing (:func:`hiesir_codebook.utils.tidy_punctuation`): "،" and ":"
 attach to the word before them, brackets hug their content, "..." has three
 dots.
 

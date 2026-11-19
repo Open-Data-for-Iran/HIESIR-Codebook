@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from hbsir_questionnaire import SUPPORTED_YEARS
-from hbsir_questionnaire.correct import Correction, LabelFix, _years, apply, correct, fix_label, write_rows
+from hiesir_codebook import SUPPORTED_YEARS
+from hiesir_codebook.correct import Correction, LabelFix, _years, apply, correct, fix_label, write_rows
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -61,7 +61,7 @@ def test_add_section(tmp_path):
 
 def test_corrected_is_up_to_date(tmp_path):
     """output/2_corrected/ must equal output/1_extracted/ + curated/; if this
-    fails, run `uv run python -m hbsir_questionnaire.correct`."""
+    fails, run `uv run python -m hiesir_codebook.correct`."""
     correct(
         SUPPORTED_YEARS,
         ROOT / "output" / "1_extracted",

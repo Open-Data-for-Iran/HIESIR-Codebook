@@ -1,0 +1,28 @@
+/* Persian text in tables and code examples: a font that has the glyphs */
+@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600&display=swap");
+
+.md-typeset {
+  font-family: var(--md-text-font-family), Vazirmatn, Tahoma, sans-serif;
+}
+.md-typeset code {
+  font-family: var(--md-code-font-family), Vazirmatn, monospace;
+}
+.md-typeset table:not([class]) {
+  font-size: .72rem;
+}
+
+/* Farsi pages (dir="rtl"): Vazirmatn first, code stays left-to-right */
+[dir="rtl"] body,
+[dir="rtl"] .md-typeset,
+[dir="rtl"] .md-nav,
+[dir="rtl"] .md-header,
+[dir="rtl"] .md-tabs {
+  font-family: Vazirmatn, Tahoma, sans-serif;
+}
+[dir="rtl"] .md-typeset {
+  line-height: 1.9;
+}
+[dir="rtl"] .md-typeset code {
+  direction: ltr;
+  unicode-bidi: isolate;
+}

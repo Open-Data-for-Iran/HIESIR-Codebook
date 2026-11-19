@@ -1,5 +1,5 @@
-from hbsir_questionnaire.chains import build_chains, read_chains, write_chains
-from hbsir_questionnaire.compare import Item
+from hiesir_codebook.chains import build_chains, read_chains, write_chains
+from hiesir_codebook.compare import Item
 
 YEARS = [1, 2, 3, 4, 5]
 
@@ -44,15 +44,31 @@ def test_chains_round_trip(tmp_path):
 
 
 def test_matched_is_up_to_date(tmp_path):
-    """output/3_matched/chains.csv must match output/2_corrected/;
-    if this fails, run `uv run hbsir-questionnaire build --no-extract`."""
+    """output/3_matched/chains.csv, links.csv and relations.csv must match output/2_corrected/;
+    if this fails, run `uv run hiesir-codebook build --no-extract`."""
     from pathlib import Path
 
-    from hbsir_questionnaire.compare import YEARS as ALL_YEARS
-    from hbsir_questionnaire.compare import load_year
+    from hiesir_codebook.compare import YEARS as ALL_YEARS
+    from hiesir_codebook.compare import load_year
+    from hiesir_codebook.relations import (
+        build_relations,
+        conflicts,
+        load_decisions,
+        write_links,
+        write_relations,
+    )
 
     root = Path(__file__).resolve().parents[1]
     matched = root / "output" / "3_matched"
     chains = build_chains({y: load_year(y, root / "output" / "2_corrected") for y in ALL_YEARS})
     write_chains(chains, tmp_path / "chains.csv", ALL_YEARS)
-    assert (tmp_path / "chains.csv").read_bytes() == (matched / "chains.csv").read_bytes()
+    decisions = load_decisions(root / "curated" / "links.csv") + load_decisions(
+        root / "curated" / "relations.csv"
+    )
+    relations, stale = build_relations(chains, decisions, ALL_YEARS)
+    assert not stale, [str(d) for d in stale]
+    assert not conflicts(relations), conflicts(relations)
+    write_links(relations, tmp_path / "links.csv")
+    write_relations(relations, tmp_path / "relations.csv")
+    for name in ("chains.csv", "links.csv", "relations.csv"):
+        assert (tmp_path / name).read_bytes() == (matched / name).read_bytes(), name

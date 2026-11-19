@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     from . import DATA_DIR, SUPPORTED_YEARS
 
-    ap = argparse.ArgumentParser(prog="python -m hbsir_questionnaire.validate", description=__doc__)
+    ap = argparse.ArgumentParser(prog="python -m hiesir_codebook.validate", description=__doc__)
     ap.add_argument("years", nargs="*", type=int, help="years to check (default: all supported)")
     ap.add_argument("-v", "--verbose", action="store_true", help="list the codes that differ")
     ap.add_argument("--data", type=Path, default=DATA_DIR, help="folder with pdf/ and the occurrence CSVs")

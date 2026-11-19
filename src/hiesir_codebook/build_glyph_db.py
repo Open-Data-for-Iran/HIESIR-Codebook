@@ -10,7 +10,7 @@ from .glyph_db import DB_PATH, build
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(prog="python -m hbsir_questionnaire.build_glyph_db", description=__doc__)
+    ap = argparse.ArgumentParser(prog="python -m hiesir_codebook.build_glyph_db", description=__doc__)
     ap.add_argument(
         "years",
         nargs="*",
