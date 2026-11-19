@@ -225,6 +225,26 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
 .hx .about dd { margin: 2px 0 0 0; color: var(--muted); }
 .hx .about ul { margin: 6px 0; padding-inline-start: 20px; }
 
+/* ---------- in-page PDF viewer ---------- */
+.hx-viewer { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; padding: 2vh 2vw; }
+.hx-viewer[hidden] { display: none; }
+.hx-vbox { background: var(--panel); color: var(--ink); border-radius: 12px; width: min(980px, 100%); height: 100%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,.35); }
+.hx-vbar { display: flex; gap: 6px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+.hx-vtitle { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.hx-vspacer { flex: 1; }
+.hx-vbar button, .hx-vbar .hx-vtab {
+  min-width: 34px; height: 34px; padding: 0 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 1.15em; line-height: 1;
+}
+.hx-vbar button:hover:not(:disabled), .hx-vbar .hx-vtab:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+.hx-vbar button:disabled { opacity: .35; cursor: default; }
+.hx-vbody { flex: 1; overflow: auto; background: var(--bg); padding: 12px; position: relative; }
+.hx-vpage { position: relative; margin: 0 auto; width: max-content; direction: ltr; box-shadow: 0 1px 6px rgba(0,0,0,.2); }
+.hx-vpage canvas { display: block; background: #fff; }
+.hx-vmark { position: absolute; left: 0; right: 0; background: rgba(255, 196, 0, .28); outline: 2px solid rgba(230, 150, 0, .95); border-radius: 3px; pointer-events: none; }
+.hx-vmsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); pointer-events: none; }
+.hx-vmsg:empty { display: none; }
+
 @media (max-width: 860px) {
   .hx .split { grid-template-columns: 1fr; }
   .hx-list { max-height: 45vh; min-height: 0; }
@@ -232,6 +252,8 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
   .hx .sides, .hx .yi { grid-template-columns: 1fr; }
   .hx .arrow { transform: rotate(90deg); justify-self: center; }
   .hx[dir="rtl"] .arrow { transform: rotate(-90deg); }
+  .hx-viewer { padding: 0; }
+  .hx-vbox { border-radius: 0; }
 }
 
 </style>
@@ -316,6 +338,9 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
       otherUnder: c => `Other items under code ${c}`, corrections: "Corrections to the printed questionnaire", evidence: "Evidence",
       lgThis: "this item", lgOther: "same series, other code or label (click)", lgGap: "not asked", lgMark: "change year",
       printed: "Printed form", page: p => `p. ${p}`, openPdf: (y, p) => `${y}: page ${p}, open the printed form`,
+      pv: { title: (y, p, n) => `Questionnaire ${y} · page ${p}${n ? ` of ${n}` : ""}`, prev: "Previous page", next: "Next page",
+           zoomOut: "Zoom out", zoomIn: "Zoom in", tab: "Open in a new tab", close: "Close", loading: "Loading the questionnaire…",
+           failed: "Could not load the PDF.", here: "The item is on this page" },
       tipNot: "not asked",
       rel: { same: "same item", recoded: "recoded", merged: "merged", split: "split", regrouped: "regrouped" },
       relVerb: { same: "continued", recoded: "recoded", merged: "merged", split: "split", regrouped: "regrouped" },
@@ -371,6 +396,9 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
       otherUnder: c => `اقلام دیگر با کد ${c}`, corrections: "اصلاحات پرسشنامه چاپی", evidence: "شاهد",
       lgThis: "همین قلم", lgOther: "همان سری با کد یا عبارت دیگر (کلیک کنید)", lgGap: "پرسیده نشده", lgMark: "سال تغییر",
       printed: "فرم چاپی", page: p => `ص ${p}`, openPdf: (y, p) => `${y}: صفحه ${p}، باز کردن فرم چاپی`,
+      pv: { title: (y, p, n) => `پرسشنامه ${y} · صفحه ${p}${n ? ` از ${n}` : ""}`, prev: "صفحه قبل", next: "صفحه بعد",
+           zoomOut: "کوچک‌نمایی", zoomIn: "بزرگ‌نمایی", tab: "باز کردن در زبانه تازه", close: "بستن", loading: "در حال بارگذاری پرسشنامه…",
+           failed: "بارگذاری PDF ممکن نشد.", here: "قلم در این صفحه است" },
       tipNot: "پرسیده نشده",
       rel: { same: "همان قلم", recoded: "تغییر کد", merged: "ادغام", split: "تفکیک", regrouped: "بازگروه‌بندی" },
       relVerb: { same: "ادامه", recoded: "تغییر کد", merged: "ادغام", split: "تفکیک", regrouped: "بازگروه‌بندی" },
@@ -413,6 +441,22 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
       .replace(/[‌‍\s.,،؛;:!؟?()«»"'\/\\\-–_]+/g, "").toLowerCase();
   }
   const esc = s => String(s ?? "").replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+
+  /* ---------- PDF.js, loaded from the CDN on the first click ---------- */
+  const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/";
+  let pdfjsLib = null;
+  const pdfDocs = new Map();
+  async function pdfDoc(url) {
+    if (!pdfjsLib) {
+      pdfjsLib = await import(PDFJS + "pdf.min.mjs");
+      pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.mjs";
+    }
+    if (!pdfDocs.has(url)) {
+      const task = pdfjsLib.getDocument({ url, isEvalSupported: false });
+      pdfDocs.set(url, task.promise.catch(err => { pdfDocs.delete(url); throw err; }));
+    }
+    return pdfDocs.get(url);
+  }
 
   /* ---------- data model (shared by every mounted component) ---------- */
   function model(DATA) {
@@ -592,7 +636,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
 
       if (pdfBase) {
         const ends = [...new Set([c.years[0], c.years[c.years.length - 1]])].filter(y => pdfUrl(c, y));
-        if (ends.length) h += `<div class="printed">${t.printed}: ` + ends.map(y => `<a href="${pdfUrl(c, y)}" target="_blank" rel="noopener">${yr(y)}، ${t.page(num(c.page.get(y)))} ↗</a>`.replace("، ", fa ? "، " : ", ")).join(" · ") + `</div>`;
+        if (ends.length) h += `<div class="printed">${t.printed}: ` + ends.map(y => `<a href="${pdfUrl(c, y)}" target="_blank" rel="noopener" data-pdf="${esc(c.id)}" data-year="${y}">${yr(y)}، ${t.page(num(c.page.get(y)))} ↗</a>`.replace("، ", fa ? "، " : ", ")).join(" · ") + `</div>`;
       }
       const sp = span(sYears[0], sYears[sYears.length - 1]);
       const notes = [];
@@ -617,7 +661,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
         const cls = on.has(y) ? "on" : o ? "other" : "";
         const tip = on.has(y) ? `${yr(y)}: ${c.code}` : o ? `${yr(y)}: ${o.code} ${o.text}` : `${yr(y)}: ${t.tipNot}`;
         const href = on.has(y) && pdfUrl(c, y);
-        if (href) return `<a class="c ${cls}${marks.has(y) ? " mark" : ""}" href="${href}" target="_blank" rel="noopener" title="${esc(t.openPdf(yr(y), num(c.page.get(y))))}"></a>`;
+        if (href) return `<a class="c ${cls}${marks.has(y) ? " mark" : ""}" href="${href}" target="_blank" rel="noopener" data-pdf="${esc(c.id)}" data-year="${y}" title="${esc(t.openPdf(yr(y), num(c.page.get(y))))}"></a>`;
         return `<div class="c ${cls}${marks.has(y) ? " mark" : ""}" title="${esc(tip)}"${o ? ` data-go="${esc(o.id)}"` : ""}></div>`;
       }).join("");
       h += `</div></div><div class="legend"><span><i style="background:var(--on)"></i>${t.lgThis}</span><span><i style="background:var(--other)"></i>${t.lgOther}</span><span><i style="background:var(--gap)"></i>${t.lgGap}</span><span><i style="box-shadow:inset 0 0 0 2px var(--warn)"></i>${t.lgMark}</span></div>`;
@@ -755,6 +799,10 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
     });
     [elSec, elLinked, elCurrent].forEach(e => e.addEventListener("change", renderList));
     root.addEventListener("click", e => {
+      const pdfLink = e.target.closest("a[data-pdf]");
+      if (pdfLink && !(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button)) {
+        e.preventDefault(); openPdf(M.CH.get(pdfLink.dataset.pdf), +pdfLink.dataset.year, pdfLink); return;
+      }
       const row = e.target.closest(".row"); if (row) { select(row.dataset.id); return; }
       const go = e.target.closest("[data-go]");
       if (go) { e.preventDefault(); location.hash = "item=" + encodeURIComponent(go.dataset.go); return; }
@@ -762,6 +810,91 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
       if (q) { e.preventDefault(); elQ.value = q.dataset.q; renderList(); elQ.focus(); return; }
       const td = e.target.closest("td[data-year]"); if (td) location.hash = "year=" + td.dataset.year;
     });
+    /* in-page viewer: one page of a questionnaire PDF, with an optional
+       highlight box [top, bottom] in PDF points from the top of the page */
+    const viewer = document.createElement("div");
+    viewer.className = "hx-viewer"; viewer.hidden = true;
+    viewer.setAttribute("role", "dialog"); viewer.setAttribute("aria-modal", "true");
+    viewer.innerHTML = `<div class="hx-vbox">
+        <div class="hx-vbar">
+          <b class="hx-vtitle"></b><span class="hx-vspacer"></span>
+          <button type="button" data-act="prev" title="${t.pv.prev}" aria-label="${t.pv.prev}">${fa ? "›" : "‹"}</button>
+          <button type="button" data-act="next" title="${t.pv.next}" aria-label="${t.pv.next}">${fa ? "‹" : "›"}</button>
+          <button type="button" data-act="out" title="${t.pv.zoomOut}" aria-label="${t.pv.zoomOut}">−</button>
+          <button type="button" data-act="in" title="${t.pv.zoomIn}" aria-label="${t.pv.zoomIn}">+</button>
+          <a class="hx-vtab" target="_blank" rel="noopener" title="${t.pv.tab}" aria-label="${t.pv.tab}">↗</a>
+          <button type="button" data-act="close" title="${t.pv.close}" aria-label="${t.pv.close}">✕</button>
+        </div>
+        <div class="hx-vbody"><div class="hx-vpage"><canvas></canvas><div class="hx-vmark" title="${t.pv.here}" hidden></div></div><div class="hx-vmsg"></div></div>
+      </div>`;
+    root.appendChild(viewer);
+    const vEl = s => viewer.querySelector(s);
+    const canvas = vEl("canvas"), mark = vEl(".hx-vmark"), vmsg = vEl(".hx-vmsg"), vbody = vEl(".hx-vbody");
+    const vs = { url: "", year: 0, page: 1, n: 0, zoom: 1, box: null, boxPage: 0, back: null, token: 0, task: null };
+
+    async function showPage() {
+      const token = ++vs.token;
+      vEl(".hx-vtitle").textContent = t.pv.title(yr(vs.year), num(vs.page), vs.n ? num(vs.n) : "");
+      vEl(".hx-vtab").href = `${vs.url}#page=${vs.page}`;
+      vEl('[data-act="prev"]').disabled = vs.page <= 1;
+      vEl('[data-act="next"]').disabled = !!vs.n && vs.page >= vs.n;
+      vmsg.textContent = t.pv.loading; mark.hidden = true;
+      try {
+        const doc = await pdfDoc(vs.url);
+        if (token !== vs.token) return;
+        vs.n = doc.numPages;
+        vEl(".hx-vtitle").textContent = t.pv.title(yr(vs.year), num(vs.page), num(vs.n));
+        vEl('[data-act="next"]').disabled = vs.page >= vs.n;
+        const page = await doc.getPage(vs.page);
+        if (token !== vs.token) return;
+        const fit = Math.max(200, vbody.clientWidth - 24) / page.getViewport({ scale: 1 }).width;
+        const vp = page.getViewport({ scale: fit * vs.zoom });
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.floor(vp.width * dpr); canvas.height = Math.floor(vp.height * dpr);
+        canvas.style.width = `${Math.floor(vp.width)}px`; canvas.style.height = `${Math.floor(vp.height)}px`;
+        if (vs.task) vs.task.cancel();
+        vs.task = page.render({ canvasContext: canvas.getContext("2d"), viewport: vp, transform: dpr !== 1 ? [dpr, 0, 0, dpr, 0, 0] : null });
+        await vs.task.promise;
+        if (token !== vs.token) return;
+        vmsg.textContent = "";
+        if (vs.box && vs.page === vs.boxPage) {
+          const k = vp.scale, pad = 3;
+          mark.style.top = `${vs.box[0] * k - pad}px`; mark.style.height = `${(vs.box[1] - vs.box[0]) * k + 2 * pad}px`;
+          mark.hidden = false;
+          vbody.scrollTop = Math.max(0, vs.box[0] * k - vbody.clientHeight / 3);
+        }
+      } catch (err) {
+        if (err && err.name === "RenderingCancelledException") return;
+        if (token === vs.token) vmsg.textContent = t.pv.failed;
+      }
+    }
+    function openPdf(c, y, from) {
+      if (!c || !c.page.get(y)) return;
+      Object.assign(vs, { url: `${pdfBase}questionnaire_${y}.pdf`, year: y, page: c.page.get(y), n: 0, zoom: 1,
+                          box: c.box ? c.box.get(y) || null : null, boxPage: c.page.get(y), back: from || null });
+      viewer.hidden = false; document.documentElement.style.overflow = "hidden";
+      vbody.scrollTop = 0; vEl('[data-act="close"]').focus();
+      showPage();
+    }
+    function closePdf() {
+      if (viewer.hidden) return;
+      viewer.hidden = true; vs.token++; if (vs.task) vs.task.cancel();
+      document.documentElement.style.overflow = "";
+      if (vs.back) vs.back.focus();
+    }
+    viewer.addEventListener("click", e => {
+      if (e.target === viewer) { closePdf(); return; }
+      const act = e.target.closest("button[data-act]")?.dataset.act;
+      if (act === "close") closePdf();
+      else if (act === "prev" && vs.page > 1) { vs.page--; vbody.scrollTop = 0; showPage(); }
+      else if (act === "next" && vs.page < vs.n) { vs.page++; vbody.scrollTop = 0; showPage(); }
+      else if (act === "in") { vs.zoom = Math.min(4, vs.zoom * 1.25); showPage(); }
+      else if (act === "out") { vs.zoom = Math.max(0.5, vs.zoom / 1.25); showPage(); }
+    });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && !viewer.hidden) closePdf(); });
+    let vresize;
+    window.addEventListener("resize", () => { if (!viewer.hidden) { clearTimeout(vresize); vresize = setTimeout(showPage, 150); } });
+
     window.addEventListener("hashchange", route);
     renderList();
     route();
