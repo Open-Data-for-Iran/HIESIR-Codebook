@@ -356,7 +356,9 @@
       const on = new Set(c.years), other = new Map();
       for (const s of ser.steps) if (s !== c) for (const y of s.years) other.set(y, s);
       const marks = new Set(ser.links.filter(Boolean).map(l => l.year));
-      h += `<h3>${t.timeline}</h3><div class="timeline"><div class="tl" style="grid-template-columns:repeat(${M.YEARS.length},1fr)">`;
+      h += `<h3>${t.timeline}</h3>`;
+      if (pdfBase && c.years.some(y => c.page.get(y))) h += `<div class="pdfhint">${t.pdfHint}</div>`;
+      h += `<div class="timeline"><div class="tl" style="grid-template-columns:repeat(${M.YEARS.length},1fr)">`;
       h += M.YEARS.map(y => `<div class="y">${yr(y).slice(2)}</div>`).join("");
       h += M.YEARS.map(y => {
         const o = other.get(y);
@@ -368,7 +370,6 @@
         return `<div class="c ${cls}${marks.has(y) ? " mark" : ""}" title="${esc(tip)}"${o ? ` data-go="${esc(o.id)}"` : ""}></div>`;
       }).join("");
       h += `</div></div><div class="legend"><span><i style="background:var(--on)"></i>${t.lgThis}</span><span><i style="background:var(--other)"></i>${t.lgOther}</span><span><i style="background:var(--gap)"></i>${t.lgGap}</span><span><i style="box-shadow:inset 0 0 0 2px var(--warn)"></i>${t.lgMark}</span></div>`;
-      if (pdfBase && c.years.some(y => c.page.get(y))) h += `<div class="pdfhint">${t.pdfHint}</div>`;
 
       if (ser.steps.length > 1) {
         h += `<h3>${t.series}</h3><div class="steps">`;

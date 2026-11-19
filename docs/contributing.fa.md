@@ -36,6 +36,7 @@ uv run python -m hiesir_codebook.explorer    # just the explorer page
 |---|---|---|
 | `2_corrected/corrections.csv` | تک‌قلم‌ها و سرگروه‌ها در یک سال: کد نادرست، متن نادرست، بخش جاافتاده | `correct` |
 | `2_corrected/spelling.csv` | املاهایی که در سطرها و سال‌ها تکرار می‌شوند: غلط تایپی، واژه‌های چسبیده، نیم‌فاصله | `correct` |
+| `2_corrected/spelling_suggestions.csv` | تصمیم درباره پیشنهادهای املایی hazm (`find`): تأیید، رد، تغییر | `correct` |
 | `3_items/links.csv` | تصمیم درباره پیوند یک‌به‌یک میان زنجیره‌ها (`from_chain` ← `to_chain`، همان قلم یا تغییر کد): تأیید، رد، تغییر، افزودن | `relations` |
 | `3_items/relations.csv` | تصمیم درباره ادغام، تفکیک و بازگروه‌بندی میان مجموعه زنجیره‌ها (`from_chains` ← `to_chains`): تأیید، رد، تغییر، افزودن | `relations` |
 | `4_groups/links.csv` | تصمیم درباره پیوند میان سرگروه‌ها (`from_group` ← `to_group`: ادامه، تفکیک، ادغام، بازگروه‌بندی، جابه‌جایی): تأیید، رد، تغییر، افزودن | `groups` |
@@ -45,10 +46,13 @@ uv run python -m hiesir_codebook.explorer    # just the explorer page
 `uv run hiesir-codebook build --no-extract` را اجرا کنید و تفاوت‌ها را در
 `output/` بازبینی کنید.
 
-برای گرفتن پیشنهادهای املایی hazm برای `spelling.csv`:
+پس از تغییر اصلاحات یا `spelling.csv`، پیشنهادهای املایی را از واژه‌نامه hazm
+دوباره بسازید (hazm به پایتون ۳.۱۲ یا ۳.۱۳ نیاز دارد)، سطرهای `apply` برابر `no`
+را بازبینی کنید و هر پیشنهادی را در `curated/2_corrected/spelling_suggestions.csv`
+بازنویسی کنید:
 
 ```bash
-uv run --with hazm python scripts/suggest_labels.py   # -> reports/hazm_suggestions.csv
+uv run --python 3.13 --extra hazm python -m hiesir_codebook.spelling   # -> output/2_corrected/spelling_suggestions.csv
 ```
 
 ## آزمون‌ها {#tests}

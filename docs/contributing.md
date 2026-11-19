@@ -36,6 +36,7 @@ each with its reason:
 |---|---|---|
 | `2_corrected/corrections.csv` | single items and group headers in a single year: wrong codes, wrong texts, missing sections | `correct` |
 | `2_corrected/spelling.csv` | spellings that recur across rows and years: typos, glued words, ZWNJs | `correct` |
+| `2_corrected/spelling_suggestions.csv` | decisions on hazm's spelling suggestions (`find`): confirm, reject, change | `correct` |
 | `3_items/links.csv` | decisions on 1 → 1 links between chains (`from_chain` → `to_chain`, same or recoded): confirm, reject, change, add | `relations` |
 | `3_items/relations.csv` | decisions on merges, splits and regroupings between chain sets (`from_chains` → `to_chains`): confirm, reject, change, add | `relations` |
 | `4_groups/links.csv` | decisions on links between group headers (`from_group` → `to_group`: continued, split, merged, regrouped, moved): confirm, reject, change, add | `groups` |
@@ -44,10 +45,13 @@ The columns of each are described in [Methods](methods.md): [corrections](method
 and [matching decisions](methods.md#matching-items-across-years). After editing,
 run `uv run hiesir-codebook build --no-extract` and review the diff in `output/`.
 
-To get spelling suggestions for `spelling.csv` from hazm:
+After changing the corrections or `spelling.csv`, regenerate the spelling
+suggestions from hazm's dictionary (hazm needs Python 3.12 or 3.13), review the
+`apply` `no` rows and overrule any suggestion in
+`curated/2_corrected/spelling_suggestions.csv`:
 
 ```bash
-uv run --with hazm python scripts/suggest_labels.py   # -> reports/hazm_suggestions.csv
+uv run --python 3.13 --extra hazm python -m hiesir_codebook.spelling   # -> output/2_corrected/spelling_suggestions.csv
 ```
 
 ## Tests
