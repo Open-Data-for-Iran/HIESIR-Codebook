@@ -1,11 +1,11 @@
 """Apply hand-kept corrections to the extracted questionnaires.
 
 ``output/1_extracted/`` holds each questionnaire exactly as printed, typos
-included. ``curated/source.csv`` lists every deviation from the print, one
+included. ``curated/2_corrected/corrections.csv`` lists every deviation from the print, one
 row each, with the reason; this module applies them and writes the result to
 ``output/2_corrected/``, which the matcher reads.
 
-Columns of ``source.csv``:
+Columns of ``corrections.csv``:
 
 ========== ===================================================================
 year       questionnaire year
@@ -14,7 +14,10 @@ action     ``recode``: set the expenditure code of an item
            ``delete``: remove an item (and group headers left without items)
            ``add_section``: copy a section missing from the PDF from another
            year (``description`` = section number, ``value`` = source year)
-expenditure_code  the item's code as printed
+           ``recode_header`` / ``retext_header``: set the code / description
+           of a group header (its level follows the new code)
+expenditure_code  the item's code as printed (for a header: its code as in
+                  ``1_extracted``, e.g. ``062 M`` or ``01121, 01122``)
 description       the item's description as printed (identifies the row
                   when a code is printed twice)
 value      the corrected code or description (empty for ``delete``)
@@ -26,7 +29,7 @@ spacing (:func:`hiesir_codebook.utils.tidy_punctuation`): "،" and ":"
 attach to the word before them, brackets hug their content, "..." has three
 dots.
 
-Then ``curated/labels.csv`` fixes spellings that recur across rows and
+Then ``curated/2_corrected/spelling.csv`` fixes spellings that recur across rows and
 years (typos, joined words, missing ZWNJs), applied to every description in
 file order:
 
@@ -57,15 +60,16 @@ from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
 
-from . import CORRECTED, CSV_COLUMNS, CURATED, DATA_DIR, EXTRACTED, SUPPORTED_YEARS
+from . import CORRECTED, CSV_COLUMNS, CURATED_CORRECTED, DATA_DIR, EXTRACTED, SUPPORTED_YEARS
+from .parse import LAST_OLD_SCHEME_YEAR, header_level
 from .utils import ZWNJ, collapse_whitespace, tidy_punctuation
 
-CORRECTIONS = CURATED / "source.csv"
-LABELS = CURATED / "labels.csv"
+CORRECTIONS = CURATED_CORRECTED / "corrections.csv"
+LABELS = CURATED_CORRECTED / "spelling.csv"
 # a letter or digit of a word (Arabic-script letters, not punctuation such as "،")
 _WORD_CHAR = f"[ء-ٟٮ-ۓە۰-۹{ZWNJ}A-Za-z0-9]"
 OCCURRENCE = DATA_DIR / "commodity_code_occurrence_1383-1403.csv"
-ACTIONS = ("recode", "retext", "delete", "add_section")
+ACTIONS = ("recode", "retext", "delete", "add_section", "recode_header", "retext_header")
 
 
 @dataclass
@@ -169,11 +173,12 @@ def write_rows(rows: Iterable[dict[str, str]], path: Path) -> None:
 
 
 def _find(rows: list[dict[str, str]], c: Correction) -> dict[str, str]:
+    header = c.action.endswith("_header")
     hits = [
         r
         for r in rows
-        if r["kind"] == "item"
-        and r["expenditure_code"] == c.expenditure_code
+        if r["kind"] == ("header" if header else "item")
+        and r["code" if header else "expenditure_code"] == c.expenditure_code
         and (not c.description or collapse_whitespace(r["description"]) == collapse_whitespace(c.description))
     ]
     if len(hits) != 1:
@@ -215,8 +220,11 @@ def apply(
         if c.action == "recode":
             r = _find(rows, c)
             r["expenditure_code"], r["code"], r["sub"] = c.value, c.value[:-2], c.value[-2:]
-        elif c.action == "retext":
+        elif c.action in ("retext", "retext_header"):
             _find(rows, c)["description"] = c.value
+        elif c.action == "recode_header":
+            r = _find(rows, c)
+            r["code"], r["level"] = c.value, str(header_level(c.value, year <= LAST_OLD_SCHEME_YEAR))
         elif c.action == "delete":
             gone = _find(rows, c)
             rows = [r for r in rows if r is not gone]
@@ -355,7 +363,9 @@ def verify(corrections: list[Correction], extracted: Path, occurrence: Path) -> 
 
 
 def main(argv: list[str] | None = None) -> None:
-    ap = argparse.ArgumentParser(description="Apply curated/ to output/1_extracted/ -> output/2_corrected/.")
+    ap = argparse.ArgumentParser(
+        description="Apply curated/2_corrected/ to output/1_extracted/ -> output/2_corrected/."
+    )
     ap.add_argument("--extracted", type=Path, default=EXTRACTED)
     ap.add_argument("--out", type=Path, default=CORRECTED)
     ap.add_argument("--corrections", type=Path, default=CORRECTIONS)

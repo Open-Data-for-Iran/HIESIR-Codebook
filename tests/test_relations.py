@@ -202,8 +202,8 @@ def test_curated_notes_match_evidence():
     if not path.exists():
         pytest.skip(f"no {path.name} in data/ (not in git)")
     occ = load_occurrence(path)
-    chains = read_chains(root / "output" / "3_matched" / "chains.csv")
-    curated = root / "curated"
+    chains = read_chains(root / "output" / "3_items" / "chains.csv")
+    curated = root / "curated" / "3_items"
     decisions = load_decisions(curated / "links.csv") + load_decisions(curated / "relations.csv")
     relations, _ = build_relations(chains, decisions)
     checked = 0

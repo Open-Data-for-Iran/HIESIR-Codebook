@@ -12,6 +12,9 @@ from .utils import OPT_SPACE, collapse_whitespace, has_letters, has_persian
 _CODE = r"(?:[AM] ?)?\d{2,5}(?: ?[AM])?"
 ITEM_RE = re.compile(rf"^(\d{{2}}) ({_CODE})(?: (.*))?$")
 HEADER_RE = re.compile(rf"^({_CODE}(?: ?(?:و|,|،) ?{_CODE})*)(?: (.*))?$")
+# the first line of a header code list that continues on the next code line:
+# "06312 و" (/ "06313 M"), "01193و چاشنی‌ها ..." (/ "01192")
+CODE_HEAD_RE = re.compile(rf"^({_CODE}(?: ?(?:و|,|،) ?{_CODE})*) ?(?:و|,|،)(?: (?![AM]? ?\d)(.*))?$")
 _SP = OPT_SPACE
 SECTION_RE = re.compile(rf"^بخش{_SP}(\d{{1,2}}){_SP}[-–]{_SP}(.*)$")
 PART4_RE = re.compile(rf"^قسمت{_SP}چهارم")
@@ -91,11 +94,16 @@ def _classify(text: str) -> tuple[str, str, str | None, str] | None:
     m = ITEM_RE.match(text)
     if m and len(re.sub(r"\D", "", m.group(2))) in (3, 4):
         return "item", m.group(2), m.group(1), (m.group(3) or "").strip()
+    m = CODE_HEAD_RE.match(text)
+    if m:
+        return "head", m.group(1), None, (m.group(2) or "").strip()
     m = HEADER_RE.match(text)
     if m and m.group(2) and has_persian(m.group(2)):
         return "header", m.group(1), None, m.group(2).strip()
-    if m and not m.group(2) and len(re.sub(r"\D", "", m.group(1))) >= 3:
-        return "header", m.group(1), None, ""  # code only; description wraps
+    # code only, the description wraps around it; two-digit codes only for
+    # the investment groups 33 / 34 (other two-digit lines are sub-codes or noise)
+    if m and not m.group(2) and (len(re.sub(r"\D", "", m.group(1))) >= 3 or m.group(1) in ("33", "34")):
+        return "header", m.group(1), None, ""
     return None
 
 
@@ -111,7 +119,7 @@ def _separated(rules: list[Rule], y0: float, y1: float, x_text: float, x_code: f
 
 
 CODE_TAIL_RE = re.compile(rf"^(?:و|,|،) ?{_CODE}(?: ?(?:و|,|،) ?{_CODE})*$")
-_CODE_ONLY = re.compile(rf"^(?:\d{{2}} )?{_CODE}(?: ?(?:و|,|،) ?{_CODE})*$")
+_CODE_ONLY = re.compile(rf"^(?:\d{{2}} )?{_CODE}(?: ?(?:و|,|،) ?{_CODE})*(?: ?(?:و|,|،))?$")
 
 
 # how far a table rule may be from the row's text to count as its border
@@ -230,7 +238,29 @@ def _page_entries(lines: list[Line], rules: list[Rule], vrules: list[VRule]) -> 
         if heads:
             e = min(heads, key=lambda e: abs(y - e.line.y))
             e.code = f"{e.code} {text}"
-    return coded
+    # a two-digit code line with no text anywhere around it is a page number
+    coded = [e for e in coded if not (re.fullmatch(r"\d{2}", e.code) and not (e.desc or e.before or e.after))]
+    return _join_code_heads(coded)
+
+
+def _join_code_heads(entries: list[_Entry]) -> list[_Entry]:
+    """Join a header code list split over two code lines, the connector
+    ending the first ("06312 و" / "06313 M" with the description between
+    them, 1391-1394; "01193و چاشنی‌ها ..." / "01192", 1386), with the
+    nearest header line; the description is the text of both, top first."""
+    for h in [e for e in entries if e.kind == "head"]:
+        near = [e for e in entries if e.kind == "header" and abs(e.line.y - h.line.y) <= 25]
+        h.kind = "header"
+        if not near:
+            continue
+        other = min(near, key=lambda e: abs(e.line.y - h.line.y))
+        upper, lower = sorted((h, other), key=lambda e: e.line.y)
+        texts = [s.text for e in (upper, lower) for s in (*e.before, Segment(e.desc, 0, 0), *e.after)]
+        upper.desc, upper.before, upper.after = collapse_whitespace(" ".join(texts)), [], []
+        upper.code = f"{h.code}, {other.code}"
+        upper.lines.extend([lower.line, *lower.lines])
+        lower.kind = "absorbed"
+    return [e for e in entries if e.kind != "absorbed"]
 
 
 def _join_split_codes(entries: list[_Entry]) -> list[_Entry]:
@@ -385,8 +415,10 @@ def _assign_levels(rows: list[Row], old_scheme: bool) -> None:
         if r.kind == "item":
             r.level = 5
         elif r.kind == "header":
-            n = len(re.sub(r"\D", "", r.code.split(",")[0]))
-            if old_scheme or (n <= 3 and r.code.startswith("3")):
-                r.level = n
-            else:
-                r.level = n - 1
+            r.level = header_level(r.code, old_scheme)
+
+
+def header_level(code: str, old_scheme: bool) -> int:
+    """The level of a group header from its (first) code; see _assign_levels."""
+    n = len(re.sub(r"\D", "", code.split(",")[0]))
+    return n if old_scheme or (n <= 3 and code.startswith("3")) else n - 1

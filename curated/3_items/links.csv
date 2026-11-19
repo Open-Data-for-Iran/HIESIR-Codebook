@@ -278,7 +278,6 @@
 33225-1383,33225-1387,change,same,label_narrowed,"تلفن -> تلفن ثابت: a qualifier was added, so the item covers less; households 1386: 96 -> 1387: 41, x0.44 relative to the group (x0.97); too few"
 33418-1383,33418-1386,confirm,,,"households 1385: 18 -> 1386: 36, x2.0; too few"
 33418-1387,33418-1397,confirm,,,"households 1396: 36 -> 1397: 19, x0.53; too few"
-33462-1383,33462-1386,confirm,,,"households 1385: 9 -> 1386: 13, x1.44; too few"
 34217-1383,34217-1386,change,same,label_reworded,"(غیر از سواری و شغلی) -> (شغلی): a different set of vehicles; households 1385: 8 -> 1386: 20, x3.11 relative to the group (x0.8); too few"
 34240-1383,34240-1392,confirm,,,"households 1391: 5 -> 1392: 8, x2.22 relative to the group (x0.72); too few"
 011235-1383,011235-1386,add,same,minor,"the label only turned و نظایر آن into و ...; households 1385: 60 -> 1386: 50, x0.83 relative to the group (x1.01); too few"

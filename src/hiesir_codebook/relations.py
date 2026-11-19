@@ -1,6 +1,6 @@
 """Matching, stage 2: links and relations between chains.
 
-Reads ``output/3_matched/chains.csv`` (stage 1).  A relation links a *set*
+Reads ``output/3_items/chains.csv`` (stage 1).  A relation links a *set*
 of earlier chains to a *set* of later chains; its shape gives its kind:
 
 ========== ======== =========================================================
@@ -21,10 +21,10 @@ The two families do different jobs and are kept apart:
 
 * a *link* (``same`` or ``recoded``, always 1 -> 1) continues an item: the
   chains it joins form one series (stage 3).  Written to
-  ``output/3_matched/links.csv``, decided in ``curated/links.csv``.
+  ``output/3_items/links.csv``, decided in ``curated/3_items/links.csv``.
 * a *relation* (``merged``, ``split``, ``regrouped``) ends series and starts
-  others.  Written to ``output/3_matched/relations.csv``, decided in
-  ``curated/relations.csv``.
+  others.  Written to ``output/3_items/relations.csv``, decided in
+  ``curated/3_items/relations.csv``.
 
 They are found together, since a merge is found by extending a link.  A
 chain continues through at most one link each way, and a chain that goes
@@ -58,8 +58,8 @@ labels carry the same content words: only punctuation, the conjunction
 (و نظایر آن، و ...، غیره) differ.  Every other relation, and every merge,
 split or regrouping, needs a human decision.
 
-Decisions are kept in ``curated/links.csv`` (columns ``from_chain``,
-``to_chain``: one chain id each) and ``curated/relations.csv`` (columns
+Decisions are kept in ``curated/3_items/links.csv`` (columns ``from_chain``,
+``to_chain``: one chain id each) and ``curated/3_items/relations.csv`` (columns
 ``from_chains``, ``to_chains``: chain ids separated by spaces), one row per
 link or relation:
 
@@ -94,14 +94,14 @@ from dataclasses import dataclass, field
 from functools import cache
 from pathlib import Path
 
-from . import CURATED, MATCHED, REPORTS
+from . import CURATED_ITEMS, ITEMS, REPORTS
 from .chains import Chain, read_chains
 from .compare import MAX_GAP, YEARS, compare, contained, is_etc, relate, split_qualifier
 from .correct import OCCURRENCE, load_occurrence
 from .utils import loose_key, words
 
-DECISIONS = CURATED / "relations.csv"
-LINK_DECISIONS = CURATED / "links.csv"
+DECISIONS = CURATED_ITEMS / "relations.csv"
+LINK_DECISIONS = CURATED_ITEMS / "links.csv"
 LINK_KINDS = ("same", "recoded")
 GROUP_KINDS = ("merged", "split", "regrouped")
 DECISION_KINDS = ("confirm", "reject", "change", "add")
@@ -446,8 +446,8 @@ class Decision:
 
 
 def load_decisions(path: Path = DECISIONS, links: bool | None = None) -> list[Decision]:
-    """Decisions from ``curated/relations.csv`` or, with ``links``, from
-    ``curated/links.csv`` (guessed from the header when None)."""
+    """Decisions from ``curated/3_items/relations.csv`` or, with ``links``, from
+    ``curated/3_items/links.csv`` (guessed from the header when None)."""
     if not path.exists():
         return []
     with open(path, encoding="utf-8-sig") as f:
@@ -766,9 +766,9 @@ def main(argv: list[str] | None = None) -> None:
         prog="python -m hiesir_codebook.relations",
         description="Matching stage 2: relations between chains.",
     )
-    ap.add_argument("--chains", type=Path, default=MATCHED / "chains.csv")
-    ap.add_argument("--out", type=Path, default=MATCHED / "relations.csv")
-    ap.add_argument("--links-out", type=Path, default=MATCHED / "links.csv")
+    ap.add_argument("--chains", type=Path, default=ITEMS / "chains.csv")
+    ap.add_argument("--out", type=Path, default=ITEMS / "relations.csv")
+    ap.add_argument("--links-out", type=Path, default=ITEMS / "links.csv")
     ap.add_argument("--decisions", type=Path, default=DECISIONS)
     ap.add_argument("--link-decisions", type=Path, default=LINK_DECISIONS)
     ap.add_argument("--reuse-report", type=Path, default=REPORTS / "code_reuse.csv")

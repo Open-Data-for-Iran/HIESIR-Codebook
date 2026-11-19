@@ -1,7 +1,7 @@
 """Build the explorer: one static HTML page to search and browse the matched items.
 
-Reads ``output/2_corrected/``, ``output/3_matched/chains.csv``,
-``output/3_matched/links.csv``, ``relations.csv`` and ``curated/source.csv``, and writes
+Reads ``output/2_corrected/``, ``output/3_items/chains.csv``,
+``links.csv``, ``relations.csv`` and ``curated/2_corrected/corrections.csv``, and writes
 ``output/explorer/index.html`` with the data embedded, so the page works
 offline and on any static host (no server, no build step).
 
@@ -16,7 +16,7 @@ import json
 import math
 from pathlib import Path
 
-from . import CORRECTED, CURATED, MATCHED, OUTPUT
+from . import CORRECTED, CURATED_CORRECTED, ITEMS, OUTPUT
 from .compare import YEARS
 
 # The component (explorer.js, explorer.css) is shared by the standalone page
@@ -57,7 +57,7 @@ def _questionnaire(
             stack[level] = [r["code"], r["description"]]
         elif r["kind"] == "item" and r["expenditure_code"] not in paths:
             paths[r["expenditure_code"]] = [stack[k] for k in sorted(stack)]
-            if r["page"]:  # items added by curated/source.csv have no printed page
+            if r["page"]:  # items added by corrections.csv have no printed page
                 pages[r["expenditure_code"]] = int(r["page"])
             if r["top"] and r["bottom"]:
                 box = [math.floor(float(r["top"])), math.ceil(float(r["bottom"]))]
@@ -69,8 +69,8 @@ def _questionnaire(
 
 def collect(
     corrected: Path = CORRECTED,
-    matched: Path = MATCHED,
-    source: Path = CURATED / "source.csv",
+    items: Path = ITEMS,
+    source: Path = CURATED_CORRECTED / "corrections.csv",
     years: list[int] = YEARS,
 ) -> dict:
     """Everything the page shows, as plain JSON-able data."""
@@ -82,7 +82,7 @@ def collect(
         s, paths[y], pages[y], boxes[y] = _questionnaire(corrected / f"questionnaire_{y}.csv")
         sections.update(s)  # the latest year's title wins
     chains = []
-    for c in _read(matched / "chains.csv"):
+    for c in _read(items / "chains.csv"):
         first, last = int(c["first_year"]), int(c["last_year"])
         miss = [int(y) for y in c["missing_years"].split()]
         code = c["expenditure_code"]
@@ -118,7 +118,7 @@ def collect(
             ("links.csv", ("link_id", "from_chain", "to_chain")),
             ("relations.csv", ("relation_id", "from_chains", "to_chains")),
         )
-        for r in _read(matched / name)
+        for r in _read(items / name)
         if r["verified"] != "rejected"
     ]
     corrections = [

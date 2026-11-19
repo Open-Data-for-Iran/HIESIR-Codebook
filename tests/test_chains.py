@@ -44,7 +44,7 @@ def test_chains_round_trip(tmp_path):
 
 
 def test_matched_is_up_to_date(tmp_path):
-    """output/3_matched/chains.csv, links.csv and relations.csv must match output/2_corrected/;
+    """output/3_items/chains.csv, links.csv and relations.csv must match output/2_corrected/;
     if this fails, run `uv run hiesir-codebook build --no-extract`."""
     from pathlib import Path
 
@@ -59,11 +59,11 @@ def test_matched_is_up_to_date(tmp_path):
     )
 
     root = Path(__file__).resolve().parents[1]
-    matched = root / "output" / "3_matched"
+    matched = root / "output" / "3_items"
     chains = build_chains({y: load_year(y, root / "output" / "2_corrected") for y in ALL_YEARS})
     write_chains(chains, tmp_path / "chains.csv", ALL_YEARS)
-    decisions = load_decisions(root / "curated" / "links.csv") + load_decisions(
-        root / "curated" / "relations.csv"
+    decisions = load_decisions(root / "curated" / "3_items" / "links.csv") + load_decisions(
+        root / "curated" / "3_items" / "relations.csv"
     )
     relations, stale = build_relations(chains, decisions, ALL_YEARS)
     assert not stale, [str(d) for d in stale]

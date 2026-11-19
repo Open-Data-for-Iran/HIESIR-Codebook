@@ -5,7 +5,7 @@
 ## مراحل کار {#the-pipeline}
 
 ```
-data/pdf ──extract──▶ 1_extracted ──correct──▶ 2_corrected ──match──▶ 3_matched ──▶ explorer
+data/pdf ──extract──▶ 1_extracted ──correct──▶ 2_corrected ──match──▶ 3_items ──▶ explorer
                       as printed       ▲        as intended            chains, relations
                                    curated/
 ```
@@ -34,17 +34,18 @@ uv run python -m hiesir_codebook.explorer    # just the explorer page
 
 | فایل | چه چیزی را اصلاح می‌کند | اعمال توسط |
 |---|---|---|
-| `source.csv` | تک‌قلم‌ها در یک سال: کد نادرست، متن نادرست، بخش جاافتاده | `correct` |
-| `labels.csv` | املاهایی که در سطرها و سال‌ها تکرار می‌شوند: غلط تایپی، واژه‌های چسبیده، نیم‌فاصله | `correct` |
-| `links.csv` | تصمیم درباره پیوند یک‌به‌یک میان زنجیره‌ها (`from_chain` ← `to_chain`، همان قلم یا تغییر کد): تأیید، رد، تغییر، افزودن | `relations` |
-| `relations.csv` | تصمیم درباره ادغام، تفکیک و بازگروه‌بندی میان مجموعه زنجیره‌ها (`from_chains` ← `to_chains`): تأیید، رد، تغییر، افزودن | `relations` |
+| `2_corrected/corrections.csv` | تک‌قلم‌ها و سرگروه‌ها در یک سال: کد نادرست، متن نادرست، بخش جاافتاده | `correct` |
+| `2_corrected/spelling.csv` | املاهایی که در سطرها و سال‌ها تکرار می‌شوند: غلط تایپی، واژه‌های چسبیده، نیم‌فاصله | `correct` |
+| `3_items/links.csv` | تصمیم درباره پیوند یک‌به‌یک میان زنجیره‌ها (`from_chain` ← `to_chain`، همان قلم یا تغییر کد): تأیید، رد، تغییر، افزودن | `relations` |
+| `3_items/relations.csv` | تصمیم درباره ادغام، تفکیک و بازگروه‌بندی میان مجموعه زنجیره‌ها (`from_chains` ← `to_chains`): تأیید، رد، تغییر، افزودن | `relations` |
+| `4_groups/links.csv` | تصمیم درباره پیوند میان سرگروه‌ها (`from_group` ← `to_group`: ادامه، تفکیک، ادغام، بازگروه‌بندی، جابه‌جایی): تأیید، رد، تغییر، افزودن | `groups` |
 
 ستون‌های هر فایل در [روش کار](methods.md) آمده‌اند: [اصلاحات](methods.md#corrections)
 و [تصمیم‌های پیوند](methods.md#matching-items-across-years). پس از ویرایش،
 `uv run hiesir-codebook build --no-extract` را اجرا کنید و تفاوت‌ها را در
 `output/` بازبینی کنید.
 
-برای گرفتن پیشنهادهای املایی hazm برای `labels.csv`:
+برای گرفتن پیشنهادهای املایی hazm برای `spelling.csv`:
 
 ```bash
 uv run --with hazm python scripts/suggest_labels.py   # -> reports/hazm_suggestions.csv
@@ -62,7 +63,7 @@ uv run ruff check . && uv run ruff format --check .
 `output/1_extracted/` مقایسه می‌کنند. وقتی تغییری در استخراج‌گر عمدی است، با
 `uv run hiesir-codebook all` دوباره بسازید و پیش از commit تفاوت‌های CSV را
 بازبینی کنید. آزمون‌های سریع هم بررسی می‌کنند که `output/2_corrected/`،
-`output/3_matched/` و `output/explorer/` به‌روز باشند؛ پس از تغییر `curated/` یا
+`output/3_items/` و `output/explorer/` به‌روز باشند؛ پس از تغییر `curated/` یا
 کد، `uv run hiesir-codebook build --no-extract` را اجرا و تفاوت‌ها را بازبینی
 کنید. آزمون‌هایی که به `data/` (خارج از git) نیاز دارند، وقتی این پوشه نباشد، مانند
 GitHub، رد می‌شوند.
