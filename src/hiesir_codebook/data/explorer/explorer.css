@@ -276,6 +276,21 @@
 .hx-vpage { position: relative; margin: 0 auto; width: max-content; direction: ltr; box-shadow: 0 1px 6px rgba(0,0,0,.2); }
 .hx-vpage canvas { display: block; background: #fff; }
 .hx-vmark { position: absolute; box-sizing: border-box; background: rgba(255, 196, 0, .3); border: 2px solid rgba(230, 150, 0, .95); pointer-events: none; }
+/* in the colour of the year's comparability; the page is always white, so
+   the light theme's colours in both themes */
+.hx-vmark.m0 { background: rgba(47, 125, 98, .22); border-color: #2f7d62; }
+.hx-vmark.m1 { background: rgba(159, 210, 182, .4); border-color: #6fb892; }
+.hx-vmark.m2 { background: rgba(229, 178, 47, .28); border-color: #d9a21c; }
+.hx-vmark.m3 { background: rgba(212, 87, 78, .2); border-color: #d4574e; }
+.hx-vbar button { position: relative; }
+.hx-vbadge {
+  position: absolute; top: -7px; inset-inline-end: -7px; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box;
+  border-radius: 9px; font-size: 11px; line-height: 18px; font-weight: 700; text-align: center;
+  background: #e6a000; color: #fff; pointer-events: none;
+}
+.hx-vbadge[hidden] { display: none; }
+.hx-vbadge.m0 { background: #2f7d62; } .hx-vbadge.m1 { background: #6fb892; }
+.hx-vbadge.m2 { background: #d9a21c; } .hx-vbadge.m3 { background: #d4574e; }
 .hx-vmsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); pointer-events: none; }
 .hx-vmsg:empty { display: none; }
 

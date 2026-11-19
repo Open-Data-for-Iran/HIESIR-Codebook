@@ -59,7 +59,8 @@
       notPrinted: "not in that year's printed form (added by a correction)",
       pv: { title: (y, p, n) => `Questionnaire ${y} · page ${p}${n ? ` of ${n}` : ""}`, prev: "Previous page", next: "Next page",
            zoomOut: "Zoom out", zoomIn: "Zoom in", tab: "Open in a new tab", close: "Close", loading: "Loading the questionnaire…",
-           failed: "Could not load the PDF.", here: "The item is on this page" },
+           failed: "Could not load the PDF.", here: "The item is on this page",
+           before: n => `${n} more on earlier pages`, after: n => `${n} more on later pages` },
       tipNot: "not asked",
       period: { m: "last month", y: "last 12 months", head: { m: "Last month", y: "Last 12 months" },
                 secs: r => `sections ${r}`, moved: l => `its items are listed under section ${l}` },
@@ -139,7 +140,8 @@
       notPrinted: "در فرم چاپی آن سال نیست (با اصلاح افزوده شده)",
       pv: { title: (y, p, n) => `پرسشنامه ${y} · صفحه ${p}${n ? ` از ${n}` : ""}`, prev: "صفحه قبل", next: "صفحه بعد",
            zoomOut: "کوچک‌نمایی", zoomIn: "بزرگ‌نمایی", tab: "باز کردن در زبانه تازه", close: "بستن", loading: "در حال بارگذاری پرسشنامه…",
-           failed: "بارگذاری PDF ممکن نشد.", here: "قلم در این صفحه است" },
+           failed: "بارگذاری PDF ممکن نشد.", here: "قلم در این صفحه است",
+           before: n => `${n} مورد دیگر در صفحه‌های پیشین`, after: n => `${n} مورد دیگر در صفحه‌های بعدی` },
       tipNot: "پرسیده نشده",
       period: { m: "ماه گذشته", y: "۱۲ ماه گذشته", head: { m: "ماه گذشته", y: "۱۲ ماه گذشته" },
                 secs: r => `بخش‌های ${r}`, moved: l => `اقلامش در بخش ${l} فهرست شده‌اند` },
@@ -368,6 +370,7 @@
     const refOf = s => (ref && s.years.includes(ref) ? ref : s.last);
     // some year can express the item only with a scope change, by adding codes, or not at all
     const notFull = s => [...compare(M, s, refOf(s)).values()].some(e => e.st === 1 || e.st === 2 || e.st === 3);
+    const stOf = e => !e || e.st === null ? "" : e.st === "ref" ? 0 : e.st;
     const stCls = e => !e || e.st === null ? "" : e.st === "ref" ? "s0 ref" : `s${e.st}`;
     function strip(s) {
       const cmp = compare(M, s, refOf(s));
@@ -549,7 +552,7 @@
         const e = cmp.get(y), cls = stCls(e), text = tip(y, e);
         const printed = e && e.set.filter(x => pdfUrl(x, y));
         if (pdfBase && printed && printed.length) {
-          return `<a class="c ${cls}" href="${pdfUrl(printed[0], y)}" target="_blank" rel="noopener" data-pdf="${esc(printed.map(x => x.id).join(" "))}" data-year="${y}" title="${esc(text)} · ${t.cm.openForm}"></a>`;
+          return `<a class="c ${cls}" href="${pdfUrl(printed[0], y)}" target="_blank" rel="noopener" data-pdf="${esc(printed.map(x => x.id).join(" "))}" data-year="${y}" data-st="${e.st === "ref" ? 0 : e.st}" title="${esc(text)} · ${t.cm.openForm}"></a>`;
         }
         return `<div class="c ${cls}" title="${esc(text)}${e && e.st !== null && pdfBase ? ` · ${t.notPrinted}` : ""}"></div>`;
       }).join("");
@@ -589,7 +592,7 @@
           const y0 = x.years.find(y => x.page.get(y));
           if (l) h += `<div class="link">${yr(l.year)} ${relPills(l)}</div>`;
           h += `<div class="step${x === c ? " cur" : ""}${x.id === focus ? " focus" : ""}"><div class="hd">${code(x.code)} <span class="pill">${ylabel(x)}</span>` +
-            (pdfBase && y0 ? ` <a class="doc" href="${pdfUrl(x, y0)}" target="_blank" rel="noopener" data-pdf="${esc(x.id)}" data-year="${y0}" title="${esc(t.openPdf(yr(y0), num(x.page.get(y0))))}"></a>` : "") +
+            (pdfBase && y0 ? ` <a class="doc" href="${pdfUrl(x, y0)}" target="_blank" rel="noopener" data-pdf="${esc(x.id)}" data-year="${y0}" data-st="${stOf(cmp.get(y0))}" title="${esc(t.openPdf(yr(y0), num(x.page.get(y0))))}"></a>` : "") +
             `</div>${fat(x.text)}` + (l && l.note ? `<details class="note"><summary>${t.evidence}</summary>${esc(l.note)}</details>` : "") + `</div>`;
         }
         h += `</div>`;
@@ -782,7 +785,7 @@
     root.addEventListener("click", e => {
       const pdfLink = e.target.closest("a[data-pdf]");
       if (pdfLink && !(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button)) {
-        e.preventDefault(); openPdf(pdfLink.dataset.pdf.split(" ").map(id => M.CH.get(id)).filter(Boolean), +pdfLink.dataset.year, pdfLink); return;
+        e.preventDefault(); openPdf(pdfLink.dataset.pdf.split(" ").map(id => M.CH.get(id)).filter(Boolean), +pdfLink.dataset.year, pdfLink, pdfLink.dataset.st); return;
       }
       if (e.target.closest("[data-locate]")) { locate(); return; }
       const row = e.target.closest(".row"); if (row) { select(row.dataset.id); return; }
@@ -806,8 +809,8 @@
     viewer.innerHTML = `<div class="hx-vbox">
         <div class="hx-vbar">
           <b class="hx-vtitle"></b><span class="hx-vspacer"></span>
-          <button type="button" data-act="prev" title="${t.pv.prev}" aria-label="${t.pv.prev}">${fa ? "›" : "‹"}</button>
-          <button type="button" data-act="next" title="${t.pv.next}" aria-label="${t.pv.next}">${fa ? "‹" : "›"}</button>
+          <button type="button" data-act="prev" title="${t.pv.prev}" aria-label="${t.pv.prev}">${fa ? "›" : "‹"}<span class="hx-vbadge" hidden></span></button>
+          <button type="button" data-act="next" title="${t.pv.next}" aria-label="${t.pv.next}">${fa ? "‹" : "›"}<span class="hx-vbadge" hidden></span></button>
           <button type="button" data-act="out" title="${t.pv.zoomOut}" aria-label="${t.pv.zoomOut}">−</button>
           <button type="button" data-act="in" title="${t.pv.zoomIn}" aria-label="${t.pv.zoomIn}">+</button>
           <a class="hx-vtab" target="_blank" rel="noopener" title="${t.pv.tab}" aria-label="${t.pv.tab}">↗</a>
@@ -818,7 +821,17 @@
     root.appendChild(viewer);
     const vEl = s => viewer.querySelector(s);
     const canvas = vEl("canvas"), marks = vEl(".hx-vmarks"), vmsg = vEl(".hx-vmsg"), vbody = vEl(".hx-vbody");
-    const vs = { url: "", year: 0, page: 1, n: 0, zoom: 1, boxes: [], boxPage: 0, back: null, token: 0, task: null };
+    const vs = { url: "", year: 0, page: 1, n: 0, zoom: 1, marks: [], st: "", back: null, token: 0, task: null };
+    /* how many highlighted rows lie before and after this page, on the page buttons */
+    function badges() {
+      for (const [act, n, tip] of [["prev", vs.marks.filter(m => m.page < vs.page).length, t.pv.before],
+                                   ["next", vs.marks.filter(m => m.page > vs.page).length, t.pv.after]]) {
+        const b = vEl(`[data-act="${act}"]`), badge = b.querySelector(".hx-vbadge"), name = act === "prev" ? t.pv.prev : t.pv.next;
+        badge.hidden = !n; badge.textContent = n ? num(n) : "";
+        badge.className = `hx-vbadge${vs.st !== "" ? ` m${vs.st}` : ""}`;
+        b.title = n ? `${name} · ${tip(num(n))}` : name;
+      }
+    }
 
     async function showPage() {
       const token = ++vs.token;
@@ -826,7 +839,7 @@
       vEl(".hx-vtab").href = `${vs.url}#page=${vs.page}`;
       vEl('[data-act="prev"]').disabled = vs.page <= 1;
       vEl('[data-act="next"]').disabled = !!vs.n && vs.page >= vs.n;
-      vmsg.textContent = t.pv.loading; marks.innerHTML = "";
+      vmsg.textContent = t.pv.loading; marks.innerHTML = ""; badges();
       try {
         const doc = await pdfDoc(vs.url);
         if (token !== vs.token) return;
@@ -845,28 +858,30 @@
         await vs.task.promise;
         if (token !== vs.token) return;
         vmsg.textContent = "";
-        if (vs.boxes.length && vs.page === vs.boxPage) {
-          const k = vp.scale;
-          marks.innerHTML = vs.boxes.map(([top, bottom, left, right]) => {
+        const here = vs.marks.filter(m => m.page === vs.page && m.box);
+        if (here.length) {
+          const k = vp.scale, cls = vs.st !== "" ? ` m${vs.st}` : "", what = vs.st !== "" ? ` · ${t.cm.st[vs.st]}` : "";
+          marks.innerHTML = here.map(({ code: cd, box: [top, bottom, left, right] }) => {
             const sides = left != null && right != null;
-            return `<div class="hx-vmark" title="${esc(t.pv.here)}" style="top:${top * k}px;height:${(bottom - top) * k}px;` +
+            return `<div class="hx-vmark${cls}" title="${esc(cd + what)}" style="top:${top * k}px;height:${(bottom - top) * k}px;` +
               `left:${sides ? left * k : 0}px;width:${sides ? `${(right - left) * k}px` : "100%"}"></div>`;
           }).join("");
-          vbody.scrollTop = Math.max(0, Math.min(...vs.boxes.map(b => b[0])) * k - vbody.clientHeight / 3);
+          vbody.scrollTop = Math.max(0, Math.min(...here.map(m => m.box[0])) * k - vbody.clientHeight / 3);
         }
       } catch (err) {
         if (err && err.name === "RenderingCancelledException") return;
         if (token === vs.token) vmsg.textContent = t.pv.failed;
       }
     }
-    /* open year y of the questionnaire at the page of the first printed chain,
-       highlighting every given chain printed on that page */
-    function openPdf(chains, y, from) {
-      const first = chains.find(c => c.page.get(y));
-      if (!first) return;
-      const page = first.page.get(y);
-      const boxes = chains.filter(c => c.page.get(y) === page).map(c => c.box.get(y)).filter(Boolean);
-      Object.assign(vs, { url: `${pdfBase}questionnaire_${y}.pdf`, year: y, page, n: 0, zoom: 1, boxes, boxPage: page, back: from || null });
+    /* open year y of the questionnaire at the first page holding one of the
+       given chains, highlighting all of them, on every page, in the colour of
+       the year's comparability st (0-3; "" none) */
+    function openPdf(chains, y, from, st = "") {
+      const all = chains.filter(c => c.page.get(y)).map(c => ({ page: c.page.get(y), box: c.box.get(y), code: c.code }));
+      if (!all.length) return;
+      const page = Math.min(...all.map(m => m.page));
+      Object.assign(vs, { url: `${pdfBase}questionnaire_${y}.pdf`, year: y, page, n: 0, zoom: 1, marks: all,
+        st: /^[0-3]$/.test(String(st)) ? +st : "", back: from || null });
       viewer.hidden = false; document.documentElement.style.overflow = "hidden";
       vbody.scrollTop = 0; vEl('[data-act="close"]').focus();
       showPage();
