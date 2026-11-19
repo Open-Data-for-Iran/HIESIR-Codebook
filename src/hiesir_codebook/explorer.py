@@ -78,10 +78,12 @@ def _runs(by_year: dict[int, str]) -> list[list]:
     return runs
 
 
-def _groups(path: Path) -> tuple[list[list], dict[tuple[int, str], list[int]]]:
+def _groups(path: Path) -> tuple[list[list], dict[tuple[int, str], list[int]], list[list]]:
     """The groups as [code, label, level, section] (a fifth entry, the
-    wordings by year, is added by collect() when the label changed), and for every (year, expenditure code)
-    the indexes of its groups, outermost first (level 2, 3, 4 when printed)."""
+    wordings by year, is added by collect() when the label changed); for
+    every (year, expenditure code) the indexes of its groups, outermost first
+    (level 2, 3, 4 when printed); and the group links that are not rejected,
+    as [from index, to index, relation, year, items]."""
     rows = _read(path / "groups.csv")
     index = {r["group_id"]: i for i, r in enumerate(rows)}
     groups = [[r["code"], r["label"], int(r["level"]), int(r["section"])] for r in rows]
@@ -91,7 +93,12 @@ def _groups(path: Path) -> tuple[list[list], dict[tuple[int, str], list[int]]]:
         ]
         for m in _read(path / "members.csv")
     }
-    return groups, members
+    links = [
+        [index[r["from_group"]], index[r["to_group"]], r["relation"], int(r["year"]), int(r["items"] or 0)]
+        for r in _read(path / "links.csv")
+        if r["verified"] != "rejected"
+    ]
+    return groups, members, links
 
 
 def collect(
@@ -112,7 +119,7 @@ def collect(
         sections.update(s)  # the latest year's title wins
         for k, v in s.items():
             section_years.setdefault(int(k), {})[y] = v
-    group_list, members = _groups(groups)
+    group_list, members, group_links = _groups(groups)
     # the wording of each group in each year, read from the header printed
     # above its items, so the page can show the words of the year picked
     group_years: dict[int, dict[int, str]] = {}
@@ -182,6 +189,7 @@ def collect(
         # section titles that changed: {section: [[first year, title], ...]}
         "sectionYears": {k: _runs(v) for k, v in sorted(section_years.items()) if len(set(v.values())) > 1},
         "groups": group_list,
+        "groupLinks": group_links,
         "chains": chains,
         "relations": relations,
         "corrections": corrections,

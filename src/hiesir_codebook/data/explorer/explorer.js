@@ -71,8 +71,23 @@
       det: { minor: "minor wording", label_reworded: "reworded", label_broadened: "broadened", label_narrowed: "narrowed" },
       v: { confirmed: "confirmed", changed: "changed by review", added: "added by review", definite: "definite", unverified: "unverified",
            confirmedTip: "checked by hand", changedTip: "corrected by hand", addedTip: "added by hand", definiteTip: "only wording differs" },
-      heatCap: "Changes per section and year: new, dropped, recoded, merged and split items and wording changes. Click a cell.",
-      stats: { added: "new items", dropped: "dropped items", recoded: "recoded", merged: "merges", split: "splits", regrouped: "regroupings", scope: "wording / scope changes", corr: "PDF corrections" },
+      ch: {
+        cap: "Items changed per section and year: a merge or split counts its larger side (the 99 merges of 1386 took in 261 items). Click a cell, a section or a year; click it again to clear.",
+        filter: "Kinds of change", reset: "default", clear: "Clear the selection", total: "Total",
+        kinds: { added: "new", dropped: "dropped", recoded: "recoded", merged: "merged", split: "split", regrouped: "regrouped", scope: "wording or scope", groups: "group headings", corr: "PDF corrections" },
+        solo: "double-click to show only this kind",
+        unit: { items: "items involved (a merge or split counts its larger side)", groups: "links between group headings", corr: "corrections to the printed questionnaires" },
+        base: y => `${y}: the first questionnaire, so no change; only its corrections`,
+        pickYear: (a, b) => `${a} → ${b}: all sections`,
+        legend: "items per cell",
+        pick: "Pick a cell, a section or a year to list its changes.",
+        none: "No change of the kinds picked.",
+        allSections: "all sections", allYears: "all years",
+        count: (n, e) => `${n} items, ${e} changes`,
+        droppedAny: "Dropped: not asked again",
+        grel: { continued: "continued", split: "split", merged: "merged", regrouped: "regrouped", moved: "moved" },
+        moved: n => `${n} items`, groupsTitle: "Group headings: links between the headers printed above the items",
+      },
       groups: { recoded: "Recoded: same item, new code", merged: "Merged", split: "Split", regrouped: "Regrouped", scope: "Wording or scope changed, same code", added: "New items", dropped: y => `Dropped: last asked in ${y}`, corr: "Corrections to the printed questionnaire" },
       about: (root, docs) => `
         <h4>What this shows</h4>
@@ -154,8 +169,23 @@
       det: { minor: "تغییر جزئی", label_reworded: "تغییر عبارت", label_broadened: "گسترده‌تر شده", label_narrowed: "محدودتر شده" },
       v: { confirmed: "تأییدشده", changed: "اصلاح در بازبینی", added: "افزوده در بازبینی", definite: "قطعی", unverified: "راستی‌آزمایی‌نشده",
            confirmedTip: "دستی بررسی شده", changedTip: "دستی اصلاح شده", addedTip: "دستی افزوده شده", definiteTip: "فقط عبارت فرق دارد" },
-      heatCap: "تغییرات هر بخش در هر سال: اقلام جدید، حذف‌شده، تغییر کد، ادغام، تفکیک و تغییر عبارت. روی یک خانه کلیک کنید.",
-      stats: { added: "قلم جدید", dropped: "قلم حذف‌شده", recoded: "تغییر کد", merged: "ادغام", split: "تفکیک", regrouped: "بازگروه‌بندی", scope: "تغییر عبارت یا دامنه", corr: "اصلاح PDF" },
+      ch: {
+        cap: "شمار اقلام تغییرکرده در هر بخش و سال: ادغام یا تفکیک با طرف بزرگ‌ترش شمرده می‌شود (۹۹ ادغام ۱۳۸۶، ۲۶۱ قلم را در بر گرفت). روی یک خانه، یک بخش یا یک سال کلیک کنید؛ کلیک دوباره انتخاب را برمی‌دارد.",
+        filter: "نوع تغییر", reset: "پیش‌فرض", clear: "برداشتن انتخاب", total: "جمع",
+        kinds: { added: "جدید", dropped: "حذف‌شده", recoded: "تغییر کد", merged: "ادغام", split: "تفکیک", regrouped: "بازگروه‌بندی", scope: "تغییر عبارت یا دامنه", groups: "سرگروه‌ها", corr: "اصلاح PDF" },
+        solo: "برای دیدن فقط همین نوع، دو بار کلیک کنید",
+        unit: { items: "شمار اقلام درگیر (ادغام یا تفکیک با طرف بزرگ‌ترش)", groups: "پیوندهای میان سرگروه‌ها", corr: "اصلاحات پرسشنامه‌های چاپی" },
+        base: y => `${y}: نخستین پرسشنامه، پس تغییری ندارد؛ فقط اصلاحاتش`,
+        pickYear: (a, b) => `${a} ← ${b}: همه بخش‌ها`,
+        legend: "قلم در هر خانه",
+        pick: "برای دیدن تغییرات، یک خانه، یک بخش یا یک سال را انتخاب کنید.",
+        none: "تغییری از نوع‌های انتخاب‌شده نیست.",
+        allSections: "همه بخش‌ها", allYears: "همه سال‌ها",
+        count: (n, e) => `${n} قلم، ${e} تغییر`,
+        droppedAny: "حذف‌شده: دیگر پرسیده نشده",
+        grel: { continued: "ادامه", split: "تفکیک", merged: "ادغام", regrouped: "بازگروه‌بندی", moved: "جابه‌جایی" },
+        moved: n => `${n} قلم`, groupsTitle: "سرگروه‌ها: پیوند میان عنوان‌هایی که بالای اقلام چاپ شده‌اند",
+      },
       groups: { recoded: "تغییر کد: همان قلم با کد جدید", merged: "ادغام", split: "تفکیک", regrouped: "بازگروه‌بندی", scope: "تغییر عبارت یا دامنه با همان کد", added: "اقلام جدید", dropped: y => `حذف‌شده: آخرین بار در ${y} پرسیده شده`, corr: "اصلاحات پرسشنامه چاپی" },
       about: (root, docs) => `
         <h4>این صفحه چه نشان می‌دهد</h4>
@@ -401,7 +431,7 @@
     root.innerHTML = `
       <nav class="hx-tabs">
         <a data-tab="items" href="#">${t.tabs.items}</a>
-        <a data-tab="years" href="#year">${t.tabs.years}</a>
+        <a data-tab="years" href="#changes">${t.tabs.years}</a>
         <a data-tab="about" href="#about">${t.tabs.about}</a>
       </nav>
       <section class="hx-view" data-view="items">
@@ -694,65 +724,153 @@
       if (window.innerWidth <= 860) elDetail.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    function yearStats(y) {
-      const rels = M.DATA.relations.filter(r => r.year === y);
-      const prev = M.YEARS[M.YEARS.indexOf(y) - 1];
-      const inn = new Set(rels.flatMap(r => r.to)), out = new Set(rels.flatMap(r => r.from));
-      return {
-        rels,
-        added: M.DATA.chains.filter(c => c.first === y && !inn.has(c.id) && y !== M.YEARS[0]),
-        dropped: prev ? M.DATA.chains.filter(c => c.last === prev && !out.has(c.id)) : [],
-        corr: M.DATA.corrections.filter(k => +k.year === y),
-      };
-    }
     const isScope = r => r.rel === "same" && r.detail && r.detail !== "minor";
+    const prevOf = y => M.YEARS[M.YEARS.indexOf(y) - 1];
 
-    function renderYears(y) {
-      const secs = Object.keys(M.DATA.sections).map(Number), ys = M.YEARS.slice(1);
-      const cnt = {}; let max = 1;
-      for (const yy of ys) {
-        const st = yearStats(yy);
-        for (const s of secs) {
-          const n = st.rels.filter(r => r.rel !== "same" || isScope(r)).filter(r => M.CH.get(r.to[0])?.secAt(r.year) === s || M.CH.get(r.from[0])?.secAt(r.year - 1) === s).length
-            + st.added.filter(c => c.secAt(c.first) === s).length + st.dropped.filter(c => c.secAt(c.last) === s).length;
-          cnt[`${s}-${yy}`] = n; max = Math.max(max, n);
-        }
+    /* ---------- changes by year ----------
+       Every change is one event: its kind, year, section (where its items
+       sit that year) and the number of items it involves: 1 for a new,
+       dropped, recoded or reworded item, the larger side of a merge, split
+       or regrouping (99 merges that took in 261 items count 261), one per
+       link between group headings and one per correction. */
+    const KINDS = ["added", "dropped", "recoded", "merged", "split", "regrouped", "scope", "groups", "corr"];
+    const DEFAULT_KINDS = KINDS.filter(k => k !== "groups" && k !== "corr");
+    let EV = null, lastKind = null, lastKindAt = 0, soloBefore = null;
+    function corrChain(k) {
+      const y = +k.year;
+      for (const cd of [k.value, k.expenditure_code]) {
+        const cs = M.byCode.get(cd) || [];
+        const c = cs.find(x => x.years.includes(y)) || cs[0];
+        if (c) return c;
       }
-      let h = `<div class="yearbar">` + ys.map(yy => `<a href="#year=${yy}" class="${yy === y ? "active" : ""}">${yr(yy)}</a>`).join("") + `</div>`;
-      h += `<div class="panel heat"><div class="cap">${t.heatCap}</div><table><tr><th></th>${ys.map(yy => `<th>${yr(yy).slice(2)}</th>`).join("")}</tr>`;
+      return null;
+    }
+    function corrSec(k) {
+      if (k.action === "add_section") return +k.description;
+      const c = corrChain(k);
+      if (c) return c.secAt(+k.year);
+      const g = M.G.find(g => g[0] === k.expenditure_code || g[0] === k.value);
+      return g ? g[3] : null;
+    }
+    function events() {
+      if (EV) return EV;
+      EV = [];
+      for (const r of M.DATA.relations) {
+        const kind = r.rel === "same" ? (isScope(r) ? "scope" : null) : r.rel;
+        if (!kind) continue;
+        const tgt = M.CH.get(r.to[0]), src = M.CH.get(r.from[0]);
+        EV.push({ kind, y: r.year, sec: tgt ? tgt.secAt(r.year) : src ? src.secAt(prevOf(r.year)) : null, n: Math.max(r.from.length, r.to.length), r });
+      }
+      for (const c of M.DATA.chains) {
+        const y = c.years[0], last = c.years[c.years.length - 1];
+        if (y !== M.YEARS[0] && !c.ins.some(r => r.year === y)) EV.push({ kind: "added", y, sec: c.secAt(y), n: 1, c });
+        const next = M.YEARS[M.YEARS.indexOf(last) + 1];
+        if (next && !c.outs.some(r => r.year === next)) EV.push({ kind: "dropped", y: next, sec: c.secAt(last), n: 1, c });
+      }
+      for (const g of M.DATA.groupLinks || []) EV.push({ kind: "groups", y: g[3], sec: M.G[g[1]][3], n: 1, g });
+      for (const k of M.DATA.corrections) EV.push({ kind: "corr", y: +k.year, sec: corrSec(k), n: 1, k });
+      return EV;
+    }
+    // the selection: a cell (section and year), a row (section), a column (year) or nothing
+    const ch = { sec: null, y: null, kinds: new Set(DEFAULT_KINDS) };
+    const inSel = e => (ch.sec === null || e.sec === ch.sec) && (ch.y === null || e.y === ch.y);
+    function changesHash() {
+      const p = ["changes"];
+      if (ch.y !== null) p.push("year=" + ch.y);
+      if (ch.sec !== null) p.push("section=" + ch.sec);
+      const ks = KINDS.filter(k => ch.kinds.has(k));
+      if (ks.join() !== DEFAULT_KINDS.join()) p.push("kinds=" + (ks.join(",") || "none"));
+      return "#" + p.join("&");
+    }
+    function setChanges() { setHash(changesHash()); renderChanges(); }
+
+    function renderChanges() {
+      const ev = events(), secs = Object.keys(M.DATA.sections).map(Number), ys = M.YEARS;
+      const on = ev.filter(e => ch.kinds.has(e.kind));
+      const cnt = new Map(), rowT = new Map(), colT = new Map();
+      let max = 1, total = 0;
+      for (const e of on) {
+        total += e.n;
+        colT.set(e.y, (colT.get(e.y) || 0) + e.n);
+        if (e.sec === null) continue;
+        const key = `${e.sec}-${e.y}`, v = (cnt.get(key) || 0) + e.n;
+        cnt.set(key, v); max = Math.max(max, v);
+        rowT.set(e.sec, (rowT.get(e.sec) || 0) + e.n);
+      }
+      const shade = n => {
+        if (!n) return "";
+        const a = 0.12 + 0.88 * Math.sqrt(n / max);
+        return `background:color-mix(in srgb, var(--accent) ${Math.round(a * 100)}%, var(--panel));color:${a > .55 ? "var(--on-accent)" : "var(--ink)"}`;
+      };
+      const selCls = (s, y) => {
+        const c = [];
+        if ((ch.sec === null || ch.sec === s) && (ch.y === null || ch.y === y) && (ch.sec !== null || ch.y !== null)) c.push(ch.sec !== null && ch.y !== null ? "sel" : "on");
+        return c.join(" ");
+      };
+      // filter chips, with the count in the selection
+      const inS = ev.filter(inSel);
+      let h = `<div class="kinds" role="group" aria-label="${esc(t.ch.filter)}">` + KINDS.map(k => {
+        const n = inS.filter(e => e.kind === k).reduce((a, e) => a + e.n, 0);
+        return `<button type="button" class="kind${ch.kinds.has(k) ? " on" : ""}" data-hk="${k}" aria-pressed="${ch.kinds.has(k)}" title="${esc(`${t.ch.unit[k] || t.ch.unit.items} · ${t.ch.solo}`)}">${t.ch.kinds[k]} <b>${num(n)}</b></button>`;
+      }).join("") + `<button type="button" class="kind reset" data-hk="">${t.ch.reset}</button></div>`;
+      // the table
+      h += `<div class="panel heat"><div class="cap">${t.ch.cap}</div><div class="heatwrap"><table>`;
+      h += `<tr><th class="corner"><a data-hclear title="${esc(t.ch.clear)}">${ch.sec !== null || ch.y !== null ? "✕" : ""}</a></th>` +
+        ys.map(y => `<th class="yh${y === ys[0] ? " base" : ""}${ch.y === y ? " on" : ""}" data-hy="${y}" title="${esc(y === ys[0] ? t.ch.base(yr(y)) : t.ch.pickYear(yr(prevOf(y)), yr(y)))}">${yr(y).slice(2)}</th>`).join("") +
+        `<th class="yh tot">${t.ch.total}</th></tr>`;
+      let band = "";
       for (const s of secs) {
-        h += `<tr><th class="s fa" title="${esc(M.DATA.sections[s])}">${yr(s)} · ${esc(secTitle(s).slice(0, 32))}${secPeriod(s) ? ` <span class="per">${secPeriod(s)}</span>` : ""}</th>`;
-        for (const yy of ys) {
-          const n = cnt[`${s}-${yy}`], a = n ? 0.12 + 0.88 * Math.sqrt(n / max) : 0;
-          const style = n ? `background:color-mix(in srgb, var(--accent) ${Math.round(a * 100)}%, var(--panel));color:${a > .55 ? "var(--on-accent)" : "var(--ink)"}` : "";
-          h += `<td class="${n ? "" : "z"}${yy === y ? " sel" : ""}" data-year="${yy}" title="${yr(yy)} · ${t.section(yr(s))}: ${num(n)}" style="${style}">${n ? num(n) : ""}</td>`;
+        if (secKind(s) !== band) {
+          band = secKind(s);
+          const nums = secs.filter(x => secKind(x) === band);
+          h += `<tr class="band"><th colspan="${ys.length + 2}"><b>${t.period.head[band]}</b> ${t.period.secs(span(nums[0], nums[nums.length - 1]))}</th></tr>`;
         }
-        h += `</tr>`;
+        h += `<tr><th class="s${ch.sec === s ? " on" : ""}" data-hs="${s}" title="${esc(M.DATA.sections[s])}">${code(s)} ${fat(secTitle(s))}</th>`;
+        for (const y of ys) {
+          const n = cnt.get(`${s}-${y}`) || 0;
+          h += `<td class="${n ? "" : "z"} ${selCls(s, y)}" data-hs="${s}" data-hy="${y}" title="${esc(`${yr(y)} · ${t.section(yr(s))}: ${num(n)}`)}" style="${shade(n)}">${n ? num(n) : ""}</td>`;
+        }
+        const rt = rowT.get(s) || 0;
+        h += `<td class="tot${ch.sec === s && ch.y === null ? " on" : ""}" data-hs="${s}">${rt ? num(rt) : ""}</td></tr>`;
       }
-      h += `</table></div>`;
-
-      const st = yearStats(y);
-      const by = k => st.rels.filter(r => r.rel === k);
-      const scope = st.rels.filter(isScope);
-      h += `<div class="cards">` + [
-        [st.added.length, t.stats.added], [st.dropped.length, t.stats.dropped], [by("recoded").length, t.stats.recoded],
-        [by("merged").length, t.stats.merged], [by("split").length, t.stats.split], [by("regrouped").length, t.stats.regrouped],
-        [scope.length, t.stats.scope], [st.corr.length, t.stats.corr],
-      ].map(([n, k]) => `<div class="panel stat"><div class="v">${num(n)}</div><div class="k">${k}</div></div>`).join("") + `</div>`;
-
-      const item = c => `<div class="side">${chainLink(c)}${fat(c.text)}</div>`;
-      const relRows = rs => rs.map(r => `<div class="yi"><div class="side">${r.from.map(i => M.CH.get(i)).filter(Boolean).map(item).join("")}</div><span class="arrow">${ARROW}</span><div class="side">${r.to.map(i => M.CH.get(i)).filter(Boolean).map(item).join("")}</div><div class="reason">${relPills(r)}</div></div>`).join("");
-      const single = cs => cs.map(c => `<div class="yi single">${chainLink(c)}${fat(c.text, "div")}</div>`).join("");
-      const group = (title, body, n) => n ? `<div class="panel group"><h3>${title} (${num(n)})</h3>${body}</div>` : "";
-      h += group(t.groups.recoded, relRows(by("recoded")), by("recoded").length);
-      h += group(t.groups.merged, relRows(by("merged")), by("merged").length);
-      h += group(t.groups.split, relRows(by("split")), by("split").length);
-      h += group(t.groups.regrouped, relRows(by("regrouped")), by("regrouped").length);
-      h += group(t.groups.scope, relRows(scope), scope.length);
-      h += group(t.groups.added, single(st.added), st.added.length);
-      h += group(t.groups.dropped(yr(M.YEARS[M.YEARS.indexOf(y) - 1])), single(st.dropped), st.dropped.length);
-      h += group(t.groups.corr, st.corr.map(k => `<div class="yi single">${code(k.expenditure_code || "—")}<div><span class="pill warn">${esc(k.action)}</span> ${fat(k.description)}${k.value ? ` ${ARROW} ${/^\d+$/.test(k.value) ? code(k.value) : fat(k.value)}` : ""}</div><div class="reason" dir="ltr">${esc(k.reason)}</div></div>`).join(""), st.corr.length);
+      h += `<tr class="tots"><th class="s">${t.ch.total}</th>` + ys.map(y => `<td class="tot${ch.y === y && ch.sec === null ? " on" : ""}" data-hy="${y}">${colT.get(y) ? num(colT.get(y)) : ""}</td>`).join("") +
+        `<td class="tot all">${num(total)}</td></tr></table></div>`;
+      h += `<div class="heatleg"><span>${num(1)}</span><i></i><span>${num(max)}</span> ${t.ch.legend}</div></div>`;
+      // the changes in the selection
+      h += renderChangeList(inS.filter(e => ch.kinds.has(e.kind)));
       elYears.innerHTML = h;
+    }
+
+    function renderChangeList(list) {
+      if (ch.sec === null && ch.y === null) return `<div class="panel chlist empty">${t.ch.pick}</div>`;
+      const where = ch.sec !== null ? `${t.section(yr(ch.sec))} · ${secTitle(ch.sec)}` : t.ch.allSections;
+      const when = ch.y !== null ? (ch.y === M.YEARS[0] ? t.ch.base(yr(ch.y)) : `${yr(prevOf(ch.y))} ${ARROW} ${yr(ch.y)}`) : t.ch.allYears;
+      const items = list.reduce((a, e) => a + e.n, 0);
+      let h = `<div class="chhead"><h3 class="fa-mixed">${esc(where)} · ${when}</h3><span class="n">${t.ch.count(num(items), num(list.length))}</span></div>`;
+      if (!list.length) return h + `<div class="panel chlist empty">${t.ch.none}</div>`;
+      const many = ch.y === null, wide = ch.sec === null;
+      const tag = e => (many ? `<span class="pill yr">${yr(e.y)}</span>` : "") + (wide && e.sec !== null ? `<span class="pill">${t.section(yr(e.sec))}</span>` : "");
+      const item = c => `<div class="side">${chainLink(c)}${fat(c.text)}</div>`;
+      const side = ids => `<div class="side">${ids.map(i => M.CH.get(i)).filter(Boolean).map(item).join("")}</div>`;
+      const gside = (gi, y) => `<div class="side"><div class="gh">${code(M.G[gi][0])}${fat(M.groupLabel(gi, y))}</div></div>`;
+      const row = e => {
+        if (e.r) return `<div class="yi">${side(e.r.from)}<span class="arrow">${ARROW}</span>${side(e.r.to)}<div class="reason">${tag(e)}${relPills(e.r)}</div></div>`;
+        if (e.c) return `<div class="yi single">${chainLink(e.c)}<div>${fat(e.c.text)}</div><div class="reason">${tag(e)}<span class="pill">${ylabel(e.c)}</span></div></div>`;
+        if (e.g) return `<div class="yi">${gside(e.g[0], prevOf(e.y))}<span class="arrow">${ARROW}</span>${gside(e.g[1], e.y)}<div class="reason">${tag(e)}<span class="pill info">${t.ch.grel[e.g[2]] || e.g[2]}</span> ${t.ch.moved(num(e.g[4]))}</div></div>`;
+        const k = e.k, c = corrChain(k), y = +k.year, pg = c && c.page.get(y);
+        return `<div class="yi single">${code(k.expenditure_code || "—")}<div><span class="pill warn">${esc(k.action)}</span> ${fat(k.description)}` +
+          `${k.value ? ` ${ARROW} ${/^\d+$/.test(k.value) ? code(k.value) : fat(k.value)}` : ""}` +
+          (pdfBase && pg ? ` <a class="doc" href="${pdfUrl(c, y)}" target="_blank" rel="noopener" data-pdf="${esc(c.id)}" data-year="${y}" title="${esc(t.openPdf(yr(y), num(pg)))}"></a>` : "") +
+          `</div><div class="reason">${tag(e)}<span dir="ltr">${esc(k.reason)}</span></div></div>`;
+      };
+      for (const k of KINDS) {
+        const es = list.filter(e => e.kind === k).sort((a, b) => a.y - b.y || (a.sec ?? 99) - (b.sec ?? 99));
+        if (!es.length) continue;
+        const n = es.reduce((a, e) => a + e.n, 0);
+        const title = k === "dropped" ? (ch.y !== null ? t.groups.dropped(yr(prevOf(ch.y))) : t.ch.droppedAny) : k === "groups" ? t.ch.groupsTitle : t.groups[k];
+        h += `<div class="panel group"><h3>${title} <span class="n">${n === es.length ? num(n) : t.ch.count(num(n), num(es.length))}</span></h3>${es.map(row).join("")}</div>`;
+      }
+      return h;
     }
 
     function show(view) {
@@ -762,9 +880,12 @@
     function route() {
       syncLang();
       const raw = location.hash.slice(1), h = decodeURIComponent(raw), p = new URLSearchParams(raw);
-      if (p.has("year")) {
-        const y = +p.get("year");
-        show("years"); renderYears(M.YEARS.includes(y) && y !== M.YEARS[0] ? y : 1386); return;
+      if (p.has("changes") || p.has("year")) {
+        const y = +p.get("year"), sc = +p.get("section"), ks = p.get("kinds");
+        ch.y = M.YEARS.includes(y) ? y : null;
+        ch.sec = M.DATA.sections[sc] ? sc : null;
+        ch.kinds = new Set(ks === null ? DEFAULT_KINDS : ks.split(",").filter(k => KINDS.includes(k)));
+        show("years"); renderChanges(); return;
       }
       if (h === "about") { show("about"); return; }
       show("items");
@@ -815,7 +936,29 @@
       }
       const q = e.target.closest("[data-q]");
       if (q) { e.preventDefault(); elQ.value = q.dataset.q; renderList(); setHash(hashFor(current())); elQ.focus(); return; }
-      const td = e.target.closest("td[data-year]"); if (td) location.hash = "year=" + td.dataset.year;
+      // changes by year: a cell, a section, a year, a total, the corner; the kinds
+      const kb = e.target.closest("[data-hk]");
+      if (kb) {
+        // a click turns a kind on or off; a double click shows that kind alone
+        // (again on a kind shown alone: back to the default). Two clicks are
+        // read here, as the chips are redrawn after the first one.
+        const k = kb.dataset.hk, now = Date.now(), twice = k && k === lastKind && now - lastKindAt < 400;
+        lastKind = twice ? null : k; lastKindAt = now;
+        if (k === "") ch.kinds = new Set(DEFAULT_KINDS);
+        else if (twice) ch.kinds = soloBefore === k ? new Set(DEFAULT_KINDS) : new Set([k]);
+        else {
+          soloBefore = ch.kinds.size === 1 && ch.kinds.has(k) ? k : null;
+          if (ch.kinds.has(k)) ch.kinds.delete(k); else ch.kinds.add(k);
+        }
+        setChanges(); return;
+      }
+      if (e.target.closest("[data-hclear]")) { ch.sec = ch.y = null; setChanges(); return; }
+      const hc = e.target.closest("[data-hs],[data-hy]");
+      if (hc && hc.closest('[data-view="years"]')) {
+        const s = hc.dataset.hs ? +hc.dataset.hs : null, y = hc.dataset.hy ? +hc.dataset.hy : null;
+        if (ch.sec === s && ch.y === y) { ch.sec = ch.y = null; } else { ch.sec = s; ch.y = y; }
+        setChanges(); return;
+      }
     });
     /* in-page viewer: one page of a questionnaire PDF, with an optional
        highlight box [top, bottom, left, right] in PDF points from the
