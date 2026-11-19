@@ -253,7 +253,11 @@
       SER.push(s);
     }
     const RELS = DATA.relations.slice().sort((a, b) => a.year - b.year);
-    return { DATA, YEARS, LAST, CH, byCode, SER, serOf, RELS, G, cmp: new Map() };
+    // the wording printed in year y (y null: the latest)
+    const runAt = (runs, y, latest) => { if (!runs || y == null) return latest; let l = runs[0][1]; for (const [y0, v] of runs) if (y0 <= y) l = v; return l; };
+    const groupLabel = (gi, y) => runAt(G[gi] && G[gi][4], y, G[gi] ? G[gi][1] : "");
+    const sectionTitle = (n, y) => runAt((DATA.sectionYears || {})[n], y, DATA.sections[n] || "");
+    return { DATA, YEARS, LAST, CH, byCode, SER, serOf, RELS, G, groupLabel, sectionTitle, cmp: new Map() };
   }
   const is11 = r => (r.rel === "same" || r.rel === "recoded") && r.from.length === 1 && r.to.length === 1;
   const linked = c => c.ins.length || c.outs.length;
@@ -344,9 +348,9 @@
     const ylabel = c => span(c.first, c.last);
     const ARROW = fa ? "←" : "→";
     const PERIOD = /\s*(?:خانوار\s*)?(?:در\s+(12|۱۲)?\s*ماه گذشته)?\s*$/;
-    const secTitle = s => (M.DATA.sections[s] || "").replace(/^هزینه‌(های|ی) /, "").replace(PERIOD, "");
+    const secTitle = (s, y = null) => M.sectionTitle(s, y).replace(/^هزینه‌(های|ی) /, "").replace(PERIOD, "");
     const secPeriod = s => { const m = (M.DATA.sections[s] || "").match(/در\s+(12|۱۲)?\s*ماه گذشته\s*$/); return m ? (m[1] ? t.period.y : t.period.m) : ""; };
-    const secHead = s => `${code(s)}${fat(secTitle(s), "span", "st")}`;
+    const secHead = (s, y = null) => `${code(s)}${fat(secTitle(s, y), "span", "st")}`;
     // the period a section asks about: "m" last month, "y" last 12 months
     // (a section whose latest title names none goes with its neighbours)
     const secKind = s => /در\s+(12|۱۲)\s*ماه گذشته\s*$/.test(M.DATA.sections[s] || "") ? "y" : "m";
@@ -431,7 +435,7 @@
         const sn = c.secAt(refOf(row[0]));
         let n = node(top, `s${sn}`, { sec: sn });
         const trail = [n];
-        for (const gi of c.groupsAt(refOf(row[0]))) { n = node(n.kids, `${n.key}/${gi}`, { g: M.G[gi] }); trail.push(n); }
+        for (const gi of c.groupsAt(refOf(row[0]))) { n = node(n.kids, `${n.key}/${gi}`, { g: M.G[gi], gi }); trail.push(n); }
         n.items.push(row);
         for (const x of trail) { x.n++; if (c.code < x.min) x.min = c.code; }
       }
@@ -440,20 +444,20 @@
       const item = ([s, , hit, c]) => `<div class="row${selected === s.id ? " sel" : ""}" data-id="${esc(s.id)}">${code(c.code)}${fat(c.text, "div")}` +
         (hit && hit !== c ? `<div class="was">${t.cm.earlier}: <span class="fa">${esc(hit.text)}</span></div>` : "") +
         `<div class="meta">${strip(s)}<span class="yrs">${span(s.years[0], s.last)}</span></div></div>`;
+      const gLabel = n => M.groupLabel(n.gi, ref);
       const same = (a, b) => norm(a).includes(norm(b)) || norm(b).includes(norm(a));
       function draw(n, depth, label) {
         // a group alone under a parent of the same name adds nothing: show its contents
         if (n.g && label && n.kids.size === 1 && !n.items.length) {
           const only = [...n.kids.values()][0];
-          if (same(n.g[1], label)) return draw(only, depth, label);
+          if (same(gLabel(n), label)) return draw(only, depth, label);
         }
-        const head = n.sec ? secHead(n.sec)
-          : `${code(n.g[0])}${fat(n.g[1])}`;
+        const head = n.sec ? secHead(n.sec, ref) : `${code(n.g[0])}${fat(gLabel(n))}`;
         const parts = [...n.kids.values()].map(k => [k.min, k]).concat(n.items.map(r => [r[3].code, r]));
         parts.sort((a, b) => a[0].localeCompare(b[0]) || (Array.isArray(a[1]) ? 1 : -1));
-        const body = parts.map(([, x]) => Array.isArray(x) ? item(x) : draw(x, depth + 1, n.sec ? secTitle(n.sec) : n.g[1])).join("");
+        const body = parts.map(([, x]) => Array.isArray(x) ? item(x) : draw(x, depth + 1, n.sec ? secTitle(n.sec, ref) : gLabel(n))).join("");
         return `<details class="${n.sec ? "sec" : "grp"}" data-key="${esc(n.key)}" style="--d:${depth}"${isOpen(n) ? " open" : ""}>` +
-          `<summary title="${esc(n.g ? n.g[1] : M.DATA.sections[n.sec] || "")}">${head}<span class="n">${num(n.n)}</span></summary>${body}</details>`;
+          `<summary title="${esc(n.g ? gLabel(n) : M.sectionTitle(n.sec, ref))}">${head}<span class="n">${num(n.n)}</span></summary>${body}</details>`;
       }
       let h = `<div class="count">${t.count(num(rows.length), !!res)}</div>`;
       if (!rows.length) h += `<div class="empty">${t.noMatch}</div>`;
@@ -522,7 +526,8 @@
       const R = refOf(s), cmp = compare(M, s, R), c = s.at(R);
       const inSer = new Set(s.chains.map(x => x.id));
 
-      let h = `<div class="crumbs fa">${[M.DATA.sections[c.secAt(c.last)], ...c.path.map(p => p[1])].filter(Boolean).map(x => `<span>${esc(x)}</span>`).join("")}</div>`;
+      const above = c.groupsAt(R).map(gi => M.groupLabel(gi, R));
+      let h = `<div class="crumbs fa">${[M.sectionTitle(c.secAt(R), R), ...(above.length ? above : c.path.map(p => p[1]))].filter(Boolean).map(x => `<span>${esc(x)}</span>`).join("")}</div>`;
       h += `<div class="title fa">${esc(c.text)}<button type="button" class="locate" data-locate title="${esc(t.cm.locate)}" aria-label="${esc(t.cm.locate)}">` +
         `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/>` +
         `<circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>`;

@@ -30,6 +30,12 @@ def test_every_chain_and_kept_relation_is_embedded():
     assert y0 == 1383 and [data["groups"][i][0] for i in path] == ["011", "0111", "01111, 01112"]
     for c in data["chains"]:
         assert [y for y, _ in c["gp"]] == sorted({y for y, _ in c["gp"]}), c["id"]
+    # a group's wording by year, for the list under a picked year: 0111 spelled
+    # فرآورده‌های until 1385, فراورده‌های from 1386
+    cereals = next(g for g in data["groups"] if g[0] == "0111")
+    assert cereals[4][0] == [1383, "غلات، نان، آرد، رشته و فرآورده‌های آن"]
+    assert cereals[4][-1][1] == cereals[1]
+    assert data["sectionYears"][10][0][0] == 1383
 
 
 def test_render_escapes_closing_tags(tmp_path):

@@ -68,8 +68,19 @@ def _questionnaire(
     return sections, paths, pages, boxes
 
 
+def _runs(by_year: dict[int, str]) -> list[list]:
+    """{1383: a, 1384: a, 1386: b} -> [[1383, a], [1386, b]]: each wording from
+    the first year it is printed."""
+    runs: list[list] = []
+    for y in sorted(by_year):
+        if not runs or runs[-1][1] != by_year[y]:
+            runs.append([y, by_year[y]])
+    return runs
+
+
 def _groups(path: Path) -> tuple[list[list], dict[tuple[int, str], list[int]]]:
-    """The groups as [code, label, level, section], and for every (year, expenditure code)
+    """The groups as [code, label, level, section] (a fifth entry, the
+    wordings by year, is added by collect() when the label changed), and for every (year, expenditure code)
     the indexes of its groups, outermost first (level 2, 3, 4 when printed)."""
     rows = _read(path / "groups.csv")
     index = {r["group_id"]: i for i, r in enumerate(rows)}
@@ -93,10 +104,24 @@ def collect(
     paths: dict[int, dict[str, list[list[str]]]] = {}
     pages: dict[int, dict[str, int]] = {}
     boxes: dict[int, dict[str, list[int]]] = {}
+    section_years: dict[int, dict[int, str]] = {}
     for y in years:
         s, paths[y], pages[y], boxes[y] = _questionnaire(corrected / f"questionnaire_{y}.csv")
         sections.update(s)  # the latest year's title wins
+        for k, v in s.items():
+            section_years.setdefault(int(k), {})[y] = v
     group_list, members = _groups(groups)
+    # the wording of each group in each year, read from the header printed
+    # above its items, so the page can show the words of the year picked
+    group_years: dict[int, dict[int, str]] = {}
+    for (y, code), idx in members.items():
+        printed = {p[0]: p[1] for p in paths[y].get(code, [])} if y in paths else {}
+        for gi in idx:
+            if group_list[gi][0] in printed:
+                group_years.setdefault(gi, {})[y] = printed[group_list[gi][0]]
+    for gi, worded in group_years.items():
+        if len(set(worded.values())) > 1:
+            group_list[gi].append(_runs(worded))
     chains = []
     for c in _read(items / "chains.csv"):
         first, last = int(c["first_year"]), int(c["last_year"])
@@ -152,6 +177,8 @@ def collect(
     return {
         "years": years,
         "sections": {int(k): v for k, v in sorted(sections.items(), key=lambda kv: int(kv[0]))},
+        # section titles that changed: {section: [[first year, title], ...]}
+        "sectionYears": {k: _runs(v) for k, v in sorted(section_years.items()) if len(set(v.values())) > 1},
         "groups": group_list,
         "chains": chains,
         "relations": relations,
