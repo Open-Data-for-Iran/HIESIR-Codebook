@@ -1,1 +1,39 @@
 ﻿from_group,to_group,decision,relation,note
+0113-1383,0112+0113-1383,confirm,,"1384 prints fish as the level-4 group 01131, 01132 under 0112, 0113 (meat), not as its own level-3 group 0113; all 12 fish items moved there"
+0119-1383,0118-1383,confirm,,cake powder (011932) moved from condiments to sugar and sweets in 1384
+01192-1383,01182+01183+01184-1383,confirm,,cake powder (011932) moved from condiments to jams and sweets in 1384
+01192-1383,01192+01193-1384,change,continued,"the same condiments group under the code 01192, 01193: 11 of its 12 items go there; the 12th, cake powder, moved to the sweets (the link 01192 -> 01182, 01183, 01184)"
+124-1383,124A-1384,confirm,,"1384 splits social protection by period: kindergartens (124113) go to section 13 (124 A), the other five items stay monthly (124 M)"
+1251M-1383,1251-1384,confirm,,"1384 prints insurance once, in section 13: the monthly and annual life-insurance groups of 1383 (1251 M, 1251 A) became one group of non-medical insurance"
+1251A-1383,1251-1384,confirm,,"1384 prints insurance once, in section 13: the monthly and annual life-insurance groups of 1383 (1251 M, 1251 A) became one group of non-medical insurance"
+044A-1383,044M-1383,confirm,,"the three building-upkeep items (044411-044413) asked for the last 12 months in 1383 are asked for the last month in 1384, under 044 M"
+101+102+103+104-1383,101-1384,confirm,,"1383 prints education as one group (101, 102, 103, 104); 1384 splits it by level: primary and pre-school"
+101+102+103+104-1383,102-1384,confirm,,"1383 prints education as one group (101, 102, 103, 104); 1384 splits it by level: lower and upper secondary"
+101+102+103+104-1383,103-1384,confirm,,"1383 prints education as one group (101, 102, 103, 104); 1384 splits it by level: pre-university and tutoring"
+101+102+103+104-1383,104-1384,confirm,,"1383 prints education as one group (101, 102, 103, 104); 1384 splits it by level: higher education"
+1011+1021+1031+1041-1383,1011-1384,confirm,,the level-3 side of the 1384 education split: primary and pre-school
+1011+1021+1031+1041-1383,1021-1384,confirm,,the level-3 side of the 1384 education split: lower and upper secondary
+1011+1021+1031+1041-1383,1031-1384,confirm,,the level-3 side of the 1384 education split: pre-university and tutoring
+1011+1021+1031+1041-1383,1041-1384,confirm,,the level-3 side of the 1384 education split: higher education
+0112+0113-1383,0119-1383,confirm,,"bouillon-type protein (011246, نظیر گالینا) moved from ready-to-cook meat to condiments in 1386"
+01124-1383,01192+01193-1384,confirm,,"bouillon-type protein (011246, نظیر گالینا) moved from ready-to-cook meat to condiments in 1386"
+0118-1383,0111-1383,confirm,,"cakes, dry pastries and cake powder (011836, 011837, 011846) moved from sweets to cereals (biscuits and cake) in 1386"
+01182+01183+01184-1383,01117-1383,confirm,,"cakes, dry pastries and cake powder (011836, 011837, 011846) moved from sweets to biscuits and cake in 1386"
+05111-1383,05117-1386,confirm,,"1386 drops the material: wooden, metal and plastic furniture became one furniture group"
+05112-1383,05117-1386,confirm,,"1386 drops the material: wooden, metal and plastic furniture became one furniture group"
+05113-1383,05117-1386,confirm,,"1386 drops the material: wooden, metal and plastic furniture became one furniture group"
+0921-1383,0922-1383,confirm,,"the upkeep-materials item of 0921 (092121) merged with that of 0922 (092214) in 1386, under 0922"
+03125+03126-1383,03123M+03124M-1389,confirm,,"other ready chadors (031259) merged into the black chador item (031239), a women's garment, in 1389"
+06312A-1390,06313A-1391,confirm,,"the same specialised-hospital group: 1391 prints the monthly header as 06312 and 06313 M and the annual one as 06313 A, with the same label and the same two items"
+061M-1389,061A-1389,confirm,,"oxygen refill (061219) merged into 061214, asked for the last 12 months, in the 1395 health redesign"
+0612M-1389,0612A-1389,confirm,,"oxygen refill (061219) merged into 061214, asked for the last 12 months, in the 1395 health redesign"
+062-1383,063A-1390,confirm,,"dialysis (062324) joined chemotherapy as one inpatient item by provider (063141, 063142) in the 1395 health redesign"
+0622-1383,0621M-1395,confirm,,"orthodontics (062215, 062216) became orthodontic specialists G / NG (062128, 062129) under medical services in the 1395 health redesign"
+0623-1383,0631A-1390,confirm,,"dialysis (062324) joined chemotherapy as one inpatient item by provider (063141, 063142) in the 1395 health redesign"
+063M-1390,062M-1395,confirm,,the 1395 health redesign moved the doctor visits and paramedical services asked for the last month (063 M) into outpatient services (062 M); the inpatient items went to 063 A
+063M-1390,063A-1390,confirm,,"chemotherapy and private nursing in hospital (063119, 063138, 063321) went to the inpatient services asked for the last 12 months in the 1395 health redesign"
+0631M-1390,0621M-1395,confirm,,the 1395 health redesign moved the hospital doctor visits asked for the last month (0631 M) into medical services (0621 M)
+0631M-1390,0631A-1390,confirm,,"chemotherapy (063119, 063138) went to the inpatient services asked for the last 12 months in the 1395 health redesign"
+0633-1383,0623-1383,confirm,,the 1395 health redesign moved hospital paramedical services (0633) into outpatient paramedical services (0623)
+0633-1383,0631A-1390,confirm,,private nursing in hospital (063321) went to the inpatient services asked for the last 12 months in the 1395 health redesign
+0634-1390,0631A-1390,confirm,,the hospital service items by hospital type (063418-063448) went to the inpatient services asked for the last 12 months in the 1395 health redesign

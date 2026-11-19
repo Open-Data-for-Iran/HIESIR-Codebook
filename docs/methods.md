@@ -366,9 +366,13 @@ punctuation, the conjunction (`،` / `و`), word order, generic words or
 "etc." markers (`روغن‌ها و چربی‌ها و کره` → `روغن‌ها، چربی‌ها و کره`). The
 others are `open` until a row in `curated/4_groups/links.csv` decides
 them (`from_group`, `to_group`, `decision`, `relation`, `note`; the
-decisions of `links.csv`). So the 1384 split of `هزینه آموزش` into
-`هزینه آموزش ابتدایی و پیش دبستانی` and the other levels is `open`: the
-codes are related but the labels narrowed.
+decisions of `links.csv`). The 1384 split of `هزینه آموزش` into
+`هزینه آموزش ابتدایی و پیش دبستانی` and the other levels is one of them:
+the codes are related but the labels narrowed. All 38 such links are
+decided (37 confirmed; one `split` changed to `continued`, as only one of
+its items left for another group). Two more `moved` links came from the
+1388–1390 questionnaires, which print the level-2 header `124 M` as
+`1241 M`; `curated/2_corrected/corrections.csv` restores the code.
 A `moved` link that comes from a wrong item link is fixed in `links.csv`
 or `relations.csv`, not here. `items` counts the item chains that moved,
 `from_items` and `to_items` the items under each group that year, and
@@ -380,7 +384,7 @@ past month") and `A` in section 13 (purchases "in the past 12 months"). In
 every year from 1383 to 1403, a group code printed in both parts carries `M`
 in the first and `A` in the second, and a group asked in only one part has no
 suffix. A few suffixed groups have no partner in the other part: `044 M`
-(1384), `124 A` (1388–1390), `063 A` / `0631 A` (1395) and `112 M` /
+(1384), `063 A` / `0631 A` (1395) and `112 M` /
 `1120 M` (1397 on).
 The suffix does not mark durability. Both `0313 M` and `0313 A` are labelled
 کم‌دوام (semi-durable), and the `A` side also holds services such as
