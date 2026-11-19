@@ -38,9 +38,9 @@ def test_same_code_and_code_reuse():
     }
     chains, _, shape = _find(data, [1, 2])
     r = shape[("011-1", "011-2")]
-    assert (r.relation, r.detail, r.needs_verification) == ("same", "minor", False)  # definite
+    assert (r.relation, r.detail, r.decided_by) == ("same", "minor", "code")  # definite
     r = shape[("012-1", "012-2")]
-    assert (r.relation, r.detail, r.needs_verification) == ("same", "label_broadened", True)
+    assert (r.relation, r.detail, r.decided_by) == ("same", "label_broadened", "open")
     assert ("013-1", "013-2") not in shape  # a reused code is no relation
     assert [(a.id, b.id) for a, b, _ in code_reuse(chains, [1, 2])] == [("013-1", "013-2")]
 

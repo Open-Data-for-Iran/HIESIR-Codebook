@@ -27,13 +27,16 @@ moved       items moved between groups printed both before and after: an
             item reorganised, or a wrong item link
 =========== ===================================================================
 
-A link between codes that share a code, or where one code is the start of
-the other (``096`` -> ``0961``, ``0313`` -> ``0313 M``), is definite unless
-it is ``moved``; every other link needs a decision in
-``curated/4_groups/links.csv``, with the columns and decisions of
-``curated/3_items/links.csv``: ``from_group``, ``to_group``, ``decision``
-(confirm, reject, change, add), ``relation`` (for change and add) and
-``note`` (why).
+``decided_by`` says who decided a link.  The code decides it (``code``)
+when it is not ``moved``, the codes are related (they share a code, or one
+is the start of the other: ``096`` -> ``0961``, ``0313`` -> ``0313 M``), and
+the labels match: identical, or differing only in spacing, ZWNJ,
+punctuation, the conjunction (``،`` / ``و``), word order, generic words or
+"etc." markers, as for item links.  Every other link is ``open`` until a
+row in ``curated/4_groups/links.csv`` decides it (``curated``), with the
+columns and decisions of ``curated/3_items/links.csv``: ``from_group``,
+``to_group``, ``decision`` (confirm, reject, change, add), ``relation`` (for
+change and add) and ``note`` (why).
 
 Output (``output/4_groups/``):
 
@@ -54,8 +57,8 @@ from pathlib import Path
 
 from . import CORRECTED, CURATED_GROUPS, GROUPS, ITEMS
 from .chains import Chain, read_chains
-from .compare import MAX_GAP, YEARS
-from .relations import DECISION_KINDS, VERIFIED
+from .compare import MAX_GAP, YEARS, compare
+from .relations import DECISION_KINDS, VERIFIED, decided_by, definite
 
 DECISIONS = CURATED_GROUPS / "links.csv"
 RELATIONS = ("continued", "split", "merged", "regrouped", "moved")
@@ -94,6 +97,13 @@ def codes_of(code: str) -> set[str]:
 def related_codes(a: str, b: str) -> bool:
     """Do two group codes share a code, or is one the start of the other?"""
     return any(x.startswith(y) or y.startswith(x) for x in codes_of(a) for y in codes_of(b))
+
+
+def same_labels(a: str, b: str) -> bool:
+    """Do two labels say the same thing, as far as the code can tell?
+    Identical, or differing only in spacing, ZWNJ, punctuation, hamza, the
+    conjunction, word order, generic words or "etc." markers."""
+    return a == b or compare(a, b).kind == "same" or definite(a, b)
 
 
 def _slug(code: str) -> str:
@@ -174,6 +184,24 @@ class GroupLink:
     def key(self) -> tuple[str, str]:
         return self.source.id, self.target.id
 
+    @property
+    def before(self) -> int | None:
+        """The last year the source is printed before the link."""
+        ys = [y for y in self.source.years if y < self.year]
+        return ys[-1] if ys else None
+
+    @property
+    def from_label(self) -> str:
+        return self.source.labels[self.before] if self.before else self.source.label
+
+    @property
+    def to_label(self) -> str:
+        return self.target.labels.get(self.year, self.target.label)
+
+    @property
+    def decided_by(self) -> str:
+        return decided_by(self.needs_verification, self.verified)
+
 
 def find_links(groups: list[Group], placement: Placement, steps: list[Step]) -> list[GroupLink]:
     """Group links from the item flows, with their relation."""
@@ -204,8 +232,13 @@ def find_links(groups: list[Group], placement: Placement, steps: list[Step]) -> 
             }[(many_out, many_in)]
         else:
             relation = "moved"
-        definite = relation != "moved" and related_codes(src.code, dst.code)
-        links.append(GroupLink(src, dst, y, items, relation, needs_verification=not definite))
+        lk = GroupLink(src, dst, y, items, relation)
+        lk.needs_verification = not (
+            relation != "moved"
+            and related_codes(src.code, dst.code)
+            and same_labels(lk.from_label, lk.to_label)
+        )
+        links.append(lk)
     return links
 
 
@@ -358,7 +391,7 @@ def write_links(links: list[GroupLink], path: Path) -> None:
                 "items",
                 "from_items",
                 "to_items",
-                "needs_verification",
+                "decided_by",
                 "verified",
                 "note",
                 "from_label",
@@ -367,7 +400,6 @@ def write_links(links: list[GroupLink], path: Path) -> None:
             ]
         )
         for lk in links:
-            before = [y for y in lk.source.years if y < lk.year]
             w.writerow(
                 [
                     lk.id,
@@ -376,13 +408,13 @@ def write_links(links: list[GroupLink], path: Path) -> None:
                     lk.relation,
                     lk.year,
                     len(lk.items),
-                    len(lk.source.items.get(before[-1], ())) if before else "",
+                    len(lk.source.items.get(lk.before, ())) if lk.before else "",
                     len(lk.target.items.get(lk.year, ())),
-                    lk.needs_verification,
+                    lk.decided_by,
                     lk.verified,
                     lk.note,
-                    lk.source.labels[before[-1]] if before else lk.source.label,
-                    lk.target.labels.get(lk.year, lk.target.label),
+                    lk.from_label,
+                    lk.to_label,
                     " ".join(sorted(lk.items)),
                 ]
             )
@@ -418,10 +450,10 @@ def main(argv: list[str] | None = None) -> None:
     print(
         f"{len(groups)} groups, {len(links)} group links ("
         + ", ".join(f"{k} {v}" for k, v in kinds.most_common())
-        + f"): definite {sum(not lk.needs_verification and not lk.verified for lk in links)}, "
+        + f"): decided by the code {sum(lk.decided_by == 'code' for lk in links)}, "
         + f"in {args.decisions.as_posix()}: "
         + (", ".join(f"{k} {v}" for k, v in verified.items()) or "0")
-        + f", still to verify: {sum(lk.needs_verification for lk in links)}"
+        + f", open: {sum(lk.decided_by == 'open' for lk in links)}"
     )
     for d in stale:
         print(f"stale group decision: {d}")
