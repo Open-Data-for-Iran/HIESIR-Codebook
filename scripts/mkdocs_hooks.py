@@ -18,12 +18,20 @@ found, in place of the marker <!-- questionnaire-pdfs -->.
 
 The explorer page itself is docs/explorer.md (and its translations), drawn by
 overrides/explorer.html.
+
+Each page's <link rel="alternate" hreflang> tags are dropped: Material's
+script fetches sitemap.xml from every such link, expecting a language root,
+but mkdocs-static-i18n points them at the page in each language, so every
+page asked for <page>/sitemap.xml and got a 404. Search engines still get the
+same pairs from sitemap.xml (its xhtml:link entries), and the language menu
+uses its own links.
 """
 
 from __future__ import annotations
 
 import logging
 import os
+import re
 import tempfile
 from pathlib import Path
 
@@ -35,6 +43,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "output"
 PUBLISH = ["2_corrected/*.csv", "3_items/*.csv", "4_groups/*.csv"]
 MARKER = "<!-- questionnaire-pdfs -->"
+HREFLANG = re.compile(r'[ \t]*<link rel="alternate" href="[^"]*" hreflang="[^"]*">\n?')
 log = logging.getLogger("mkdocs.hooks.hiesir")
 
 _found: list[pdfs.Pdf] = []
@@ -125,3 +134,7 @@ def on_page_markdown(markdown: str, page, config, files) -> str:
     if MARKER not in markdown:
         return markdown
     return markdown.replace(MARKER, pdf_table(_found, config.theme.get("language", "en")))
+
+
+def on_post_page(output: str, page, config) -> str:
+    return HREFLANG.sub("", output)

@@ -48,6 +48,16 @@ def test_questionnaire_table(tmp_path):
     assert "!!! note" in hooks.pdf_table([], "en")
 
 
+def test_hreflang_links_are_dropped():
+    # Material fetches <href>/sitemap.xml for each of them (404 for every page)
+    hooks = _hooks()
+    page = ('<head>\n  <link rel="alternate" href="./" hreflang="en">\n'
+            '  <link rel="alternate" href="../fa/explorer/" hreflang="fa">\n'
+            '  <link rel="alternate" type="application/rss+xml" href="feed.xml">\n</head>')
+    out = hooks.on_post_page(page, None, None)
+    assert "hreflang" not in out and "feed.xml" in out
+
+
 def test_explorer_knows_the_printed_page():
     data = explorer.collect(
         corrected=ROOT / "output" / "2_corrected",
