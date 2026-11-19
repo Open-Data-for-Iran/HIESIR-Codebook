@@ -57,7 +57,7 @@ wording change.
 |---|---|
 | Questionnaires | 21 years: 1382–1400, 1402, 1403 (1401's PDF is a data dictionary; 1363–1381 are scans) |
 | Items | about 1,900 chains: one code with one label, followed while both stay the same |
-| Links between them | 420 links that continue an item (reworded or recoded) and 137 merges, splits and regroupings; every one verified |
+| Links between them | 415 links that continue an item (reworded or recoded) and 141 merges, splits and regroupings; every one verified |
 | Corrections | 35 fixes to the printed questionnaires, plus spelling and punctuation across all years |
 
 ## How it is made

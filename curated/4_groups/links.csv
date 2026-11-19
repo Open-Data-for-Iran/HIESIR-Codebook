@@ -37,3 +37,13 @@
 0633-1383,0623-1383,confirm,,the 1395 health redesign moved hospital paramedical services (0633) into outpatient paramedical services (0623)
 0633-1383,0631A-1390,confirm,,private nursing in hospital (063321) went to the inpatient services asked for the last 12 months in the 1395 health redesign
 0634-1390,0631A-1390,confirm,,the hospital service items by hospital type (063418-063448) went to the inpatient services asked for the last 12 months in the 1395 health redesign
+121-1383,062-1383,confirm,,"hair transplant (121318, personal care) merged into outpatient surgery (062114) in 1392, whose label added کاشت مو"
+1213-1383,0621-1383,confirm,,"hair transplant (121318, personal care) merged into outpatient surgery (062114) in 1392, whose label added کاشت مو"
+123M-1383,071-1383,reject,,"an artefact of the 1384 regrouping (071312, 093115, 123215 -> 071312, 123215), which links every source with every target: the baby gear stays under 1232 M and the 16-inch bicycle under 0713"
+1232M-1383,0713-1383,reject,,"an artefact of the 1384 regrouping (071312, 093115, 123215 -> 071312, 123215), which links every source with every target: the baby gear stays under 1232 M and the 16-inch bicycle under 0713"
+071-1383,123M-1383,reject,,"an artefact of the 1384 regrouping (071312, 093115, 123215 -> 071312, 123215), which links every source with every target: the baby gear stays under 1232 M and the 16-inch bicycle under 0713"
+0713-1383,1232M-1383,reject,,"an artefact of the 1384 regrouping (071312, 093115, 123215 -> 071312, 123215), which links every source with every target: the baby gear stays under 1232 M and the 16-inch bicycle under 0713"
+093A-1383,071-1383,confirm,,"the tricycles (and toy bicycles) of 093115 went to the 16-inch bicycle item (071312) in 1384"
+0931A-1383,0713-1383,confirm,,"the tricycles (and toy bicycles) of 093115 went to the 16-inch bicycle item (071312) in 1384"
+093A-1383,123M-1383,confirm,,"the walkers (روروئک) of 093115 went to the baby-gear item (123215) in 1384"
+0931A-1383,1232M-1383,confirm,,"the walkers (روروئک) of 093115 went to the baby-gear item (123215) in 1384"

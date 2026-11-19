@@ -209,9 +209,9 @@ the conjunction (`،` / `و`), word order, spacing, generic words (`انواع`)
 or "etc." markers (`و نظایر آن` / `و ...`) differ: `جگر، دل، قلوه` →
 `جگر، دل و قلوه`. Every other relation, and every merge, split or
 regrouping, needs a check. Everything is now settled: of 447 links, 162 are
-definite and `curated/3_items/links.csv` decides the rest (194 confirmed, 60
-changed, 27 rejected, 4 added); `curated/3_items/relations.csv` decides all 151
-merges, splits and regroupings (93 confirmed, 14 rejected, 44 added).
+definite and `curated/3_items/links.csv` decides the rest (189 confirmed, 60
+changed, 32 rejected, 4 added); `curated/3_items/relations.csv` decides all 155
+merges, splits and regroupings (93 confirmed, 14 rejected, 48 added).
 
 Decisions go in `curated/3_items/links.csv` and `curated/3_items/relations.csv`, one row per
 link or relation, named by its chains:
@@ -285,10 +285,21 @@ What the verification found:
   plus «سیگار بهمن» became «انواع سیگار ایرانی» (1390), and in 1386 the
   foreign-made toothbrushes, toothpaste and face cream joined the domestic
   ones, filming joined photography, recorded tapes and CDs joined the blank
-  ones. 18 links read as broadenings were such merges (17 merges and the
-  1390 bicycles, three items regrouped into two). The household counts
-  agree in every case, and decide two: read as broadenings, recorded CDs
-  and 28-inch bicycles would have tripled.
+  ones, and in 1392 outpatient surgery added «کاشت مو» as the hair-transplant
+  item of section 12 ended. 21 links read as broadenings were such merges
+  (18 merges and two regroupings of three items into two: the 1390 bicycles,
+  and in 1384 the toy bicycles, tricycles and walkers of 093115, whose
+  tricycles went to the 16-inch bicycle and whose walkers to the baby gear
+  of section 12). The
+  household counts agree in every case, and decide two: read as broadenings,
+  recorded CDs and 28-inch bicycles would have tripled. Two narrowings were
+  splits the same way round: «کرایه تاکسی و سواری داخل شهری» dropped «سواری»
+  as «کرایه سواری داخل شهری (مسافرکش شخصی)» started (1385), and the
+  electric-blanket item dropped the thermometer and hot-water bottle as
+  «تب‌سنج، کیسه آبجوش، کیسه یخ» started (1389). A search of every broadened
+  or narrowed link for an item that ended or started beside it, under words
+  the label gained or lost, finds no others in its group; the 1384
+  regrouping crosses groups and sections, and was found by reading the labels.
 
 Where the counts still do not fit, the note says why, for example: landline
 phones declining as mobiles spread; internet cafés closing under COVID in
@@ -368,9 +379,11 @@ others are `open` until a row in `curated/4_groups/links.csv` decides
 them (`from_group`, `to_group`, `decision`, `relation`, `note`; the
 decisions of `links.csv`). The 1384 split of `هزینه آموزش` into
 `هزینه آموزش ابتدایی و پیش دبستانی` and the other levels is one of them:
-the codes are related but the labels narrowed. All 38 such links are
-decided (37 confirmed; one `split` changed to `continued`, as only one of
-its items left for another group). Two more `moved` links came from the
+the codes are related but the labels narrowed. All 48 such links are
+decided (43 confirmed; one `split` changed to `continued`, as only one of
+its items left for another group; four rejected: a regrouping links every
+source with every target, so the 1384 baby gear and 16-inch bicycle seemed
+to swap groups). Two more `moved` links came from the
 1388–1390 questionnaires, which print the level-2 header `124 M` as
 `1241 M`; `curated/2_corrected/corrections.csv` restores the code.
 A `moved` link that comes from a wrong item link is fixed in `links.csv`
