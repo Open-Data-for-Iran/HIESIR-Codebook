@@ -38,7 +38,9 @@
       timeline: "Timeline", series: "Series", cameFrom: "Came from", wentInto: "Went into",
       otherUnder: c => `Other items under code ${c}`, corrections: "Corrections to the printed questionnaire", evidence: "Evidence",
       lgThis: "this item", lgOther: "same series, other code or label (click)", lgGap: "not asked", lgMark: "change year",
-      printed: "Printed form", page: p => `p. ${p}`, openPdf: (y, p) => `${y}: page ${p}, open the printed form`,
+      openPdf: (y, p) => `${y}: page ${p}, open the printed form`,
+      pdfHint: "Click a year to see the item on the printed questionnaire.",
+      notPrinted: "not in that year's printed form (added by a correction)",
       pv: { title: (y, p, n) => `Questionnaire ${y} · page ${p}${n ? ` of ${n}` : ""}`, prev: "Previous page", next: "Next page",
            zoomOut: "Zoom out", zoomIn: "Zoom in", tab: "Open in a new tab", close: "Close", loading: "Loading the questionnaire…",
            failed: "Could not load the PDF.", here: "The item is on this page" },
@@ -96,7 +98,9 @@
       timeline: "خط زمانی", series: "سری", cameFrom: "از کجا آمده", wentInto: "به کجا رفته",
       otherUnder: c => `اقلام دیگر با کد ${c}`, corrections: "اصلاحات پرسشنامه چاپی", evidence: "شاهد",
       lgThis: "همین قلم", lgOther: "همان سری با کد یا عبارت دیگر (کلیک کنید)", lgGap: "پرسیده نشده", lgMark: "سال تغییر",
-      printed: "فرم چاپی", page: p => `ص ${p}`, openPdf: (y, p) => `${y}: صفحه ${p}، باز کردن فرم چاپی`,
+      openPdf: (y, p) => `${y}: صفحه ${p}، باز کردن فرم چاپی`,
+      pdfHint: "برای دیدن قلم در پرسشنامه چاپی، روی یک سال کلیک کنید.",
+      notPrinted: "در فرم چاپی آن سال نیست (با اصلاح افزوده شده)",
       pv: { title: (y, p, n) => `پرسشنامه ${y} · صفحه ${p}${n ? ` از ${n}` : ""}`, prev: "صفحه قبل", next: "صفحه بعد",
            zoomOut: "کوچک‌نمایی", zoomIn: "بزرگ‌نمایی", tab: "باز کردن در زبانه تازه", close: "بستن", loading: "در حال بارگذاری پرسشنامه…",
            failed: "بارگذاری PDF ممکن نشد.", here: "قلم در این صفحه است" },
@@ -336,10 +340,6 @@
       h += `<div class="title fa">${esc(c.text)}</div>`;
       h += `<div class="ids">${code(c.code)} <span class="pill">${t.section(yr(c.s))}</span> <span class="pill">${t.asked(ylabel(c))}${c.miss.length ? `، ${t.notIn(yrs(c.miss))}`.replace("،", fa ? "،" : ",") : ""}</span> <span class="pill" title="${t.chainId}">${esc(c.id)}</span></div>`;
 
-      if (pdfBase) {
-        const ends = [...new Set([c.years[0], c.years[c.years.length - 1]])].filter(y => pdfUrl(c, y));
-        if (ends.length) h += `<div class="printed">${t.printed}: ` + ends.map(y => `<a href="${pdfUrl(c, y)}" target="_blank" rel="noopener" data-pdf="${esc(c.id)}" data-year="${y}">${yr(y)}، ${t.page(num(c.page.get(y)))} ↗</a>`.replace("، ", fa ? "، " : ", ")).join(" · ") + `</div>`;
-      }
       const sp = span(sYears[0], sYears[sYears.length - 1]);
       const notes = [];
       if (recodes.length) notes.push(t.codeChanges(yrs(recodes.map(l => l.year))));
@@ -361,12 +361,14 @@
       h += M.YEARS.map(y => {
         const o = other.get(y);
         const cls = on.has(y) ? "on" : o ? "other" : "";
-        const tip = on.has(y) ? `${yr(y)}: ${c.code}` : o ? `${yr(y)}: ${o.code} ${o.text}` : `${yr(y)}: ${t.tipNot}`;
+        const tip = on.has(y) ? `${yr(y)}: ${c.code}${pdfBase && !c.page.get(y) ? ` · ${t.notPrinted}` : ""}`
+          : o ? `${yr(y)}: ${o.code} ${o.text}` : `${yr(y)}: ${t.tipNot}`;
         const href = on.has(y) && pdfUrl(c, y);
         if (href) return `<a class="c ${cls}${marks.has(y) ? " mark" : ""}" href="${href}" target="_blank" rel="noopener" data-pdf="${esc(c.id)}" data-year="${y}" title="${esc(t.openPdf(yr(y), num(c.page.get(y))))}"></a>`;
         return `<div class="c ${cls}${marks.has(y) ? " mark" : ""}" title="${esc(tip)}"${o ? ` data-go="${esc(o.id)}"` : ""}></div>`;
       }).join("");
       h += `</div></div><div class="legend"><span><i style="background:var(--on)"></i>${t.lgThis}</span><span><i style="background:var(--other)"></i>${t.lgOther}</span><span><i style="background:var(--gap)"></i>${t.lgGap}</span><span><i style="box-shadow:inset 0 0 0 2px var(--warn)"></i>${t.lgMark}</span></div>`;
+      if (pdfBase && c.years.some(y => c.page.get(y))) h += `<div class="pdfhint">${t.pdfHint}</div>`;
 
       if (ser.steps.length > 1) {
         h += `<h3>${t.series}</h3><div class="steps">`;
