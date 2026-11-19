@@ -54,6 +54,8 @@
         yearTip: "Show the items asked in this year, and compare every other year with it; All items: every item, each compared with its latest year",
         notInRef: y => `Not asked in ${y}; compared with its latest year instead.`,
         openForm: "open the printed form",
+        np: "not printed: added by a correction",
+        npLine: ys => `not on the printed questionnaire: ${ys}. These codes come from a correction, so there is no page to open`,
         locate: "Show in the list",
       },
       notPrinted: "not in that year's printed form (added by a correction)",
@@ -135,6 +137,8 @@
         yearTip: "اقلامی را که در این سال پرسیده شده‌اند نشان بده و سال‌های دیگر را با آن مقایسه کن؛ همه اقلام: همه اقلام، هر کدام در مقایسه با آخرین سالِ خود",
         notInRef: y => `در ${y} پرسیده نشده؛ مقایسه نسبت به آخرین سالِ آن است.`,
         openForm: "باز کردن فرم چاپی",
+        np: "چاپ نشده: با اصلاح افزوده شده",
+        npLine: ys => `در پرسشنامه چاپی نیست: ${ys}. این کدها از یک اصلاح آمده‌اند، پس صفحه‌ای برای نمایش نیست`,
         locate: "نمایش در فهرست",
       },
       notPrinted: "در فرم چاپی آن سال نیست (با اصلاح افزوده شده)",
@@ -545,8 +549,15 @@
       const by = [[], [], [], []];
       for (const y of M.YEARS) { const e = cmp.get(y); if (e && e.st !== null) by[e.st === "ref" ? 0 : e.st].push(y); }
       const vcls = by[3].length ? "bad" : by[1].length || by[2].length ? "warn" : "ok";
+      // years asked but on no printed page: the codes come from a correction
+      // (1383 section 2, copied from 1384 as that page of the PDF is blank)
+      const np = M.YEARS.filter(y => { const e = cmp.get(y); return e && e.st !== null && e.set.every(x => !x.page.get(y)); });
+      const why = [...new Set(np.flatMap(y => cmp.get(y).set.map(x => M.DATA.corrections.find(k =>
+        +k.year === y && k.action === "add_section" && +k.description === x.secAt(y))).filter(Boolean)))];
       h += `<div class="verdict ${vcls}"><b>${t.cm.seenFrom(yr(R))}</b><ul class="spans">` +
-        by.map((ys, k) => ys.length ? `<li><i class="sw s${k}"></i>${t.cm.st[k]}: ${ranges(ys)}</li>` : "").join("") + `</ul></div>`;
+        by.map((ys, k) => ys.length ? `<li><i class="sw s${k}"></i>${t.cm.st[k]}: ${ranges(ys)}</li>` : "").join("") +
+        (np.length ? `<li class="np"><i class="sw np"></i>${t.cm.npLine(ranges(np))}${why.length ? ":" : "."}` +
+          why.map(k => `<div class="why" dir="ltr">${esc(k.reason)}</div>`).join("") + `</li>` : "") + `</ul></div>`;
 
       // timeline
       h += `<h3>${t.timeline}</h3>`;
@@ -559,12 +570,13 @@
         if (pdfBase && printed && printed.length) {
           return `<a class="c ${cls}" href="${pdfUrl(printed[0], y)}" target="_blank" rel="noopener" data-pdf="${esc(printed.map(x => x.id).join(" "))}" data-year="${y}" data-st="${e.st === "ref" ? 0 : e.st}" title="${esc(text)} · ${t.cm.openForm}"></a>`;
         }
-        return `<div class="c ${cls}" title="${esc(text)}${e && e.st !== null && pdfBase ? ` · ${t.notPrinted}` : ""}"></div>`;
+        return `<div class="c ${cls}${np.includes(y) ? " np" : ""}" title="${esc(text)}${np.includes(y) ? ` · ${t.notPrinted}` : ""}"></div>`;
       }).join("");
       const present = new Set([...cmp.values()].map(e => (e.st === "ref" ? 0 : e.st)));
       h += `</div></div><div class="legend">` +
         [0, 1, 2, 3].filter(k => present.has(k)).map(k => `<span><i class="sw s${k}"></i>${t.cm.st[k]}</span>`).join("") +
         (present.has(null) ? `<span><i class="sw"></i>${t.cm.na}</span>` : "") +
+        (np.length ? `<span><i class="sw np"></i>${t.cm.np}</span>` : "") +
         `<span><i class="sw s0 ref"></i>${t.cm.ref}</span></div>`;
 
       // codes to use, year by year

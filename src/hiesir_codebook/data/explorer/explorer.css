@@ -300,6 +300,13 @@
 .hx .strip i.s2, .hx .tl .c.s2, .hx .sw.s2 { background: var(--s2); }
 .hx .strip i.s3, .hx .tl .c.s3, .hx .sw.s3 { background: var(--s3); }
 .hx .tl .c.ref, .hx .sw.ref { box-shadow: inset 0 0 0 2px var(--ink); }
+/* asked, but on no printed page (added by a correction): hatched over its colour */
+.hx .tl .c.np, .hx .sw.np {
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .6) 0 3px, transparent 3px 7px);
+  cursor: help;
+}
+.hx .sw.np { background-color: var(--muted); }
+.hx .verdict li.np .why { font-size: .86em; color: var(--muted); margin-top: 2px; text-align: left; }
 .hx .strip i.ref { box-shadow: 0 0 0 1px var(--ink); }
 .hx .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-inline-end: 6px; vertical-align: -1px; background: var(--gap); }
 .hx .legend .sw { margin-inline-end: 5px; }
