@@ -84,6 +84,9 @@ def test_corrected_is_up_to_date(tmp_path):
         tmp_path,
         ROOT / "curated" / "2_corrected" / "corrections.csv",
         ROOT / "curated" / "2_corrected" / "spelling.csv",
+        None,
+        ROOT / "output" / "2_corrected" / "spelling_suggestions.csv",
+        ROOT / "curated" / "2_corrected" / "spelling_suggestions.csv",
     )
     for year in SUPPORTED_YEARS:
         name = f"questionnaire_{year}.csv"

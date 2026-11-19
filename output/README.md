@@ -10,7 +10,7 @@ uv run hiesir-codebook build --no-extract   # keep 1_extracted/, rebuild the res
 | Folder | Written by | From |
 |---|---|---|
 | `1_extracted/` | `hiesir-codebook all` | the PDFs in `data/pdf/`, exactly as printed |
-| `2_corrected/` | `python -m hiesir_codebook.correct` | `1_extracted/` + `curated/2_corrected/corrections.csv` and `curated/2_corrected/spelling.csv` |
+| `2_corrected/` | `python -m hiesir_codebook.correct`; `spelling_suggestions.csv` by `python -m hiesir_codebook.spelling` (needs hazm) | `1_extracted/` + `curated/2_corrected/` |
 | `3_items/` | `python -m hiesir_codebook.chains` (chains.csv), `relations` (links.csv, relations.csv) | `2_corrected/` + `curated/3_items/` |
 | `4_groups/` | `python -m hiesir_codebook.groups` (groups.csv, members.csv, links.csv) | `2_corrected/`, `3_items/` + `curated/4_groups/` |
 | `explorer/` | `python -m hiesir_codebook.explorer` | `2_corrected/`, `3_items/`, `curated/2_corrected/corrections.csv`: one searchable HTML page |

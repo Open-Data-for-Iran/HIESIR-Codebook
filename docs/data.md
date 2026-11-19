@@ -31,6 +31,7 @@ The same files can be downloaded from this site:
 | File | One row per | Details |
 |---|---|---|
 | `2_corrected/questionnaire_<year>.csv` | section, group header or item of that year | [CSV columns](#csv-columns) |
+| `2_corrected/spelling_suggestions.csv` | spelling suggestion from hazm's dictionary, with whether the build applies it | [Corrections](methods.md#corrections) |
 | `3_items/chains.csv` | item: one code with one label, followed while both stay the same | [Stage 1](methods.md#matching-items-across-years) |
 | `3_items/links.csv` | 1 → 1 link that continues an item: same, recoded | [Stage 2](methods.md#matching-items-across-years) |
 | `3_items/relations.csv` | relation between sets of items: merged, split, regrouped | [Stage 2](methods.md#matching-items-across-years) |
@@ -45,7 +46,7 @@ The same files can be downloaded from this site:
 | `data/` | external inputs: the PDFs, the household occurrence tables | no | nobody (only replaced) |
 | `curated/` | hand-kept decisions: `2_corrected/` (`corrections.csv`: item and header fixes; `spelling.csv`), `3_items/` (`links.csv`, `relations.csv`) and `4_groups/` (`links.csv`): the decisions for the `output/` folder of the same name | yes | people |
 | `output/` | every stage's result: `1_extracted/`, `2_corrected/`, `3_items/`, and the `explorer/` page | yes | the pipeline only |
-| `reports/` | review aids such as `hazm_suggestions.csv` | no | the pipeline only |
+| `reports/` | review aids such as `relation_evidence.csv` | no | the pipeline only |
 
 ## CSV columns
 

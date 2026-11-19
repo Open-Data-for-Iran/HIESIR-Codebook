@@ -51,7 +51,9 @@ years, applied to every description in file order:
 | `years` | empty for all years, or years and ranges: `1386`, `1383-1385 1390` |
 | `reason` | why |
 
-Its 1,069 rows change about 8,600 descriptions:
+Its 397 rows change about 4,700 descriptions (it had 1,069 before the hazm
+suggestions below took over 672 mechanical ones: glued words, plurals,
+compounds, ZWNJs):
 
 - typos (`دیبرستان` → `دبیرستان`, `رایو` → `رادیو`, `کارت کدملی` → `کارت ملی`),
   one spelling per word (`بجز` → `به جز`, `جابجایی` → `جابه‌جایی`, `پینگ‌پنگ`,
@@ -66,19 +68,52 @@ Its 1,069 rows change about 8,600 descriptions:
   spaced (`سی دی`, `پرداخت شده`). `--check` lists how many descriptions each row
 changed, and the run warns about rows that match nothing.
 
-**hazm as an advisor.** [hazm](https://github.com/roshan-research/hazm) is
-not a dependency: it only suggests rows for `spelling.csv`.
+**Spelling suggestions from hazm.** `spelling.csv` only fixes what someone
+listed. `spelling.py` looks for the rest: it reads every label as it stands
+after the corrections, the punctuation rules and `spelling.csv`, checks each
+word against the word list of [hazm](https://github.com/roshan-research/hazm)
+(about 194,000 words with their frequency in a large corpus), its stemmer and
+the questionnaires' own words, and writes what it finds to
+`output/2_corrected/spelling_suggestions.csv`:
+
+| `kind` | What it finds | Example |
+|---|---|---|
+| `plural` | a plural without its ZWNJ, joined or spaced, whose stem is a word and which is no word of its own; after a letter that does not join (`ا د ذ ر ز ژ و`) no ZWNJ is needed, so `کالاهای` stays and `نما ها` becomes `نماها` | `سبزیهای` → `سبزی‌های`; `تنها` stays |
+| `he_ye` | `ه + ای` without the ZWNJ: spaced, or joined when `Xه` is far more common than `X` | `پارچه ای` → `پارچه‌ای`, `جادهای` → `جاده‌ای` |
+| `prefix` | the verb prefix `می` / `نمی` spaced | `می شود` → `می‌شود` |
+| `compound` | two words whose joined form is a common word; applied on its own only when the printed questionnaires write it joined somewhere (a choice of style), and never across `و`, `در`, `که` … | `ثبت نام` → `ثبت‌نام`; `خریداری شده` waits for review |
+| `broken` | a word split by a space: joined it is a common word, and one piece is no word | `ا نواع` → `انواع` |
+| `glued` | words written as one, or joined by a stray ZWNJ: every way of cutting it into words is scored by how common the words are and how few, and a cut the questionnaires write elsewhere wins; a glue the questionnaires repeat every year is cut only around a joining word (`و`, `در`, `سایر`, `نظیر` …) or as they write the phrase elsewhere, and its ZWNJs stay, so compounds written joined (`لباسشویی`, `اجاره‌بهای`) are kept | `پودرپیاز` → `پودر پیاز`, `دروپنجره` → `در و پنجره`, `هزینه‌هایپرداختی` → `هزینه‌های پرداختی` |
+| `typo` | a rare non-word one letter away from a common word with the same first letter | `رایو` → `رادیو` |
+
+Each row has `find`, `replace`, `kind`, `apply`, `uses` (occurrences),
+`labels`, `years`, the `evidence` (the hazm frequencies behind it) and an
+`example` label. `apply` is `yes` when the build applies the suggestion on
+its own: plural and broken suggestions on common words, and glued words cut
+into common words where the best cut clearly beats the next. It is `no` for
+the rest, for every `he_ye` (`فرآوردهای` may be a plural that lost an `ه`) and
+for every typo, since a rare word may be a name or a term hazm lacks.
+
+`curated/2_corrected/spelling_suggestions.csv` overrides it, one row per
+suggestion: `find`, `decision` (`confirm` applies it, `reject` blocks it,
+`change` applies `replace` instead) and `reason`. A decision whose `find` is
+no longer suggested is reported as stale, and a test fails on it. The build
+applies the accepted suggestions after `spelling.csv`, so a row there always
+has the last word.
+
+hazm is an optional dependency, needed only to regenerate the file (it needs
+Python 3.12 or 3.13); the build reads the file and runs without it:
 
 ```bash
-uv run --with hazm python scripts/suggest_labels.py   # -> reports/hazm_suggestions.csv
+uv run --python 3.13 --extra hazm python -m hiesir_codebook.spelling
 ```
 
-The script runs hazm's normalizer (affix spacing, ZWNJ, diacritics; no
-Persian digits, no punctuation restyling) over every corrected label and
-lists each word-level change with how many labels it affects, sorted into
-`plural` (ها/های attached with a ZWNJ, the standard spelling), `compound`
-(two words joined with a ZWNJ, e.g. `پرداخت‌شده`, optional), and `other`.
-Nothing is applied: accepted rows are copied into `spelling.csv` with a reason.
+Regenerate after changing the corrections or `spelling.csv`; a test (run where
+hazm is installed) checks that the file is up to date. On the current labels
+it makes 1,133 suggestions, of which the build applies 1,064, changing about
+7,000 labels. A row in `spelling.csv` is only worth keeping when the
+suggestions do not already produce its result: removing the 672 rows they
+reproduce left every label unchanged.
 
 `--check` tests both against the household occurrence table:
 
@@ -360,8 +395,8 @@ a `split` (`0313` → `0313 M` and `0313 A` in 1389).
   using the table rules and column borders.
 - `correct.py` applies `curated/2_corrected/corrections.csv` and `curated/2_corrected/spelling.csv`
   to `output/1_extracted/` and checks the result against the household occurrence
-  table. `scripts/suggest_labels.py` uses hazm to suggest rows for
-  `spelling.csv`.
+  table. `spelling.py` writes the spelling suggestions from hazm's
+  dictionary that `correct.py` applies last.
 - `compare.py` compares two descriptions (`same`, `minor`, `broadened`, ...)
   and handles provider qualifiers; shared by the matching stages.
 - `chains.py` builds the chains (matching stage 1), `relations.py` links them

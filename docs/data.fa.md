@@ -31,6 +31,7 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 | فایل | هر سطر یعنی | جزئیات |
 |---|---|---|
 | `2_corrected/questionnaire_<year>.csv` | یک بخش، سرگروه یا قلمِ پرسشنامه آن سال | [ستون‌ها](#csv-columns) |
+| `2_corrected/spelling_suggestions.csv` | یک پیشنهاد املایی از واژه‌نامه hazm، همراه با این‌که برنامه اعمالش می‌کند یا نه | [اصلاحات](methods.md#corrections) |
 | `3_items/chains.csv` | یک قلم (زنجیره): یک کد با یک عبارت، تا زمانی که هر دو ثابت بمانند | [مرحله ۱](methods.md#matching-items-across-years) |
 | `3_items/links.csv` | یک پیوند یک‌به‌یک که قلمی را ادامه می‌دهد: همان قلم، تغییر کد | [مرحله ۲](methods.md#matching-items-across-years) |
 | `3_items/relations.csv` | یک رابطه میان مجموعه‌ای از اقلام: ادغام، تفکیک، بازگروه‌بندی | [مرحله ۲](methods.md#matching-items-across-years) |
@@ -45,7 +46,7 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 | `data/` | ورودی‌های بیرونی: فایل‌های PDF و جدول‌های تعداد خانوارهای گزارش‌دهنده هر کد | خیر | هیچ‌کس (فقط جایگزین می‌شود) |
 | `curated/` | تصمیم‌های دستی: `2_corrected/` (`corrections.csv`: اصلاح اقلام و سرگروه‌ها؛ `spelling.csv`)، `3_items/` (`links.csv`، `relations.csv`) و `4_groups/` (`links.csv`): تصمیم‌های پوشه هم‌نام در `output/` | بله | افراد |
 | `output/` | خروجی همه مراحل: `1_extracted/`، `2_corrected/`، `3_items/` و صفحه `explorer/` | بله | فقط برنامه |
-| `reports/` | کمک‌های بازبینی، مانند `hazm_suggestions.csv` | خیر | فقط برنامه |
+| `reports/` | کمک‌های بازبینی، مانند `relation_evidence.csv` | خیر | فقط برنامه |
 
 ## ستون‌های CSV {#csv-columns}
 

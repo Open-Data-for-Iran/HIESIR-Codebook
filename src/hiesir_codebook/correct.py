@@ -44,6 +44,13 @@ years      empty for all years, else years and ranges: ``1386``,
 reason     why
 ========== ===================================================================
 
+Last come the spelling suggestions from hazm's dictionary
+(``output/2_corrected/spelling_suggestions.csv``, written by
+:mod:`hiesir_codebook.spelling` from the labels as they are at this point):
+those marked ``apply`` ``yes``, unless
+``curated/2_corrected/spelling_suggestions.csv`` rejects them, and those it
+confirms or changes.
+
 ``--check`` compares the corrected item codes with the household
 occurrence table (``data/commodity_code_occurrence_1383-1403.csv``): a code
 reported by households but missing from the questionnaire, or printed but
@@ -62,6 +69,8 @@ from pathlib import Path
 
 from . import CORRECTED, CSV_COLUMNS, CURATED_CORRECTED, DATA_DIR, EXTRACTED, SUPPORTED_YEARS
 from .parse import LAST_OLD_SCHEME_YEAR, header_level
+from .spelling import DECISIONS as SUGGESTION_DECISIONS
+from .spelling import SUGGESTIONS, accepted, load_decisions, load_suggestions
 from .utils import ZWNJ, collapse_whitespace, tidy_punctuation
 
 CORRECTIONS = CURATED_CORRECTED / "corrections.csv"
@@ -211,6 +220,8 @@ def apply(
     extracted: Path,
     labels: list[LabelFix] = (),
     hits: dict[str, int] | None = None,
+    suggestions: list[LabelFix] = (),
+    suggestion_hits: dict[str, int] | None = None,
 ) -> list[dict]:
     """The rows of one questionnaire with its corrections applied."""
     rows = [dict(r) for r in rows]
@@ -239,10 +250,39 @@ def apply(
             added = [{**r, "page": "", "top": "", "bottom": "", "left": "", "right": ""} for r in src]
             at = next((i for i, r in enumerate(rows) if int(r["section"]) > int(section)), len(rows))
             rows[at:at] = added
-    # house style for every description, then the recurring spelling fixes
+    # house style for every description, the recurring spelling fixes, then
+    # the accepted spelling suggestions
     for r in rows:
-        r["description"] = fix_label(tidy_punctuation(r["description"]), year, list(labels), hits)
+        text = fix_label(tidy_punctuation(r["description"]), year, list(labels), hits)
+        r["description"] = fix_label(text, year, list(suggestions), suggestion_hits)
     return rows
+
+
+def suggestion_fixes(
+    suggestions: Path = SUGGESTIONS, decisions: Path = SUGGESTION_DECISIONS
+) -> tuple[list[LabelFix], list]:
+    """The accepted spelling suggestions as label fixes (whole words, every
+    year), and the decisions that match no suggestion."""
+    pairs, stale = accepted(load_suggestions(suggestions), load_decisions(decisions))
+    return [LabelFix(a, b, "word", None, "spelling suggestion") for a, b in pairs], stale
+
+
+def before_suggestions(
+    extracted: Path = EXTRACTED,
+    years: Iterable[int] = SUPPORTED_YEARS,
+    corrections: Path = CORRECTIONS,
+    labels: Path | None = LABELS,
+):
+    """``(year, rows)`` with everything applied except the spelling
+    suggestions: what :mod:`hiesir_codebook.spelling` reads.  With ``labels``
+    None, without the spelling list either (the labels as printed, corrected)."""
+    fixes = load_corrections(corrections)
+    label_fixes = [] if labels is None else load_label_fixes(labels)
+    for year in years:
+        yield (
+            year,
+            apply(year, read_rows(extracted / f"questionnaire_{year}.csv"), fixes, extracted, label_fixes),
+        )
 
 
 def correct(
@@ -252,16 +292,22 @@ def correct(
     corrections: Path = CORRECTIONS,
     labels: Path = LABELS,
     hits: dict[str, int] | None = None,
+    suggestions: Path = SUGGESTIONS,
+    decisions: Path = SUGGESTION_DECISIONS,
+    suggestion_hits: dict[str, int] | None = None,
 ) -> dict[int, int]:
     """Write ``out/questionnaire_<year>.csv`` for every year; return the
     number of row corrections applied per year.  ``hits`` collects how many
-    descriptions each label fix changed."""
+    descriptions each label fix changed, ``suggestion_hits`` the same for the
+    spelling suggestions.  Reads the suggestions before writing ``out``,
+    which may be the folder that holds them."""
     fixes = load_corrections(corrections)
     label_fixes = load_label_fixes(labels)
+    sugg_fixes, _ = suggestion_fixes(suggestions, decisions)
     counts = {}
     for year in years:
         rows = read_rows(extracted / f"questionnaire_{year}.csv")
-        rows = apply(year, rows, fixes, extracted, label_fixes, hits)
+        rows = apply(year, rows, fixes, extracted, label_fixes, hits, sugg_fixes, suggestion_hits)
         write_rows(rows, out / f"questionnaire_{year}.csv")
         counts[year] = sum(c.year == year for c in fixes)
     unknown = {c.year for c in fixes} - set(years)
@@ -372,9 +418,22 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--check", action="store_true", help="compare with the household occurrence table")
     ap.add_argument("--labels", type=Path, default=LABELS)
     ap.add_argument("--occurrence", type=Path, default=OCCURRENCE)
+    ap.add_argument("--suggestions", type=Path, default=SUGGESTIONS)
+    ap.add_argument("--decisions", type=Path, default=SUGGESTION_DECISIONS)
     args = ap.parse_args(argv)
     hits: dict[str, int] = {}
-    counts = correct(SUPPORTED_YEARS, args.extracted, args.out, args.corrections, args.labels, hits)
+    sugg_hits: dict[str, int] = {}
+    counts = correct(
+        SUPPORTED_YEARS,
+        args.extracted,
+        args.out,
+        args.corrections,
+        args.labels,
+        hits,
+        args.suggestions,
+        args.decisions,
+        sugg_hits,
+    )
     print(
         f"{sum(counts.values())} row corrections applied: "
         + ", ".join(f"{y}: {n}" for y, n in counts.items() if n)
@@ -387,6 +446,13 @@ def main(argv: list[str] | None = None) -> None:
             print(f"    {hits.get(fx.find, 0):4}  {fx.find} -> {fx.replace}")
     if unused:
         print("label fixes that matched nothing: " + ", ".join(unused))
+    sugg, stale = suggestion_fixes(args.suggestions, args.decisions)
+    print(
+        f"{len(sugg)} accepted spelling suggestions changed {sum(sugg_hits.values())} descriptions "
+        f"({len(load_decisions(args.decisions))} decisions in {args.decisions.as_posix()})"
+    )
+    for d in stale:
+        print(f"stale spelling decision (no such suggestion): {d.find}")
     if args.check:
         years = [y for y in SUPPORTED_YEARS if y >= 1383]
         print("\nEvidence for each correction (households reporting the code):")

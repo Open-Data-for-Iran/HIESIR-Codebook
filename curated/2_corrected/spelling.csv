@@ -70,12 +70,9 @@
 شامل‌خدمات‌اداری,شامل خدمات اداری,word,,spaces lost (glued words)
 اور ژانس‌و,اورژانس و,word,,"spaces lost (glued words), split word"
 اورژانس‌و,اورژانس و,word,,spaces lost (glued words)
-ملزوماتمخصوصنوزادانشامل‌کالسکه,ملزومات مخصوص نوزادان شامل کالسکه,word,,spaces lost (glued words)
 صندلی‌چرخداربچه,صندلی چرخدار بچه,word,,spaces lost (glued words)
 تخت‌قابل‌حمل‌بچه,تخت قابل حمل بچه,word,,spaces lost (glued words)
-تاشوبچه,تاشو بچه,word,,spaces lost (glued words)
 صندلی‌بچه‌دراتومبیل,صندلی بچه در اتومبیل,word,,spaces lost (glued words)
-ساکحمل,ساک حمل,word,,spaces lost (glued words)
 کمربندایمنی‌کودکو,کمربند ایمنی کودک و,word,,spaces lost (glued words)
 خانوارمستقیما,خانوار مستقیماً,word,,spaces lost (glued words)
 اعضاخانوارکسرشده,اعضای خانوار کسر شده,word,,spaces lost (glued words)
@@ -84,265 +81,79 @@
 گازپیک نیک,گاز پیک‌نیک,word,,spaces lost (glued words)
 حق‌بیمه‌هایغیردرمانی‌پرداختی‌توسط‌سازمانهایعمومی‌ونهادهابرایاشخاص,حق بیمه‌های غیردرمانی پرداختی توسط سازمان‌های عمومی و نهادها برای اشخاص,word,,spaces lost (glued words)
 حق‌بیمه‌استعلاجی‌وبهداشتی‌مربوطبه‌خدماتدرمانی‌که‌بوسیله‌دولت‌پرداخت شدهباشد,حق بیمه استعلاجی و بهداشتی مربوط به خدمات درمانی که بوسیله دولت پرداخت شده باشد,word,,spaces lost (glued words)
-غذاونوشابه,غذا و نوشابه,word,,spaces lost (glued words)
 مستقردرکارخانه هاوادارات,مستقر در کارخانه‌ها، ادارات,word,,spaces lost (glued words)
 سازمانهایدولتی,سازمان‌های دولتی,word,,spaces lost (glued words)
 خریدیافروش,خرید یا فروش,word,,spaces lost (glued words)
-یافروش,یا فروش,word,,spaces lost (glued words)
 باشد تعداد افراد بیمه شده,باشد,word,1385,the cell label تعداد افراد بیمه شده was read as part of the description
 آسیا و ...) تعداد افرادبیمه شده,آسیا و ...),word,,the cell label تعداد افراد بیمه شده was read as part of the description
 هزینه های,هزینه‌های,word,,"plural suffix attached (hazm advisor, 109 labels)"
-سایرهزینه های,سایرهزینه‌های,word,,"plural suffix attached (hazm advisor, 10 labels)"
-فراوردههای,فراورده‌های,word,,"plural suffix attached (hazm advisor, 9 labels)"
 کلاس های,کلاس‌های,word,,"plural suffix attached (hazm advisor, 9 labels)"
-سبزی های,سبزی‌های,word,,"plural suffix attached (hazm advisor, 8 labels)"
-کتاب های,کتاب‌های,word,,"plural suffix attached (hazm advisor, 8 labels)"
-بیمه های,بیمه‌های,word,,"plural suffix attached (hazm advisor, 7 labels)"
-دانشگاهها,دانشگاه‌ها,word,,"plural suffix attached (hazm advisor, 7 labels)"
-دورههای,دوره‌های,word,,"plural suffix attached (hazm advisor, 7 labels)"
-میوه های,میوه‌های,word,,"plural suffix attached (hazm advisor, 7 labels)"
-آن ها,آن‌ها,word,,"plural suffix attached (hazm advisor, 6 labels)"
-بیمارستان های,بیمارستان‌های,word,,"plural suffix attached (hazm advisor, 6 labels)"
-دستگاههای,دستگاه‌های,word,,"plural suffix attached (hazm advisor, 6 labels)"
-قایق های,قایق‌های,word,,"plural suffix attached (hazm advisor, 6 labels)"
-اسب های,اسب‌های,word,,"plural suffix attached (hazm advisor, 5 labels)"
-فرآورده های,فرآورده‌های,word,,"plural suffix attached (hazm advisor, 5 labels)"
-وهزینه های,وهزینه‌های,word,,"plural suffix attached (hazm advisor, 5 labels)"
-چاشنی ها,چاشنی‌ها,word,,"plural suffix attached (hazm advisor, 5 labels)"
-اقامتگاههای,اقامتگاه‌های,word,,"plural suffix attached (hazm advisor, 4 labels)"
-باشگاههای,باشگاه‌های,word,,"plural suffix attached (hazm advisor, 4 labels)"
-ترکیب های,ترکیب‌های,word,,"plural suffix attached (hazm advisor, 4 labels)"
-دوره های,دوره‌های,word,,"plural suffix attached (hazm advisor, 4 labels)"
 ماشین های,ماشین‌های,word,,"plural suffix attached (hazm advisor, 4 labels)"
-میوههای,میوه‌های,word,,"plural suffix attached (hazm advisor, 4 labels)"
-نوشابه ها,نوشابه‌ها,word,,"plural suffix attached (hazm advisor, 4 labels)"
-اردوگاهها,اردوگاه‌ها,word,,"plural suffix attached (hazm advisor, 3 labels)"
-باشگاه های,باشگاه‌های,word,,"plural suffix attached (hazm advisor, 3 labels)"
-دستگاه های,دستگاه‌های,word,,"plural suffix attached (hazm advisor, 3 labels)"
-سبزی ها,سبزی‌ها,word,,"plural suffix attached (hazm advisor, 3 labels)"
 مربا ها,مرباها,word,,"plural suffix attached (hazm advisor, 3 labels)"
-میوه ها,میوه‌ها,word,,"plural suffix attached (hazm advisor, 3 labels)"
-نمایشگاههای,نمایشگاه‌های,word,,"plural suffix attached (hazm advisor, 3 labels)"
 وسایرهزینه های,وسایرهزینه‌های,word,,"plural suffix attached (hazm advisor, 3 labels)"
-کفپوش ها,کفپوش‌ها,word,,"plural suffix attached (hazm advisor, 3 labels)"
-کمک های,کمک‌های,word,,"plural suffix attached (hazm advisor, 3 labels)"
-گروههای,گروه‌های,word,,"plural suffix attached (hazm advisor, 3 labels)"
-آسایشگاهها,آسایشگاه‌ها,word,,"plural suffix attached (hazm advisor, 2 labels)"
-ادارههای,اداره‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-ادویه ها,ادویه‌ها,word,,"plural suffix attached (hazm advisor, 2 labels)"
-بازی های,بازی‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-برس های,برس‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-برنج های,برنج‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-حیوان های,حیوان‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-خانم ها,خانم‌ها,word,,"plural suffix attached (hazm advisor, 2 labels)"
-خانه های,خانه‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-دوربین های,دوربین‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-دیسک های,دیسک‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-رایانه های,رایانه‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-روزنامه ها,روزنامه‌ها,word,,"plural suffix attached (hazm advisor, 2 labels)"
-روغن ها,روغن‌ها,word,,"plural suffix attached (hazm advisor, 2 labels)"
-سازمان های,سازمان‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-سوخت های,سوخت‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-عینک های,عینک‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-غیرازساعت های,غیرازساعت‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-ماهی های,ماهی‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-میز های,میزهای,word,,"plural suffix attached (hazm advisor, 2 labels)"
-نمونه های,نمونه‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-نوشابه های,نوشابه‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-وآسایشگاههای,وآسایشگاه‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-وام های,وام‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-وزنه های,وزنه‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-وسایربازی های,وسایربازی‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-وطرح های,وطرح‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
 وماشین های,وماشین‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-پارچه های,پارچه‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
 چربی ها,چربی‌ها,word,,"plural suffix attached (hazm advisor, 2 labels)"
-کلاههای,کلاه‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
-گوشت های,گوشت‌های,word,,"plural suffix attached (hazm advisor, 2 labels)"
 آنهاوهزینه های,آنهاوهزینه‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-اجاره های,اجاره‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-اجارههای,اجاره‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-ارابه های,ارابه‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-اقامتگاه های,اقامتگاه‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-بادبان های,بادبان‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-باغ ها,باغ‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
 بالن های,بالن‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-بانک ها، اداره های,بانک‌ها، اداره‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-بسته های,بسته‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-تابلو های,تابلوهای,word,,"plural suffix attached (hazm advisor, 1 labels)"
-تخته های,تخته‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-تلمبه های,تلمبه‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
 تمیزکننده های,تمیزکننده‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-حواله های,حواله‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-خانواردرطرح های,خانواردرطرح‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-خمیر های,خمیرهای,word,,"plural suffix attached (hazm advisor, 1 labels)"
 دارالترجمه ها,دارالترجمه‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-دانشگاه ها,دانشگاه‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-دخانی ها,دخانی‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-دراردوگاهها,دراردوگاه‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-دستکش های,دستکش‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-دستگاهها,دستگاه‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-رستوران ها، کافه ها,رستوران‌ها، کافه‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-روغن های,روغن‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-ساعت های,ساعت‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-سالن های,سالن‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-سایرمسافرت های,سایرمسافرت‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-سرگرمی ها,سرگرمی‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-سنگ های,سنگ‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-سیستم های,سیستم‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-شربت های,شربت‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
 شوفاژوسایرهزینه های,شوفاژوسایرهزینه‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-شیروفرآورده های,شیروفرآورده‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-شیرینی ها,شیرینی‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
 عفونی‌کنندهها,عفونی‌کننده‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-محافظ ها,محافظ‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-محلول های,محلول‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-مسافرت های,مسافرت‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
 مستقردرکارخانه ها,مستقردرکارخانه‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-مشاوره های,مشاوره‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
 منزل‌وسایرهزینه های,منزل‌وسایرهزینه‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-مکان ها,مکان‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-میوهها,میوه‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
 میکروسکوپ ها,میکروسکوپ‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-نگارخانه های,نگارخانه‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-هزینه ها,هزینه‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-ودیسک های,ودیسک‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
 ودیسکت ها,ودیسکت‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
 وسایردستگاههای,وسایردستگاه‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-وسایرغذا های,وسایرغذاهای,word,,"plural suffix attached (hazm advisor, 1 labels)"
-وسایرهزنیه های,وسایرهزنیه‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-وسایرهزینه ها,وسایرهزینه‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
 وسنگ های,وسنگ‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-وفرآورده های,وفرآورده‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-ومکمل های,ومکمل‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-ونمایش های,ونمایش‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-ونهالستان ها,ونهالستان‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-ونوشابه ها,ونوشابه‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
 وگل ها,وگل‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-پارک های,پارک‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-پنبه های,پنبه‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
 پولیش ها,پولیش‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
 پیست های,پیست‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-چوب های,چوب‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کارت های,کارت‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کاروان ها,کاروان‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کافه ها,کافه‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کالا ها,کالاها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کتابچه های,کتابچه‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کرم ها,کرم‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کره های,کره‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کرههای,کره‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کش ها,کش‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کفش های,کفش‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کفپوش های,کفپوش‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کلوپ های,کلوپ‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کمربند های,کمربندهای,word,,"plural suffix attached (hazm advisor, 1 labels)"
-کنندههای,کننده‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-گاه ها، توالت ها، رختکن ها,گاه‌ها، توالت‌ها، رختکن‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-گل های,گل‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-برایوسایل,برای وسایل,word,,words glued together in the print (1383-1385)
 اجارهبهای,اجاره‌بهای,word,,missing ZWNJ (اجاره‌بها)
 اجاره بهای,اجاره‌بهای,word,,"compound written joined (اجاره‌بها), as from 1386"
-اجارههایاحتسابی,اجاره‌های احتسابی,word,,words glued together in extraction
-فراوردههایآن,فراورده‌های آن,word,,words glued together in extraction
-میوههاو,میوه‌ها و,word,,words glued together in extraction
 اردوگاههاو,اردوگاه‌ها و,word,,words glued together in extraction
-ودانشگاههاوارتش,و دانشگاه‌ها و ارتش,word,,words glued together in extraction
-ثبت نام,ثبت‌نام,word,,"compound written joined in the questionnaires (13 years), hazm advisor"
-باحمل ونقل,با حمل و نقل,word,,glued words
-باروحمل ونقل,بار و حمل و نقل,word,,glued words
-وحمل ونقل,و حمل و نقل,word,,glued و
-حمل ونقل,حمل و نقل,word,,"one spelling: حمل و نقل, as in 1386-1403"
-پارچه ای,پارچه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 14 labels"
-سیب زمینی,سیب‌زمینی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-پیش دانشگاهی,پیش‌دانشگاهی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 طبقه بندی,طبقه‌بندی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 لوله کشی,لوله‌کشی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-کله پاچه,کله‌پاچه,word,,"compound written joined in the questionnaires (12 years), hazm advisor"
-گوجه فرنگی,گوجه‌فرنگی,word,,"compound written joined in the questionnaires (12 years), hazm advisor"
-می شود,می‌شود,word,,"ZWNJ required (می), hazm advisor, 6 labels"
 آب میوه,آب‌میوه,word,,"compound written joined in the questionnaires (2 years), hazm advisor"
-آتش نشانی,آتش‌نشانی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-بوته ای,بوته‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 5 labels"
-جوجه کباب,جوجه‌کباب,word,,"compound written joined in the questionnaires (12 years), hazm advisor"
-رودخانه ای,رودخانه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 5 labels"
-ریشه ای,ریشه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 5 labels"
 قلم مو,قلم‌مو,word,,"compound written joined in the questionnaires (14 years), hazm advisor"
 ماشین تحریر,ماشین‌تحریر,word,,"compound written joined in the questionnaires (2 years), hazm advisor"
-ماشین حساب,ماشین‌حساب,word,,"compound written joined in the questionnaires (2 years), hazm advisor"
 پینگ پنگ,پینگ‌پنگ,word,,"compound written joined in the questionnaires (2 years), hazm advisor"
-آب نبات,آب‌نبات,word,,"compound written joined in the questionnaires (2 years), hazm advisor"
 بچه گانه,بچه‌گانه,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 تخم مرغ,تخم‌مرغ,word,,"compound written joined in the questionnaires (12 years), hazm advisor"
-تله کابین,تله‌کابین,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 جمع آوری,جمع‌آوری,word,,"compound written joined in the questionnaires (16 years), hazm advisor"
-سنگ شکن,سنگ‌شکن,word,,"compound written joined in the questionnaires (12 years), hazm advisor"
-فیلم برداری,فیلم‌برداری,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 لکه گیری,لکه‌گیری,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 کباب پز,کباب‌پز,word,,"compound written joined in the questionnaires (2 years), hazm advisor"
-آب غوره,آب‌غوره,word,,"compound written joined in the questionnaires (2 years), hazm advisor"
-سرمایه ای,سرمایه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 3 labels"
-سه چرخه,سه‌چرخه,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 سیم کشی,سیم‌کشی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 شبانه روزی,شبانه‌روزی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 شکسته بند,شکسته‌بند,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-ماشین آلات,ماشین‌آلات,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 پیش بند,پیش‌بند,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 پینگ پونگ,پینگ‌پنگ,word,,one spelling: پینگ‌پنگ
 گریپ فروت,گریپ‌فروت,word,,"compound written joined in the questionnaires (14 years), hazm advisor"
-آتش بازی,آتش‌بازی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 آتش سوزی,آتش‌سوزی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 اره ای,اره‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 2 labels"
 اندازه گیری می شوند,اندازه‌گیری می‌شوند,word,,"ZWNJ required (می), hazm advisor, 2 labels"
 بین المللی,بین‌المللی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-تی شرت,تی‌شرت,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-جاده ای,جاده‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 2 labels"
 حق الوکاله,حق‌الوکاله,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-خشک کن,خشک‌کن,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-خط کش,خط‌کش,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 راحت الحلقوم,راحت‌الحلقوم,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-رایانه ای,رایانه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 2 labels"
 زینت آلات,زینت‌آلات,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-شاخه ای,شاخه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 2 labels"
 شکم بند,شکم‌بند,word,,"compound written joined in the questionnaires (12 years), hazm advisor"
-شیمی درمانی,شیمی‌درمانی,word,,"compound written joined in the questionnaires (6 years), hazm advisor"
 مجسمه سازی,مجسمه‌سازی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 مینی بوس,مینی‌بوس,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-میوه ای,میوه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 2 labels"
 نمونه برداری,نمونه‌برداری,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 ننوپارچه ای,ننوپارچه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 2 labels"
-هفت سین,هفت‌سین,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 وحرفه ای,وحرفه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 2 labels"
 پارچه نویسی,پارچه‌نویسی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-پایه دار,پایه‌دار,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-پیش دبستانی,پیش‌دبستانی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 پیک نیکی,پیک‌نیکی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 چمن زنی,چمن‌زنی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-کم مصرف,کم‌مصرف,word,,"compound written joined in the questionnaires (16 years), hazm advisor"
-کیسه ای,کیسه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 2 labels"
 گل کلم,گل‌کلم,word,,"compound written joined in the questionnaires (14 years), hazm advisor"
 بستنی ساز,بستنی‌ساز,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-بی نام,بی‌نام,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-حبه ای، کله ای، کلوخه ای,حبه‌ای، کله‌ای، کلوخه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 1 labels"
-حبه ای، کلوخه ای,حبه‌ای، کلوخه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 1 labels"
-حق العمل,حق‌العمل,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-خامه ای,خامه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 1 labels"
-دنده ای,دنده‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 1 labels"
-روضه خوان,روضه‌خوان,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 سطح بندی,سطح‌بندی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-شن کش,شن‌کش,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-غلط گیر,غلط‌گیر,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 قیمت گذاری,قیمت‌گذاری,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 لنت کوبی,لنت‌کوبی,word,,"compound written joined in the questionnaires (18 years), hazm advisor"
-مرطوب کننده,مرطوب‌کننده,word,,"compound written joined in the questionnaires (2 years), hazm advisor"
-مشاوره ای,مشاوره‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 1 labels"
-می باشد,می‌باشد,word,,"ZWNJ required (می), hazm advisor, 1 labels"
 میشود,می‌شود,word,,"ZWNJ required (می), hazm advisor, 1 labels"
 میوه خوری نقره ای,میوه‌خوری نقره‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 1 labels"
 ورایانه ای,ورایانه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 1 labels"
 وپارچه ای,وپارچه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 1 labels"
 کوله پشتی,کوله‌پشتی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-گل سازی,گل‌سازی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 پینگ‌پونگ,پینگ‌پنگ,word,,one spelling: پینگ‌پنگ
 تزئین,تزیین,text,,one spelling: ی preferred over ئ (تزیینی، تزیینات)
 آئینه,آینه,text,,one spelling: ی preferred over ئ (آینه)
@@ -354,59 +165,16 @@
 نرم افزار,نرم‌افزار,text,,compound with ZWNJ (printed both glued and spaced) (also نرم‌افزارهای، نرم‌افزاری)
 وواژه پرداز,و واژه‌پرداز,word,,glued و; compound with ZWNJ (printed both glued and spaced)
 واژهپرداز,واژه‌پرداز,text,,compound with ZWNJ (printed both glued and spaced)
-واژه پرداز,واژه‌پرداز,text,,compound with ZWNJ (printed both glued and spaced)
 پیغامگیر,پیغام‌گیر,text,,compound with ZWNJ (printed both glued and spaced)
 پیغام گیر,پیغام‌گیر,text,,compound with ZWNJ (printed both glued and spaced)
 ونرم‌افزاری,و نرم‌افزاری,word,,glued و
-ودخانی,و دخانی,word,,glued و
-ورشته,و رشته,word,,glued و
 وسایر,و سایر,word,,glued و
-وآشی,و آشی,word,,glued و
-وترخینه,و ترخینه,word,,glued و
-وتافتون,و تافتون,word,,glued و
-وکیک,و کیک,word,,glued و
-وبزغاله,و بزغاله,word,,glued و
-وگوسفند,و گوسفند,word,,glued و
-واردک,و اردک,word,,glued و
-وغاز,و غاز,word,,glued و
 وتخم,و تخم,word,,glued و
 وخامه,و خامه,word,,glued و
-وماست,و ماست,word,,glued و
-وپاستوریزه,و پاستوریزه,word,,glued و
-وغوره,و غوره,word,,glued و
 وکلم,و کلم,word,,glued و
-وفرنگی,و فرنگی,word,,glued و
-وسبزیهای,و سبزیهای,word,,glued و
-وحبوبات,و حبوبات,word,,glued و
 وتوت,و توت,word,,glued و
-ومغز,و مغز,word,,glued و
-وبرنج,و برنج,word,,glued و
-وچیپس,و چیپس,word,,glued و
-وکنجد,و کنجد,word,,glued و
-ولپه,و لپه,word,,glued و
-وشکر,و شکر,word,,glued و
-ومرباها,و مرباها,word,,glued و
-وسوهان,و سوهان,word,,glued و
-وسرکه,و سرکه,word,,glued و
-وپولکی,و پولکی,word,,glued و
-وکاکائو,و کاکائو,word,,glued و
-ومخلوط,و مخلوط,word,,glued و
-وترکیبات,و ترکیبات,word,,glued و
-وکوبیده,و کوبیده,word,,glued و
-وزنجبیل,و زنجبیل,word,,glued و
-وخارج,و خارج,word,,glued و
-وسالاد,و سالاد,word,,glued و
-وکمپوت,و کمپوت,word,,glued و
-وکاغذ,و کاغذ,word,,glued و
-وانواع,و انواع,word,,glued و
-وپلاستیکی,و پلاستیکی,word,,glued و
 ولباس,و لباس,word,,glued و
 وپارچه‌ای,و پارچه‌ای,word,,glued و
-وجوراب,و جوراب,word,,glued و
-ودامن,و دامن,word,,glued و
-وبلوز,و بلوز,word,,glued و
-وپیژاما,و پیژاما,word,,glued و
-ومصنوعی,و مصنوعی,word,,glued و
 وکمربند,و کمربند,word,,glued و
 وشلوار,و شلوار,word,,glued و
 وجلیقه,و جلیقه,word,,glued و
@@ -415,198 +183,44 @@
 ونگهداری,و نگهداری,word,,glued و
 ورنگ,و رنگ,word,,glued و
 وهزینه,و هزینه,word,,glued و
-ولاستیکی,و لاستیکی,word,,glued و
 ولوازم,و لوازم,word,,glued و
-واقامتگاه,و اقامتگاه,word,,glued و
-وبرق,و برق,word,,glued و
-وگاز,و گاز,word,,glued و
-واثاثه,و اثاثه,word,,glued و
 وغیر,و غیر,word,,glued و
-وتعمیرات,و تعمیرات,word,,glued و
-وغذاخوری,و غذاخوری,word,,glued و
-ورویی,و رویی,word,,glued و
-وپیرکس,و پیرکس,word,,glued و
-وملامین,و ملامین,word,,glued و
-وظروف,و ظروف,word,,glued و
-ولامپ,و لامپ,word,,glued و
-وجانفتی,و جانفتی,word,,glued و
-وحیوانی,و حیوانی,word,,glued و
-وهزینه‌های,و هزینه‌های,word,,glued و
 وحمام,و حمام,word,,glued و
-وپودر,و پودر,word,,glued و
-وبرس,و برس,word,,glued و
 وکیسه,و کیسه,word,,glued و
-وشیشه,و شیشه,word,,glued و
 ولوله,و لوله,word,,glued و
-ودرمانی,و درمانی,word,,glued و
-وخانگی,و خانگی,word,,glued و
 وروکش,و روکش,word,,glued و
 وبهداشتی,و بهداشتی,word,,glued و
-وارتباطات,و ارتباطات,word,,glued و
-وهوا,و هوا,word,,glued و
-وشستشوی,و شستشوی,word,,glued و
-وخصوصی,و خصوصی,word,,glued و
 ونصب,و نصب,word,,glued و
-وتلفن,و تلفن,word,,glued و
-وبرآورد,و برآورد,word,,glued و
-وسرویس,و سرویس,word,,glued و
 وکارت,و کارت,word,,glued و
 وسرگرمی,و سرگرمی,word,,glued و
-وتعمیر,و تعمیر,word,,glued و
-ودیسک,و دیسک,word,,glued و
-ودیسک‌های,و دیسک‌های,word,,glued و
-وتنیس,و تنیس,word,,glued و
-وسبد,و سبد,word,,glued و
-وفرهنگی,و فرهنگی,word,,glued و
-وچاپ,و چاپ,word,,glued و
-وبازیهای,و بازیهای,word,,glued و
-وکرایه,و کرایه,word,,glued و
 وگوبلن,و گوبلن,word,,glued و
 وآرایشی,و آرایشی,word,,glued و
 وکرم,و کرم,word,,glued و
-وصورت,و صورت,word,,glued و
-وزینتی,و زینتی,word,,glued و
-وچتر,و چتر,word,,glued و
-واقلام,و اقلام,word,,glued و
-وجعبه,و جعبه,word,,glued و
-وآرایش,و آرایش,word,,glued و
-وساخت,و ساخت,word,,glued و
-ومتل,و متل,word,,glued و
 وفروش,و فروش,word,,glued و
-ومحضر,و محضر,word,,glued و
-ونرده,و نرده,word,,glued و
 وسیم,و سیم,word,,glued و
-وپشتی,و پشتی,word,,glued و
-ورومیزی,و رومیزی,word,,glued و
 وفرش,و فرش,word,,glued و
-وکلیه,و کلیه,word,,glued و
-وگازی,و گازی,word,,glued و
-وبخاری,و بخاری,word,,glued و
-ویخچال,و یخچال,word,,glued و
-وماشین,و ماشین,word,,glued و
-وهواکش,و هواکش,word,,glued و
-وکپسول,و کپسول,word,,glued و
-ودستگاه,و دستگاه,word,,glued و
-وعوارض,و عوارض,word,,glued و
-وقطعات,و قطعات,word,,glued و
 وموتورسیکلت,و موتورسیکلت,word,,glued و
 وکمربندایمنی,و کمربندایمنی,word,,glued و
-ونقاشی,و نقاشی,word,,glued و
 ورادیو,و رادیو,word,,glued و
-وبازی,و بازی,word,,glued و
-وشکار,و شکار,word,,glued و
-واسب,و اسب,word,,glued و
-وکلاسهای,و کلاسهای,word,,glued و
-وعتیقه,و عتیقه,word,,glued و
-وکالاهای,و کالاهای,word,,glued و
 وخارجی,و خارجی,word,,glued و
-وجریمه,و جریمه,word,,glued و
-وآبگرمکن,و آبگرمکن,word,,glued و
-وچاه,و چاه,word,,glued و
-وموسسات,و موسسات,word,,glued و
-وخروس,و خروس,word,,glued و
-وفرآورده‌های,و فرآورده‌های,word,,glued و
-وشور,و شور,word,,glued و
-وشیرینیها,و شیرینیها,word,,glued و
 وشیرینی,و شیرینی,word,,glued و
-ونوشابه‌ها,و نوشابه‌ها,word,,glued و
-وکنستانتره,و کنستانتره,word,,glued و
 وکفش,و کفش,word,,glued و
-وروپوش,و روپوش,word,,glued و
-وورزشی,و ورزشی,word,,glued و
-ومشمع,و مشمع,word,,glued و
-وآلومینیومی,و آلومینیومی,word,,glued و
-وکریستال,و کریستال,word,,glued و
-وتجهیزات,و تجهیزات,word,,glued و
-وباغ,و باغ,word,,glued و
-ومیله,و میله,word,,glued و
 وزنگ,و زنگ,word,,glued و
-وتینر,و تینر,word,,glued و
-وکهنه,و کهنه,word,,glued و
-وماهوت,و ماهوت,word,,glued و
 ورخت,و رخت,word,,glued و
-ورنگرزی,و رنگرزی,word,,glued و
-ووسایل,و وسایل,word,,glued و
-وزانو,و زانو,word,,glued و
-وجراحی,و جراحی,word,,glued و
-وانرژی,و انرژی,word,,glued و
-وآژانس,و آژانس,word,,glued و
-وراه,و راه,word,,glued و
-وهمراه,و همراه,word,,glued و
-وتفریحات,و تفریحات,word,,glued و
-وصدا,و صدا,word,,glued و
 وخانه,و خانه,word,,glued و
-وتفریحی,و تفریحی,word,,glued و
-وفضاهای,و فضاهای,word,,glued و
-وبدمینتون,و بدمینتون,word,,glued و
 وبرگ,و برگ,word,,glued و
-وراهنمایان,و راهنمایان,word,,glued و
-ومراسم,و مراسم,word,,glued و
-وشمعی,و شمعی,word,,glued و
-وتخته,و تخته,word,,glued و
-وقلوه,و قلوه,word,,glued و
-وپنیر,و پنیر,word,,glued و
-ومدارس,و مدارس,word,,glued و
-ودستمزد,و دستمزد,word,,glued و
-وزیبایی,و زیبایی,word,,glued و
 وطبی,و طبی,word,,glued و
-واسپری,و اسپری,word,,glued و
-وحوله,و حوله,word,,glued و
 وساک,و ساک,word,,glued و
 وکیف,و کیف,word,,glued و
-وجواهرات,و جواهرات,word,,glued و
-وفندک,و فندک,word,,glued و
 ودرمان,و درمان,word,,glued و
-وبعدی,و بعدی,word,,glued و
-ومصالح,و مصالح,word,,glued و
-وشستشو,و شستشو,word,,glued و
-واجاره,و اجاره,word,,glued و
-ودوچرخه,و دوچرخه,word,,glued و
-وتصویر,و تصویر,word,,glued و
-وهدفن,و هدفن,word,,glued و
-وفکس,و فکس,word,,glued و
-وروروئک,و روروئک,word,,glued و
-ودرخت,و درخت,word,,glued و
-وابزار,و ابزار,word,,glued و
-وحیوانات,و حیوانات,word,,glued و
-وآموزش,و آموزش,word,,glued و
-وگیره,و گیره,word,,glued و
-وتعویض,و تعویض,word,,glued و
-وردمظالم,و ردمظالم,word,,glued و
-وجوانه,و جوانه,word,,glued و
-واستانبولی,و استانبولی,word,,glued و
-ومایه,و مایه,word,,glued و
-وساندیس,و ساندیس,word,,glued و
 وسنگ‌های,و سنگ‌های,word,,glued و
-وچای,و چای,word,,glued و
-وکارد,و کارد,word,,glued و
-وسواری,و سواری,word,,glued و
-واثاث,و اثاث,word,,glued و
 ورایانه‌ای,و رایانه‌ای,word,,glued و
-وچمن,و چمن,word,,glued و
-واطلس‌ها,و اطلس‌ها,word,,glued و
-ودبیرستان,و دبیرستان,word,,glued و
-وتقویتی,و تقویتی,word,,glued و
-وشارژ,و شارژ,word,,glued و
-ودادهپردازی,و دادهپردازی,word,,glued و
-وملزومات,و ملزومات,word,,glued و
 ولوازمالتحریر,و لوازمالتحریر,word,,glued و
-وارائه,و ارائه,word,,glued و
-روغنها,روغن‌ها,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 شیرینیها,شیرینی‌ها,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 ماهیتابه,ماهی‌تابه,word,,glued words (reviewed)
-کمکهای,کمک‌های,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-یکجاپرداخت,یکجا پرداخت,word,,glued words (reviewed)
-عینکهای,عینک‌های,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 تختخواب,تخت‌خواب,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-کفشهای,کفش‌های,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 چرخداربچه,چرخدار بچه,word,,glued words (reviewed)
-سنگهای,سنگ‌های,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-دیسکهای,دیسک‌های,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-ماهیهای,ماهی‌های,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-ساعتهای,ساعت‌های,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 آمادهسازی,آماده‌سازی,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-سبزیها,سبزی‌ها,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 پاککردن,پاک کردن,word,,glued words (questionnaires write them apart)
 برفروب,برف‌روب,word,,glued words (reviewed)
 میوهخوری,میوه‌خوری,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
@@ -614,8 +228,6 @@
 خاکانداز,خاک‌انداز,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 پاککننده,پاک‌کننده,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 حشرهکش,حشره‌کش,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-برسهای,برس‌های,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-برسگردگیری,برس گردگیری,word,,glued words (questionnaires write them apart)
 پاککن,پاک‌کن,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 میزانالحراره,میزان‌الحراره,word,,glued words (reviewed)
 مرطوبکننده,مرطوب‌کننده,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
@@ -627,72 +239,27 @@
 بهرهدهی,بهره‌دهی,word,,glued words (reviewed)
 مرغوخروس,مرغ و خروس,word,,glued words (reviewed)
 برگمو,برگ مو,word,,glued words (questionnaires write them apart)
-کرمکارامل,کرم کارامل,word,,glued words (questionnaires write them apart)
 آبنبات,آب‌نبات,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-انواعشیرینی,انواع شیرینی,word,,glued words (questionnaires write them apart)
-غذاهایآماده,غذاهای آماده,word,,glued words (questionnaires write them apart)
 آبغوره,آب‌غوره,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 آبنارنج,آب نارنج,word,,glued words (questionnaires write them apart)
 جوششیرین,جوش شیرین,word,,glued words (questionnaires write them apart)
 آبمیوه,آب‌میوه,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-لباسکار,لباس کار,word,,glued words (questionnaires write them apart)
 لباسزیر,لباس زیر,word,,glued words (questionnaires write them apart)
-لباسخواب,لباس خواب,word,,glued words (reviewed)
 باغوحش,باغ وحش,word,,glued words (questionnaires write them apart)
-انواعمواد,انواع مواد,word,,glued words (questionnaires write them apart)
-خدماتمربوط,خدمات مربوط,word,,glued words (questionnaires write them apart)
-تجهیزاتتلفن,تجهیزات تلفن,word,,glued words (questionnaires write them apart)
-خدماتتفریحی,خدمات تفریحی,word,,glued words (questionnaires write them apart)
 خدماتمشاورهای,خدمات مشاوره‌ای,word,,glued words (reviewed)
-لوازمآن,لوازم آن,word,,glued words (questionnaires write them apart)
-برایتفریح,برای تفریح,word,,glued words (questionnaires write them apart)
-بادوامتفریح,بادوام تفریح,word,,glued words (questionnaires write them apart)
-لوازممربوط,لوازم مربوط,word,,glued words (questionnaires write them apart)
-شدهباشد,شده باشد,word,,glued words (questionnaires write them apart)
-اقامتگاهدوم,اقامتگاه دوم,word,,glued words (questionnaires write them apart)
-سبزیهایتازه,سبزی‌های تازه,word,,glued words (reviewed)
-سبزیهایآماده,سبزی‌های آماده,word,,glued words (reviewed)
 لوازمخانگی,لوازم خانگی,word,,glued words (questionnaires write them apart)
-انواعظروف,انواع ظروف,word,,glued words (questionnaires write them apart)
-خدماتخانگی,خدمات خانگی,word,,glued words (questionnaires write them apart)
-خدماتپزشکی,خدمات پزشکی,word,,glued words (questionnaires write them apart)
-خدماتپیراپزشکی,خدمات پیراپزشکی,word,,glued words (questionnaires write them apart)
-تجهیزاتحمل,تجهیزات حمل,word,,glued words (questionnaires write them apart)
-خدماتحمل,خدمات حمل,word,,glued words (questionnaires write them apart)
-خارجاز,خارج از,word,,glued words (questionnaires write them apart)
 اقلامووسایل,اقلام و وسایل,word,,glued words (reviewed)
-انواعاسباب,انواع اسباب,word,,glued words (questionnaires write them apart)
-لوازمورزشی,لوازم ورزشی,word,,glued words (questionnaires write them apart)
-استفادهاز,استفاده از,word,,glued words (questionnaires write them apart)
-خدماتشخصی,خدمات شخصی,word,,glued words (questionnaires write them apart)
-خدماتآرایش,خدمات آرایش,word,,glued words (questionnaires write them apart)
-برایخدمات,برای خدمات,word,,glued words (questionnaires write them apart)
-سوهانناخن,سوهان ناخن,word,,glued words (questionnaires write them apart)
 انواعلوازم,انواع لوازم,word,,glued words (questionnaires write them apart)
-لوازمشخصی,لوازم شخصی,word,,glued words (questionnaires write them apart)
 نگهداریوتعمیر,نگهداری و تعمیر,word,,glued words (reviewed)
 صورتحساب,صورت حساب,word,,glued words (questionnaires write them apart)
-تجهیزاتصوتی,تجهیزات صوتی,word,,glued words (questionnaires write them apart)
-براینگهداری,برای نگهداری,word,,glued words (questionnaires write them apart)
-حیوانهایخانگی,حیوان‌های خانگی,word,,glued words (reviewed)
-مسافرتهایدستجمعی,مسافرت‌های دستجمعی,word,,glued words (reviewed)
-همراهتور,همراه تور,word,,glued words (questionnaires write them apart)
-آموزشابتدایی,آموزش ابتدایی,word,,glued words (questionnaires write them apart)
 نشدهدرجای,نشده در جای,word,,glued words (reviewed)
-طرحهایآبادانی,طرح‌های آبادانی,word,,glued words (reviewed)
-کشاورزینظیر,کشاورزی نظیر,word,,glued words (questionnaires write them apart)
 میوه خوری,میوه‌خوری,word,,compound written with ZWNJ (also printed spaced)
 اندازه گیری,اندازه‌گیری,word,,compound written with ZWNJ (also printed spaced)
-شامل‌کالسکه,شامل کالسکه,word,,ZWNJ where a space belongs
-کالاهایی‌که,کالاهایی که,word,,ZWNJ where a space belongs
 بسته بندی,بسته‌بندی,word,,compound written with ZWNJ (also printed spaced)
-نوشیدنی های,نوشیدنی‌های,word,,compound written with ZWNJ (also printed spaced)
 کم دوام,کم‌دوام,word,,compound written with ZWNJ (also printed spaced)
 خشک شویی,خشک‌شویی,word,,compound written with ZWNJ (also printed spaced)
 بازکن ها,بازکن‌ها,word,,compound written with ZWNJ (also printed spaced)
 تخت خواب,تخت‌خواب,word,,compound written with ZWNJ (also printed spaced)
-باواگن های,با واگن‌های,word,,glued words (reviewed)
-نمایندگی های,نمایندگی‌های,word,,compound written with ZWNJ (also printed spaced)
 پاکت نامه,پاکت‌نامه,word,,compound written with ZWNJ (also printed spaced)
 گوبلن بافی,گوبلن‌بافی,word,,compound written with ZWNJ (also printed spaced)
 ثابت کننده,ثابت‌کننده,word,,compound written with ZWNJ (also printed spaced)
@@ -700,14 +267,12 @@
 پشت بند,پشت‌بند,word,,compound written with ZWNJ (also printed spaced)
 ماشین‌ظرفشویی,ماشین ظرفشویی,word,,ZWNJ where a space belongs
 شربت ساز,شربت‌ساز,word,,compound written with ZWNJ (also printed spaced)
-موتورسیکلت های,موتورسیکلت‌های,word,,compound written with ZWNJ (also printed spaced)
 نعل بندی,نعل‌بندی,word,,compound written with ZWNJ (also printed spaced)
 آذین بندی,آذین‌بندی,word,,compound written with ZWNJ (also printed spaced)
 کیسه‌بوکس,کیسه بوکس,word,,ZWNJ where a space belongs
 مچ بند,مچ‌بند,word,,compound written with ZWNJ (also printed spaced)
 کیسه خواب,کیسه‌خواب,word,,compound written with ZWNJ (also printed spaced)
 واسطه گریهای,واسطه‌گری‌های,word,,glued words (reviewed)
-بانک های,بانک‌های,word,,compound written with ZWNJ (also printed spaced)
 پس انداز,پس‌انداز,word,,compound written with ZWNJ (also printed spaced)
 صرافی ها,صرافی‌ها,word,,compound written with ZWNJ (also printed spaced)
 سرمایه گذاری,سرمایه‌گذاری,word,,compound written with ZWNJ (also printed spaced)
@@ -717,221 +282,62 @@
 لپه‌باقالا,لپه باقالا,word,,ZWNJ where a space belongs
 حلیم‌بادنجان,حلیم بادنجان,word,,ZWNJ where a space belongs
 رنگ‌روغن,رنگ روغن,word,,ZWNJ where a space belongs
-تخم‌پرندگان,تخم پرندگان,word,,ZWNJ where a space belongs
-انواع‌حبوب,انواع حبوب,word,,ZWNJ where a space belongs
-آب‌نارنج,آب نارنج,word,,ZWNJ where a space belongs
-نقل‌هوایی,نقل هوایی,word,,ZWNJ where a space belongs
-نقل‌مختلط,نقل مختلط,word,,ZWNJ where a space belongs
-وسایل‌کوچک,وسایل کوچک,word,,ZWNJ where a space belongs
 روغن‌نباتی,روغن نباتی,word,,ZWNJ where a space belongs
 ترخیص‌خارج,ترخیص خارج,word,,ZWNJ where a space belongs
-مراقبت‌از,مراقبت از,word,,ZWNJ where a space belongs
-پزشک‌متخصص,پزشک متخصص,word,,ZWNJ where a space belongs
-نقلیه‌شخصی,نقلیه شخصی,word,,ZWNJ where a space belongs
-ضبط‌تصویر,ضبط تصویر,word,,ZWNJ where a space belongs
-فرهنگی‌وتفریحی,فرهنگی و تفریحی,word,,glued words (reviewed)
-قیچی‌موزنی,قیچی موزنی,word,,ZWNJ where a space belongs
 آینه‌جیبی,آینه جیبی,word,,ZWNJ where a space belongs
 حمایت‌اجتماعی,حمایت اجتماعی,word,,ZWNJ where a space belongs
-هزینه‌تعمیر,هزینه تعمیر,word,,ZWNJ where a space belongs
 مستقیم‌اندازهگیری,مستقیم اندازه‌گیری,word,,glued words (reviewed)
-سکونت‌شخصی,سکونت شخصی,word,,ZWNJ where a space belongs
-وپلویی,و پلویی,word,,glued و
-واستخوانی,و استخوانی,word,,glued و
 وسایرانواع,و سایر انواع,word,,glued و
 ونظایر,و نظایر,word,,glued و
 وپخت,و پخت,word,,glued و
-وویفر,و ویفر,word,,glued و
-وگوساله,و گوساله,word,,glued و
 ونظایرآن,و نظایر آن,word,,glued و
-وجوجه,و جوجه,word,,glued و
-ومیگو,و میگو,word,,glued و
-واشپیل,و اشپیل,word,,glued و
-وآغوز,و آغوز,word,,glued و
-وپیه,و پیه,word,,glued و
-ومارگارین,و مارگارین,word,,glued و
-وگیلاس,و گیلاس,word,,glued و
-وتمشک,و تمشک,word,,glued و
-وخارک,و خارک,word,,glued و
 وغیره,و غیره,word,,glued و
-ومویز,و مویز,word,,glued و
-وسویا,و سویا,word,,glued و
-وخاک,و خاک,word,,glued و
-ودخانیات,و دخانیات,word,,glued و
-وچنجه,و چنجه,word,,glued و
-وبیسکویت,و بیسکویت,word,,glued و
-وفالوده,و فالوده,word,,glued و
-وبیستون,و بیستون,word,,glued و
-وزنانه,و زنانه,word,,glued و
-ومردانه,و مردانه,word,,glued و
 وتعمیرونگهداری,و تعمیر و نگهداری,word,,glued و
 وگلهای,و گل‌های,word,,glued و
-وشنل,و شنل,word,,glued و
-وگرمکن,و گرمکن,word,,glued و
-وجیر,و جیر,word,,glued و
-وگردن,و گردن,word,,glued و
-وپلوور,و پلوور,word,,glued و
-وکانوا,و کانوا,word,,glued و
-ویابافت,و یا بافت,word,,glued و
-وگلدوزی,و گلدوزی,word,,glued و
 ولایی,و لایی,word,,glued و
-ومیل,و میل,word,,glued و
-ورفوی,و رفوی,word,,glued و
-وگیوه,و گیوه,word,,glued و
-وپوتین,و پوتین,word,,glued و
-وپاپوش,و پاپوش,word,,glued و
-وفاضلاب,و فاضلاب,word,,glued و
-وروشنایی,و روشنایی,word,,glued و
 وکوهستانی,و کوهستانی,word,,glued و
-وامثال,و امثال,word,,glued و
-وپیک,و پیک,word,,glued و
 ومتکا,و متکا,word,,glued و
-وجادستمالی,و جادستمالی,word,,glued و
 وسایرلوازم,و سایر لوازم,word,,glued و
-وسفالی,و سفالی,word,,glued و
 وآجیل,و آجیل,word,,glued و
-ومیوه,و میوه,word,,glued و
-وحصیری,و حصیری,word,,glued و
 وگمج,و گمج,word,,glued و
-وبشکه,و بشکه,word,,glued و
-وسدر,و سدر,word,,glued و
-وقرصهای,و قرص‌های,word,,glued و
-وغیرموتوری,و غیرموتوری,word,,glued و
-وحکیم,و حکیم,word,,glued و
-ودرمانگاه,و درمانگاه,word,,glued و
-وسوراخ,و سوراخ,word,,glued و
-وحوادث,و حوادث,word,,glued و
-ونهادها,و نهادها,word,,glued و
-وذهاب,و ذهاب,word,,glued و
-وانعام,و انعام,word,,glued و
-وارسال,و ارسال,word,,glued و
 وسایرهزینه‌های,و سایر هزینه‌های,word,,glued و
 وتصویری,و تصویری,word,,glued و
-وتماشاخانه,و تماشاخانه,word,,glued و
-وعروسی,و عروسی,word,,glued و
-وفصلنامه,و فصلنامه,word,,glued و
 ودفتر,و دفتر,word,,glued و
 وگریم,و گریم,word,,glued و
-وسایروسایل,و سایر وسایل,word,,glued و
-وپودرهای,و پودرهای,word,,glued و
-وجانماز,و جانماز,word,,glued و
-ومسافرت,و مسافرت,word,,glued و
-ومسافرخانه,و مسافرخانه,word,,glued و
-ومعلولان,و معلولان,word,,glued و
-واگوستیک,و اگوستیک,word,,glued و
-وماسه,و ماسه,word,,glued و
-وآجر,و آجر,word,,glued و
 ولایروبی,و لایروبی,word,,glued و
-وکفپوش,و کفپوش,word,,glued و
-ونمد,و نمد,word,,glued و
 وزیرانداز,و زیرانداز,word,,glued و
-وگیاه,و گیاه,word,,glued و
-وفردار,و فردار,word,,glued و
-ورگلاتور,و رگلاتور,word,,glued و
 واطو,و اطو,word,,glued و
 وارده,و ارده,word,,glued و
-وتویی,و تویی,word,,glued و
-وقفل,و قفل,word,,glued و
-وسفید,و سفید,word,,glued و
 واسلاید,و اسلاید,word,,glued و
 وپروژکتور,و پروژکتور,word,,glued و
-وفلزکاری,و فلزکاری,word,,glued و
-وشهریه,و شهریه,word,,glued و
 وثبت,و ثبت,word,,glued و
-ومربیان,و مربیان,word,,glued و
-ومچی,و مچی,word,,glued و
-وراهنما,و راهنما,word,,glued و
-وزیارتهای,و زیارت‌های,word,,glued و
-وحقوقی,و حقوقی,word,,glued و
-وطلاق,و طلاق,word,,glued و
-وتبلیغات,و تبلیغات,word,,glued و
-واستخدامی,و استخدامی,word,,glued و
-ودفن,و دفن,word,,glued و
-واضافات,و اضافات,word,,glued و
-وتاسیسات,و تاسیسات,word,,glued و
-ومحوطه,و محوطه,word,,glued و
-وگازوئیل,و گازوئیل,word,,glued و
-وطرحهای,و طرح‌های,word,,glued و
-وعمرانی,و عمرانی,word,,glued و
-ودایر,و دایر,word,,glued و
-وداشت,و داشت,word,,glued و
-ونهالستانها,و نهالستان‌ها,word,,glued و
-وخرمنکوب,و خرمنکوب,word,,glued و
-ودلستر,و دلستر,word,,glued و
-وتاپ,و تاپ,word,,glued و
-وبندشلوار,و بند شلوار,word,,glued و
-وقبض,و قبض,word,,glued و
-ودفع,و دفع,word,,glued و
-ورنده,و رنده,word,,glued و
-وپلکان,و پلکان,word,,glued و
-ونیل,و نیل,word,,glued و
 وآشامیدنی,و آشامیدنی,word,,glued و
 وروان,و روان,word,,glued و
-وبالگرد,و بالگرد,word,,glued و
-وتلفکس,و تلفکس,word,,glued و
 وتکثیر,و تکثیر,word,,glued و
-وشاخ,و شاخ,word,,glued و
-وکلوپ,و کلوپ,word,,glued و
-ونمایش‌های,و نمایش‌های,word,,glued و
-وسیرک,و سیرک,word,,glued و
-وکاور,و کاور,word,,glued و
-وتحصیل,و تحصیل,word,,glued و
 وحرفه‌ای,و حرفه‌ای,word,,glued و
-وسایرموسسات,و سایر موسسات,word,,glued و
-وپیرایش,و پیرایش,word,,glued و
 وگرددندان,و گرد دندان,word,,glued و
 وتونر,و تونر,word,,glued و
 وپودربچه,و پودر بچه,word,,glued و
-ونواربهداشتی,و نوار بهداشتی,word,,glued و
-وعصای,و عصای,word,,glued و
-وشیرخوارگاه,و شیرخوارگاه,word,,glued و
-وانتقالات,و انتقالات,word,,glued و
 وپنجره,و پنجره,word,,glued و
-وشوت,و شوت,word,,glued و
-ونیمکت,و نیمکت,word,,glued و
-وکلاهک,و کلاهک,word,,glued و
 وماشینهای,و ماشین‌های,word,,glued و
 وجلا,و جلا,word,,glued و
-وغیربرقی,و غیربرقی,word,,glued و
-وجشنها,و جشن‌ها,word,,glued و
-ولنت,و لنت,word,,glued و
 وفلاش,و فلاش,word,,glued و
-ومهمات,و مهمات,word,,glued و
-وتشیع,و تشیع,word,,glued و
-ونوسازی,و نوسازی,word,,glued و
 وستادهای,و ستادهای,word,,glued و
 ودیه,و دیه,word,,glued و
-وبرآوردارزش,و برآورد ارزش,word,,glued و
-وگلپر,و گلپر,word,,glued و
-وگلدان,و گلدان,word,,glued و
-ونگهدارنده,و نگهدارنده,word,,glued و
 وگل‌ها,و گل‌ها,word,,glued و
 وماشین‌های,و ماشین‌های,word,,glued و
-وانتقال,و انتقال,word,,glued و
-ومکمل‌های,و مکمل‌های,word,,glued و
 وبهای,و بهای,word,,glued و
 ودیسکت‌ها,و دیسکت‌ها,word,,glued و
-وطرح‌های,و طرح‌های,word,,glued و
 زیر پیراهن,زیرپیراهن,word,,one spelling: زیرپیراهن
 کشباف,کش‌باف,word,,compound with ZWNJ (also printed کش‌باف)
-شربتهای,شربت‌های,word,,plural missing its ZWNJ
 لوازمالتحریر,لوازم‌التحریر,word,,compound missing its ZWNJ
-لوازمپوشاکی,لوازم پوشاکی,word,,glued words
-کالاهایشخصی,کالاهای شخصی,word,,glued words
-اجارهوسایل,اجاره وسایل,word,,glued words
 آماده سازی,آماده‌سازی,word,,compound with ZWNJ (the questionnaires also write it joined)
 خاک انداز,خاک‌انداز,word,,compound with ZWNJ (the questionnaires also write it joined)
-لامپ های,لامپ‌های,word,,compound with ZWNJ (the questionnaires also write it joined)
-پاک کننده,پاک‌کننده,word,,compound with ZWNJ (the questionnaires also write it joined)
-حشره کش,حشره‌کش,word,,compound with ZWNJ (the questionnaires also write it joined)
 پاک کن,پاک‌کن,word,,compound with ZWNJ (the questionnaires also write it joined)
 خانه سازی,خانه‌سازی,word,,compound with ZWNJ (the questionnaires also write it joined)
 قهوه ساز,قهوه‌ساز,word,,compound with ZWNJ (the questionnaires also write it joined)
 مخلوط کن,مخلوط‌کن,word,,compound with ZWNJ (the questionnaires also write it joined)
 شماره گذاری,شماره‌گذاری,word,,compound with ZWNJ (the questionnaires also write it joined)
-طرحهای,طرح‌های,word,,plural missing its ZWNJ
-گلهای,گل‌های,word,,plural missing its ZWNJ
-ماشینهای,ماشین‌های,word,,plural missing its ZWNJ
 آجیل خوری,آجیل‌خوری,word,,compound with ZWNJ (also printed joined)
 لوازم التحریر,لوازم‌التحریر,word,,compound with ZWNJ (also printed joined)
 هزنیه,هزینه,text,,typo (found through relations): هزینه
@@ -940,131 +346,53 @@
 ماهوت پاک کردن,ماهوت پاک‌کن,word,,"typo (found through relations): ماهوت پاک‌کن (clothes brush), as in other years"
 شیرپاک کن,شیرپاک‌کن,word,,one spelling: شیرپاک‌کن
 شیرپاککن,شیرپاک‌کن,word,,one spelling: شیرپاک‌کن
-خوشکارو,خوشکار و,word,,glued words (found through relations)
-باواگن‌های,با واگن‌های,word,,glued words (found through relations)
-دراتومبیل,در اتومبیل,word,,glued words (found through relations)
 وپیشبند,و پیش‌بند,word,,glued words (found through relations)
 ننوپارچه‌ای,ننو پارچه‌ای,word,,glued words (found through relations)
 خانواردر,خانوار در,word,,glued words (found through relations)
-ازخارج,از خارج,word,,glued words (found through relations)
-کشوردریافت,کشور دریافت,word,,glued words (found through relations)
 خودخانوار,خود خانوار,word,,glued words (found through relations)
-ازبوی,از بوی,word,,glued words (found through relations)
 غیراز,غیر از,word,,glued words (found through relations)
-داروجهت,دارو جهت,word,,glued words (found through relations)
 سروصورت,سر و صورت,word,,glued words (found through relations)
 لیمووگردغوره,لیمو و گردغوره,word,,glued words (found through relations)
-پودرسیر,پودر سیر,word,,glued words (found through relations)
-نوارخام,نوار خام,word,,glued words (found through relations)
-خریدانواع,خرید انواع,word,,glued words (found through relations)
-سایرلوازم,سایر لوازم,word,,glued words (found through relations)
-سایرمحصولات,سایر محصولات,word,,glued words (found through relations)
-سایرهزینه‌های,سایر هزینه‌های,word,,glued words (found through relations)
-سایرانواع,سایر انواع,word,,glued words (found through relations)
 اعضاءخانوار,اعضای خانوار,word,,glued words (found through relations)
 تانکرآب,تانکر آب,word,,glued words (found through relations)
 کولرآبی,کولر آبی,word,,glued words (found through relations)
-تمرهندی,تمر هندی,word,,glued words (found through relations)
 ودیسکتها,و دیسکت‌ها,word,,glued words (found through relations)
 گرددندان,گرد دندان,word,,glued words (found through relations)
 واشرسرسیلندر,واشر سرسیلندر,word,,glued words (found through relations)
-بانکها,بانک‌ها,word,,plural missing its ZWNJ
-بانکهای,بانک‌های,word,,plural missing its ZWNJ
-کپسولهای,کپسول‌های,word,,plural missing its ZWNJ
-کفپوشها,کفپوش‌ها,word,,plural missing its ZWNJ
 دایرهالمعارف,دایره‌المعارف,word,,missing ZWNJ
 واستخرشنای باد,و استخر شنای بادی,word,,"typo: بادی, as from 1384; glued words"
 واستخرشنای بادی,و استخر شنای بادی,word,,glued words
-وسایربازی‌های,و سایر بازی‌های,word,,glued words
 سازونظایر,ساز و نظایر,word,,glued words
 براورد,برآورد,text,,"one spelling: برآورد (standard), as in 1383-1385"
-برآوردارزش,برآورد ارزش,word,,glued words
 خدمات مشاورهای,خدمات مشاوره‌ای,text,,"ZWNJ required (ه + ای, consulting services)"
 مشاورهای سرمایه,مشاوره‌های سرمایه,text,,"plural suffix attached (investment consultancies), as printed in 1383-1385"
 وفرزندخواندگی,و فرزندخواندگی,word,,glued و
-گو شت,گوشت,word,,word broken by a space (گوشت)
 نبا تی,نباتی,word,,word broken by a space (نباتی)
 سر گرمی,سرگرمی,word,,word broken by a space (سرگرمی)
 چربیها ی,چربیهای,word,,word broken by a space (چربیهای)
 چربی‌ها ی,چربی‌های,word,,word broken by a space (چربی‌های)
 اردوگاه هاو,اردوگاه‌ها و,word,,spaces lost (glued words)
-آموزش های,آموزش‌های,word,,plural suffix attached
-میگوو,میگو و,word,,spaces lost (glued words)
-به‌جزکره,به جز کره,word,,spaces lost (glued words); one spelling for "except" (به جز)
-جزکره,جز کره,word,,spaces lost (glued words)
-روغن‌هاو,روغن‌ها و,word,,spaces lost (glued words)
-چربی‌هاو,چربی‌ها و,word,,spaces lost (glued words)
-چربی‌هایحیوانی,چربی‌های حیوانی,word,,spaces lost (glued words)
-شدهو,شده و,word,,spaces lost (glued words)
-مرباهاو,مرباها و,word,,spaces lost (glued words)
-قندو,قند و,word,,spaces lost (glued words)
-چاشنی‌هاو,چاشنی‌ها و,word,,spaces lost (glued words)
 بالااشاره,بالا اشاره,word,,spaces lost (glued words)
-انواعپوشاکو,انواع پوشاک و,word,,spaces lost (glued words)
-تعمیروکرایه‌پوشاک,تعمیر و کرایه پوشاک,word,,spaces lost (glued words)
-تعمیروکرایه,تعمیر و کرایه,word,,spaces lost (glued words)
 کرایه‌پوشاک,کرایه پوشاک,word,,spaces lost (glued words)
 دوساله,دو ساله,word,,spaces lost (glued words)
-تعمیراتو,تعمیرات و,word,,spaces lost (glued words)
-برایاقامتگاهاصلی,برای اقامتگاه اصلی,word,,spaces lost (glued words)
-واحدمسکونی,واحد مسکونی,word,,spaces lost (glued words)
 آبو,آب و,word,,spaces lost (glued words)
-فاضلابو,فاضلاب و,word,,spaces lost (glued words)
-به‌واحد,به واحد,word,,spaces lost (glued words)
-سایرخدمات,سایر خدمات,word,,spaces lost (glued words)
 هزینه‌هایجمع‌آوری,هزینه‌های جمع‌آوری,word,,spaces lost (glued words)
-سوخت‌هایجامد,سوخت‌های جامد,word,,spaces lost (glued words)
 لوازمپارچه‌ایخانگی,لوازم پارچه‌ای خانگی,word,,spaces lost (glued words)
-غذاخوریو,غذاخوری و,word,,spaces lost (glued words)
-منزلو,منزل و,word,,spaces lost (glued words)
 بی‌دوامخانگی,بی‌دوام خانگی,word,,spaces lost (glued words)
-خدماتطبی,خدمات طبی,word,,spaces lost (glued words)
 خدماتدندانپزشکی,خدمات دندانپزشکی,word,,spaces lost (glued words)
 نگهداریوتعمیروسایل,نگهداری و تعمیر وسایل,word,,spaces lost (glued words)
-تعمیروسایل,تعمیر وسایل,word,,spaces lost (glued words)
-به‌وسایل,به وسایل,word,,spaces lost (glued words)
-به‌تجهیزاتحمل,به تجهیزات حمل,word,,spaces lost (glued words)
-خدماتخریداری,خدمات خریداری,word,,spaces lost (glued words)
-شدهحمل,شده حمل,word,,spaces lost (glued words)
-خدماتپستی,خدمات پستی,word,,spaces lost (glued words)
-وداده,و داده,word,,spaces lost (glued words)
 فیلم‌برداریوتجهیزات,فیلم‌برداری و تجهیزات,word,,spaces lost (glued words)
 باغهاوحیوانهای,باغها و حیوانهای,word,,spaces lost (glued words)
 بازیووسایل,بازی و وسایل,word,,spaces lost (glued words)
-دراردوگاه‌ها,در اردوگاه‌ها,word,,spaces lost (glued words)
 وگلها,و گلها,word,,spaces lost (glued words)
-نشریاتادواری,نشریات ادواری,word,,spaces lost (glued words)
-موضوعاتچاپ,موضوعات چاپ,word,,spaces lost (glued words)
-خدماتتهیه,خدمات تهیه,word,,spaces lost (glued words)
-کافه‌هاو,کافه‌ها و,word,,spaces lost (glued words)
 نظایرآن,نظایر آن,word,,spaces lost (glued words)
 غذاخوریهاو,غذاخوریها و,word,,spaces lost (glued words)
-خدماتتامین‌جا,خدمات تامین جا,word,,spaces lost (glued words)
-لوازمو,لوازم و,word,,spaces lost (glued words)
-لوازمشخصی‌طبقه‌بندی,لوازم شخصی طبقه‌بندی,word,,spaces lost (glued words)
 درجای,در جای,word,,spaces lost (glued words)
 مالی‌طبقه بندی,مالی طبقه‌بندی,word,,spaces lost (glued words)
-باحمل,با حمل,word,,spaces lost (glued words)
-سایروسایل,سایر وسایل,word,,spaces lost (glued words)
-نگهداریوسایل,نگهداری وسایل,word,,spaces lost (glued words)
 تعمیرو,تعمیر و,word,,spaces lost (glued words)
-نگهداریو,نگهداری و,word,,spaces lost (glued words)
-وتعمیرواحد,و تعمیر واحد,word,,spaces lost (glued words)
-موادو,مواد و,word,,spaces lost (glued words)
-مبلمانو,مبلمان و,word,,spaces lost (glued words)
-فرشو,فرش و,word,,spaces lost (glued words)
-اثاثو,اثاث و,word,,spaces lost (glued words)
-صداو,صدا و,word,,spaces lost (glued words)
 رایانه‌ایو,رایانه‌ای و,word,,spaces lost (glued words)
-تعمیرتجهیزات,تعمیر تجهیزات,word,,spaces lost (glued words)
 مسافرهای دستجمعی,مسافرتهای دستجمعی,word,,typo (مسافرتهای); other years have the right spelling
-وپیش,و پیش,word,,spaces lost (glued words)
-آموزشتحصیلات,آموزش تحصیلات,word,,spaces lost (glued words)
 خدماتواسطه‌گریهای,خدمات واسطه‌گریهای,word,,spaces lost (glued words)
-دیواریو,دیواری و,word,,spaces lost (glued words)
 خسارتودیه,خسارت و دیه,word,,spaces lost (glued words)
 خانواردرساختمان,خانوار در ساختمان,word,,spaces lost (glued words)
-درساختمان,در ساختمان,word,,spaces lost (glued words)
 سرمایه‌گذاریخانوار,سرمایه‌گذاری خانوار,word,,spaces lost (glued words)
-منظورکسب,منظور کسب,word,,spaces lost (glued words)
-بخش‌کشاورزیو,بخش کشاورزی و,word,,spaces lost (glued words)
