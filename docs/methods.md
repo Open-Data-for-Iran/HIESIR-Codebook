@@ -4,14 +4,14 @@ How the questionnaires are corrected, how items are matched across years, and wh
 
 ## Corrections
 
-`curated/source.csv` lists the errors in the questionnaires themselves,
+`curated/2_corrected/corrections.csv` lists the errors in the questionnaires themselves,
 one row per fix, each with its evidence:
 
 | Column | Meaning |
 |---|---|
 | `year` | questionnaire year |
-| `action` | `recode` (set an item's expenditure code), `retext` (set its description), `delete` (remove an item, with any group header left empty), or `add_section` (copy a section missing from the PDF from another year) |
-| `expenditure_code`, `description` | the item as printed; the description tells two rows apart when a code is printed twice |
+| `action` | `recode` (set an item's expenditure code), `retext` (set its description), `delete` (remove an item, with any group header left empty), `add_section` (copy a section missing from the PDF from another year), or `recode_header` / `retext_header` (set a group header's code or description; its level follows the code) |
+| `expenditure_code`, `description` | the item as printed (for a header: its code as in `1_extracted`, e.g. `062 M`); the description tells two rows apart when a code is printed twice |
 | `value` | the corrected code or text (for `add_section`: the source year, with the section number in `description`) |
 | `reason` | evidence: neighbouring years, the raw data |
 
@@ -40,7 +40,7 @@ style (`utils.tidy_punctuation`), about 2,500 rows in all:
 - a slash between words gets a space on each side: `دبیرستان/ متوسطه` →
   `دبیرستان / متوسطه` (`1/2` stays).
 
-Then `curated/labels.csv` fixes spellings that recur across rows and
+Then `curated/2_corrected/spelling.csv` fixes spellings that recur across rows and
 years, applied to every description in file order:
 
 | Column | Meaning |
@@ -51,7 +51,7 @@ years, applied to every description in file order:
 | `years` | empty for all years, or years and ranges: `1386`, `1383-1385 1390` |
 | `reason` | why |
 
-Its 935 rows change about 7,600 descriptions:
+Its 1,069 rows change about 8,600 descriptions:
 
 - typos (`دیبرستان` → `دبیرستان`, `رایو` → `رادیو`, `کارت کدملی` → `کارت ملی`),
   one spelling per word (`بجز` → `به جز`, `جابجایی` → `جابه‌جایی`, `پینگ‌پنگ`,
@@ -67,7 +67,7 @@ Its 935 rows change about 7,600 descriptions:
 changed, and the run warns about rows that match nothing.
 
 **hazm as an advisor.** [hazm](https://github.com/roshan-research/hazm) is
-not a dependency: it only suggests rows for `labels.csv`.
+not a dependency: it only suggests rows for `spelling.csv`.
 
 ```bash
 uv run --with hazm python scripts/suggest_labels.py   # -> reports/hazm_suggestions.csv
@@ -78,7 +78,7 @@ Persian digits, no punctuation restyling) over every corrected label and
 lists each word-level change with how many labels it affects, sorted into
 `plural` (ها/های attached with a ZWNJ, the standard spelling), `compound`
 (two words joined with a ZWNJ, e.g. `پرداخت‌شده`, optional), and `other`.
-Nothing is applied: accepted rows are copied into `labels.csv` with a reason.
+Nothing is applied: accepted rows are copied into `spelling.csv` with a reason.
 
 `--check` tests both against the household occurrence table:
 
@@ -94,17 +94,16 @@ passes.
 
 ## Matching items across years
 
-`output/3_matched/` links each item through the 1383–1403 questionnaires as a
+`output/3_items/` links each item through the 1383–1403 questionnaires as a
 *series*: the same thing asked about year after year, even when its wording
 changes slightly, its code changes, or it is missing from a year.
 
 ```bash
-uv run python -m hiesir_codebook.chains      # stage 1: output/2_corrected/ -> output/3_matched/chains.csv
-uv run python -m hiesir_codebook.relations   # stage 2: chains.csv -> output/3_matched/links.csv, relations.csv
-uv run python -m hiesir_codebook.match       # all at once (older one-pass matcher): output/2_corrected/ -> output/3_matched/
+uv run python -m hiesir_codebook.chains      # stage 1: output/2_corrected/ -> output/3_items/chains.csv
+uv run python -m hiesir_codebook.relations   # stage 2: chains.csv -> output/3_items/links.csv, relations.csv
 ```
 
-Matching is being rebuilt in stages.
+Matching runs in two stages.
 
 **Stage 1, chains.** A *chain* is one expenditure code with one label,
 followed from year to year while both stay the same (labels that differ only
@@ -154,8 +153,7 @@ ends and a similar one that starts the next year under a new code), merges
 (an ending chain whose label lives on in another; a "سایر X" item that
 becomes "X" while the rest of its group vanishes), and splits (a new chain
 whose label was part of an older one; an item asked for all providers that
-becomes a G / NG pair). This reproduces every merge, split and recoding the
-older one-pass matcher found.
+becomes a G / NG pair).
 
 When a code's new label is unrelated, the code was reused for another
 item. That is no link, so nothing goes into `links.csv`; the 6
@@ -167,12 +165,12 @@ False) when both labels carry the same content words, so only punctuation,
 the conjunction (`،` / `و`), word order, spacing, generic words (`انواع`)
 or "etc." markers (`و نظایر آن` / `و ...`) differ: `جگر، دل، قلوه` →
 `جگر، دل و قلوه`. Every other relation, and every merge, split or
-regrouping, needs a check. Everything is now settled: of 448 links, 162 are
-definite and `curated/links.csv` decides the rest (201 confirmed, 73
-changed, 8 rejected, 4 added); `curated/relations.csv` decides all 133
+regrouping, needs a check. Everything is now settled: of 447 links, 162 are
+definite and `curated/3_items/links.csv` decides the rest (200 confirmed, 73
+changed, 8 rejected, 4 added); `curated/3_items/relations.csv` decides all 133
 merges, splits and regroupings (93 confirmed, 14 rejected, 26 added).
 
-Decisions go in `curated/links.csv` and `curated/relations.csv`, one row per
+Decisions go in `curated/3_items/links.csv` and `curated/3_items/relations.csv`, one row per
 link or relation, named by its chains:
 
 | Column | Meaning |
@@ -247,7 +245,7 @@ cause open: 053312 halving in 1390, the 1386 public surgery fees halving, and
 dialysis and chemotherapy rising from 36 to 207 households in 1395.
 
 Each file only takes its own kind: a `change` or `add` with `merged` in
-`curated/links.csv`, or with `same` in `curated/relations.csv`, is an
+`curated/3_items/links.csv`, or with `same` in `curated/3_items/relations.csv`, is an
 error. To change the chains of a relation, reject it and add the right one;
 when a merge replaces a link (the "outside the home" items), reject the link.
 `links.csv` and `relations.csv` record each decision in `verified` (`confirmed`,
@@ -257,64 +255,80 @@ found (for example after a label correction merged two chains) is reported
 as stale, and the tests fail until it is updated. The rows still to check
 are those with `needs_verification` True.
 
-Recodings, merges and splits are links between chains; the rest of this
-section describes how `match.py` currently finds them in one pass.
-
-Two descriptions are compared with spacing, ZWNJ, punctuation, hamza and
-digit style ignored, then by character similarity (typos, joined words) and
-by overlap of content words (scope changes). The result is one of `same`,
+**How labels are compared** (`compare.py`, used by both stages). Two
+descriptions are compared with spacing, ZWNJ, punctuation, hamza and digit
+style ignored, then by character similarity (typos, joined words) and by
+overlap of content words (scope changes). The result is one of `same`,
 `minor`, `broadened`, `narrowed`, `reworded` or `different`. A `reworded`
 pair must still share its head noun, so آبگرمکن گازی → کولرگازی counts as
 `different`.
 
-A series stands for one comparable definition. Wording changes and new
-codes keep the series; merges and splits end it and start new series, so
-the values of one `series_id` can be compared across all of its years.
+**Collapsing into the residual item.** A group can collapse into its
+residual item: in 1390 "سایر انواع تلویزیون رنگی داخلی" (other domestic
+colour TVs) became "انواع تلویزیون رنگی داخلی" (all of them) while the
+21-inch item disappeared. When a "سایر X" item becomes "X" and related items
+of its code group vanish that year, they are all merged into the new chain
+(six cases: TVs and new cars in 1390, collections and surgery fees in 1386).
 
-| Change | Meaning |
-|---|---|
-| `start` | first appearance |
-| `minor` / `broadened` / `narrowed` / `reworded` | same code, wording changed (scope changes are listed for review) |
-| `recoded` | same item under a new code |
-| `reappeared` | back after being missing for up to two questionnaires |
-| `code_reused` | the code now means something unrelated, so a new series starts |
-| `merged_into` | the series ends because its item was combined with others (`related_series`: the new series) |
-| `merged_from` | a new series for the combined item (`related_series`: all the series it combines) |
-| `split_into` | the series ends because its item was divided (`related_series`: the new series) |
-| `split_from` | a new series for one of the parts (`related_series`: the series it came from) |
-
-A group can also collapse into its residual item: in 1390 "سایر انواع
-تلویزیون رنگی داخلی" (other domestic colour TVs) became "انواع تلویزیون رنگی
-داخلی" (all of them) while the 21-inch item disappeared. When a "سایر X" item
-becomes "X" and related items of its code group vanish that year, they are
-all merged into a new series (six cases: TVs and new cars in 1390,
-collections and surgery fees in 1386).
-
-For example, in 1386 هزینه باغبانی (`044414-1383`) absorbed سرایداری and
-میراب: all three series end as `merged_into 044414-1386`, and
-`044414-1386` starts as `merged_from` them. Follow `related_series` to go
-from a series to its predecessors or successors.
-
-Many health services are asked once per kind of provider: "(دولتی)" /
-"(خصوصی)" in 1383–1394, and "G" / "NG" from 1395. G covers centres owned by
-the medical universities and NG all other providers, including social
-security, the armed forces, private and charity, so NG covers more than
-خصوصی did. The qualifier stays in the text but is left out of the
-comparison, and a series only continues into an item for the same provider:
+**Providers.** Many health services are asked once per kind of provider:
+"(دولتی)" / "(خصوصی)" in 1383–1394, and "G" / "NG" from 1395. G covers
+centres owned by the medical universities and NG all other providers,
+including social security, the armed forces, private and charity, so NG
+covers more than خصوصی did. The qualifier stays in the text but is left out
+of the comparison, and a chain only links to an item for the same provider:
 دولتی → G, خصوصی → NG. An item asked for all providers that becomes a G/NG
-pair is recorded as a split (e.g. خدمات آمبولانس in 1395).
+pair is a split (e.g. خدمات آمبولانس in 1395).
 
-The files store change points only, like the year-keyed histories in
-`commodities.yaml`: a series whose text never changes has a single row.
-A series is identified by the expenditure code and year it started with,
-e.g. `011114-1383`, so all series that ever used a code sort together.
+## Groups across years
 
-| File | Content |
+`groups.py` follows the group headers (levels 2–4, above the items) the
+way the chains follow items:
+
+- A **group** is one header, its section and its code as printed (`0111`,
+  `01121, 01122`, `0314 M`), for as long as it is printed, skipping at most
+  two questionnaires. A changed label keeps the group; `groups.csv` shows
+  the latest. A group is identified by its code and first year:
+  `0111-1383`, `01121+01122-1383`, `0314M-1389`.
+- Every item of every year sits under one group per level.
+  `4_groups/members.csv` (`year`, `expenditure_code`, `level_2`, `level_3`,
+  `level_4`) is the crosswalk for summing items into groups.
+- Where the items go tells how groups relate. When an item continues to the
+  next year (in its chain, through a link, or through a merge, split or
+  regrouping that is not rejected) under another group at the same level,
+  the two groups are linked in `4_groups/links.csv`:
+
+| Relation | Meaning |
 |---|---|
-| `series.csv` | one row per series: first/last year, missing years, latest expenditure code, how it ends (`merged_into`, `split_into`, `dropped`, or empty if still asked in 1403) |
-| `codes.csv` | one row per series and code: the years the series was asked under that code. Only the 11 recoded series have more than one row. Each (expenditure code, year) belongs to exactly one series, so this is the table to join the raw data on |
-| `history.csv` | the starting row of each series plus one row per change; years without a row keep the previous text |
-| `review.csv` | every non-trivial change (rewordings, scope changes, recodings, merges, splits, reuse), with old and new text side by side and an empty `decision` column |
+| `continued` | the old group ends, the new one starts and takes its items: the same group under another code (`0313` → `0313 M`, `01192, 01193` → `01192, 01193, 01194`) |
+| `split` | the old group ends and its items go to several new ones (`0314` → `0314 M` and `0314 A` in 1389) |
+| `merged` | several old groups end in one new group (`05111`, `05112`, `05113` → `05117` in 1386) |
+| `regrouped` | both at once |
+| `moved` | items moved between groups printed before and after: a reorganisation, or a wrong item link |
+
+A link between related codes (one shares a code with the other, or starts
+it: `0313` → `0313 M`, `096` → `0961`) is definite unless it is `moved`.
+The others wait for a decision in `curated/4_groups/links.csv` (`from_group`,
+`to_group`, `decision`, `relation`, `note`; the decisions of `links.csv`).
+A `moved` link that comes from a wrong item link is fixed in `links.csv`
+or `relations.csv`, not here. `items` counts the item chains that moved,
+`from_items` and `to_items` the items under each group that year, and
+`item_chains` lists the chains.
+
+**The `M` and `A` suffixes** mark a COICOP group whose items are divided
+between the two recall periods: `M` in sections 1–12 (expenditure "in the
+past month") and `A` in section 13 (purchases "in the past 12 months"). In
+every year from 1383 to 1403, a group code printed in both parts carries `M`
+in the first and `A` in the second, and a group asked in only one part has no
+suffix. A few suffixed groups have no partner in the other part: `044 M`
+(1384), `124 A` (1388–1390), `063 A` / `0631 A` (1395) and `112 M` /
+`1120 M` (1397 on).
+The suffix does not mark durability. Both `0313 M` and `0313 A` are labelled
+کم‌دوام (semi-durable), and the `A` side also holds services such as
+driving lessons (`072414`) and nursery fees (`124113`). It holds the
+expenses households make rarely and remember over a year. The questionnaires
+print no legend for the letters, so this reading comes from where the codes
+appear. When `M` and `A` groups are first printed, the old group shows up as
+a `split` (`0313` → `0313 M` and `0313 A` in 1389).
 
 ## How it works
 
@@ -329,14 +343,15 @@ e.g. `011114-1383`, so all series that ever used a code sort together.
   `uv run python -m hiesir_codebook.build_glyph_db`.
 - `parse.py` finds code lines and attaches wrapped description lines to them,
   using the table rules and column borders.
-- `correct.py` applies `curated/source.csv` and `curated/labels.csv`
+- `correct.py` applies `curated/2_corrected/corrections.csv` and `curated/2_corrected/spelling.csv`
   to `output/1_extracted/` and checks the result against the household occurrence
   table. `scripts/suggest_labels.py` uses hazm to suggest rows for
-  `labels.csv`.
+  `spelling.csv`.
 - `compare.py` compares two descriptions (`same`, `minor`, `broadened`, ...)
   and handles provider qualifiers; shared by the matching stages.
 - `chains.py` builds the chains (matching stage 1), `relations.py` links them
-  (stage 2), `match.py` is the older one-pass matcher (see above).
+  (stage 2), and `groups.py`
+  follows the group headers.
 - `validate.py` checks each year's extracted codes against the codes that
   occur in the raw data (`data/commodity_code_occurrence_*.csv`).
 - `utils.py` holds the Persian text normalisation helpers, usable on their own:

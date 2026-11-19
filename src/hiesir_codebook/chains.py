@@ -4,7 +4,7 @@ A *chain* is one expenditure code with one label, followed through the
 corrected questionnaires (``output/2_corrected/``) for as long as both stay the same.
 Labels count as the same when they differ only in spacing, ZWNJ,
 punctuation, hamza or digit style (``same`` in
-:func:`hiesir_codebook.match.compare`).
+:func:`hiesir_codebook.compare.compare`).
 
 A chain ends when its code disappears for more than ``MAX_GAP``
 questionnaires in a row, or when its label changes in any other way; the
@@ -24,7 +24,7 @@ import csv
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import CORRECTED, MATCHED
+from . import CORRECTED, ITEMS
 from .compare import MAX_GAP, YEARS, Item, load_year, relate
 
 
@@ -103,7 +103,7 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument(
         "--source", type=Path, default=CORRECTED, help="yearly CSVs (default: output/2_corrected/)"
     )
-    ap.add_argument("--out", type=Path, default=MATCHED / "chains.csv")
+    ap.add_argument("--out", type=Path, default=ITEMS / "chains.csv")
     ap.add_argument("--max-gap", type=int, default=MAX_GAP, help="questionnaires a chain may skip")
     args = ap.parse_args(argv)
     chains = build_chains({y: load_year(y, args.source) for y in YEARS}, args.max_gap)

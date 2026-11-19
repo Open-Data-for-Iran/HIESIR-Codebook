@@ -15,9 +15,10 @@ wording change.
   [contributing](docs/contributing.md).
 
 ```
-data/pdf ──extract──▶ 1_extracted ──correct──▶ 2_corrected ──match──▶ 3_matched ──▶ explorer
-                      as printed       ▲        as intended            chains, relations
-                                   curated/
+data/pdf ─extract─▶ 1_extracted ─correct─▶ 2_corrected ─match─▶ 3_items ─group─▶ 4_groups ─▶ explorer
+                    as printed             as intended
+                                     ▲                     ▲                ▲
+                           curated/2_corrected/    curated/3_items/ curated/4_groups/
 ```
 
 | Folder | Content | Edited by |

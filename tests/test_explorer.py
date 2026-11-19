@@ -8,8 +8,8 @@ ROOT = Path(__file__).resolve().parents[1]
 def _collect():
     return explorer.collect(
         corrected=ROOT / "output" / "2_corrected",
-        matched=ROOT / "output" / "3_matched",
-        source=ROOT / "curated" / "source.csv",
+        items=ROOT / "output" / "3_items",
+        source=ROOT / "curated" / "2_corrected" / "corrections.csv",
     )
 
 

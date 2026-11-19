@@ -14,9 +14,9 @@ TEXT = {"code": str, "sub": str, "expenditure_code": str}
 q = pd.read_csv("output/2_corrected/questionnaire_1403.csv", dtype=TEXT)
 items = q[q.kind == "item"]
 
-chains = pd.read_csv("output/3_matched/chains.csv", dtype={"expenditure_code": str})
-links = pd.read_csv("output/3_matched/links.csv")
-relations = pd.read_csv("output/3_matched/relations.csv")
+chains = pd.read_csv("output/3_items/chains.csv", dtype={"expenditure_code": str})
+links = pd.read_csv("output/3_items/links.csv")
+relations = pd.read_csv("output/3_items/relations.csv")
 relations = relations[relations.verified != "rejected"]
 
 # join with the raw data, which stores codes as numbers
@@ -25,23 +25,26 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 
 همین فایل‌ها را می‌توانید از این سایت دریافت کنید:
 [2_corrected/questionnaire_1403.csv](2_corrected/questionnaire_1403.csv) (هر سال دیگری را به جای ۱۴۰۳ بگذارید)،
-[3_matched/chains.csv](3_matched/chains.csv)، [3_matched/links.csv](3_matched/links.csv) و [3_matched/relations.csv](3_matched/relations.csv).
+[3_items/chains.csv](3_items/chains.csv)، [3_items/links.csv](3_items/links.csv)، [3_items/relations.csv](3_items/relations.csv)،
+[4_groups/groups.csv](4_groups/groups.csv)، [4_groups/members.csv](4_groups/members.csv) و [4_groups/links.csv](4_groups/links.csv).
 
 | فایل | هر سطر یعنی | جزئیات |
 |---|---|---|
 | `2_corrected/questionnaire_<year>.csv` | یک بخش، سرگروه یا قلمِ پرسشنامه آن سال | [ستون‌ها](#csv-columns) |
-| `3_matched/chains.csv` | یک قلم (زنجیره): یک کد با یک عبارت، تا زمانی که هر دو ثابت بمانند | [مرحله ۱](methods.md#matching-items-across-years) |
-| `3_matched/links.csv` | یک پیوند یک‌به‌یک که قلمی را ادامه می‌دهد: همان قلم، تغییر کد | [مرحله ۲](methods.md#matching-items-across-years) |
-| `3_matched/relations.csv` | یک رابطه میان مجموعه‌ای از اقلام: ادغام، تفکیک، بازگروه‌بندی | [مرحله ۲](methods.md#matching-items-across-years) |
-| `3_matched/series.csv`، `codes.csv`، `history.csv`، `review.csv` | سری‌های تطبیق‌دهنده قدیمی تک‌مرحله‌ای | [روش کار](methods.md#matching-items-across-years) |
+| `3_items/chains.csv` | یک قلم (زنجیره): یک کد با یک عبارت، تا زمانی که هر دو ثابت بمانند | [مرحله ۱](methods.md#matching-items-across-years) |
+| `3_items/links.csv` | یک پیوند یک‌به‌یک که قلمی را ادامه می‌دهد: همان قلم، تغییر کد | [مرحله ۲](methods.md#matching-items-across-years) |
+| `3_items/relations.csv` | یک رابطه میان مجموعه‌ای از اقلام: ادغام، تفکیک، بازگروه‌بندی | [مرحله ۲](methods.md#matching-items-across-years) |
+| `4_groups/groups.csv` | یک سرگروه: یک کد چاپی، تا زمانی که چاپ می‌شود | [سرگروه‌ها](methods.md#groups-across-years) |
+| `4_groups/members.csv` | یک قلم در یک سال: گروه آن در سطح ۲، ۳ و ۴ | [سرگروه‌ها](methods.md#groups-across-years) |
+| `4_groups/links.csv` | دو گروهی که اقلامی میانشان جابه‌جا شده: ادامه، تفکیک، ادغام، بازگروه‌بندی، جابه‌جایی | [سرگروه‌ها](methods.md#groups-across-years) |
 
 ## پوشه‌ها {#folders}
 
 | پوشه | محتوا | در git | ویرایش توسط |
 |---|---|---|---|
 | `data/` | ورودی‌های بیرونی: فایل‌های PDF و جدول‌های تعداد خانوارهای گزارش‌دهنده هر کد | خیر | هیچ‌کس (فقط جایگزین می‌شود) |
-| `curated/` | تصمیم‌های دستی: `source.csv` (اصلاح اقلام)، `labels.csv` (اصلاح املا)، `links.csv` و `relations.csv` (تصمیم‌های پیوند) | بله | افراد |
-| `output/` | خروجی همه مراحل: `1_extracted/`، `2_corrected/`، `3_matched/` و صفحه `explorer/` | بله | فقط برنامه |
+| `curated/` | تصمیم‌های دستی: `2_corrected/` (`corrections.csv`: اصلاح اقلام و سرگروه‌ها؛ `spelling.csv`)، `3_items/` (`links.csv`، `relations.csv`) و `4_groups/` (`links.csv`): تصمیم‌های پوشه هم‌نام در `output/` | بله | افراد |
+| `output/` | خروجی همه مراحل: `1_extracted/`، `2_corrected/`، `3_items/` و صفحه `explorer/` | بله | فقط برنامه |
 | `reports/` | کمک‌های بازبینی، مانند `hazm_suggestions.csv` | خیر | فقط برنامه |
 
 ## ستون‌های CSV {#csv-columns}

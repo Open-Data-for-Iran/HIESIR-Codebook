@@ -51,8 +51,8 @@ def test_questionnaire_table(tmp_path):
 def test_explorer_knows_the_printed_page():
     data = explorer.collect(
         corrected=ROOT / "output" / "2_corrected",
-        matched=ROOT / "output" / "3_matched",
-        source=ROOT / "curated" / "source.csv",
+        items=ROOT / "output" / "3_items",
+        source=ROOT / "curated" / "2_corrected" / "corrections.csv",
     )
     for c in data["chains"]:
         asked = [y for y in data["years"] if c["first"] <= y <= c["last"] and y not in c["miss"]]
@@ -68,7 +68,7 @@ def test_explorer_knows_the_printed_page():
 def test_every_printed_item_has_its_position():
     """Items carry their box on the page (top, bottom, left, right; 1382 is A3,
     the rest A4); only items that
-    curated/source.csv copies into a year (no page) lack one."""
+    curated/2_corrected/corrections.csv copies into a year (no page) lack one."""
     import csv
 
     for f in sorted((ROOT / "output" / "2_corrected").glob("questionnaire_*.csv")):

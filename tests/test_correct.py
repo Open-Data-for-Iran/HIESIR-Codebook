@@ -41,6 +41,22 @@ def test_retext():
     assert apply(1, ROWS, [fix], Path())[2]["description"] == "پنیر پیتزا"
 
 
+def test_header_corrections():
+    rows = [
+        {**_row(5, "header", "062 M", "", "خدمات خانگی و مراقبت از منزل (خدمت)"), "level": "2"},
+        {**_row(6, "header", "0622", "", "خدمات پزشکی"), "level": "3"},
+        _row(6, "item", "0622", "11", "ویزیت دندانپزشک (دولتی)"),
+    ]
+    fixes = [
+        Correction(1386, "recode_header", "062 M", "", "0562 M", "typo"),
+        Correction(1386, "retext_header", "0622", "خدمات پزشکی", "خدمات دندانپزشکی", "typo"),
+    ]
+    out = apply(1386, rows, fixes, Path())
+    assert (out[0]["code"], out[0]["level"]) == ("0562 M", "3")  # the level follows the code
+    assert out[1]["description"] == "خدمات دندانپزشکی"
+    assert out[2] == rows[2]  # an item with the same code is not a header
+
+
 def test_ambiguous_or_missing_target_fails():
     with pytest.raises(ValueError, match="2 matching rows"):
         apply(1, ROWS, [Correction(1, "recode", "041211", "", "042111", "typo")], Path())
@@ -66,8 +82,8 @@ def test_corrected_is_up_to_date(tmp_path):
         SUPPORTED_YEARS,
         ROOT / "output" / "1_extracted",
         tmp_path,
-        ROOT / "curated" / "source.csv",
-        ROOT / "curated" / "labels.csv",
+        ROOT / "curated" / "2_corrected" / "corrections.csv",
+        ROOT / "curated" / "2_corrected" / "spelling.csv",
     )
     for year in SUPPORTED_YEARS:
         name = f"questionnaire_{year}.csv"

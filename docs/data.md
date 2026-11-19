@@ -14,9 +14,9 @@ TEXT = {"code": str, "sub": str, "expenditure_code": str}
 q = pd.read_csv("output/2_corrected/questionnaire_1403.csv", dtype=TEXT)
 items = q[q.kind == "item"]
 
-chains = pd.read_csv("output/3_matched/chains.csv", dtype={"expenditure_code": str})
-links = pd.read_csv("output/3_matched/links.csv")
-relations = pd.read_csv("output/3_matched/relations.csv")
+chains = pd.read_csv("output/3_items/chains.csv", dtype={"expenditure_code": str})
+links = pd.read_csv("output/3_items/links.csv")
+relations = pd.read_csv("output/3_items/relations.csv")
 relations = relations[relations.verified != "rejected"]
 
 # join with the raw data, which stores codes as numbers
@@ -25,23 +25,26 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 
 The same files can be downloaded from this site:
 [2_corrected/questionnaire_1403.csv](2_corrected/questionnaire_1403.csv) (any year in place of 1403),
-[3_matched/chains.csv](3_matched/chains.csv), [3_matched/links.csv](3_matched/links.csv) and [3_matched/relations.csv](3_matched/relations.csv).
+[3_items/chains.csv](3_items/chains.csv), [3_items/links.csv](3_items/links.csv), [3_items/relations.csv](3_items/relations.csv),
+[4_groups/groups.csv](4_groups/groups.csv), [4_groups/members.csv](4_groups/members.csv) and [4_groups/links.csv](4_groups/links.csv).
 
 | File | One row per | Details |
 |---|---|---|
 | `2_corrected/questionnaire_<year>.csv` | section, group header or item of that year | [CSV columns](#csv-columns) |
-| `3_matched/chains.csv` | item: one code with one label, followed while both stay the same | [Stage 1](methods.md#matching-items-across-years) |
-| `3_matched/links.csv` | 1 → 1 link that continues an item: same, recoded | [Stage 2](methods.md#matching-items-across-years) |
-| `3_matched/relations.csv` | relation between sets of items: merged, split, regrouped | [Stage 2](methods.md#matching-items-across-years) |
-| `3_matched/series.csv`, `codes.csv`, `history.csv`, `review.csv` | the older one-pass matcher's series | [Methods](methods.md#matching-items-across-years) |
+| `3_items/chains.csv` | item: one code with one label, followed while both stay the same | [Stage 1](methods.md#matching-items-across-years) |
+| `3_items/links.csv` | 1 → 1 link that continues an item: same, recoded | [Stage 2](methods.md#matching-items-across-years) |
+| `3_items/relations.csv` | relation between sets of items: merged, split, regrouped | [Stage 2](methods.md#matching-items-across-years) |
+| `4_groups/groups.csv` | group header: one printed code, followed while it is printed | [Groups](methods.md#groups-across-years) |
+| `4_groups/members.csv` | item and year: its group at levels 2, 3 and 4 | [Groups](methods.md#groups-across-years) |
+| `4_groups/links.csv` | pair of groups that items moved between: continued, split, merged, regrouped, moved | [Groups](methods.md#groups-across-years) |
 
 ## Folders
 
 | Folder | Content | In git | Edited by |
 |---|---|---|---|
 | `data/` | external inputs: the PDFs, the household occurrence tables | no | nobody (only replaced) |
-| `curated/` | hand-kept decisions: `source.csv` (item fixes), `labels.csv` (spelling fixes), `links.csv` and `relations.csv` (matching decisions) | yes | people |
-| `output/` | every stage's result: `1_extracted/`, `2_corrected/`, `3_matched/`, and the `explorer/` page | yes | the pipeline only |
+| `curated/` | hand-kept decisions: `2_corrected/` (`corrections.csv`: item and header fixes; `spelling.csv`), `3_items/` (`links.csv`, `relations.csv`) and `4_groups/` (`links.csv`): the decisions for the `output/` folder of the same name | yes | people |
+| `output/` | every stage's result: `1_extracted/`, `2_corrected/`, `3_items/`, and the `explorer/` page | yes | the pipeline only |
 | `reports/` | review aids such as `hazm_suggestions.csv` | no | the pipeline only |
 
 ## CSV columns

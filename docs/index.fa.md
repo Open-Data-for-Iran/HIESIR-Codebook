@@ -62,10 +62,9 @@
 ## چگونه ساخته شده است
 
 ```
-PDFs ──extract──▶ as printed ──correct──▶ as intended ──match──▶ chains + links + relations ──▶ explorer
-                                  ▲                                  ▲
-                         curated/source.csv                 curated/links.csv
-                         curated/labels.csv                 curated/relations.csv
+PDFs ─extract─▶ as printed ─correct─▶ as intended ─match─▶ chains, links, relations ─group─▶ groups, members, links ─▶ explorer
+                                ▲                     ▲                                 ▲
+                      curated/2_corrected/    curated/3_items/                  curated/4_groups/
 ```
 
 هر انحراف از متن چاپی، و هر تصمیمی که یک نفر درباره پیوند اقلام گرفته، یک

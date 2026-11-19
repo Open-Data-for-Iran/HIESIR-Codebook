@@ -1,4 +1,4 @@
-"""Suggest label fixes for curated/labels.csv, using hazm as an advisor.
+"""Suggest label fixes for curated/2_corrected/spelling.csv, using hazm as an advisor.
 
 hazm is not a dependency of the project; run this with a temporary install:
 
@@ -10,7 +10,7 @@ Unicode variants; no Persian digits, no punctuation restyling), brings the
 result back to the house punctuation style, and lists each word-level
 change with how many descriptions it affects.  Nothing is applied: review
 reports/hazm_suggestions.csv and copy the rows you accept into
-curated/labels.csv.
+curated/2_corrected/spelling.csv.
 """
 
 from __future__ import annotations

@@ -6,7 +6,8 @@ so git holds one copy and the site always shows what output/ holds:
     explorer.collect() over output/          -> explorer/data.json
     src/.../data/explorer/explorer.{js,css}  -> assets/explorer/
     output/2_corrected/*.csv                 -> 2_corrected/*.csv
-    output/3_matched/*.csv                   -> 3_matched/*.csv
+    output/3_items/*.csv                     -> 3_items/*.csv
+    output/4_groups/*.csv                    -> 4_groups/*.csv
     the questionnaire PDFs                   -> pdf/questionnaire_<year>[_<area>].pdf
 
 The PDFs are not in git. They come from $HIESIR_PDF_DIR (the GitHub workflow
@@ -32,7 +33,7 @@ from hiesir_codebook import explorer, pdfs
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "output"
-PUBLISH = ["2_corrected/*.csv", "3_matched/*.csv"]
+PUBLISH = ["2_corrected/*.csv", "3_items/*.csv", "4_groups/*.csv"]
 MARKER = "<!-- questionnaire-pdfs -->"
 log = logging.getLogger("mkdocs.hooks.hiesir")
 

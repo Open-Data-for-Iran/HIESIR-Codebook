@@ -6,9 +6,10 @@ from hiesir_codebook.parse import (
     Row,
     _assign_levels,
     _classify,
+    _page_entries,
     normalize_code,
 )
-from hiesir_codebook.pdf_text import glyph_name_to_text
+from hiesir_codebook.pdf_text import Line, Segment, glyph_name_to_text
 
 
 @pytest.mark.parametrize(
@@ -42,6 +43,10 @@ def test_expenditure_code_keeps_leading_zero():
         ("0111 غلات، نان", ("header", "0111", None, "غلات، نان")),
         ("01112 و 01111 غلات", ("header", "01112 و 01111", None, "غلات")),
         ("01182،01183", ("header", "01182،01183", None, "")),
+        # a code list continued on the next code line (1386, 1391-1394)
+        ("06312 و", ("head", "06312", None, "")),
+        ("01193و چاشنی‌ها", ("head", "01193", None, "چاشنی‌ها")),
+        ("01193و 01192 چاشنی‌ها", ("header", "01193و 01192", None, "چاشنی‌ها")),
         ("019999 تعداد سطرهای تکمیل شده در بخش 1", None),
         ("1 2 3 4 5 6 7", None),
         ("انواع نان", None),
@@ -49,6 +54,29 @@ def test_expenditure_code_keeps_leading_zero():
 )
 def test_classify(text, expected):
     assert _classify(text) == expected
+
+
+def _line(text: str, y: float, x1: float = 550) -> Line:
+    return Line(text, y, x1 - 100, x1, segments=[Segment(text, x1 - 100, x1)])
+
+
+@pytest.mark.parametrize(
+    ("lines", "code", "desc"),
+    [
+        # 1391-1394: "06312 و" / description / "06313 M"
+        (
+            [_line("06312 و", 485.0), _line("خدمات بیمارستانهای تخصصی", 493.9, 450), _line("06313 M", 501.0)],
+            "06312, 06313 M",
+            "خدمات بیمارستانهای تخصصی",
+        ),
+        # 1386: "01193و <description>" / "01192"
+        ([_line("01193و چاشنی‌ها", 203.7), _line("01192", 222.8)], "01193, 01192", "چاشنی‌ها"),
+    ],
+)
+def test_split_code_list_is_one_header(lines, code, desc):
+    (e,) = _page_entries(lines, [], [])
+    assert (e.kind, e.code, e.desc) == ("header", code, desc)
+    assert normalize_code(e.code) == normalize_code(code.replace(", ", " و "))
 
 
 def test_assign_levels():

@@ -2,7 +2,7 @@
  *
  * Mounts into every element with class "hx". Attributes on that element:
  *   data-lang  "en" or "fa" (Farsi switches the whole component to right-to-left)
- *   data-root  URL prefix of the published files (3_matched/, 2_corrected/)
+ *   data-root  URL prefix of the published files (3_items/, 2_corrected/)
  *   data-src   URL of data.json; omitted when window.HX_DATA is embedded
  *   data-docs  URL of the methods page (optional)
  *   data-pdf   URL prefix of the questionnaire PDFs (optional); items then link
@@ -69,9 +69,9 @@
         <p>Codes keep their leading zero (<span class="code">011111</span>); the raw data's <span class="code">Commodity_Code</span> stores them as numbers (<span class="code">11111</span>), so join on <span class="code">int(expenditure_code)</span>.</p>
         <h4>Download</h4>
         <ul>
-          <li><a href="${root}3_matched/chains.csv">3_matched/chains.csv</a>: one row per item (chain)</li>
-          <li><a href="${root}3_matched/links.csv">3_matched/links.csv</a>: 1 → 1 links that continue an item (same, recoded), with the evidence</li>
-          <li><a href="${root}3_matched/relations.csv">3_matched/relations.csv</a>: merges, splits and regroupings between items, with the evidence</li>
+          <li><a href="${root}3_items/chains.csv">3_items/chains.csv</a>: one row per item (chain)</li>
+          <li><a href="${root}3_items/links.csv">3_items/links.csv</a>: 1 → 1 links that continue an item (same, recoded), with the evidence</li>
+          <li><a href="${root}3_items/relations.csv">3_items/relations.csv</a>: merges, splits and regroupings between items, with the evidence</li>
           <li><a href="${root}2_corrected/questionnaire_1403.csv">2_corrected/questionnaire_1403.csv</a>: one questionnaire, corrected (change the year in the link)</li>
         </ul>`,
     },
@@ -129,9 +129,9 @@
         <p>کدها صفر ابتدایی‌شان را نگه می‌دارند (<span class="code">011111</span>)؛ ستون <span class="code">Commodity_Code</span> داده‌های خام آن‌ها را عدد ذخیره می‌کند (<span class="code">11111</span>)، پس اتصال را با <span class="code">int(expenditure_code)</span> انجام دهید.</p>
         <h4>دریافت</h4>
         <ul>
-          <li><a href="${root}3_matched/chains.csv">3_matched/chains.csv</a>: هر قلم (زنجیره) یک سطر</li>
-          <li><a href="${root}3_matched/links.csv">3_matched/links.csv</a>: پیوندهای یک‌به‌یکی که یک قلم را ادامه می‌دهند (همان قلم، تغییر کد)، همراه با شاهد</li>
-          <li><a href="${root}3_matched/relations.csv">3_matched/relations.csv</a>: ادغام‌ها، تفکیک‌ها و بازگروه‌بندی‌ها، همراه با شاهد</li>
+          <li><a href="${root}3_items/chains.csv">3_items/chains.csv</a>: هر قلم (زنجیره) یک سطر</li>
+          <li><a href="${root}3_items/links.csv">3_items/links.csv</a>: پیوندهای یک‌به‌یکی که یک قلم را ادامه می‌دهند (همان قلم، تغییر کد)، همراه با شاهد</li>
+          <li><a href="${root}3_items/relations.csv">3_items/relations.csv</a>: ادغام‌ها، تفکیک‌ها و بازگروه‌بندی‌ها، همراه با شاهد</li>
           <li><a href="${root}2_corrected/questionnaire_1403.csv">2_corrected/questionnaire_1403.csv</a>: یک پرسشنامه اصلاح‌شده (سال را در نشانی عوض کنید)</li>
         </ul>`,
     },

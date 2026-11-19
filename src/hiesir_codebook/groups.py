@@ -1,0 +1,431 @@
+"""Matching, groups: the group headers of the questionnaires across years.
+
+A *group* is one printed group header, its section and its code as printed
+(``0111``, ``01121, 01122``, ``0314 M``), followed through
+``output/2_corrected/`` for as long as it is printed, skipping at most
+``MAX_GAP`` questionnaires, like an item chain.  Its label may change; the
+latest one is shown.  Every item of every year sits under the groups whose
+headers are above it, one per level (2-4).
+
+Where the items go tells how the groups relate.  When an item continues
+from one year to the next (inside its chain, through a link, or through a
+merge, split or regrouping that is not rejected) and the group above it at
+some level is a different one, the item *flows* from the old group to the
+new one.  Every pair of groups with a flow is a group link; its shape gives
+its relation:
+
+=========== ===================================================================
+relation    meaning
+=========== ===================================================================
+continued   the old group ends, the new one starts, and the items go from the
+            one to the other: the same group under another code
+            (``0313`` -> ``0313 M``, ``01192, 01193`` -> ``01192, 01193, 01194``)
+split       the old group ends and its items go to several new ones
+merged      several old groups end in one new group
+regrouped   both at once
+moved       items moved between groups printed both before and after: an
+            item reorganised, or a wrong item link
+=========== ===================================================================
+
+A link between codes that share a code, or where one code is the start of
+the other (``096`` -> ``0961``, ``0313`` -> ``0313 M``), is definite unless
+it is ``moved``; every other link needs a decision in
+``curated/4_groups/links.csv``, with the columns and decisions of
+``curated/3_items/links.csv``: ``from_group``, ``to_group``, ``decision``
+(confirm, reject, change, add), ``relation`` (for change and add) and
+``note`` (why).
+
+Output (``output/4_groups/``):
+
+* ``groups.csv``: one row per group;
+* ``members.csv``: for every year and item, its group at each level,
+  the crosswalk for summing items into groups;
+* ``links.csv``: the group links, with their relation and decision.
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import re
+from collections import Counter, defaultdict
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from . import CORRECTED, CURATED_GROUPS, GROUPS, ITEMS
+from .chains import Chain, read_chains
+from .compare import MAX_GAP, YEARS
+from .relations import DECISION_KINDS, VERIFIED
+
+DECISIONS = CURATED_GROUPS / "links.csv"
+RELATIONS = ("continued", "split", "merged", "regrouped", "moved")
+LEVELS = (2, 3, 4)
+
+# (year, expenditure code) -> {level: group id}
+Placement = dict[tuple[int, str], dict[int, str]]
+# (item chain id, (year, code) before, (year, code) after)
+Step = tuple[str, tuple[int, str], tuple[int, str]]
+
+
+@dataclass
+class Group:
+    id: str
+    section: int
+    code: str
+    level: int
+    labels: dict[int, str] = field(default_factory=dict)  # year -> label
+    parents: dict[int, str] = field(default_factory=dict)  # year -> id of the group above
+    items: dict[int, set[str]] = field(default_factory=dict)  # year -> items under it, at any depth
+
+    @property
+    def years(self) -> list[int]:
+        return sorted(self.labels)
+
+    @property
+    def label(self) -> str:
+        return self.labels[self.years[-1]]
+
+
+def codes_of(code: str) -> set[str]:
+    """'01121, 01122' -> {'01121', '01122'}; '0314 M' -> {'0314'}."""
+    return {re.sub(r"\D", "", c) for c in code.split(",")}
+
+
+def related_codes(a: str, b: str) -> bool:
+    """Do two group codes share a code, or is one the start of the other?"""
+    return any(x.startswith(y) or y.startswith(x) for x in codes_of(a) for y in codes_of(b))
+
+
+def _slug(code: str) -> str:
+    """'01121, 01122' -> '01121+01122'; '0314 M' -> '0314M'."""
+    return "+".join(c.replace(" ", "") for c in code.split(", "))
+
+
+def build_groups(
+    rows_by_year: dict[int, list[dict[str, str]]], max_gap: int = MAX_GAP
+) -> tuple[list[Group], Placement]:
+    """The groups of the questionnaires (rows as in ``output/2_corrected/``)
+    and the group of every item at each level."""
+    years = sorted(rows_by_year)
+    groups: list[Group] = []
+    ids: set[str] = set()
+    current: dict[tuple[int, str], Group] = {}
+    placement: Placement = {}
+    for yi, year in enumerate(years):
+        window = set(years[max(0, yi - max_gap - 1) : yi + 1])
+        stack: dict[int, Group] = {}
+        for r in rows_by_year[year]:
+            if r["kind"] == "section":
+                stack = {}
+            elif r["kind"] == "header":
+                key, level = (int(r["section"]), r["code"]), int(r["level"])
+                g = current.get(key)
+                if g is None or g.years[-1] not in window:
+                    gid, n = f"{_slug(r['code'])}-{year}", 2
+                    while gid in ids:  # the same code in another section
+                        gid, n = f"{_slug(r['code'])}-{year}-{n}", n + 1
+                    ids.add(gid)
+                    g = current[key] = Group(gid, key[0], r["code"], level)
+                    groups.append(g)
+                g.labels.setdefault(year, r["description"])
+                g.level = level
+                stack = {k: v for k, v in stack.items() if k < level}
+                if stack:
+                    g.parents.setdefault(year, stack[max(stack)].id)
+                stack[level] = g
+            elif r["kind"] == "item" and r["expenditure_code"]:
+                code = r["expenditure_code"]
+                placement.setdefault((year, code), {k: v.id for k, v in stack.items()})
+                for g in stack.values():
+                    g.items.setdefault(year, set()).add(code)
+    return groups, placement
+
+
+def item_steps(
+    chains: list[Chain], links: list[tuple[str, str]], relations: list[tuple[list[str], list[str]]]
+) -> list[Step]:
+    """Every step from one year to the next where an item continues: inside
+    its chain, through a link, or from each chain a relation ends to each it
+    starts."""
+    by_id = {c.id: c for c in chains}
+    steps: list[Step] = []
+    for c in chains:
+        steps += [(c.id, (a, c.code), (b, c.code)) for a, b in zip(c.years, c.years[1:], strict=False)]
+    pairs = [*links, *((a, b) for srcs, dsts in relations for a in srcs for b in dsts if a != b)]
+    for a, b in pairs:
+        ca, cb = by_id[a], by_id[b]
+        steps.append((a, (ca.years[-1], ca.code), (cb.years[0], cb.code)))
+    return steps
+
+
+@dataclass
+class GroupLink:
+    source: Group
+    target: Group
+    year: int
+    items: set[str]  # item chains that went from source to target
+    relation: str = ""
+    needs_verification: bool = False
+    verified: str = ""
+    note: str = ""
+    id: str = ""
+
+    @property
+    def key(self) -> tuple[str, str]:
+        return self.source.id, self.target.id
+
+
+def find_links(groups: list[Group], placement: Placement, steps: list[Step]) -> list[GroupLink]:
+    """Group links from the item flows, with their relation."""
+    by_id = {g.id: g for g in groups}
+    flows: dict[tuple[str, str, int], set[str]] = defaultdict(set)
+    for item, before, after in steps:
+        pa, pb = placement.get(before), placement.get(after)
+        if not pa or not pb:
+            continue
+        for lv in LEVELS:
+            if lv in pa and lv in pb and pa[lv] != pb[lv]:
+                flows[(pa[lv], pb[lv], after[0])].add(item)
+    out_of: dict[tuple[str, int], set[str]] = defaultdict(set)
+    into: dict[tuple[str, int], set[str]] = defaultdict(set)
+    for a, b, y in flows:
+        out_of[(a, y)].add(b)
+        into[(b, y)].add(a)
+    links = []
+    for (a, b, y), items in flows.items():
+        src, dst = by_id[a], by_id[b]
+        if src.years[-1] < y and dst.years[0] == y:
+            many_out, many_in = len(out_of[(a, y)]) > 1, len(into[(b, y)]) > 1
+            relation = {
+                (False, False): "continued",
+                (True, False): "split",
+                (False, True): "merged",
+                (True, True): "regrouped",
+            }[(many_out, many_in)]
+        else:
+            relation = "moved"
+        definite = relation != "moved" and related_codes(src.code, dst.code)
+        links.append(GroupLink(src, dst, y, items, relation, needs_verification=not definite))
+    return links
+
+
+@dataclass
+class Decision:
+    from_group: str
+    to_group: str
+    decision: str
+    relation: str
+    note: str
+
+    def __str__(self) -> str:
+        return f"{self.from_group} -> {self.to_group} {self.decision}"
+
+
+def load_decisions(path: Path = DECISIONS) -> list[Decision]:
+    if not path.exists():
+        return []
+    with open(path, encoding="utf-8-sig") as f:
+        out = [
+            Decision(r["from_group"], r["to_group"], r["decision"], r["relation"], r["note"])
+            for r in csv.DictReader(f)
+        ]
+    for d in out:
+        if d.decision not in DECISION_KINDS:
+            raise ValueError(f"{path}: unknown decision {d.decision!r} ({d})")
+        if d.decision in ("change", "add") and d.relation not in RELATIONS:
+            raise ValueError(f"{path}: {d.decision} needs a relation, one of {', '.join(RELATIONS)} ({d})")
+        if not d.note.strip():
+            raise ValueError(f"{path}: every decision needs a note ({d})")
+    return out
+
+
+def apply_decisions(
+    links: list[GroupLink], decisions: list[Decision], groups: list[Group]
+) -> tuple[list[GroupLink], list[Decision]]:
+    """Apply the curated decisions; return the links and the stale decisions."""
+    by_key = {lk.key: lk for lk in links}
+    by_id = {g.id: g for g in groups}
+    stale = []
+    for d in decisions:
+        lk = by_key.get((d.from_group, d.to_group))
+        if d.decision == "add":
+            if lk is not None or d.from_group not in by_id or d.to_group not in by_id:
+                stale.append(d)
+                continue
+            dst = by_id[d.to_group]
+            lk = GroupLink(by_id[d.from_group], dst, dst.years[0], set(), d.relation)
+            links.append(lk)
+        elif lk is None:
+            stale.append(d)
+            continue
+        elif d.decision == "change":
+            lk.relation = d.relation
+        lk.needs_verification, lk.verified, lk.note = False, VERIFIED[d.decision], d.note
+    return links, stale
+
+
+def build_links(
+    groups: list[Group], placement: Placement, steps: list[Step], decisions: list[Decision]
+) -> tuple[list[GroupLink], list[Decision]]:
+    """Every group link, with the decisions applied, in order and numbered."""
+    links, stale = apply_decisions(find_links(groups, placement, steps), decisions, groups)
+    links.sort(key=lambda lk: (lk.year, lk.source.section, lk.source.code, lk.target.code))
+    for i, lk in enumerate(links, 1):
+        lk.id = f"G{i:04d}"
+    return links, stale
+
+
+# --- files ---------------------------------------------------------------------
+
+
+def _read(path: Path) -> list[dict[str, str]]:
+    with open(path, encoding="utf-8-sig") as f:
+        return list(csv.DictReader(f))
+
+
+def read_links(path: Path) -> list[tuple[str, str]]:
+    """The links of ``links.csv`` that are not rejected."""
+    return [(r["from_chain"], r["to_chain"]) for r in _read(path) if r["verified"] != "rejected"]
+
+
+def read_relations(path: Path) -> list[tuple[list[str], list[str]]]:
+    """The merges, splits and regroupings of ``relations.csv`` that are not rejected."""
+    return [
+        (r["from_chains"].split(), r["to_chains"].split()) for r in _read(path) if r["verified"] != "rejected"
+    ]
+
+
+def _writer(path: Path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    f = open(path, "w", encoding="utf-8-sig", newline="")  # noqa: SIM115  (closed by the caller)
+    return f, csv.writer(f, lineterminator="\n")
+
+
+def write_groups(groups: list[Group], path: Path, years: list[int] = YEARS) -> None:
+    f, w = _writer(path)
+    with f:
+        w.writerow(
+            [
+                "group_id",
+                "section",
+                "level",
+                "code",
+                "parent_id",
+                "first_year",
+                "last_year",
+                "missing_years",
+                "items",
+                "label",
+            ]
+        )
+        for g in groups:
+            ys = g.years
+            missing = " ".join(str(y) for y in years if ys[0] <= y <= ys[-1] and y not in g.labels)
+            w.writerow(
+                [
+                    g.id,
+                    g.section,
+                    g.level,
+                    g.code,
+                    g.parents.get(ys[-1], ""),
+                    ys[0],
+                    ys[-1],
+                    missing,
+                    len(g.items.get(ys[-1], ())),
+                    g.label,
+                ]
+            )
+
+
+def write_members(placement: Placement, path: Path) -> None:
+    f, w = _writer(path)
+    with f:
+        w.writerow(["year", "expenditure_code", *(f"level_{lv}" for lv in LEVELS)])
+        for (year, code), by_level in placement.items():
+            w.writerow([year, code, *(by_level.get(lv, "") for lv in LEVELS)])
+
+
+def write_links(links: list[GroupLink], path: Path) -> None:
+    f, w = _writer(path)
+    with f:
+        w.writerow(
+            [
+                "link_id",
+                "from_group",
+                "to_group",
+                "relation",
+                "year",
+                "items",
+                "from_items",
+                "to_items",
+                "needs_verification",
+                "verified",
+                "note",
+                "from_label",
+                "to_label",
+                "item_chains",
+            ]
+        )
+        for lk in links:
+            before = [y for y in lk.source.years if y < lk.year]
+            w.writerow(
+                [
+                    lk.id,
+                    lk.source.id,
+                    lk.target.id,
+                    lk.relation,
+                    lk.year,
+                    len(lk.items),
+                    len(lk.source.items.get(before[-1], ())) if before else "",
+                    len(lk.target.items.get(lk.year, ())),
+                    lk.needs_verification,
+                    lk.verified,
+                    lk.note,
+                    lk.source.labels[before[-1]] if before else lk.source.label,
+                    lk.target.labels.get(lk.year, lk.target.label),
+                    " ".join(sorted(lk.items)),
+                ]
+            )
+
+
+def main(argv: list[str] | None = None) -> None:
+    ap = argparse.ArgumentParser(
+        prog="python -m hiesir_codebook.groups", description="Group headers across years."
+    )
+    ap.add_argument(
+        "--source", type=Path, default=CORRECTED, help="yearly CSVs (default: output/2_corrected/)"
+    )
+    ap.add_argument(
+        "--items", type=Path, default=ITEMS, help="chains, links, relations (default: output/3_items/)"
+    )
+    ap.add_argument("--out", type=Path, default=GROUPS, help="output folder (default: output/4_groups/)")
+    ap.add_argument("--decisions", type=Path, default=DECISIONS)
+    ap.add_argument("--max-gap", type=int, default=MAX_GAP)
+    args = ap.parse_args(argv)
+    rows = {y: _read(args.source / f"questionnaire_{y}.csv") for y in YEARS}
+    groups, placement = build_groups(rows, args.max_gap)
+    steps = item_steps(
+        read_chains(args.items / "chains.csv"),
+        read_links(args.items / "links.csv"),
+        read_relations(args.items / "relations.csv"),
+    )
+    links, stale = build_links(groups, placement, steps, load_decisions(args.decisions))
+    write_groups(groups, args.out / "groups.csv")
+    write_members(placement, args.out / "members.csv")
+    write_links(links, args.out / "links.csv")
+    kinds = Counter(lk.relation for lk in links)
+    verified = Counter(lk.verified for lk in links if lk.verified)
+    print(
+        f"{len(groups)} groups, {len(links)} group links ("
+        + ", ".join(f"{k} {v}" for k, v in kinds.most_common())
+        + f"): definite {sum(not lk.needs_verification and not lk.verified for lk in links)}, "
+        + f"in {args.decisions.as_posix()}: "
+        + (", ".join(f"{k} {v}" for k, v in verified.items()) or "0")
+        + f", still to verify: {sum(lk.needs_verification for lk in links)}"
+    )
+    for d in stale:
+        print(f"stale group decision: {d}")
+
+
+if __name__ == "__main__":
+    main()

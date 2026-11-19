@@ -5,7 +5,7 @@ Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 ## The pipeline
 
 ```
-data/pdf ──extract──▶ 1_extracted ──correct──▶ 2_corrected ──match──▶ 3_matched ──▶ explorer
+data/pdf ──extract──▶ 1_extracted ──correct──▶ 2_corrected ──match──▶ 3_items ──▶ explorer
                       as printed       ▲        as intended            chains, relations
                                    curated/
 ```
@@ -34,16 +34,17 @@ each with its reason:
 
 | File | What it fixes | Applied by |
 |---|---|---|
-| `source.csv` | single items in a single year: wrong codes, wrong texts, missing sections | `correct` |
-| `labels.csv` | spellings that recur across rows and years: typos, glued words, ZWNJs | `correct` |
-| `links.csv` | decisions on 1 → 1 links between chains (`from_chain` → `to_chain`, same or recoded): confirm, reject, change, add | `relations` |
-| `relations.csv` | decisions on merges, splits and regroupings between chain sets (`from_chains` → `to_chains`): confirm, reject, change, add | `relations` |
+| `2_corrected/corrections.csv` | single items and group headers in a single year: wrong codes, wrong texts, missing sections | `correct` |
+| `2_corrected/spelling.csv` | spellings that recur across rows and years: typos, glued words, ZWNJs | `correct` |
+| `3_items/links.csv` | decisions on 1 → 1 links between chains (`from_chain` → `to_chain`, same or recoded): confirm, reject, change, add | `relations` |
+| `3_items/relations.csv` | decisions on merges, splits and regroupings between chain sets (`from_chains` → `to_chains`): confirm, reject, change, add | `relations` |
+| `4_groups/links.csv` | decisions on links between group headers (`from_group` → `to_group`: continued, split, merged, regrouped, moved): confirm, reject, change, add | `groups` |
 
 The columns of each are described in [Methods](methods.md): [corrections](methods.md#corrections)
 and [matching decisions](methods.md#matching-items-across-years). After editing,
 run `uv run hiesir-codebook build --no-extract` and review the diff in `output/`.
 
-To get spelling suggestions for `labels.csv` from hazm:
+To get spelling suggestions for `spelling.csv` from hazm:
 
 ```bash
 uv run --with hazm python scripts/suggest_labels.py   # -> reports/hazm_suggestions.csv
@@ -60,7 +61,7 @@ uv run ruff check . && uv run ruff format --check .
 The regression tests re-extract every year and compare byte-for-byte with
 `output/1_extracted/`. When an extractor change is intended, regenerate with
 `uv run hiesir-codebook all` and review the CSV diff before committing.
-Fast tests also check that `output/2_corrected/`, `output/3_matched/` and
+Fast tests also check that `output/2_corrected/`, `output/3_items/` and
 `output/explorer/` are up to date; after changing `curated/` or the code, run
 `uv run hiesir-codebook build --no-extract` and review the diff. Tests that
 need `data/` (not in git) are skipped when it is missing, as on GitHub.
