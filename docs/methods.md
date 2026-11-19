@@ -210,8 +210,8 @@ or "etc." markers (`و نظایر آن` / `و ...`) differ: `جگر، دل، ق�
 `جگر، دل و قلوه`. Every other relation, and every merge, split or
 regrouping, needs a check. Everything is now settled: of 447 links, 162 are
 definite and `curated/3_items/links.csv` decides the rest (189 confirmed, 60
-changed, 32 rejected, 4 added); `curated/3_items/relations.csv` decides all 155
-merges, splits and regroupings (93 confirmed, 14 rejected, 48 added).
+changed, 32 rejected, 4 added); `curated/3_items/relations.csv` decides all 156
+merges, splits and regroupings (93 confirmed, 14 rejected, 49 added).
 
 Decisions go in `curated/3_items/links.csv` and `curated/3_items/relations.csv`, one row per
 link or relation, named by its chains:
