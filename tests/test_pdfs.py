@@ -60,11 +60,14 @@ def test_explorer_knows_the_printed_page():
         assert len(c["bx"]) == len(asked), c["id"]  # and one box per year asked
     rice = next(c for c in data["chains"] if c["id"] == "011111-1383")
     assert all(isinstance(p, int) and p > 0 for p in rice["pg"])
-    assert all(0 < top < bottom < 900 for top, bottom in rice["bx"])  # inside an A4 page, in points
+    assert all(
+        0 < b[0] < b[1] < 900 and 0 <= b[2] < b[3] < 650 for b in rice["bx"]
+    )  # inside an A4 page, in points
 
 
 def test_every_printed_item_has_its_position():
-    """Items carry their extent on the page (top, bottom); only items that
+    """Items carry their box on the page (top, bottom, left, right; 1382 is A3,
+    the rest A4); only items that
     curated/source.csv copies into a year (no page) lack one."""
     import csv
 
@@ -74,6 +77,8 @@ def test_every_printed_item_has_its_position():
                 if r["kind"] != "item":
                     continue
                 assert bool(r["page"]) == bool(r["top"]) == bool(r["bottom"]), (f.name, r["expenditure_code"])
+                if r["left"]:
+                    assert 0 <= float(r["left"]) < float(r["right"]) < 850, (f.name, r["expenditure_code"])
                 if r["top"]:
-                    assert 0 < float(r["top"]) < float(r["bottom"]) < 900, (f.name, r["expenditure_code"])
+                    assert 0 < float(r["top"]) < float(r["bottom"]) < 1200, (f.name, r["expenditure_code"])
                     assert float(r["bottom"]) - float(r["top"]) < 120, (f.name, r["expenditure_code"])

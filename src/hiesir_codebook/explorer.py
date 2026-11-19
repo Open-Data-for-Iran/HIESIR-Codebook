@@ -39,8 +39,9 @@ def _questionnaire(
     path: Path,
 ) -> tuple[dict[str, str], dict[str, list[list[str]]], dict[str, int], dict[str, list[int]]]:
     """Section titles and, for each expenditure code, its group headers (outermost
-    first), the PDF page it is printed on and its extent on that page
-    ([top, bottom] in whole points from the top)."""
+    first), the PDF page it is printed on and its box on that page
+    ([top, bottom, left, right] in whole points from the top-left corner;
+    [top, bottom] when the row has no table around it)."""
     sections: dict[str, str] = {}
     paths: dict[str, list[list[str]]] = {}
     pages: dict[str, int] = {}
@@ -59,7 +60,10 @@ def _questionnaire(
             if r["page"]:  # items added by curated/source.csv have no printed page
                 pages[r["expenditure_code"]] = int(r["page"])
             if r["top"] and r["bottom"]:
-                boxes[r["expenditure_code"]] = [math.floor(float(r["top"])), math.ceil(float(r["bottom"]))]
+                box = [math.floor(float(r["top"])), math.ceil(float(r["bottom"]))]
+                if r["left"] and r["right"]:
+                    box += [math.floor(float(r["left"])), math.ceil(float(r["right"]))]
+                boxes[r["expenditure_code"]] = box
     return sections, paths, pages, boxes
 
 
@@ -94,7 +98,7 @@ def collect(
                 "path": paths[last].get(code, []),
                 # the printed page in each year the chain is asked, in year order
                 "pg": [pages[y].get(code) for y in years if first <= y <= last and y not in miss],
-                # and its [top, bottom] on that page, for the highlight
+                # and its box on that page, for the highlight
                 "bx": [boxes[y].get(code) for y in years if first <= y <= last and y not in miss],
             }
         )

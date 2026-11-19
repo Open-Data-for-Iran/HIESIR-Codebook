@@ -219,7 +219,7 @@
 .hx-vbody { flex: 1; overflow: auto; background: var(--bg); padding: 12px; position: relative; }
 .hx-vpage { position: relative; margin: 0 auto; width: max-content; direction: ltr; box-shadow: 0 1px 6px rgba(0,0,0,.2); }
 .hx-vpage canvas { display: block; background: #fff; }
-.hx-vmark { position: absolute; left: 0; right: 0; background: rgba(255, 196, 0, .28); outline: 2px solid rgba(230, 150, 0, .95); border-radius: 3px; pointer-events: none; }
+.hx-vmark { position: absolute; box-sizing: border-box; background: rgba(255, 196, 0, .3); border: 2px solid rgba(230, 150, 0, .95); pointer-events: none; }
 .hx-vmsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); pointer-events: none; }
 .hx-vmsg:empty { display: none; }
 

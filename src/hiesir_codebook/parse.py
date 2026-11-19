@@ -27,10 +27,13 @@ class Row:
     desc: str
     page: int
     level: int | None = None
-    # extent of the row on its page (code line and wrapped description lines),
-    # in points from the top of the page; None for rows not printed in the PDF
+    # the row's box on its page, in points from the top-left corner: the table
+    # row it is printed in (between its rules, across the table's outer
+    # borders), else the extent of its lines; None for rows not in the PDF
     top: float | None = None
     bottom: float | None = None
+    left: float | None = None
+    right: float | None = None
 
     @property
     def expenditure_code(self) -> str | None:
@@ -109,6 +112,34 @@ def _separated(rules: list[Rule], y0: float, y1: float, x_text: float, x_code: f
 
 CODE_TAIL_RE = re.compile(rf"^(?:و|,|،) ?{_CODE}(?: ?(?:و|,|،) ?{_CODE})*$")
 _CODE_ONLY = re.compile(rf"^(?:\d{{2}} )?{_CODE}(?: ?(?:و|,|،) ?{_CODE})*$")
+
+
+# how far a table rule may be from the row's text to count as its border
+ROW_RULE_GAP = 14
+
+
+def _row_box(
+    e: _Entry, rules: list[Rule], vrules: list[VRule]
+) -> tuple[float, float, float | None, float | None]:
+    """The table row an entry is printed in: (top, bottom, left, right).
+
+    Top and bottom snap to the nearest horizontal rules across the code column
+    (else the extent of the text); left and right are the outermost vertical
+    rules at the row's height (None when the row has no table around it).
+    """
+    top, bottom = e.extent()
+    xc = e.line.segments[0].x1 - 3  # inside the code column
+    across = [r.y for r in rules if r.x0 <= xc <= r.x1]
+    above = [y for y in across if y <= top + 1.5]
+    below = [y for y in across if y >= bottom - 1.5]
+    if above and top - max(above) < ROW_RULE_GAP:
+        top = max(above)
+    if below and min(below) - bottom < ROW_RULE_GAP:
+        bottom = min(below)
+    mid = (top + bottom) / 2
+    xs = [v.x for v in vrules if v.y0 - 1 <= mid <= v.y1 + 1]
+    left, right = (min(xs), max(xs)) if len(xs) >= 2 and max(xs) - min(xs) > 100 else (None, None)
+    return top, bottom, left, right
 
 
 def _main_segment(ln: Line) -> Segment:
@@ -252,7 +283,8 @@ def extract(pdf_path: str | Path, old_scheme: bool = False) -> list[Row]:
         if section is None and not any(num == 1 for _y, num, _t in headings):
             continue
         body = [ln for ln in lines if not SECTION_RE.match(ln.text)]
-        entries = _page_entries(body, page_rules(pdf, p), page_vrules(pdf, p))
+        rules, vrules = page_rules(pdf, p), page_vrules(pdf, p)
+        entries = _page_entries(body, rules, vrules)
         if not old_scheme:
             entries = _join_split_codes(entries)
         # walk entries and headings top-to-bottom; a heading switches the section
@@ -277,8 +309,21 @@ def extract(pdf_path: str | Path, old_scheme: bool = False) -> list[Row]:
                 rows.append(Row("section", div, "", None, "", p))
             desc = " ".join([*(s.text for s in e.before), e.desc, *(s.text for s in e.after)])
             desc = FOOTNOTE_TAIL_RE.sub("", collapse_whitespace(desc))
-            top, bottom = e.extent()
-            rows.append(Row(e.kind, section, normalize_code(e.code), e.sub, desc, p, top=top, bottom=bottom))
+            top, bottom, left, right = _row_box(e, rules, vrules)
+            rows.append(
+                Row(
+                    e.kind,
+                    section,
+                    normalize_code(e.code),
+                    e.sub,
+                    desc,
+                    p,
+                    top=top,
+                    bottom=bottom,
+                    left=left,
+                    right=right,
+                )
+            )
     return _finish(rows, old_scheme)
 
 

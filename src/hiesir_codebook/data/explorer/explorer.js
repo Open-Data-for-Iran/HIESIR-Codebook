@@ -513,7 +513,8 @@
       const td = e.target.closest("td[data-year]"); if (td) location.hash = "year=" + td.dataset.year;
     });
     /* in-page viewer: one page of a questionnaire PDF, with an optional
-       highlight box [top, bottom] in PDF points from the top of the page */
+       highlight box [top, bottom, left, right] in PDF points from the
+       top-left corner (left and right may be missing: then full width) */
     const viewer = document.createElement("div");
     viewer.className = "hx-viewer"; viewer.hidden = true;
     viewer.setAttribute("role", "dialog"); viewer.setAttribute("aria-modal", "true");
@@ -560,8 +561,9 @@
         if (token !== vs.token) return;
         vmsg.textContent = "";
         if (vs.box && vs.page === vs.boxPage) {
-          const k = vp.scale, pad = 3;
-          mark.style.top = `${vs.box[0] * k - pad}px`; mark.style.height = `${(vs.box[1] - vs.box[0]) * k + 2 * pad}px`;
+          const k = vp.scale, [top, bottom, left, right] = vs.box, sides = left != null && right != null;
+          mark.style.top = `${top * k}px`; mark.style.height = `${(bottom - top) * k}px`;
+          mark.style.left = sides ? `${left * k}px` : "0"; mark.style.width = sides ? `${(right - left) * k}px` : "100%";
           mark.hidden = false;
           vbody.scrollTop = Math.max(0, vs.box[0] * k - vbody.clientHeight / 3);
         }

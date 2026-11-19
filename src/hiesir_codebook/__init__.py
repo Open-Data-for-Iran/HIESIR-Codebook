@@ -38,6 +38,8 @@ CSV_COLUMNS = [
     "page",
     "top",
     "bottom",
+    "left",
+    "right",
 ]
 
 
@@ -64,6 +66,8 @@ def write_csv(rows: list[Row], path: Path) -> None:
                     r.page + 1,
                     "" if r.top is None else f"{r.top:.1f}",
                     "" if r.bottom is None else f"{r.bottom:.1f}",
+                    "" if r.left is None else f"{r.left:.1f}",
+                    "" if r.right is None else f"{r.right:.1f}",
                 ]
             )
 
