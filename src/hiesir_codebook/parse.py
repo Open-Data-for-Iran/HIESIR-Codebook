@@ -27,6 +27,10 @@ class Row:
     desc: str
     page: int
     level: int | None = None
+    # extent of the row on its page (code line and wrapped description lines),
+    # in points from the top of the page; None for rows not printed in the PDF
+    top: float | None = None
+    bottom: float | None = None
 
     @property
     def expenditure_code(self) -> str | None:
@@ -50,6 +54,15 @@ class _Entry:
     desc: str
     before: list[Segment] = field(default_factory=list)
     after: list[Segment] = field(default_factory=list)
+    lines: list[Line] = field(default_factory=list)  # wrapped lines, for the row's extent
+
+    def extent(self) -> tuple[float, float]:
+        """Top and bottom of the code line and its wrapped lines, in points."""
+        glyphs = [g for ln in (self.line, *self.lines) for g in ln.glyphs]
+        if not glyphs:
+            ys = [ln.y for ln in (self.line, *self.lines)]
+            return min(ys) - 5, max(ys) + 5
+        return min(g.y0 for g in glyphs), max(g.y1 for g in glyphs)
 
 
 def normalize_code(raw: str) -> str:
@@ -147,7 +160,7 @@ def _page_entries(lines: list[Line], rules: list[Rule], vrules: list[VRule]) -> 
     """
     coded: list[_Entry] = []
     loose: list[Segment] = []
-    loose_y: list[float] = []
+    loose_lines: list[Line] = []
     code_tails: list[tuple[str, float]] = []
     for ln in sorted(lines, key=lambda x: x.y):
         seg = _main_segment(ln)
@@ -158,8 +171,9 @@ def _page_entries(lines: list[Line], rules: list[Rule], vrules: list[VRule]) -> 
             coded.append(_Entry(ln, *c))
         elif has_letters(seg.text) and not SKIP_RE.search(seg.text) and not NOT_DESC_RE.match(seg.text):
             loose.append(seg)
-            loose_y.append(ln.y)
-    for seg, y in zip(loose, loose_y, strict=True):
+            loose_lines.append(ln)
+    for seg, ln in zip(loose, loose_lines, strict=True):
+        y = ln.y
         if not _aligned(seg, y, vrules):
             continue
         cands = [
@@ -176,6 +190,7 @@ def _page_entries(lines: list[Line], rules: list[Rule], vrules: list[VRule]) -> 
         # so fall back to the nearest code line
         e = min(same_row or cands, key=lambda e: abs(e.line.y - y))
         (e.before if y < e.line.y else e.after).append(seg)
+        e.lines.append(ln)
     for text, y in code_tails:
         # a header code list split over two lines ("و03123 M" / "03124 M"):
         # prefer an adjacent code-only header, else the header just above
@@ -212,6 +227,7 @@ def _join_split_codes(entries: list[_Entry]) -> list[_Entry]:
             continue
         e.kind, e.sub, e.code = "item", e.code, code.code
         e.after.extend([*code.before, *([Segment(code.desc, 0, 0)] if code.desc else []), *code.after])
+        e.lines.extend([code.line, *code.lines])
         code.kind = "absorbed"
         out.append(e)
     return [e for e in out if e.kind != "absorbed"]
@@ -261,7 +277,8 @@ def extract(pdf_path: str | Path, old_scheme: bool = False) -> list[Row]:
                 rows.append(Row("section", div, "", None, "", p))
             desc = " ".join([*(s.text for s in e.before), e.desc, *(s.text for s in e.after)])
             desc = FOOTNOTE_TAIL_RE.sub("", collapse_whitespace(desc))
-            rows.append(Row(e.kind, section, normalize_code(e.code), e.sub, desc, p))
+            top, bottom = e.extent()
+            rows.append(Row(e.kind, section, normalize_code(e.code), e.sub, desc, p, top=top, bottom=bottom))
     return _finish(rows, old_scheme)
 
 

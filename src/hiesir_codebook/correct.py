@@ -228,7 +228,7 @@ def apply(
             src = [
                 r for r in read_rows(extracted / f"questionnaire_{c.value}.csv") if r["section"] == section
             ]
-            added = [{**r, "page": ""} for r in src]
+            added = [{**r, "page": "", "top": "", "bottom": ""} for r in src]
             at = next((i for i, r in enumerate(rows) if int(r["section"]) > int(section)), len(rows))
             rows[at:at] = added
     # house style for every description, then the recurring spelling fixes

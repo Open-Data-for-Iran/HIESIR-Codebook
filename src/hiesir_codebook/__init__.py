@@ -27,7 +27,18 @@ from .parse import Row, extract, extract_year  # noqa: E402  (after the paths it
 # is a data dictionary, not the questionnaire)
 SUPPORTED_YEARS = [1382, *range(1383, 1401), 1402, 1403]
 
-CSV_COLUMNS = ["section", "kind", "level", "code", "sub", "expenditure_code", "description", "page"]
+CSV_COLUMNS = [
+    "section",
+    "kind",
+    "level",
+    "code",
+    "sub",
+    "expenditure_code",
+    "description",
+    "page",
+    "top",
+    "bottom",
+]
 
 
 def write_csv(rows: list[Row], path: Path) -> None:
@@ -51,6 +62,8 @@ def write_csv(rows: list[Row], path: Path) -> None:
                     r.expenditure_code or "",
                     r.desc,
                     r.page + 1,
+                    "" if r.top is None else f"{r.top:.1f}",
+                    "" if r.bottom is None else f"{r.bottom:.1f}",
                 ]
             )
 

@@ -57,5 +57,23 @@ def test_explorer_knows_the_printed_page():
     for c in data["chains"]:
         asked = [y for y in data["years"] if c["first"] <= y <= c["last"] and y not in c["miss"]]
         assert len(c["pg"]) == len(asked), c["id"]  # one page per year asked, in order
+        assert len(c["bx"]) == len(asked), c["id"]  # and one box per year asked
     rice = next(c for c in data["chains"] if c["id"] == "011111-1383")
     assert all(isinstance(p, int) and p > 0 for p in rice["pg"])
+    assert all(0 < top < bottom < 900 for top, bottom in rice["bx"])  # inside an A4 page, in points
+
+
+def test_every_printed_item_has_its_position():
+    """Items carry their extent on the page (top, bottom); only items that
+    curated/source.csv copies into a year (no page) lack one."""
+    import csv
+
+    for f in sorted((ROOT / "output" / "2_corrected").glob("questionnaire_*.csv")):
+        with open(f, encoding="utf-8-sig") as fh:
+            for r in csv.DictReader(fh):
+                if r["kind"] != "item":
+                    continue
+                assert bool(r["page"]) == bool(r["top"]) == bool(r["bottom"]), (f.name, r["expenditure_code"])
+                if r["top"]:
+                    assert 0 < float(r["top"]) < float(r["bottom"]) < 900, (f.name, r["expenditure_code"])
+                    assert float(r["bottom"]) - float(r["top"]) < 120, (f.name, r["expenditure_code"])

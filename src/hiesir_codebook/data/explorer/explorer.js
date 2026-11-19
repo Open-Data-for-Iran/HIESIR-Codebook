@@ -167,6 +167,7 @@
       const miss = new Set(c.miss);
       c.years = YEARS.filter(y => y >= c.first && y <= c.last && !miss.has(y));
       c.page = new Map(c.years.map((y, i) => [y, c.pg ? c.pg[i] : null]));
+      c.box = new Map(c.years.map((y, i) => [y, c.bx ? c.bx[i] : null]));
       c.ins = []; c.outs = [];
       c.key = norm(c.text + " " + c.path.map(p => p[1]).join(" "));
       c.key0 = norm(c.text);
@@ -548,7 +549,7 @@
         vEl('[data-act="next"]').disabled = vs.page >= vs.n;
         const page = await doc.getPage(vs.page);
         if (token !== vs.token) return;
-        const fit = Math.max(200, vbody.clientWidth - 24) / page.getViewport({ scale: 1 }).width;
+        const fit = Math.max(200, vbody.clientWidth - 44) / page.getViewport({ scale: 1 }).width;
         const vp = page.getViewport({ scale: fit * vs.zoom });
         const dpr = window.devicePixelRatio || 1;
         canvas.width = Math.floor(vp.width * dpr); canvas.height = Math.floor(vp.height * dpr);

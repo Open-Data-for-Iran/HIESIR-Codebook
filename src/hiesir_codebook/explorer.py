@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 from pathlib import Path
 
 from . import CORRECTED, CURATED, MATCHED, OUTPUT
@@ -34,12 +35,16 @@ def _read(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(f))
 
 
-def _questionnaire(path: Path) -> tuple[dict[str, str], dict[str, list[list[str]]], dict[str, int]]:
+def _questionnaire(
+    path: Path,
+) -> tuple[dict[str, str], dict[str, list[list[str]]], dict[str, int], dict[str, list[int]]]:
     """Section titles and, for each expenditure code, its group headers (outermost
-    first) and the PDF page it is printed on."""
+    first), the PDF page it is printed on and its extent on that page
+    ([top, bottom] in whole points from the top)."""
     sections: dict[str, str] = {}
     paths: dict[str, list[list[str]]] = {}
     pages: dict[str, int] = {}
+    boxes: dict[str, list[int]] = {}
     stack: dict[int, list[str]] = {}
     for r in _read(path):
         if r["kind"] == "section":
@@ -53,7 +58,9 @@ def _questionnaire(path: Path) -> tuple[dict[str, str], dict[str, list[list[str]
             paths[r["expenditure_code"]] = [stack[k] for k in sorted(stack)]
             if r["page"]:  # items added by curated/source.csv have no printed page
                 pages[r["expenditure_code"]] = int(r["page"])
-    return sections, paths, pages
+            if r["top"] and r["bottom"]:
+                boxes[r["expenditure_code"]] = [math.floor(float(r["top"])), math.ceil(float(r["bottom"]))]
+    return sections, paths, pages, boxes
 
 
 def collect(
@@ -66,8 +73,9 @@ def collect(
     sections: dict[str, str] = {}
     paths: dict[int, dict[str, list[list[str]]]] = {}
     pages: dict[int, dict[str, int]] = {}
+    boxes: dict[int, dict[str, list[int]]] = {}
     for y in years:
-        s, paths[y], pages[y] = _questionnaire(corrected / f"questionnaire_{y}.csv")
+        s, paths[y], pages[y], boxes[y] = _questionnaire(corrected / f"questionnaire_{y}.csv")
         sections.update(s)  # the latest year's title wins
     chains = []
     for c in _read(matched / "chains.csv"):
@@ -86,6 +94,8 @@ def collect(
                 "path": paths[last].get(code, []),
                 # the printed page in each year the chain is asked, in year order
                 "pg": [pages[y].get(code) for y in years if first <= y <= last and y not in miss],
+                # and its [top, bottom] on that page, for the highlight
+                "bx": [boxes[y].get(code) for y in years if first <= y <= last and y not in miss],
             }
         )
     relations = [

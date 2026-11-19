@@ -56,6 +56,7 @@ The same files can be downloaded from this site:
 | `expenditure_code` | full code of an item: `code` digits followed by `sub` (`0111` + `11` → `011111`); empty for sections and headers |
 | `description` | item description, or the full section title for section rows |
 | `page` | 1-based PDF page |
+| `top`, `bottom` | where the row is printed on that page: its code line and wrapped description lines, in points from the top of the page (1/72 inch); empty for rows not printed in the PDF, such as a section copied from another year. The explorer uses them to highlight the row on the printed form |
 
 "Expenditure code" covers goods and services alike (rent, tuition, insurance,
 transfers), following the questionnaire's "شرح هزینه". It is the same code the
