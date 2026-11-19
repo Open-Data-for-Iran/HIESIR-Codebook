@@ -10,6 +10,7 @@ def _collect():
         corrected=ROOT / "output" / "2_corrected",
         items=ROOT / "output" / "3_items",
         source=ROOT / "curated" / "2_corrected" / "corrections.csv",
+        groups=ROOT / "output" / "4_groups",
     )
 
 
@@ -24,6 +25,11 @@ def test_every_chain_and_kept_relation_is_embedded():
     rice = next(c for c in data["chains"] if c["id"] == "011111-1383")
     assert [p[0] for p in rice["path"]] == ["011", "0111", "01111, 01112"]
     assert set(data["sections"]) == set(range(1, 15))
+    # and its groups in each year, from output/4_groups/ (indexes into data["groups"])
+    (y0, path), *_ = rice["gp"]
+    assert y0 == 1383 and [data["groups"][i][0] for i in path] == ["011", "0111", "01111, 01112"]
+    for c in data["chains"]:
+        assert [y for y, _ in c["gp"]] == sorted({y for y, _ in c["gp"]}), c["id"]
 
 
 def test_render_escapes_closing_tags(tmp_path):

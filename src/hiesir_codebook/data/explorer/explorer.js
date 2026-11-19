@@ -18,7 +18,7 @@
     en: {
       tabs: { items: "Items", years: "Changes by year", about: "How to read" },
       placeholder: "Search a code (011114, 11114) or Persian text (برنج، تلویزیون …)",
-      allSections: "All sections", changedOnly: "Changed only", current: "Still asked in {y}",
+      allSections: "All sections", notFull: "Not fully comparable", notFullTip: "Only the items with a year that is not strictly comparable with the year picked in the Year field (light green, yellow or red)", current: "Still asked in {y}",
       hint: "ZWNJ, spacing and Arabic/Persian letter forms are ignored · a 5-digit code like the raw data's <span class=\"code\">11114</span> matches <span class=\"code\">011114</span>",
       count: (n, s) => `${n} item${n === "1" ? "" : "s"}${s ? " match" : ""}`,
       noMatch: "No item matches. Try fewer words or part of a word.",
@@ -53,14 +53,16 @@
         yearLabel: "Year", yearAll: "All items",
         yearTip: "Show the items asked in this year, and compare every other year with it; All items: every item, each compared with its latest year",
         notInRef: y => `Not asked in ${y}; compared with its latest year instead.`,
-        changed: "changed", changedTip: "reworded, recoded, merged or split at some point",
         openForm: "open the printed form",
+        locate: "Show in the list",
       },
       notPrinted: "not in that year's printed form (added by a correction)",
       pv: { title: (y, p, n) => `Questionnaire ${y} · page ${p}${n ? ` of ${n}` : ""}`, prev: "Previous page", next: "Next page",
            zoomOut: "Zoom out", zoomIn: "Zoom in", tab: "Open in a new tab", close: "Close", loading: "Loading the questionnaire…",
            failed: "Could not load the PDF.", here: "The item is on this page" },
       tipNot: "not asked",
+      period: { m: "last month", y: "last 12 months", head: { m: "Last month", y: "Last 12 months" },
+                secs: r => `sections ${r}`, moved: l => `its items are listed under section ${l}` },
       rel: { same: "same item", recoded: "recoded", merged: "merged", split: "split", regrouped: "regrouped" },
       relVerb: { same: "continued", recoded: "recoded", merged: "merged", split: "split", regrouped: "regrouped" },
       det: { minor: "minor wording", label_reworded: "reworded", label_broadened: "broadened", label_narrowed: "narrowed" },
@@ -77,6 +79,7 @@
           <dt>Item (chain)</dt><dd>One expenditure code with one label, followed while both stay the same. Its id is the code and first year, e.g. <span class="code">011114-1387</span>. Spacing, ZWNJ, punctuation and digit style do not count as a change.</dd>
           <dt>Comparable series</dt><dd>Items linked one-to-one (label reworded, or the same item under a new code). Values can be compared across the series; a <span class="pill warn">narrowed</span> or <span class="pill warn">broadened</span> step means the scope changed, so check the evidence first.</dd>
           <dt>Merged, split, regrouped</dt><dd>Several items became one, one became several, or a group was reorganised. The series ends there: sum the parts to compare.</dd>
+          <dt>Groups</dt><dd>The list follows the group headers printed above the items (levels 2 to 4), as printed in the year picked in the Year field. Some headers are printed twice: <span class="code">M</span> in the sections about the last month, <span class="code">A</span> in section 13, about the last 12 months. An item that moved between them is listed where it was printed that year.</dd>
           <dt>Verification</dt><dd><span class="pill ok">definite</span> only the wording differs; <span class="pill ok">confirmed</span>, <span class="pill info">changed by review</span> and <span class="pill info">added by review</span> were decided by hand in <span class="code">curated/3_items/links.csv</span> and <span class="code">curated/3_items/relations.csv</span>, mostly by checking how many households reported each code.</dd>
         </dl>
         <h4>Timeline colours</h4>
@@ -95,7 +98,7 @@
     fa: {
       tabs: { items: "اقلام", years: "تغییرات هر سال", about: "راهنما" },
       placeholder: "جست‌وجوی کد (011114، 11114) یا متن (برنج، تلویزیون …)",
-      allSections: "همه بخش‌ها", changedOnly: "فقط اقلام تغییرکرده", current: "هنوز پرسیده می‌شود ({y})",
+      allSections: "همه بخش‌ها", notFull: "نه کاملاً قابل مقایسه", notFullTip: "فقط اقلامی که سالی دارند که با سالِ انتخاب‌شده در فیلد «سال» کاملاً قابل مقایسه نیست (سبز روشن، زرد یا قرمز)", current: "هنوز پرسیده می‌شود ({y})",
       hint: "نیم‌فاصله، فاصله و شکل عربی یا فارسی حروف نادیده گرفته می‌شود · کد ۵ رقمی داده خام مانند <span class=\"code\">11114</span> با <span class=\"code\">011114</span> جور می‌شود",
       count: (n, s) => `${n} قلم${s ? " یافت شد" : ""}`,
       noMatch: "قلمی یافت نشد. واژه‌های کمتر یا بخشی از واژه را امتحان کنید.",
@@ -130,14 +133,16 @@
         yearLabel: "سال", yearAll: "همه اقلام",
         yearTip: "اقلامی را که در این سال پرسیده شده‌اند نشان بده و سال‌های دیگر را با آن مقایسه کن؛ همه اقلام: همه اقلام، هر کدام در مقایسه با آخرین سالِ خود",
         notInRef: y => `در ${y} پرسیده نشده؛ مقایسه نسبت به آخرین سالِ آن است.`,
-        changed: "تغییرکرده", changedTip: "زمانی تغییر عبارت، تغییر کد، ادغام یا تفکیک داشته",
         openForm: "باز کردن فرم چاپی",
+        locate: "نمایش در فهرست",
       },
       notPrinted: "در فرم چاپی آن سال نیست (با اصلاح افزوده شده)",
       pv: { title: (y, p, n) => `پرسشنامه ${y} · صفحه ${p}${n ? ` از ${n}` : ""}`, prev: "صفحه قبل", next: "صفحه بعد",
            zoomOut: "کوچک‌نمایی", zoomIn: "بزرگ‌نمایی", tab: "باز کردن در زبانه تازه", close: "بستن", loading: "در حال بارگذاری پرسشنامه…",
            failed: "بارگذاری PDF ممکن نشد.", here: "قلم در این صفحه است" },
       tipNot: "پرسیده نشده",
+      period: { m: "ماه گذشته", y: "۱۲ ماه گذشته", head: { m: "ماه گذشته", y: "۱۲ ماه گذشته" },
+                secs: r => `بخش‌های ${r}`, moved: l => `اقلامش در بخش ${l} فهرست شده‌اند` },
       rel: { same: "همان قلم", recoded: "تغییر کد", merged: "ادغام", split: "تفکیک", regrouped: "بازگروه‌بندی" },
       relVerb: { same: "ادامه", recoded: "تغییر کد", merged: "ادغام", split: "تفکیک", regrouped: "بازگروه‌بندی" },
       det: { minor: "تغییر جزئی", label_reworded: "تغییر عبارت", label_broadened: "گسترده‌تر شده", label_narrowed: "محدودتر شده" },
@@ -154,6 +159,7 @@
           <dt>قلم (زنجیره)</dt><dd>یک کد هزینه با یک عبارت، تا زمانی که هر دو ثابت بمانند. شناسه آن کد و نخستین سال است، مثلاً <span class="code">011114-1387</span>. فاصله، نیم‌فاصله، نشانه‌گذاری و شکل رقم تغییر حساب نمی‌شوند.</dd>
           <dt>سری قابل مقایسه</dt><dd>اقلامی که یک‌به‌یک به هم پیوند دارند (عبارت تازه، یا همان قلم با کد جدید). مقادیر در طول سری قابل مقایسه‌اند؛ گام <span class="pill warn">محدودتر شده</span> یا <span class="pill warn">گسترده‌تر شده</span> یعنی دامنه تغییر کرده، پس اول شاهد را ببینید.</dd>
           <dt>ادغام، تفکیک، بازگروه‌بندی</dt><dd>چند قلم یکی شده‌اند، یک قلم چند قلم شده، یا گروهی از نو سازمان یافته است. سری همان‌جا پایان می‌یابد: برای مقایسه، بخش‌ها را جمع بزنید.</dd>
+          <dt>گروه‌ها</dt><dd>فهرست از سرگروه‌هایی پیروی می‌کند که بالای اقلام چاپ شده‌اند (سطح ۲ تا ۴)، همان‌گونه که در سالِ انتخاب‌شده در فیلد «سال» چاپ شده‌اند. برخی سرگروه‌ها دو بار چاپ شده‌اند: <span class="code">M</span> در بخش‌های مربوط به ماه گذشته و <span class="code">A</span> در بخش ۱۳، مربوط به ۱۲ ماه گذشته. قلمی که میان آن‌ها جابه‌جا شده، در جایی فهرست می‌شود که آن سال چاپ شده است.</dd>
           <dt>راستی‌آزمایی</dt><dd><span class="pill ok">قطعی</span> فقط عبارت فرق دارد؛ <span class="pill ok">تأییدشده</span>، <span class="pill info">اصلاح در بازبینی</span> و <span class="pill info">افزوده در بازبینی</span> را یک نفر در <span class="code">curated/3_items/links.csv</span> و <span class="code">curated/3_items/relations.csv</span>، بیشتر با بررسی تعداد خانوارهای گزارش‌دهنده هر کد، تعیین کرده است.</dd>
         </dl>
         <h4>رنگ‌های خط زمانی</h4>
@@ -200,12 +206,17 @@
   /* ---------- data model (shared by every mounted component) ---------- */
   function model(DATA) {
     const YEARS = DATA.years, LAST = YEARS[YEARS.length - 1];
-    const CH = new Map(DATA.chains.map(c => [c.id, c]));
+    const CH = new Map(DATA.chains.map(c => [c.id, c])), G = DATA.groups || [];
     for (const c of DATA.chains) {
       const miss = new Set(c.miss);
       c.years = YEARS.filter(y => y >= c.first && y <= c.last && !miss.has(y));
       c.page = new Map(c.years.map((y, i) => [y, c.pg ? c.pg[i] : null]));
       c.box = new Map(c.years.map((y, i) => [y, c.bx ? c.bx[i] : null]));
+      // its groups (indexes into DATA.groups, outermost first) in year y
+      c.groupsAt = y => { let g = []; for (const [y0, p] of c.gp || []) if (y0 <= y) g = p; return g; };
+      // its section in year y: some items moved (124113 and the insurance items
+      // went from section 12 to 13); c.s is the section of its first year
+      c.secAt = y => { const g = c.groupsAt(y); return (g.length && G[g[0]] && G[g[0]][3]) || c.s; };
       c.ins = []; c.outs = [];
       c.key = norm(c.text + " " + c.path.map(p => p[1]).join(" "));
       c.key0 = norm(c.text);
@@ -234,14 +245,13 @@
       comp.sort((a, b) => a.first - b.first || a.last - b.last);
       const s = { id: comp[0].id, chains: comp, years: [...new Set(comp.flatMap(x => x.years))].sort((a, b) => a - b) };
       s.last = s.years[s.years.length - 1];
-      s.changed = comp.length > 1 || comp.some(x => x.ins.some(r => !is11(r)) || x.outs.some(r => !is11(r)));
       s.key = comp.map(x => x.key).join(" ");
       s.at = y => s.chains.find(x => x.years.includes(y));
       comp.forEach(x => serOf.set(x.id, s));
       SER.push(s);
     }
     const RELS = DATA.relations.slice().sort((a, b) => a.year - b.year);
-    return { DATA, YEARS, LAST, CH, byCode, SER, serOf, RELS, cmp: new Map() };
+    return { DATA, YEARS, LAST, CH, byCode, SER, serOf, RELS, G, cmp: new Map() };
   }
   const is11 = r => (r.rel === "same" || r.rel === "recoded") && r.from.length === 1 && r.to.length === 1;
   const linked = c => c.ins.length || c.outs.length;
@@ -276,7 +286,8 @@
           else broken = r;
         }
         const set = [...S].map(id => M.CH.get(id)).filter(Boolean);
-        const asked = set.filter(x => x.years.includes(y));
+        const asked = set.filter(x => x.years.includes(y)).sort((a, b) => a.code.localeCompare(b.code));
+        set.sort((a, b) => a.code.localeCompare(b.code));
         if (!asked.length) { out.set(y, { st: null, set: [], via: [] }); continue; }
         const partial = !broken && asked.length < set.length;
         out.set(y, { st: broken || partial ? 3 : lvl, set: partial ? set : asked, via: [...via], broken, partial });
@@ -330,7 +341,13 @@
     const span = (a, b) => a === b ? yr(a) : `${yr(a)}–${yr(b)}`;
     const ylabel = c => span(c.first, c.last);
     const ARROW = fa ? "←" : "→";
-    const secTitle = s => (M.DATA.sections[s] || "").replace(/^هزینه‌(های|ی) /, "");
+    const PERIOD = /\s*(?:خانوار\s*)?(?:در\s+(12|۱۲)?\s*ماه گذشته)?\s*$/;
+    const secTitle = s => (M.DATA.sections[s] || "").replace(/^هزینه‌(های|ی) /, "").replace(PERIOD, "");
+    const secPeriod = s => { const m = (M.DATA.sections[s] || "").match(/در\s+(12|۱۲)?\s*ماه گذشته\s*$/); return m ? (m[1] ? t.period.y : t.period.m) : ""; };
+    const secHead = s => `${code(s)}${fat(secTitle(s), "span", "st")}`;
+    // the period a section asks about: "m" last month, "y" last 12 months
+    // (a section whose latest title names none goes with its neighbours)
+    const secKind = s => /در\s+(12|۱۲)\s*ماه گذشته\s*$/.test(M.DATA.sections[s] || "") ? "y" : "m";
     const fat = (s, tag = "span", cls = "") => `<${tag} class="fa ${cls}">${esc(s)}</${tag}>`;
     const code = s => `<span class="code">${esc(s)}</span>`;
     const chainLink = c => `<a data-go="${esc(c.id)}">${code(c.code)}</a>`;
@@ -349,6 +366,8 @@
       return `<span class="pill bad">${t.v.unverified}</span>`;
     }
     const refOf = s => (ref && s.years.includes(ref) ? ref : s.last);
+    // some year can express the item only with a scope change, by adding codes, or not at all
+    const notFull = s => [...compare(M, s, refOf(s)).values()].some(e => e.st === 1 || e.st === 2 || e.st === 3);
     const stCls = e => !e || e.st === null ? "" : e.st === "ref" ? "s0 ref" : `s${e.st}`;
     function strip(s) {
       const cmp = compare(M, s, refOf(s));
@@ -367,7 +386,7 @@
     }
 
     /* skeleton */
-    const sectionOpts = Object.keys(M.DATA.sections).map(n => `<option value="${n}">${yr(n)} · ${esc(secTitle(n).slice(0, 48))}</option>`).join("");
+    const sectionOpts = Object.keys(M.DATA.sections).map(n => `<option value="${n}">${yr(n)} · ${esc(secTitle(n).slice(0, 48))}${secPeriod(n) ? ` (${secPeriod(n)})` : ""}</option>`).join("");
     root.innerHTML = `
       <nav class="hx-tabs">
         <a data-tab="items" href="#">${t.tabs.items}</a>
@@ -378,7 +397,7 @@
         <div class="hx-search">
           <input class="hx-q" type="search" autocomplete="off" spellcheck="false" placeholder="${esc(t.placeholder)}" aria-label="${esc(t.placeholder)}">
           <select class="hx-sec"><option value="">${t.allSections}</option>${sectionOpts}</select>
-          <label class="chip"><input type="checkbox" class="hx-linked"> ${t.changedOnly}</label>
+          <label class="chip" title="${esc(t.notFullTip)}"><input type="checkbox" class="hx-linked"> ${t.notFull}</label>
           <label class="chip" title="${esc(t.cm.yearTip)}">${t.cm.yearLabel} <select class="hx-ref">${[...M.YEARS].reverse().map(y => `<option value="${y}">${yr(y)}</option>`).join("")}<option value="all">${t.cm.yearAll}</option></select></label>
         </div>
         <div class="hint">${t.hint}</div>
@@ -394,27 +413,88 @@
     const elList = $(".hx-list"), elDetail = $(".hx-detail"), elYears = $('[data-view="years"]');
     let selected = null, focus = null, ref = M.LAST;  // null: all items
 
+    /* the list: sections, then the printed group headers (levels 2-4) as a
+       tree, each item under its groups in the year it is compared with */
+    const openKeys = new Set();
+    let allOpen = false;
     function renderList() {
       const res = search(M, elQ.value), sec = elSec.value;
       const rows = (res || M.SER.map(s => [s, 0, null])).map(([s, rank, hit]) => [s, rank, hit, s.at(refOf(s))])
-        .filter(([s, , , c]) => c && (!ref || s.years.includes(ref)) && (!sec || c.s == sec) && (!elLinked.checked || s.changed));
-      rows.sort((a, b) => (res ? a[1] - b[1] : 0) || a[3].s - b[3].s || a[3].code.localeCompare(b[3].code) || a[0].years[0] - b[0].years[0]);
-      const groups = new Map();
-      for (const row of rows) (groups.get(row[3].s) || groups.set(row[3].s, []).get(row[3].s)).push(row);
-      const open = res || sec || groups.size === 1 || rows.length < 80;
+        .filter(([s, , , c]) => c && (!ref || s.years.includes(ref)) && (!sec || c.secAt(refOf(s)) == sec) && (!elLinked.checked || notFull(s)));
+      const top = new Map();
+      const node = (kids, key, extra) => kids.get(key) || kids.set(key, { key, kids: new Map(), items: [], n: 0, min: "~", ...extra }).get(key);
+      for (const row of rows) {
+        const c = row[3];
+        const sn = c.secAt(refOf(row[0]));
+        let n = node(top, `s${sn}`, { sec: sn });
+        const trail = [n];
+        for (const gi of c.groupsAt(refOf(row[0]))) { n = node(n.kids, `${n.key}/${gi}`, { g: M.G[gi] }); trail.push(n); }
+        n.items.push(row);
+        for (const x of trail) { x.n++; if (c.code < x.min) x.min = c.code; }
+      }
+      allOpen = !!res || rows.length < 80;
+      const isOpen = n => allOpen || openKeys.has(n.key) || (n.sec && (sec || top.size === 1));
+      const item = ([s, , hit, c]) => `<div class="row${selected === s.id ? " sel" : ""}" data-id="${esc(s.id)}">${code(c.code)}${fat(c.text, "div")}` +
+        (hit && hit !== c ? `<div class="was">${t.cm.earlier}: <span class="fa">${esc(hit.text)}</span></div>` : "") +
+        `<div class="meta">${strip(s)}<span class="yrs">${span(s.years[0], s.last)}</span></div></div>`;
+      const same = (a, b) => norm(a).includes(norm(b)) || norm(b).includes(norm(a));
+      function draw(n, depth, label) {
+        // a group alone under a parent of the same name adds nothing: show its contents
+        if (n.g && label && n.kids.size === 1 && !n.items.length) {
+          const only = [...n.kids.values()][0];
+          if (same(n.g[1], label)) return draw(only, depth, label);
+        }
+        const head = n.sec ? secHead(n.sec)
+          : `${code(n.g[0])}${fat(n.g[1])}`;
+        const parts = [...n.kids.values()].map(k => [k.min, k]).concat(n.items.map(r => [r[3].code, r]));
+        parts.sort((a, b) => a[0].localeCompare(b[0]) || (Array.isArray(a[1]) ? 1 : -1));
+        const body = parts.map(([, x]) => Array.isArray(x) ? item(x) : draw(x, depth + 1, n.sec ? secTitle(n.sec) : n.g[1])).join("");
+        return `<details class="${n.sec ? "sec" : "grp"}" data-key="${esc(n.key)}" style="--d:${depth}"${isOpen(n) ? " open" : ""}>` +
+          `<summary title="${esc(n.g ? n.g[1] : M.DATA.sections[n.sec] || "")}">${head}<span class="n">${num(n.n)}</span></summary>${body}</details>`;
+      }
       let h = `<div class="count">${t.count(num(rows.length), !!res)}</div>`;
       if (!rows.length) h += `<div class="empty">${t.noMatch}</div>`;
-      for (const [sn, list] of groups) {
-        h += `<details class="sec" ${open ? "open" : ""}><summary><span>${yr(sn)}</span>${fat(secTitle(sn))}<span class="n">${num(list.length)}</span></summary>`;
-        for (const [s, , hit, c] of list) {
-          h += `<div class="row${selected === s.id ? " sel" : ""}" data-id="${esc(s.id)}">${code(c.code)}${fat(c.text, "div")}` +
-            (hit && hit !== c ? `<div class="was">${t.cm.earlier}: <span class="fa">${esc(hit.text)}</span></div>` : "") +
-            `<div class="meta">${strip(s)}<span class="yrs">${span(s.years[0], s.last)}</span>${s.changed ? `<span class="pill info" title="${t.cm.changedTip}">${t.cm.changed}</span>` : ""}</div></div>`;
+      // two blocks, one per period asked about; a section with no item here
+      // whose items are listed under another section says where they went
+      const filtered = res || sec || elLinked.checked;
+      const moved = new Map();
+      if (!filtered) {
+        for (const s of M.SER) {
+          const y = refOf(s), c = s.at(y);
+          if (!c || (ref && !s.years.includes(ref)) || top.has(`s${c.s}`)) continue;
+          (moved.get(c.s) || moved.set(c.s, new Set()).get(c.s)).add(c.secAt(y));
         }
-        h += `</details>`;
+      }
+      for (const kind of ["m", "y"]) {
+        const nodes = [...top.values()].filter(n => secKind(n.sec) === kind).sort((a, b) => a.sec - b.sec);
+        const gone = [...moved].filter(([n]) => secKind(n) === kind);
+        if (!nodes.length && !gone.length) continue;
+        const nums = nodes.map(n => n.sec);
+        h += `<div class="perhead"><b>${t.period.head[kind]}</b>` +
+          (nums.length ? `<span>${t.period.secs(span(nums[0], nums[nums.length - 1]))}</span>` : "") +
+          `<span class="n">${num(nodes.reduce((a, n) => a + n.n, 0))}</span></div>`;
+        const parts = nodes.map(n => [n.sec, draw(n, 0, "")])
+          .concat(gone.map(([n, to]) => [n, `<div class="secmoved">${code(n)}${fat(secTitle(n), "span", "st")}<span class="to">${t.period.moved([...to].sort((a, b) => a - b).map(yr).join(fa ? "، " : ", "))}</span></div>`]));
+        h += parts.sort((a, b) => a[0] - b[0]).map(x => x[1]).join("");
       }
       elList.innerHTML = h;
     }
+    /* the list sticks to the top of the window like the item card: while it
+       is still below its sticky place, the wheel scrolls the page, so the list
+       never hides its last rows below the window */
+    elList.addEventListener("wheel", e => {
+      if (e.deltaY <= 0 || e.ctrlKey || getComputedStyle(elList).position !== "sticky") return;
+      const top = parseFloat(getComputedStyle(elList).top) || 0, gap = elList.getBoundingClientRect().top - top;
+      const room = document.documentElement.scrollHeight - innerHeight - scrollY;
+      if (gap > 1 && room > 1) { e.preventDefault(); scrollBy(0, Math.min(gap, e.deltaY * (e.deltaMode === 1 ? 16 : 1))); }
+    }, { passive: false });
+    /* opening and closing a group is remembered while browsing (not while a
+       search or a short list opens everything) */
+    elList.addEventListener("toggle", e => {
+      const d = e.target;
+      if (allOpen || !d.matches || !d.matches("details[data-key]")) return;
+      if (d.open) openKeys.add(d.dataset.key); else openKeys.delete(d.dataset.key);
+    }, true);
 
     function emptyDetail() {
       const ex = ["برنج", "11114", "تلویزیون", "دندان"].map(q => `<a data-q="${q}">${q}</a>`);
@@ -439,8 +519,10 @@
       const R = refOf(s), cmp = compare(M, s, R), c = s.at(R);
       const inSer = new Set(s.chains.map(x => x.id));
 
-      let h = `<div class="crumbs fa">${[M.DATA.sections[c.s], ...c.path.map(p => p[1])].filter(Boolean).map(x => `<span>${esc(x)}</span>`).join("")}</div>`;
-      h += `<div class="title fa">${esc(c.text)}</div>`;
+      let h = `<div class="crumbs fa">${[M.DATA.sections[c.secAt(c.last)], ...c.path.map(p => p[1])].filter(Boolean).map(x => `<span>${esc(x)}</span>`).join("")}</div>`;
+      h += `<div class="title fa">${esc(c.text)}<button type="button" class="locate" data-locate title="${esc(t.cm.locate)}" aria-label="${esc(t.cm.locate)}">` +
+        `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/>` +
+        `<circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>`;
       // codes by period: 011837 1383–1385 → 011174 1386–1403
       const periods = [];
       for (const x of s.chains) {
@@ -448,7 +530,7 @@
         if (p && p.code === x.code) p.b = x.last; else periods.push({ code: x.code, a: x.first, b: x.last });
       }
       h += `<div class="ids">${periods.map(p => `${code(p.code)} <span class="yrs">${span(p.a, p.b)}</span>`).join(` <span class="arrow">${ARROW}</span> `)}` +
-        ` <span class="pill">${t.section(yr(c.s))}</span> <span class="pill" title="${t.chainId}">${esc(s.id)}</span></div>`;
+        ` <span class="pill">${t.section(yr(c.secAt(R)))}</span> <span class="pill" title="${t.chainId}">${esc(s.id)}</span></div>`;
       if (ref && !s.years.includes(ref)) h += `<div class="note">${t.cm.notInRef(yr(ref))}</div>`;
 
       // verdict: the years of each colour
@@ -539,19 +621,56 @@
       elDetail.scrollTop = 0;
     }
 
+    /* the page's state lives in the URL hash (item, year, search, filters),
+       so a link, a reload or the language menu opens the same view */
     function hashFor(id) {
       const p = [];
       if (id) p.push("item=" + encodeURIComponent(id));
       if (ref === null) p.push("ref=all");
       else if (ref !== M.LAST) p.push("ref=" + ref);
+      if (elQ.value.trim()) p.push("q=" + encodeURIComponent(elQ.value.trim()));
+      if (elSec.value) p.push("sec=" + elSec.value);
+      if (elLinked.checked) p.push("partial=1");
       return "#" + p.join("&");
+    }
+    const current = () => (selected ? focus || selected : null);
+    /* the language menu (the site's header) opens the other language at the same state */
+    function syncLang() {
+      document.querySelectorAll("a[hreflang]").forEach(a => { a.href = a.href.split("#")[0] + location.hash; });
+    }
+    function setHash(h) { history.replaceState(null, "", h); syncLang(); }
+    /* open the groups above a row and scroll the list to it */
+    function reveal(row, force) {
+      for (let d = row.parentElement.closest("details"); d; d = d.parentElement.closest("details")) {
+        if (!allOpen) openKeys.add(d.dataset.key);
+        d.open = true;
+      }
+      const lr = elList.getBoundingClientRect(), rr = row.getBoundingClientRect();
+      if (force || rr.top < lr.top + 40 || rr.bottom > lr.bottom) elList.scrollTop += rr.top - lr.top - lr.height / 3;
+    }
+    /* the button after the card's title: back to the item in the list, even
+       after browsing elsewhere; filters that hide it are cleared */
+    function locate() {
+      if (!selected) return;
+      const s = M.serOf.get(selected), find = () => elList.querySelector(`.row[data-id="${CSS.escape(selected)}"]`);
+      if (!find()) {
+        elQ.value = ""; elSec.value = ""; elLinked.checked = false;
+        if (ref && !s.years.includes(ref)) { ref = null; elRef.value = "all"; renderDetail(selected); }
+        renderList(); setHash(hashFor(current()));
+      }
+      const row = find();
+      if (!row) return;
+      if (window.innerWidth <= 860) elList.scrollIntoView({ behavior: "smooth", block: "start" });
+      reveal(row, true);
+      row.classList.remove("flash"); void row.offsetWidth; row.classList.add("flash");
     }
     function select(sid, focusId = null, push = true) {
       selected = sid; focus = focusId;
       root.querySelectorAll(".row.sel").forEach(e => e.classList.remove("sel"));
-      root.querySelector(`.row[data-id="${CSS.escape(sid)}"]`)?.classList.add("sel");
+      const row = root.querySelector(`.row[data-id="${CSS.escape(sid)}"]`);
+      if (row) { row.classList.add("sel"); reveal(row, false); }
       renderDetail(sid);
-      if (push) history.replaceState(null, "", hashFor(focus || sid));
+      if (push) setHash(hashFor(focus || sid));
       if (window.innerWidth <= 860) elDetail.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
@@ -574,15 +693,15 @@
       for (const yy of ys) {
         const st = yearStats(yy);
         for (const s of secs) {
-          const n = st.rels.filter(r => r.rel !== "same" || isScope(r)).filter(r => M.CH.get(r.to[0])?.s === s || M.CH.get(r.from[0])?.s === s).length
-            + st.added.filter(c => c.s === s).length + st.dropped.filter(c => c.s === s).length;
+          const n = st.rels.filter(r => r.rel !== "same" || isScope(r)).filter(r => M.CH.get(r.to[0])?.secAt(r.year) === s || M.CH.get(r.from[0])?.secAt(r.year - 1) === s).length
+            + st.added.filter(c => c.secAt(c.first) === s).length + st.dropped.filter(c => c.secAt(c.last) === s).length;
           cnt[`${s}-${yy}`] = n; max = Math.max(max, n);
         }
       }
       let h = `<div class="yearbar">` + ys.map(yy => `<a href="#year=${yy}" class="${yy === y ? "active" : ""}">${yr(yy)}</a>`).join("") + `</div>`;
       h += `<div class="panel heat"><div class="cap">${t.heatCap}</div><table><tr><th></th>${ys.map(yy => `<th>${yr(yy).slice(2)}</th>`).join("")}</tr>`;
       for (const s of secs) {
-        h += `<tr><th class="s fa" title="${esc(M.DATA.sections[s])}">${yr(s)} · ${esc(secTitle(s).slice(0, 32))}</th>`;
+        h += `<tr><th class="s fa" title="${esc(M.DATA.sections[s])}">${yr(s)} · ${esc(secTitle(s).slice(0, 32))}${secPeriod(s) ? ` <span class="per">${secPeriod(s)}</span>` : ""}</th>`;
         for (const yy of ys) {
           const n = cnt[`${s}-${yy}`], a = n ? 0.12 + 0.88 * Math.sqrt(n / max) : 0;
           const style = n ? `background:color-mix(in srgb, var(--accent) ${Math.round(a * 100)}%, var(--panel));color:${a > .55 ? "var(--on-accent)" : "var(--ink)"}` : "";
@@ -621,13 +740,19 @@
       root.querySelectorAll(".hx-tabs a").forEach(a => a.classList.toggle("active", a.dataset.tab === view));
     }
     function route() {
-      const h = decodeURIComponent(location.hash.slice(1)), p = new URLSearchParams(h);
+      syncLang();
+      const raw = location.hash.slice(1), h = decodeURIComponent(raw), p = new URLSearchParams(raw);
       if (p.has("year")) {
         const y = +p.get("year");
         show("years"); renderYears(M.YEARS.includes(y) && y !== M.YEARS[0] ? y : 1386); return;
       }
       if (h === "about") { show("about"); return; }
       show("items");
+      // search and filters from the hash
+      const q = p.get("q") || "", sec = M.DATA.sections[p.get("sec")] ? p.get("sec") : "", chg = p.get("partial") === "1";
+      if (q !== elQ.value.trim() || sec !== elSec.value || chg !== elLinked.checked) {
+        elQ.value = q; elSec.value = sec; elLinked.checked = chg; renderList();
+      }
       const id = p.get("item"), s = id && M.serOf.get(id);
       let r = p.get("ref") === "all" ? null : M.YEARS.includes(+p.get("ref")) ? +p.get("ref") : M.LAST;
       // a link to an item not asked in the default year opens it among all items
@@ -635,29 +760,31 @@
       if (r !== ref) { ref = r; elRef.value = ref === null ? "all" : String(ref); renderList(); if (selected) renderDetail(selected); }
       if (s) {
         if (selected !== s.id || focus !== (id === s.id ? null : id)) {
-          if (!root.querySelector(`.row[data-id="${CSS.escape(s.id)}"]`)) { elQ.value = s.at(refOf(s)).code; renderList(); }
+          // an item outside the list is searched for, unless the hash sets the filters
+          if (!q && !sec && !chg && !root.querySelector(`.row[data-id="${CSS.escape(s.id)}"]`)) { elQ.value = s.at(refOf(s)).code; renderList(); }
           select(s.id, id === s.id ? null : id, false);
         }
       } else if (!selected) emptyDetail();
     }
 
     let timer;
-    elQ.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(renderList, 80); });
+    elQ.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(() => { renderList(); setHash(hashFor(current())); }, 80); });
     elQ.addEventListener("keydown", e => {
       if (e.key === "Enter") { clearTimeout(timer); renderList(); const r = elList.querySelector(".row"); if (r) select(r.dataset.id); }
     });
-    [elSec, elLinked].forEach(e => e.addEventListener("change", renderList));
+    [elSec, elLinked].forEach(e => e.addEventListener("change", () => { renderList(); setHash(hashFor(current())); }));
     elRef.addEventListener("change", () => {
       ref = elRef.value === "all" ? null : +elRef.value;
       renderList();
       if (selected) renderDetail(selected);
-      history.replaceState(null, "", hashFor(selected ? focus || selected : null));
+      setHash(hashFor(current()));
     });
     root.addEventListener("click", e => {
       const pdfLink = e.target.closest("a[data-pdf]");
       if (pdfLink && !(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button)) {
         e.preventDefault(); openPdf(pdfLink.dataset.pdf.split(" ").map(id => M.CH.get(id)).filter(Boolean), +pdfLink.dataset.year, pdfLink); return;
       }
+      if (e.target.closest("[data-locate]")) { locate(); return; }
       const row = e.target.closest(".row"); if (row) { select(row.dataset.id); return; }
       const go = e.target.closest("[data-go]");
       if (go) { e.preventDefault(); location.hash = hashFor(go.dataset.go); return; }
@@ -667,7 +794,7 @@
         return;
       }
       const q = e.target.closest("[data-q]");
-      if (q) { e.preventDefault(); elQ.value = q.dataset.q; renderList(); elQ.focus(); return; }
+      if (q) { e.preventDefault(); elQ.value = q.dataset.q; renderList(); setHash(hashFor(current())); elQ.focus(); return; }
       const td = e.target.closest("td[data-year]"); if (td) location.hash = "year=" + td.dataset.year;
     });
     /* in-page viewer: one page of a questionnaire PDF, with an optional

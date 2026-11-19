@@ -1,7 +1,8 @@
 """Build the explorer: one static HTML page to search and browse the matched items.
 
 Reads ``output/2_corrected/``, ``output/3_items/chains.csv``,
-``links.csv``, ``relations.csv`` and ``curated/2_corrected/corrections.csv``, and writes
+``links.csv``, ``relations.csv``, ``output/4_groups/groups.csv``, ``members.csv``
+and ``curated/2_corrected/corrections.csv``, and writes
 ``output/explorer/index.html`` with the data embedded, so the page works
 offline and on any static host (no server, no build step).
 
@@ -16,7 +17,7 @@ import json
 import math
 from pathlib import Path
 
-from . import CORRECTED, CURATED_CORRECTED, ITEMS, OUTPUT
+from . import CORRECTED, CURATED_CORRECTED, GROUPS, ITEMS, OUTPUT
 from .compare import YEARS
 
 # The component (explorer.js, explorer.css) is shared by the standalone page
@@ -67,11 +68,25 @@ def _questionnaire(
     return sections, paths, pages, boxes
 
 
+def _groups(path: Path) -> tuple[list[list], dict[tuple[int, str], list[int]]]:
+    """The groups as [code, label, level, section], and for every (year, expenditure code)
+    the indexes of its groups, outermost first (level 2, 3, 4 when printed)."""
+    rows = _read(path / "groups.csv")
+    index = {r["group_id"]: i for i, r in enumerate(rows)}
+    groups = [[r["code"], r["label"], int(r["level"]), int(r["section"])] for r in rows]
+    members = {
+        (int(m["year"]), m["expenditure_code"]): [index[m[k]] for k in ("level_2", "level_3", "level_4") if m[k]]
+        for m in _read(path / "members.csv")
+    }
+    return groups, members
+
+
 def collect(
     corrected: Path = CORRECTED,
     items: Path = ITEMS,
     source: Path = CURATED_CORRECTED / "corrections.csv",
     years: list[int] = YEARS,
+    groups: Path = GROUPS,
 ) -> dict:
     """Everything the page shows, as plain JSON-able data."""
     sections: dict[str, str] = {}
@@ -81,11 +96,19 @@ def collect(
     for y in years:
         s, paths[y], pages[y], boxes[y] = _questionnaire(corrected / f"questionnaire_{y}.csv")
         sections.update(s)  # the latest year's title wins
+    group_list, members = _groups(groups)
     chains = []
     for c in _read(items / "chains.csv"):
         first, last = int(c["first_year"]), int(c["last_year"])
         miss = [int(y) for y in c["missing_years"].split()]
         code = c["expenditure_code"]
+        asked = [y for y in years if first <= y <= last and y not in miss]
+        # its groups, as [first year, [group indexes]] each time they change
+        gp: list = []
+        for y in asked:
+            g = members.get((y, code), [])
+            if not gp or gp[-1][1] != g:
+                gp.append([y, g])
         chains.append(
             {
                 "id": c["chain_id"],
@@ -97,9 +120,10 @@ def collect(
                 "text": c["text"],
                 "path": paths[last].get(code, []),
                 # the printed page in each year the chain is asked, in year order
-                "pg": [pages[y].get(code) for y in years if first <= y <= last and y not in miss],
+                "pg": [pages[y].get(code) for y in asked],
                 # and its box on that page, for the highlight
-                "bx": [boxes[y].get(code) for y in years if first <= y <= last and y not in miss],
+                "bx": [boxes[y].get(code) for y in asked],
+                "gp": gp,
             }
         )
     relations = [
@@ -128,6 +152,7 @@ def collect(
     return {
         "years": years,
         "sections": {int(k): v for k, v in sorted(sections.items(), key=lambda kv: int(kv[0]))},
+        "groups": group_list,
         "chains": chains,
         "relations": relations,
         "corrections": corrections,
