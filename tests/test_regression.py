@@ -25,3 +25,12 @@ def test_extract_matches_tracked_csv(year, tmp_path):
     out = tmp_path / f"questionnaire_{year}.csv"
     write_csv(extract_year(year, DATA), out)
     assert out.read_bytes() == (EXTRACTED / out.name).read_bytes()
+
+
+@pytest.mark.parametrize("year", [1395, 1396, 1399, 1402])
+def test_repaired_fonts_keep_zwnj(year):
+    """In the years whose fonts are repaired through glyph_db, a plain letter
+    from the database is an isolated glyph, so its ZWNJ is recovered."""
+    text = (EXTRACTED / f"questionnaire_{year}.csv").read_text(encoding="utf-8-sig")
+    assert "میوه‌گیری" in text  # 053214, printed with a final ه
+    assert "میوهگیری" not in text

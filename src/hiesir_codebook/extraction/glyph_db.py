@@ -6,6 +6,12 @@ outlines themselves are intact and identical to those in PDFs whose text
 extracts correctly, so we hash each glyph's outline and look the character up
 in a database built from the clean PDFs.
 
+The database keeps the letter form: a medial or initial glyph is stored as its
+presentation form (ﻬ, ﮔ), a final one as its final form (ﻪ) and an isolated one
+as the plain letter (ه), as the clean PDFs' shaped fonts map them.  So a plain
+letter from the database is an isolated glyph, which the ZWNJ recovery needs
+(میوه‌گیری).  Letters are only learnt from shaped fonts, which keeps that true.
+
 Build (or rebuild) the database with::
 
     uv run python -m hiesir_codebook.extraction.build_glyph_db
@@ -18,6 +24,7 @@ import hashlib
 import io
 import json
 import logging
+import unicodedata
 from functools import lru_cache
 from pathlib import Path
 
@@ -55,10 +62,33 @@ def font_outline_hashes(buf: bytes) -> list[str | None]:
     return out
 
 
+def is_presentation_form(code: int) -> bool:
+    return 0xFB50 <= code <= 0xFDFF or 0xFE70 <= code <= 0xFEFF
+
+
+def shaped_fonts(doc: pymupdf.Document, min_forms: int = 20) -> frozenset[str]:
+    """Fonts whose ToUnicode map gives each letter form its own code (ﻏ ﻐ ...).
+
+    Such a font maps its isolated glyphs to the plain letter (غ), so there a
+    plain letter is an isolated one.  In fonts that map every form to the plain
+    letter (1395, 1402) a plain letter says nothing about its form.
+    """
+    forms: collections.Counter = collections.Counter()
+    for page in doc:
+        for span in page.get_texttrace():
+            forms[span["font"]] += sum(is_presentation_form(code) for code, *_ in span["chars"])
+    return frozenset(f for f, n in forms.items() if n >= min_forms)
+
+
+def _is_letter(ch: str) -> bool:
+    return unicodedata.name(ch, "").startswith("ARABIC LETTER")
+
+
 def build(pdf_paths: list[Path]) -> dict[str, str]:
     votes: dict[str, collections.Counter] = collections.defaultdict(collections.Counter)
     for path in pdf_paths:
         doc = pymupdf.open(path)
+        shaped = shaped_fonts(doc)
         hashes: dict[int, list[str | None]] = {}
         for page in doc:
             fonts = {f[3].split("+", 1)[-1]: f[0] for f in page.get_fonts()}
@@ -70,8 +100,11 @@ def build(pdf_paths: list[Path]) -> dict[str, str]:
                     hashes[xref] = font_outline_hashes(doc.extract_font(xref)[3])
                 hs = hashes[xref]
                 for code, gid, _o, _b in span["chars"]:
-                    if 0 <= gid < len(hs) and hs[gid] and 0x20 < code != 0xFFFD:
-                        votes[hs[gid]][chr(code)] += 1
+                    if not (0 <= gid < len(hs) and hs[gid] and 0x20 < code != 0xFFFD):
+                        continue
+                    if span["font"] not in shaped and _is_letter(chr(code)):
+                        continue  # its plain letters may be any form
+                    votes[hs[gid]][chr(code)] += 1
     db = {}
     for h, c in votes.items():
         # majority by base letter, keeping the most common exact form of it

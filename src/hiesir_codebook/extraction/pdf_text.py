@@ -227,25 +227,9 @@ def _broken_fonts(pdf_path: str, threshold: float = 0.005) -> frozenset[int]:
     return frozenset(x for x, n in total.items() if n >= 20 and 1 - agree.get(x, 0) / n > threshold)
 
 
-def _is_presentation_form(code: int) -> bool:
-    return 0xFB50 <= code <= 0xFDFF or 0xFE70 <= code <= 0xFEFF
-
-
 @lru_cache(maxsize=8)
-def _shaped_fonts(pdf_path: str, min_forms: int = 20) -> frozenset[str]:
-    """Fonts whose ToUnicode map gives each letter form its own code (ﻏ ﻐ ...).
-
-    Such a font maps its isolated glyphs to the plain letter (غ), so there a
-    plain letter is an isolated one.  In fonts that map every form to the plain
-    letter (1395, 1402) a plain letter says nothing about its form.
-    """
-    forms: dict[str, int] = {}
-    for page in _open(pdf_path):
-        for span in page.get_texttrace():
-            n = sum(_is_presentation_form(code) for code, *_ in span["chars"])
-            if n:
-                forms[span["font"]] = forms.get(span["font"], 0) + n
-    return frozenset(f for f, n in forms.items() if n >= min_forms)
+def _shaped_fonts(pdf_path: str) -> frozenset[str]:
+    return glyph_db.shaped_fonts(_open(pdf_path))
 
 
 def page_glyphs(pdf_path: str, page_no: int) -> list[Glyph]:
@@ -263,11 +247,12 @@ def page_glyphs(pdf_path: str, page_no: int) -> list[Glyph]:
         fx = fonts.get(span["font"])
         hashes = _outline_hashes(pdf_path, fx) if fx in broken else None
         for code, gid, _origin, bbox in span["chars"]:
+            from_db = False
             if hashes is not None and gid < 0:
                 continue  # extra char of a multi-char (wrong) ToUnicode entry
-            if hashes is not None and 0 <= gid < len(hashes) and hashes[gid] in db:
+            if hashes is not None and 0 <= gid < len(hashes) and len(db.get(hashes[gid], "")) == 1:
                 # broken ToUnicode map: identify the glyph by its outline
-                code = ord(db[hashes[gid]][0]) if len(db[hashes[gid]]) == 1 else code
+                code, from_db = ord(db[hashes[gid]]), True
             # 0xFFFD / control chars: PyMuPDF could not map the glyph to Unicode,
             # so fall back to the glyph's name inside the embedded font.
             if (code == 0xFFFD or code < 0x20) and 0 <= gid < len(names):
@@ -277,8 +262,11 @@ def page_glyphs(pdf_path: str, page_no: int) -> list[Glyph]:
                 t = chr(code)
                 uname = unicodedata.name(t, "")
                 ends = "FINAL FORM" in uname or "ISOLATED FORM" in uname
-                if span["font"] in shaped and uname.startswith("ARABIC LETTER") and "FORM" not in uname:
-                    ends = True  # an isolated glyph, mapped to the plain letter
+                plain = uname.startswith("ARABIC LETTER") and "FORM" not in uname
+                if plain and (from_db or span["font"] in shaped):
+                    # an isolated glyph, mapped to the plain letter (the
+                    # database keeps the forms of the shaped fonts it is built from)
+                    ends = True
             if not t.strip():
                 continue
             x0, y0, x1, y1 = bbox
