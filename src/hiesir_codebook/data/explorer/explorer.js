@@ -446,7 +446,7 @@
       fold = auto ? foldAuto : foldBrowse;
       fold.base = auto ? Infinity : sec || top.size === 1 ? 1 : 0;
       const isOpen = (n, depth) => fold.open.has(n.key) || (!fold.closed.has(n.key) && depth < lvl(fold));
-      const item = ([s, , hit, c]) => `<div class="row${selected === s.id ? " sel" : ""}" data-id="${esc(s.id)}">${code(c.code)}${fat(c.text, "div")}` +
+      const item = ([s, , hit, c, past]) => `<div class="row${past ? " past" : ""}${selected === s.id && !past ? " sel" : ""}" data-id="${esc(s.id)}">${code(c.code)}${fat(c.text, "div")}` +
         (hit && hit !== c ? `<div class="was">${t.cm.earlier}: <span class="fa">${esc(hit.text)}</span></div>` : "") +
         `<div class="meta">${strip(s)}<span class="yrs">${span(s.years[0], s.last)}</span></div></div>`;
       const gLabel = n => M.groupLabel(n.gi, ref);
@@ -457,11 +457,16 @@
           const only = [...n.kids.values()][0];
           if (same(gLabel(n), label)) return draw(only, depth, label);
         }
-        const head = n.sec ? secHead(n.sec, ref) : `${code(n.g[0])}${fat(gLabel(n))}`;
+        // a group's heading: its code, its label, and the years it is printed
+        // when that is not every year (most groups are printed in all of them)
+        const gYears = n.g && M.nodeOfG[n.gi] && M.nodeOfG[n.gi].years.length < M.YEARS.length ? M.nodeOfG[n.gi].years : null;
+        const head = n.sec ? secHead(n.sec, ref) : `${code(n.g[0])}${fat(gLabel(n))}` + (gYears ? `<span class="yrs">${ranges(gYears)}</span>` : "");
         const parts = [...n.kids.values()].map(k => [k.min, k]).concat(n.items.map(r => [r[3].code, r]));
         parts.sort((a, b) => a[0].localeCompare(b[0]) || (Array.isArray(a[1]) ? 1 : -1));
-        const body = parts.map(([, x]) => Array.isArray(x) ? item(x) : draw(x, depth + 1, n.sec ? secTitle(n.sec, ref) : gLabel(n))).join("");
-        const fb = body.includes("<details") ? `<span class="fold" data-fold role="button" title="${esc(t.tree.fold)}" aria-label="${esc(t.tree.fold)}"></span>` : "";
+        const body = (n.movedTo ? `<div class="secnote">${t.period.movedFrom([...n.movedTo].sort((a, b) => a - b).map(yr).join(fa ? "، " : ", "), yr(n.until))}</div>` : "") +
+          parts.map(([, x]) => Array.isArray(x) ? item(x) : draw(x, depth + 1, n.sec ? secTitle(n.sec, ref) : gLabel(n))).join("");
+        // the fold button, or an empty slot of its width, so what is beside it lines up
+        const fb = body.includes("<details") ? `<span class="fold" data-fold role="button" title="${esc(t.tree.fold)}" aria-label="${esc(t.tree.fold)}"></span>` : `<span class="fold none" aria-hidden="true"></span>`;
         const nid = n.sec ? `s${n.sec}` : M.nodeOfG[n.gi]?.id || "";
         return `<details class="${n.sec ? "sec" : "grp"}" data-key="${esc(n.key)}" data-d="${depth}" style="--d:${depth}"${isOpen(n, depth) ? " open" : ""}>` +
           `<summary${nid ? ` data-g="${esc(nid)}"` : ""}${nid && nid === selGroup ? ` class="sel"` : ""} title="${esc(`${n.g ? gLabel(n) : M.sectionTitle(n.sec, ref)} · ${t.tree.head}`)}">${head}${fb}${gdot(nid)}<span class="n">${num(n.n)}</span></summary>${body}</details>`;
@@ -481,6 +486,26 @@
           if (!c || (ref && !s.years.includes(ref)) || top.has(`s${c.s}`)) continue;
           (moved.get(c.s) || moved.set(c.s, new Set()).get(c.s)).add(c.secAt(y));
         }
+        /* under "All items" such a section (10 in 1383, whose two items are
+           in section 13 from 1384) still lists its items, as last asked in
+           it; they appear under their later section too ("past" rows: a
+           link to the item goes to the other one) */
+        if (ref === null) {
+          for (const [sn, to] of moved) {
+            for (const s of M.SER) {
+              const y = [...s.years].reverse().find(y => s.at(y).secAt(y) === sn);
+              if (y === undefined) continue;
+              const c = s.at(y), sec0 = node(top, `s${sn}`, { sec: sn, movedTo: to, until: y });
+              if (y > sec0.until) sec0.until = y;
+              let n = sec0;
+              const trail = [n];
+              for (const gi of c.groupsAt(y)) { n = node(n.kids, `${n.key}/${gi}`, { g: M.G[gi], gi }); trail.push(n); }
+              n.items.push([s, 0, null, c, true]);
+              for (const x of trail) { x.n++; if (c.code < x.min) x.min = c.code; }
+            }
+            moved.delete(sn);
+          }
+        }
       }
       for (const kind of ["m", "y"]) {
         const nodes = [...top.values()].filter(n => secKind(n.sec) === kind).sort((a, b) => a.sec - b.sec);
@@ -489,29 +514,31 @@
         const nums = nodes.map(n => n.sec);
         h += `<div class="perhead"><b>${t.period.head[kind]}</b>` +
           (nums.length ? `<span>${t.period.secs(span(nums[0], nums[nums.length - 1]))}</span>` : "") +
-          `<span class="n">${num(nodes.reduce((a, n) => a + n.n, 0))}</span></div>`;
+          // (a past section's items are counted under their later section)
+          `<span class="n">${num(nodes.reduce((a, n) => a + (n.movedTo ? 0 : n.n), 0))}</span></div>`;
         const parts = nodes.map(n => [n.sec, draw(n, 0, "")])
           .concat(gone.map(([n, to]) => [n, `<div class="secmoved">${code(n)}${fat(secTitle(n), "span", "st")}<span class="to">${t.period.moved([...to].sort((a, b) => a - b).map(yr).join(fa ? "، " : ", "))}</span></div>`]));
         h += parts.sort((a, b) => a[0] - b[0]).map(x => x[1]).join("");
       }
       elList.innerHTML = h;
-      stickTops();
+      applyTops();
     }
     /* the open headings stick below the count bar while their rows scroll,
-       each below its parents: its top is the sum of their heights */
-    let stickRaf = 0;
-    function stickTops() {
-      cancelAnimationFrame(stickRaf);
-      stickRaf = requestAnimationFrame(() => {
-        const bar = elList.querySelector(".count");
-        const walk = (d, top) => {
-          const s = d.firstElementChild;
-          s.style.top = top + "px";
-          if (d.open) for (const k of d.querySelectorAll(":scope > details")) walk(k, top + s.offsetHeight);
-        };
-        for (const d of elList.querySelectorAll(":scope > details")) walk(d, bar ? bar.offsetHeight : 0);
-      });
+       each below its parents: its top is the sum of their heights. Set at
+       once after drawing the list; after a heading opens or closes (many at
+       once for a whole branch) on a timer, once for them all; a timer, not
+       an animation frame, so it also runs in a hidden tab */
+    function applyTops() {
+      const bar = elList.querySelector(".count");
+      const walk = (d, top) => {
+        const s = d.firstElementChild;
+        s.style.top = top + "px";
+        if (d.open) for (const k of d.querySelectorAll(":scope > details")) walk(k, top + s.offsetHeight);
+      };
+      for (const d of elList.querySelectorAll(":scope > details")) walk(d, bar ? bar.offsetHeight : 0);
     }
+    let stickTimer = 0;
+    function stickTops() { clearTimeout(stickTimer); stickTimer = setTimeout(applyTops, 0); }
     new ResizeObserver(stickTops).observe(elList);
     /* the list sticks to the top of the window like the item card: while it
        is still below its sticky place, the wheel scrolls the page, so the list
@@ -797,6 +824,8 @@
 
     /* the page's state lives in the URL hash (item, year, search, filters),
        so a link, a reload or the language menu opens the same view */
+    // an item's row in the list: under where it is compared, not a past section's copy
+    const rowOf = id => root.querySelector(`.row[data-id="${CSS.escape(id)}"]:not(.past)`) || root.querySelector(`.row[data-id="${CSS.escape(id)}"]`);
     function hashFor(id) {
       const p = [];
       if (id) p.push("item=" + encodeURIComponent(id));
@@ -828,7 +857,7 @@
     function locate(only = false) {
       if (!selected && !selGroup) return;
       const years = selGroup ? M.NODES.get(selGroup).years : M.serOf.get(selected).years;
-      const find = () => selGroup ? elList.querySelector(`summary[data-g="${CSS.escape(selGroup)}"]`) : elList.querySelector(`.row[data-id="${CSS.escape(selected)}"]`);
+      const find = () => selGroup ? elList.querySelector(`summary[data-g="${CSS.escape(selGroup)}"]`) : rowOf(selected);
       if (!find()) {
         elQ.value = ""; elSec.value = ""; elLinked.checked = false;
         if (ref && !years.includes(ref)) { ref = null; elRef.value = "all"; renderSel(); }
@@ -855,7 +884,7 @@
     function select(sid, focusId = null, push = true) {
       selected = sid; focus = focusId; selGroup = null;
       root.querySelectorAll(".row.sel, summary.sel").forEach(e => e.classList.remove("sel"));
-      const row = root.querySelector(`.row[data-id="${CSS.escape(sid)}"]`);
+      const row = rowOf(sid);
       if (row) { row.classList.add("sel"); reveal(row, false); }
       renderDetail(sid);
       if (push) setHash(hashFor(focus || sid));
@@ -1040,7 +1069,7 @@
       if (s) {
         if (selected !== s.id || focus !== (id === s.id ? null : id)) {
           // an item outside the list is searched for, unless the hash sets the filters
-          if (!q && !sec && !chg && !root.querySelector(`.row[data-id="${CSS.escape(s.id)}"]`)) { elQ.value = s.at(refOf(s)).code; renderList(); }
+          if (!q && !sec && !chg && !rowOf(s.id)) { elQ.value = s.at(refOf(s)).code; renderList(); }
           select(s.id, id === s.id ? null : id, false);
         }
       } else if (gn) {
@@ -1066,7 +1095,7 @@
       if (!s || !s.years.includes(y) || ref === y) return;
       ref = y; elRef.value = String(y);
       renderList(); renderSel();
-      root.querySelector(`.row[data-id="${CSS.escape(selected)}"]`)?.classList.add("sel");
+      rowOf(selected)?.classList.add("sel");
       setHash(hashFor(current()));
     }
     root.addEventListener("click", e => {

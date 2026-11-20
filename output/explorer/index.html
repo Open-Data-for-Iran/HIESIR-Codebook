@@ -116,7 +116,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
 .hx .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
 .hx-list { position: sticky; top: var(--sticky-top); max-height: calc(100vh - var(--sticky-top) - 16px); min-height: 320px; overflow: auto; }
 .hx-list .count {
-  padding: 8px 14px; color: var(--muted); font-size: .93em; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--panel); z-index: 2;
+  padding: 8px 14px; color: var(--muted); font-size: .93em; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--panel); z-index: 20;
   display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: space-between;
 }
 /* how deep the tree is open: one segmented control */
@@ -129,9 +129,10 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
 .hx-list .levels button.on { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
 /* the fold button of a heading: everything under it, shown on hover */
 .hx-list summary .fold {
-  color: var(--muted); font-weight: 400; font-size: 1.05em; line-height: 1; padding: 0 3px; border-radius: 4px;
+  flex: none; width: 1.3em; text-align: center; color: var(--muted); font-weight: 400; font-size: 1.05em; line-height: 1; border-radius: 4px;
   opacity: 0; transition: opacity .12s;
 }
+.hx-list summary .fold.none { visibility: hidden; }
 .hx-list summary .fold::after { content: "⊟"; }
 .hx-list details:not([open]) > summary .fold::after,
 .hx-list details:has(details:not([open])) > summary .fold::after { content: "⊞"; }
@@ -142,10 +143,12 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
    The titles are Persian: in both languages the tree reads right to left,
    arrow and number on the right, the number of items on the left. Open
    headings stick while their rows scroll (the script sets each one's top,
-   below the count bar and its parents), so they need an opaque background. */
+   below the count bar and its parents), so they need an opaque background,
+   and a shallower heading is drawn over a deeper one scrolling up under it
+   (the count bar, z-index 20, over them all). */
 .hx-list details { margin: 0; border: 0; box-shadow: none; border-radius: 0; background: none; padding: 0; font-size: 1em; }
 .hx .hx-list details > summary {
-  direction: rtl; position: sticky; z-index: 1; list-style: none; cursor: pointer; margin: 0; min-height: 0;
+  direction: rtl; position: sticky; z-index: calc(10 - var(--d, 0)); list-style: none; cursor: pointer; margin: 0; min-height: 0;
   display: flex; gap: 8px; align-items: baseline; border-bottom: 1px solid var(--line); background: var(--panel);
 }
 .hx-list details > summary::-webkit-details-marker { display: none; }
@@ -154,7 +157,15 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
   content: "◂"; color: var(--muted); position: static; background: none; mask: none; -webkit-mask: none; width: auto; height: auto; transform: none;
 }
 .hx-list details[open] > summary::before { content: "▾"; }
-.hx-list details > summary .n { color: var(--muted); font-weight: 400; font-size: .86em; }
+/* the number of items: one width for all, so the dots beside it line up */
+.hx-list details > summary .n { flex: none; min-width: 26px; text-align: left; color: var(--muted); font-weight: 400; font-size: .86em; font-variant-numeric: tabular-nums; }
+/* in the right-to-left headings, codes ("01131, 01132") and years read in
+   their own order: codes left to right, years as the page reads them */
+.hx-list details > summary .code { unicode-bidi: isolate; direction: ltr; }
+.hx-list details > summary .yrs { unicode-bidi: isolate; }
+.hx[dir="ltr"] .hx-list details > summary .yrs { direction: ltr; }
+/* a group's years in print, after its label (only when not every year) */
+.hx-list details.grp > summary .yrs { flex: none; color: var(--muted); font-size: .82em; white-space: nowrap; font-variant-numeric: tabular-nums; }
 /* a section: bold, on a tint (--bg is translucent: over the panel) */
 .hx .hx-list details.sec > summary { padding: 9px 14px; font-weight: 600; background: linear-gradient(var(--bg), var(--bg)), var(--panel); }
 .hx-list details.sec > summary .st { flex: 1; min-width: 0; text-align: right; }
@@ -178,6 +189,8 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
   direction: rtl; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; padding: 8px 14px;
   padding-inline-start: 30px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: .93em;
 }
+/* a section whose items moved on (10, in 1383 only), under "All items" */
+.hx-list .secnote { direction: rtl; padding: 6px 14px; color: var(--muted); font-size: .86em; text-align: center; border-bottom: 1px solid var(--line); }
 .hx .secmoved .to { font-size: .9em; width: 100%; text-align: center; }
 .hx .per { font-weight: 400; font-size: .78em; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 7px; white-space: nowrap; align-self: center; }
 .hx-list details .row { padding-left: 14px; padding-right: calc(14px + (var(--d) + 1) * 12px); }
@@ -577,7 +590,8 @@ window.HX_STRINGS = {
          failed: "Could not load the PDF.",
          before: n => `${n} more on earlier pages`, after: n => `${n} more on later pages` },
     period: { m: "last month", y: "last 12 months", head: { m: "Last month", y: "Last 12 months" },
-              secs: r => `sections ${r}`, moved: l => `its items are listed under section ${l}` },
+              secs: r => `sections ${r}`, moved: l => `its items are listed under section ${l}`,
+              movedFrom: (l, y) => `its items as asked here until ${y}; after that they are listed under section ${l}` },
     rel: { same: "same item", recoded: "recoded", merged: "merged", split: "split", regrouped: "regrouped" },
     det: { minor: "minor wording", label_reworded: "reworded", label_broadened: "broadened", label_narrowed: "narrowed" },
     v: { confirmed: "confirmed", changed: "changed by review", added: "added by review", definite: "definite", unverified: "unverified",
@@ -691,7 +705,8 @@ window.HX_STRINGS = {
          failed: "بارگذاری PDF ممکن نشد.",
          before: n => `${n} مورد دیگر در صفحه‌های پیشین`, after: n => `${n} مورد دیگر در صفحه‌های بعدی` },
     period: { m: "ماه گذشته", y: "۱۲ ماه گذشته", head: { m: "ماه گذشته", y: "۱۲ ماه گذشته" },
-              secs: r => `بخش‌های ${r}`, moved: l => `اقلامش در بخش ${l} فهرست شده‌اند` },
+              secs: r => `بخش‌های ${r}`, moved: l => `اقلامش در بخش ${l} فهرست شده‌اند`,
+              movedFrom: (l, y) => `اقلامش تا ${y} در این بخش پرسیده شده‌اند؛ پس از آن در بخش ${l} فهرست شده‌اند` },
     rel: { same: "همان قلم", recoded: "تغییر کد", merged: "ادغام", split: "تفکیک", regrouped: "بازگروه‌بندی" },
     det: { minor: "تغییر جزئی", label_reworded: "تغییر عبارت", label_broadened: "گسترده‌تر شده", label_narrowed: "محدودتر شده" },
     v: { confirmed: "تأییدشده", changed: "اصلاح در بازبینی", added: "افزوده در بازبینی", definite: "قطعی", unverified: "راستی‌آزمایی‌نشده",
@@ -1188,7 +1203,7 @@ window.HX_STRINGS = {
       fold = auto ? foldAuto : foldBrowse;
       fold.base = auto ? Infinity : sec || top.size === 1 ? 1 : 0;
       const isOpen = (n, depth) => fold.open.has(n.key) || (!fold.closed.has(n.key) && depth < lvl(fold));
-      const item = ([s, , hit, c]) => `<div class="row${selected === s.id ? " sel" : ""}" data-id="${esc(s.id)}">${code(c.code)}${fat(c.text, "div")}` +
+      const item = ([s, , hit, c, past]) => `<div class="row${past ? " past" : ""}${selected === s.id && !past ? " sel" : ""}" data-id="${esc(s.id)}">${code(c.code)}${fat(c.text, "div")}` +
         (hit && hit !== c ? `<div class="was">${t.cm.earlier}: <span class="fa">${esc(hit.text)}</span></div>` : "") +
         `<div class="meta">${strip(s)}<span class="yrs">${span(s.years[0], s.last)}</span></div></div>`;
       const gLabel = n => M.groupLabel(n.gi, ref);
@@ -1199,11 +1214,16 @@ window.HX_STRINGS = {
           const only = [...n.kids.values()][0];
           if (same(gLabel(n), label)) return draw(only, depth, label);
         }
-        const head = n.sec ? secHead(n.sec, ref) : `${code(n.g[0])}${fat(gLabel(n))}`;
+        // a group's heading: its code, its label, and the years it is printed
+        // when that is not every year (most groups are printed in all of them)
+        const gYears = n.g && M.nodeOfG[n.gi] && M.nodeOfG[n.gi].years.length < M.YEARS.length ? M.nodeOfG[n.gi].years : null;
+        const head = n.sec ? secHead(n.sec, ref) : `${code(n.g[0])}${fat(gLabel(n))}` + (gYears ? `<span class="yrs">${ranges(gYears)}</span>` : "");
         const parts = [...n.kids.values()].map(k => [k.min, k]).concat(n.items.map(r => [r[3].code, r]));
         parts.sort((a, b) => a[0].localeCompare(b[0]) || (Array.isArray(a[1]) ? 1 : -1));
-        const body = parts.map(([, x]) => Array.isArray(x) ? item(x) : draw(x, depth + 1, n.sec ? secTitle(n.sec, ref) : gLabel(n))).join("");
-        const fb = body.includes("<details") ? `<span class="fold" data-fold role="button" title="${esc(t.tree.fold)}" aria-label="${esc(t.tree.fold)}"></span>` : "";
+        const body = (n.movedTo ? `<div class="secnote">${t.period.movedFrom([...n.movedTo].sort((a, b) => a - b).map(yr).join(fa ? "، " : ", "), yr(n.until))}</div>` : "") +
+          parts.map(([, x]) => Array.isArray(x) ? item(x) : draw(x, depth + 1, n.sec ? secTitle(n.sec, ref) : gLabel(n))).join("");
+        // the fold button, or an empty slot of its width, so what is beside it lines up
+        const fb = body.includes("<details") ? `<span class="fold" data-fold role="button" title="${esc(t.tree.fold)}" aria-label="${esc(t.tree.fold)}"></span>` : `<span class="fold none" aria-hidden="true"></span>`;
         const nid = n.sec ? `s${n.sec}` : M.nodeOfG[n.gi]?.id || "";
         return `<details class="${n.sec ? "sec" : "grp"}" data-key="${esc(n.key)}" data-d="${depth}" style="--d:${depth}"${isOpen(n, depth) ? " open" : ""}>` +
           `<summary${nid ? ` data-g="${esc(nid)}"` : ""}${nid && nid === selGroup ? ` class="sel"` : ""} title="${esc(`${n.g ? gLabel(n) : M.sectionTitle(n.sec, ref)} · ${t.tree.head}`)}">${head}${fb}${gdot(nid)}<span class="n">${num(n.n)}</span></summary>${body}</details>`;
@@ -1223,6 +1243,26 @@ window.HX_STRINGS = {
           if (!c || (ref && !s.years.includes(ref)) || top.has(`s${c.s}`)) continue;
           (moved.get(c.s) || moved.set(c.s, new Set()).get(c.s)).add(c.secAt(y));
         }
+        /* under "All items" such a section (10 in 1383, whose two items are
+           in section 13 from 1384) still lists its items, as last asked in
+           it; they appear under their later section too ("past" rows: a
+           link to the item goes to the other one) */
+        if (ref === null) {
+          for (const [sn, to] of moved) {
+            for (const s of M.SER) {
+              const y = [...s.years].reverse().find(y => s.at(y).secAt(y) === sn);
+              if (y === undefined) continue;
+              const c = s.at(y), sec0 = node(top, `s${sn}`, { sec: sn, movedTo: to, until: y });
+              if (y > sec0.until) sec0.until = y;
+              let n = sec0;
+              const trail = [n];
+              for (const gi of c.groupsAt(y)) { n = node(n.kids, `${n.key}/${gi}`, { g: M.G[gi], gi }); trail.push(n); }
+              n.items.push([s, 0, null, c, true]);
+              for (const x of trail) { x.n++; if (c.code < x.min) x.min = c.code; }
+            }
+            moved.delete(sn);
+          }
+        }
       }
       for (const kind of ["m", "y"]) {
         const nodes = [...top.values()].filter(n => secKind(n.sec) === kind).sort((a, b) => a.sec - b.sec);
@@ -1231,29 +1271,31 @@ window.HX_STRINGS = {
         const nums = nodes.map(n => n.sec);
         h += `<div class="perhead"><b>${t.period.head[kind]}</b>` +
           (nums.length ? `<span>${t.period.secs(span(nums[0], nums[nums.length - 1]))}</span>` : "") +
-          `<span class="n">${num(nodes.reduce((a, n) => a + n.n, 0))}</span></div>`;
+          // (a past section's items are counted under their later section)
+          `<span class="n">${num(nodes.reduce((a, n) => a + (n.movedTo ? 0 : n.n), 0))}</span></div>`;
         const parts = nodes.map(n => [n.sec, draw(n, 0, "")])
           .concat(gone.map(([n, to]) => [n, `<div class="secmoved">${code(n)}${fat(secTitle(n), "span", "st")}<span class="to">${t.period.moved([...to].sort((a, b) => a - b).map(yr).join(fa ? "، " : ", "))}</span></div>`]));
         h += parts.sort((a, b) => a[0] - b[0]).map(x => x[1]).join("");
       }
       elList.innerHTML = h;
-      stickTops();
+      applyTops();
     }
     /* the open headings stick below the count bar while their rows scroll,
-       each below its parents: its top is the sum of their heights */
-    let stickRaf = 0;
-    function stickTops() {
-      cancelAnimationFrame(stickRaf);
-      stickRaf = requestAnimationFrame(() => {
-        const bar = elList.querySelector(".count");
-        const walk = (d, top) => {
-          const s = d.firstElementChild;
-          s.style.top = top + "px";
-          if (d.open) for (const k of d.querySelectorAll(":scope > details")) walk(k, top + s.offsetHeight);
-        };
-        for (const d of elList.querySelectorAll(":scope > details")) walk(d, bar ? bar.offsetHeight : 0);
-      });
+       each below its parents: its top is the sum of their heights. Set at
+       once after drawing the list; after a heading opens or closes (many at
+       once for a whole branch) on a timer, once for them all; a timer, not
+       an animation frame, so it also runs in a hidden tab */
+    function applyTops() {
+      const bar = elList.querySelector(".count");
+      const walk = (d, top) => {
+        const s = d.firstElementChild;
+        s.style.top = top + "px";
+        if (d.open) for (const k of d.querySelectorAll(":scope > details")) walk(k, top + s.offsetHeight);
+      };
+      for (const d of elList.querySelectorAll(":scope > details")) walk(d, bar ? bar.offsetHeight : 0);
     }
+    let stickTimer = 0;
+    function stickTops() { clearTimeout(stickTimer); stickTimer = setTimeout(applyTops, 0); }
     new ResizeObserver(stickTops).observe(elList);
     /* the list sticks to the top of the window like the item card: while it
        is still below its sticky place, the wheel scrolls the page, so the list
@@ -1539,6 +1581,8 @@ window.HX_STRINGS = {
 
     /* the page's state lives in the URL hash (item, year, search, filters),
        so a link, a reload or the language menu opens the same view */
+    // an item's row in the list: under where it is compared, not a past section's copy
+    const rowOf = id => root.querySelector(`.row[data-id="${CSS.escape(id)}"]:not(.past)`) || root.querySelector(`.row[data-id="${CSS.escape(id)}"]`);
     function hashFor(id) {
       const p = [];
       if (id) p.push("item=" + encodeURIComponent(id));
@@ -1570,7 +1614,7 @@ window.HX_STRINGS = {
     function locate(only = false) {
       if (!selected && !selGroup) return;
       const years = selGroup ? M.NODES.get(selGroup).years : M.serOf.get(selected).years;
-      const find = () => selGroup ? elList.querySelector(`summary[data-g="${CSS.escape(selGroup)}"]`) : elList.querySelector(`.row[data-id="${CSS.escape(selected)}"]`);
+      const find = () => selGroup ? elList.querySelector(`summary[data-g="${CSS.escape(selGroup)}"]`) : rowOf(selected);
       if (!find()) {
         elQ.value = ""; elSec.value = ""; elLinked.checked = false;
         if (ref && !years.includes(ref)) { ref = null; elRef.value = "all"; renderSel(); }
@@ -1597,7 +1641,7 @@ window.HX_STRINGS = {
     function select(sid, focusId = null, push = true) {
       selected = sid; focus = focusId; selGroup = null;
       root.querySelectorAll(".row.sel, summary.sel").forEach(e => e.classList.remove("sel"));
-      const row = root.querySelector(`.row[data-id="${CSS.escape(sid)}"]`);
+      const row = rowOf(sid);
       if (row) { row.classList.add("sel"); reveal(row, false); }
       renderDetail(sid);
       if (push) setHash(hashFor(focus || sid));
@@ -1782,7 +1826,7 @@ window.HX_STRINGS = {
       if (s) {
         if (selected !== s.id || focus !== (id === s.id ? null : id)) {
           // an item outside the list is searched for, unless the hash sets the filters
-          if (!q && !sec && !chg && !root.querySelector(`.row[data-id="${CSS.escape(s.id)}"]`)) { elQ.value = s.at(refOf(s)).code; renderList(); }
+          if (!q && !sec && !chg && !rowOf(s.id)) { elQ.value = s.at(refOf(s)).code; renderList(); }
           select(s.id, id === s.id ? null : id, false);
         }
       } else if (gn) {
@@ -1808,7 +1852,7 @@ window.HX_STRINGS = {
       if (!s || !s.years.includes(y) || ref === y) return;
       ref = y; elRef.value = String(y);
       renderList(); renderSel();
-      root.querySelector(`.row[data-id="${CSS.escape(selected)}"]`)?.classList.add("sel");
+      rowOf(selected)?.classList.add("sel");
       setHash(hashFor(current()));
     }
     root.addEventListener("click", e => {

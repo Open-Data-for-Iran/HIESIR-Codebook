@@ -94,7 +94,7 @@
 .hx .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
 .hx-list { position: sticky; top: var(--sticky-top); max-height: calc(100vh - var(--sticky-top) - 16px); min-height: 320px; overflow: auto; }
 .hx-list .count {
-  padding: 8px 14px; color: var(--muted); font-size: .93em; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--panel); z-index: 2;
+  padding: 8px 14px; color: var(--muted); font-size: .93em; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--panel); z-index: 20;
   display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: space-between;
 }
 /* how deep the tree is open: one segmented control */
@@ -107,9 +107,10 @@
 .hx-list .levels button.on { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
 /* the fold button of a heading: everything under it, shown on hover */
 .hx-list summary .fold {
-  color: var(--muted); font-weight: 400; font-size: 1.05em; line-height: 1; padding: 0 3px; border-radius: 4px;
+  flex: none; width: 1.3em; text-align: center; color: var(--muted); font-weight: 400; font-size: 1.05em; line-height: 1; border-radius: 4px;
   opacity: 0; transition: opacity .12s;
 }
+.hx-list summary .fold.none { visibility: hidden; }
 .hx-list summary .fold::after { content: "⊟"; }
 .hx-list details:not([open]) > summary .fold::after,
 .hx-list details:has(details:not([open])) > summary .fold::after { content: "⊞"; }
@@ -120,10 +121,12 @@
    The titles are Persian: in both languages the tree reads right to left,
    arrow and number on the right, the number of items on the left. Open
    headings stick while their rows scroll (the script sets each one's top,
-   below the count bar and its parents), so they need an opaque background. */
+   below the count bar and its parents), so they need an opaque background,
+   and a shallower heading is drawn over a deeper one scrolling up under it
+   (the count bar, z-index 20, over them all). */
 .hx-list details { margin: 0; border: 0; box-shadow: none; border-radius: 0; background: none; padding: 0; font-size: 1em; }
 .hx .hx-list details > summary {
-  direction: rtl; position: sticky; z-index: 1; list-style: none; cursor: pointer; margin: 0; min-height: 0;
+  direction: rtl; position: sticky; z-index: calc(10 - var(--d, 0)); list-style: none; cursor: pointer; margin: 0; min-height: 0;
   display: flex; gap: 8px; align-items: baseline; border-bottom: 1px solid var(--line); background: var(--panel);
 }
 .hx-list details > summary::-webkit-details-marker { display: none; }
@@ -132,7 +135,15 @@
   content: "◂"; color: var(--muted); position: static; background: none; mask: none; -webkit-mask: none; width: auto; height: auto; transform: none;
 }
 .hx-list details[open] > summary::before { content: "▾"; }
-.hx-list details > summary .n { color: var(--muted); font-weight: 400; font-size: .86em; }
+/* the number of items: one width for all, so the dots beside it line up */
+.hx-list details > summary .n { flex: none; min-width: 26px; text-align: left; color: var(--muted); font-weight: 400; font-size: .86em; font-variant-numeric: tabular-nums; }
+/* in the right-to-left headings, codes ("01131, 01132") and years read in
+   their own order: codes left to right, years as the page reads them */
+.hx-list details > summary .code { unicode-bidi: isolate; direction: ltr; }
+.hx-list details > summary .yrs { unicode-bidi: isolate; }
+.hx[dir="ltr"] .hx-list details > summary .yrs { direction: ltr; }
+/* a group's years in print, after its label (only when not every year) */
+.hx-list details.grp > summary .yrs { flex: none; color: var(--muted); font-size: .82em; white-space: nowrap; font-variant-numeric: tabular-nums; }
 /* a section: bold, on a tint (--bg is translucent: over the panel) */
 .hx .hx-list details.sec > summary { padding: 9px 14px; font-weight: 600; background: linear-gradient(var(--bg), var(--bg)), var(--panel); }
 .hx-list details.sec > summary .st { flex: 1; min-width: 0; text-align: right; }
@@ -156,6 +167,8 @@
   direction: rtl; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; padding: 8px 14px;
   padding-inline-start: 30px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: .93em;
 }
+/* a section whose items moved on (10, in 1383 only), under "All items" */
+.hx-list .secnote { direction: rtl; padding: 6px 14px; color: var(--muted); font-size: .86em; text-align: center; border-bottom: 1px solid var(--line); }
 .hx .secmoved .to { font-size: .9em; width: 100%; text-align: center; }
 .hx .per { font-weight: 400; font-size: .78em; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 7px; white-space: nowrap; align-self: center; }
 .hx-list details .row { padding-left: 14px; padding-right: calc(14px + (var(--d) + 1) * 12px); }
