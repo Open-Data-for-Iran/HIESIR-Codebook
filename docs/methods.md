@@ -15,12 +15,24 @@ one row per fix, each with its evidence:
 | `value` | the corrected code or text (for `add_section`: the source year, with the section number in `description`) |
 | `reason` | evidence: neighbouring years, the raw data |
 
-The first corrections fix the 1386 code typos (the imputed-rent items printed
-under 0412 instead of 0421/0422, 0144 for 0411, 0341 for 0431, 0736 for 0735),
-1384's 102216 for 103116, two 1386 descriptions copied from the wrong row, a
-cell label read into a 1387 description, and section 2 (tobacco), whose page
-is blank in the 1383 PDF (copied from 1384 without 023111, which no
-household reports in 1383).
+The 39 corrections, all in 1383–1390, are of a few kinds:
+
+- **Code typos:** the 1386 imputed-rent items printed under 0412 instead of
+  0421/0422, and 0144 for 0411, 0341 for 0431, 0736 for 0735 that year;
+  102216 for 103116 in 1384.
+- **Labels in the wrong row:** two 1386 descriptions copied from the row
+  above, and labels whose end was printed in the next row (093124/093125 in
+  1386–1389, 123215/123216 in 1386).
+- **Table labels read into a description:** a column or cell label such as
+  `مبلغ رهن (ریال)` (042212, 1383–1385), and two more in 1386 and 1387.
+- **Cut-off endings:** three section 14 labels (34170, 34250, 34261) in
+  1383–1384.
+- **A missing section:** section 2 (tobacco), whose page is blank in the
+  1383 PDF, is copied from 1384 without 023111, which no household reports
+  in 1383.
+- **Group headers:** `062 M` printed for `0562 M` (1386), the dental header
+  0622 printed with the label of 0621 (1386), and `124 M` printed as
+  `1241 M` (1388–1390).
 
 After the listed fixes every description is brought to one punctuation
 style (`utils.tidy_punctuation`), about 2,500 rows in all:
@@ -256,8 +268,8 @@ another item does not distort it.
 What the verification found:
 
 - **Wrong direction.** Dropping a qualifier broadens an item, adding one
-  narrows it, and compare reads both the other way round (77 changes, see
-  above).
+  narrows it, and compare reads both the other way round (22 of the 60
+  changed links, see above).
 - **"Outside the home" items (1386).** 062315, 062321, 062323, 062328 and
   062331 ended when their "at home" twins dropped `در منزل`. These are
   merges, not broadenings: vaccination at home (233 households) plus

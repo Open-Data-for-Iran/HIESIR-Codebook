@@ -8,6 +8,8 @@ hide:
 # Explorer
 
 Search a code or Persian text to see the years an item was asked, how its code
-and label changed, and whether it is comparable across years.
+and label changed, and whether it is comparable across years. Open a section
+or group to see its items, or *Changes by year* for what each questionnaire
+changed.
 
 <span id="year=1386"></span>

@@ -4,10 +4,16 @@ Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 
 ## The pipeline
 
-```
-data/pdf ──extract──▶ 1_extracted ──correct──▶ 2_corrected ──match──▶ 3_items ──▶ explorer
-                      as printed       ▲        as intended            chains, relations
-                                   curated/
+```mermaid
+flowchart LR
+  pdf["data/pdf/"] -->|extract| ext["1_extracted/<br>as printed"]
+  ext -->|correct| cor["2_corrected/<br>as intended"]
+  cor -->|match| items["3_items/<br>chains, links, relations"]
+  items -->|group| groups["4_groups/<br>groups, members, links"]
+  groups --> exp["explorer/"]
+  c2["curated/2_corrected/"] -.-> cor
+  c3["curated/3_items/"] -.-> items
+  c4["curated/4_groups/"] -.-> groups
 ```
 
 `output/1_extracted/` reproduces each PDF exactly, typos included, so it
@@ -65,8 +71,8 @@ uv run ruff check . && uv run ruff format --check .
 The regression tests re-extract every year and compare byte-for-byte with
 `output/1_extracted/`. When an extractor change is intended, regenerate with
 `uv run hiesir-codebook all` and review the CSV diff before committing.
-Fast tests also check that `output/2_corrected/`, `output/3_items/` and
-`output/explorer/` are up to date; after changing `curated/` or the code, run
+Fast tests also check that `output/2_corrected/`, `output/3_items/`,
+`output/4_groups/` and `output/explorer/` are up to date; after changing `curated/` or the code, run
 `uv run hiesir-codebook build --no-extract` and review the diff. Tests that
 need `data/` (not in git) are skipped when it is missing, as on GitHub.
 
@@ -76,12 +82,17 @@ This site is built with [Material for MkDocs](https://squidfunk.github.io/mkdocs
 from `docs/` and `mkdocs.yml`. The explorer and the CSVs are copied in from
 `output/` at build time (`scripts/mkdocs_hooks.py`), so they are never duplicated in git.
 
-The explorer is one component, `src/hiesir_codebook/data/explorer/explorer.js`
-and `explorer.css`, with its English and Farsi strings in the JS. The docs page
-`docs/explorer.md` (and `explorer.fa.md`) draws it inside the site through
-`overrides/explorer.html`, taking the site's colours, fonts and dark mode; the
-offline file `output/explorer/index.html` inlines the same two files
-(`standalone.html`). Change the component once and both follow.
+The explorer is one component in `src/hiesir_codebook/data/explorer/`:
+`explorer.js`, `explorer.css`, and `strings.js` with its English and Farsi
+strings. The docs page `docs/explorer.md` (and `explorer.fa.md`) draws it
+inside the site through `overrides/explorer.html`, taking the site's colours,
+fonts and dark mode; the offline file `output/explorer/index.html` inlines the
+same three files (`standalone.html`). Change the component once and both
+follow.
+
+Diagrams are written in [Mermaid](https://mermaid.js.org/) as a ` ```mermaid `
+code block, so they stay text and take the site's light or dark theme. In the
+Farsi page, use `flowchart RL` so that the flow reads right to left.
 
 Every page has two versions: `page.md` (English) and `page.fa.md` (Farsi, served
 under `/fa/`, right to left). A page without a Farsi version falls back to the

@@ -13,7 +13,7 @@ uv run hiesir-codebook build --no-extract   # keep 1_extracted/, rebuild the res
 | `2_corrected/` | `python -m hiesir_codebook.correct`; `spelling_suggestions.csv` by `python -m hiesir_codebook.spelling` (needs hazm) | `1_extracted/` + `curated/2_corrected/` |
 | `3_items/` | `python -m hiesir_codebook.chains` (chains.csv), `relations` (links.csv, relations.csv) | `2_corrected/` + `curated/3_items/` |
 | `4_groups/` | `python -m hiesir_codebook.groups` (groups.csv, members.csv, links.csv) | `2_corrected/`, `3_items/` + `curated/4_groups/` |
-| `explorer/` | `python -m hiesir_codebook.explorer` | `2_corrected/`, `3_items/`, `curated/2_corrected/corrections.csv`: one searchable HTML page |
+| `explorer/` | `python -m hiesir_codebook.explorer` | `2_corrected/`, `3_items/`, `4_groups/`, `curated/2_corrected/corrections.csv`: one searchable HTML page |
 
 To change a result, edit `curated/` (or the code) and rebuild. The files are
 tracked so that every change to the extractor, a correction or the matcher

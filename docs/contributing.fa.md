@@ -4,10 +4,16 @@
 
 ## مراحل کار {#the-pipeline}
 
-```
-data/pdf ──extract──▶ 1_extracted ──correct──▶ 2_corrected ──match──▶ 3_items ──▶ explorer
-                      as printed       ▲        as intended            chains, relations
-                                   curated/
+```mermaid
+flowchart RL
+  pdf["data/pdf/"] -->|استخراج| ext["1_extracted/<br>متن چاپی"]
+  ext -->|اصلاح| cor["2_corrected/<br>متن درست"]
+  cor -->|پیوند| items["3_items/<br>زنجیره‌ها، پیوندها، روابط"]
+  items -->|گروه‌بندی| groups["4_groups/<br>گروه‌ها، عضویت‌ها، پیوندها"]
+  groups --> exp["explorer/"]
+  c2["curated/2_corrected/"] -.-> cor
+  c3["curated/3_items/"] -.-> items
+  c4["curated/4_groups/"] -.-> groups
 ```
 
 `output/1_extracted/` هر PDF را دقیقاً، حتی با غلط‌های تایپی‌اش، بازتولید می‌کند
@@ -67,7 +73,7 @@ uv run ruff check . && uv run ruff format --check .
 `output/1_extracted/` مقایسه می‌کنند. وقتی تغییری در استخراج‌گر عمدی است، با
 `uv run hiesir-codebook all` دوباره بسازید و پیش از commit تفاوت‌های CSV را
 بازبینی کنید. آزمون‌های سریع هم بررسی می‌کنند که `output/2_corrected/`،
-`output/3_items/` و `output/explorer/` به‌روز باشند؛ پس از تغییر `curated/` یا
+`output/3_items/`، `output/4_groups/` و `output/explorer/` به‌روز باشند؛ پس از تغییر `curated/` یا
 کد، `uv run hiesir-codebook build --no-extract` را اجرا و تفاوت‌ها را بازبینی
 کنید. آزمون‌هایی که به `data/` (خارج از git) نیاز دارند، وقتی این پوشه نباشد، مانند
 GitHub، رد می‌شوند.
@@ -79,12 +85,16 @@ GitHub، رد می‌شوند.
 `output/` افزوده می‌شوند (`scripts/mkdocs_hooks.py`)، پس هرگز در git تکرار
 نمی‌شوند.
 
-جست‌وجوی اقلام یک جزء واحد است: `src/hiesir_codebook/data/explorer/explorer.js`
-و `explorer.css`، با متن‌های انگلیسی و فارسی درون فایل JS. صفحه
+جست‌وجوی اقلام یک جزء واحد در `src/hiesir_codebook/data/explorer/` است:
+`explorer.js`، `explorer.css` و `strings.js` با متن‌های انگلیسی و فارسی. صفحه
 `docs/explorer.md` (و `explorer.fa.md`) آن را از طریق `overrides/explorer.html`
 درون سایت نشان می‌دهد و رنگ، قلم و حالت تیره سایت را می‌گیرد؛ فایل آفلاین
-`output/explorer/index.html` همین دو فایل را درون خود دارد (`standalone.html`).
+`output/explorer/index.html` همین سه فایل را درون خود دارد (`standalone.html`).
 جزء را یک بار تغییر دهید تا هر دو به‌روز شوند.
+
+نمودارها با [Mermaid](https://mermaid.js.org/) در یک بلوک کد ` ```mermaid `
+نوشته می‌شوند تا متنی بمانند و حالت روشن یا تیره سایت را بگیرند. در صفحه فارسی
+از `flowchart RL` استفاده کنید تا جریان از راست به چپ خوانده شود.
 
 هر صفحه دو نسخه دارد: `page.md` (انگلیسی) و `page.fa.md` (فارسی، در نشانی
 `/fa/`). اگر نسخه فارسی صفحه‌ای نباشد، نسخه انگلیسی نشان داده می‌شود. وقتی یک

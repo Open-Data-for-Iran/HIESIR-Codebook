@@ -18,7 +18,7 @@ wording change.
 
     Search a code (`011114`, or the raw data's `11114`) or Persian text and see
     the years it was asked, its code and label changes, and whether it is
-    comparable across years.
+    comparable across years. Or browse a section or group and its items.
 
     [Explorer](explorer.md)
 
@@ -58,16 +58,23 @@ wording change.
 | Questionnaires | 21 years: 1382–1400, 1402, 1403 (1401's PDF is a data dictionary; 1363–1381 are scans) |
 | Items | about 1,900 chains: one code with one label, followed while both stay the same |
 | Links between them | 415 links that continue an item (reworded or recoded) and 142 merges, splits and regroupings; every one verified |
-| Corrections | 35 fixes to the printed questionnaires, plus spelling and punctuation across all years |
+| Corrections | 39 fixes to the printed questionnaires, plus spelling and punctuation across all years |
 
 ## How it is made
 
-```
-PDFs ─extract─▶ as printed ─correct─▶ as intended ─match─▶ chains, links, relations ─group─▶ groups, members, links ─▶ explorer
-                                ▲                     ▲                                 ▲
-                      curated/2_corrected/    curated/3_items/                  curated/4_groups/
+```mermaid
+flowchart LR
+  pdf[Questionnaire PDFs] -->|extract| ext[As printed]
+  ext -->|correct| cor[As intended]
+  cor -->|match| items[Chains, links,<br>relations]
+  items -->|group| groups[Groups, members,<br>group links]
+  groups --> exp[Explorer]
+  c2["curated/2_corrected/"] -.-> cor
+  c3["curated/3_items/"] -.-> items
+  c4["curated/4_groups/"] -.-> groups
 ```
 
 Every deviation from the print, and every matching decision a person made, is
-one row in `curated/` with its reason; everything else is generated. See
-[Contributing](contributing.md) to rebuild it or propose a fix.
+one row in `curated/` with its reason (the dashed inputs above); everything
+else is generated. See [Contributing](contributing.md) to rebuild it or
+propose a fix.
