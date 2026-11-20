@@ -8,7 +8,7 @@ ToUnicode map.  We therefore work at the glyph level:
 2. decode glyphs PyMuPDF cannot map to Unicode via their glyph names,
 3. group glyphs into visual lines by vertical position,
 4. sort each line right-to-left, insert spaces at horizontal gaps and ZWNJs
-   where a joining letter is drawn in its final form with no gap,
+   where a joining letter is drawn in its final or isolated form with no gap,
 5. NFKC-normalise (presentation forms -> base letters), unify Arabic/Persian
    letters, and restore numbers, Latin runs and mirrored brackets
    (see :func:`utils.normalize_visual`).
@@ -227,11 +227,33 @@ def _broken_fonts(pdf_path: str, threshold: float = 0.005) -> frozenset[int]:
     return frozenset(x for x, n in total.items() if n >= 20 and 1 - agree.get(x, 0) / n > threshold)
 
 
+def _is_presentation_form(code: int) -> bool:
+    return 0xFB50 <= code <= 0xFDFF or 0xFE70 <= code <= 0xFEFF
+
+
+@lru_cache(maxsize=8)
+def _shaped_fonts(pdf_path: str, min_forms: int = 20) -> frozenset[str]:
+    """Fonts whose ToUnicode map gives each letter form its own code (ﻏ ﻐ ...).
+
+    Such a font maps its isolated glyphs to the plain letter (غ), so there a
+    plain letter is an isolated one.  In fonts that map every form to the plain
+    letter (1395, 1402) a plain letter says nothing about its form.
+    """
+    forms: dict[str, int] = {}
+    for page in _open(pdf_path):
+        for span in page.get_texttrace():
+            n = sum(_is_presentation_form(code) for code, *_ in span["chars"])
+            if n:
+                forms[span["font"]] = forms.get(span["font"], 0) + n
+    return frozenset(f for f, n in forms.items() if n >= min_forms)
+
+
 def page_glyphs(pdf_path: str, page_no: int) -> list[Glyph]:
     page = _open(pdf_path)[page_no]
     undecoded = _undecoded_fonts(pdf_path, page)
     fonts = _page_fonts(page)
     broken = _broken_fonts(pdf_path)
+    shaped = _shaped_fonts(pdf_path)
     db = glyph_db.load()
     glyphs: list[Glyph] = []
     seen: set[tuple[str, int, int]] = set()
@@ -255,6 +277,8 @@ def page_glyphs(pdf_path: str, page_no: int) -> list[Glyph]:
                 t = chr(code)
                 uname = unicodedata.name(t, "")
                 ends = "FINAL FORM" in uname or "ISOLATED FORM" in uname
+                if span["font"] in shaped and uname.startswith("ARABIC LETTER") and "FORM" not in uname:
+                    ends = True  # an isolated glyph, mapped to the plain letter
             if not t.strip():
                 continue
             x0, y0, x1, y1 = bbox
@@ -268,8 +292,8 @@ def page_glyphs(pdf_path: str, page_no: int) -> list[Glyph]:
 
 
 def _needs_zwnj(prev: Glyph, cur: Glyph) -> bool:
-    """A joining letter drawn in its final form, touching the next letter,
-    means the source text had a ZWNJ there (هزینه‌ها)."""
+    """A joining letter drawn in its final or isolated form, touching the next
+    letter, means the source text had a ZWNJ there (هزینه‌ها, چراغ‌خوراک‌پزی)."""
     if not prev.ends_word:
         return False
     a, b = canonical(prev.text), canonical(cur.text)

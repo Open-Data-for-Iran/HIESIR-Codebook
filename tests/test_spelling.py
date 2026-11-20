@@ -94,6 +94,17 @@ def test_stray_zwnj_before_a_suffix_stays():
     assert got[f"هزینه{ZWNJ}هایتعمیر"].replace == f"هزینه{ZWNJ}های تعمیر"
 
 
+def test_zwnj_joined_phrase_is_split_per_zwnj():
+    # a phrase joined with ZWNJs repeats every year; only the ZWNJ between two
+    # pieces the questionnaires write as a token of their own stays (house style)
+    labels = [f"هزینه{ZWNJ}تعمیر{ZWNJ}پنجره"] * 5 + [f"پودر{ZWNJ}پیاز"] * 5
+    got = _find(labels)
+    assert got[f"هزینه{ZWNJ}تعمیر{ZWNJ}پنجره"].replace == "هزینه تعمیر پنجره"
+    assert f"پودر{ZWNJ}پیاز" not in got
+    got = _find([*labels, f"تعمیر{ZWNJ}پنجره"] + [f"تعمیر{ZWNJ}پنجره"] * 4)
+    assert got[f"هزینه{ZWNJ}تعمیر{ZWNJ}پنجره"].replace == f"هزینه تعمیر{ZWNJ}پنجره"
+
+
 def test_typo_is_only_suggested():
     s = _find(["رایو"])["رایو"]
     assert (s.replace, s.kind, s.apply) == ("رادیو", "typo", False)

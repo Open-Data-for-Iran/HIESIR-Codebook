@@ -64,16 +64,14 @@
 لوازمکوچک‌برقی‌نظیرانواعلامپ‌برق,لوازم کوچک برقی نظیر انواع لامپ برق,word,,spaces lost (glued words)
 هزینه‌خدماتدربیمارستانهایعمومی,هزینه خدمات در بیمارستان‌های عمومی,word,,spaces lost (glued words)
 هزینه‌خدماتدربیمارستانهایتخصصی,هزینه خدمات در بیمارستان‌های تخصصی,word,,spaces lost (glued words)
-هزینه‌خدمات‌دربیمارستانهایعمومی,هزینه خدمات در بیمارستان‌های عمومی,word,,spaces lost (glued words)
-هزینه‌خدمات‌دربیمارستانهایتخصصی,هزینه خدمات در بیمارستان‌های تخصصی,word,,spaces lost (glued words)
 شامل‌خدماتاداری,شامل خدمات اداری,word,,spaces lost (glued words)
-شامل‌خدمات‌اداری,شامل خدمات اداری,word,,spaces lost (glued words)
 اور ژانس‌و,اورژانس و,word,,"spaces lost (glued words), split word"
 اورژانس‌و,اورژانس و,word,,spaces lost (glued words)
 صندلی‌چرخداربچه,صندلی چرخدار بچه,word,,spaces lost (glued words)
 تخت‌قابل‌حمل‌بچه,تخت قابل حمل بچه,word,,spaces lost (glued words)
 صندلی‌بچه‌دراتومبیل,صندلی بچه در اتومبیل,word,,spaces lost (glued words)
 کمربندایمنی‌کودکو,کمربند ایمنی کودک و,word,,spaces lost (glued words)
+کمربندایمنی‌کودک,کمربند ایمنی کودک,word,,spaces lost (glued words)
 خانوارمستقیما,خانوار مستقیماً,word,,spaces lost (glued words)
 اعضاخانوارکسرشده,اعضای خانوار کسر شده,word,,spaces lost (glued words)
 چراغخوراکپزینفتی,چراغ خوراک‌پزی نفتی,word,,spaces lost (glued words)
@@ -238,6 +236,7 @@
 بهرهدهی,بهره‌دهی,word,,glued words (reviewed)
 مرغوخروس,مرغ و خروس,word,,glued words (reviewed)
 برگمو,برگ مو,word,,glued words (questionnaires write them apart)
+برگگل,برگ گل,word,,glued words (questionnaires write them apart)
 آبنبات,آب‌نبات,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 آبغوره,آب‌غوره,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 آبنارنج,آب نارنج,word,,glued words (questionnaires write them apart)
@@ -314,7 +313,6 @@
 وستادهای,و ستادهای,word,,glued و
 ودیه,و دیه,word,,glued و
 وگل‌ها,و گل‌ها,word,,glued و
-وماشین‌های,و ماشین‌های,word,,glued و
 وبهای,و بهای,word,,glued و
 ودیسکت‌ها,و دیسکت‌ها,word,,glued و
 زیر پیراهن,زیرپیراهن,word,,one spelling: زیرپیراهن
@@ -345,7 +343,6 @@
 اعضاءخانوار,اعضای خانوار,word,,glued words (found through relations)
 تانکرآب,تانکر آب,word,,glued words (found through relations)
 کولرآبی,کولر آبی,word,,glued words (found through relations)
-ودیسکتها,و دیسکت‌ها,word,,glued words (found through relations)
 گرددندان,گرد دندان,word,,glued words (found through relations)
 واشرسرسیلندر,واشر سرسیلندر,word,,glued words (found through relations)
 دایرهالمعارف,دایره‌المعارف,word,,missing ZWNJ
@@ -358,11 +355,9 @@
 وفرزندخواندگی,و فرزندخواندگی,word,,glued و
 نبا تی,نباتی,word,,word broken by a space (نباتی)
 سر گرمی,سرگرمی,word,,word broken by a space (سرگرمی)
-چربیها ی,چربیهای,word,,word broken by a space (چربیهای)
-چربی‌ها ی,چربی‌های,word,,word broken by a space (چربی‌های)
+چربیها ی,چربی‌های,word,,word broken by a space (چربی‌های)
 اردوگاه هاو,اردوگاه‌ها و,word,,spaces lost (glued words)
 دوساله,دو ساله,word,,spaces lost (glued words)
-وگلها,و گلها,word,,spaces lost (glued words)
 نظایرآن,نظایر آن,word,,spaces lost (glued words)
 درجای,در جای,word,,spaces lost (glued words)
 مسافرهای دستجمعی,مسافرتهای دستجمعی,word,,typo (مسافرتهای); other years have the right spelling

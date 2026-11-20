@@ -35,7 +35,7 @@ file order:
 
 ========== ===================================================================
 find       the wrong form (may be several words), as it reads after the
-           punctuation clean-up
+           punctuation clean-up; ZWNJs are ignored (شدهباشد finds شده‌باشد)
 replace    the right form
 match      ``word``: only as whole words (not inside a longer word);
            ``text``: anywhere in the label
@@ -122,7 +122,10 @@ class LabelFix:
 
     @cached_property
     def pattern(self) -> re.Pattern:
-        p = re.escape(self.find)
+        # blind to ZWNJs: a fix for شدهباشد also finds شده‌باشد, since where the
+        # PDF shows a ZWNJ the extractor keeps it and a curated decision should
+        # still apply
+        p = f"{ZWNJ}?".join(re.escape(ch) for ch in self.find.replace(ZWNJ, ""))
         if self.match == "word":
             edge = _WORD_CHAR  # letters and digits, not "،" or "؛"
             p = f"(?<!{edge}){p}(?!{edge})"
@@ -158,13 +161,15 @@ def load_label_fixes(path: Path = LABELS) -> list[LabelFix]:
 
 def fix_label(text: str, year: int, fixes: list[LabelFix], hits: dict[str, int] | None = None) -> str:
     """Apply the label fixes for ``year`` to one description, in order."""
+    bare = text.replace(ZWNJ, "")
     for fx in fixes:
-        if fx.find not in text or (fx.years is not None and year not in fx.years):
+        if fx.find.replace(ZWNJ, "") not in bare or (fx.years is not None and year not in fx.years):
             continue  # the substring test is a cheap filter before the regex
         new, n = fx.pattern.subn(fx.replace, text)
         if n and hits is not None:
             hits[fx.find] = hits.get(fx.find, 0) + 1
-        text = new
+        if new != text:
+            text, bare = new, new.replace(ZWNJ, "")
     return text
 
 

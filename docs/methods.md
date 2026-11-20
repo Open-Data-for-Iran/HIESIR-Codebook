@@ -1,6 +1,21 @@
 # Methods
 
 How the questionnaires are corrected, how items are matched across years, and what the verification found.
+The stages run in the order shown on the [home page](index.md#how-it-is-made).
+
+## Terms
+
+| Term | Meaning |
+|---|---|
+| **item** | one printed row of one questionnaire: an expenditure code and its description, e.g. `011241` همبرگر آماده برای طبخ in 1383 |
+| **section** | a numbered part of the questionnaire, e.g. section 1, food bought in the past month; section 13, purchases in the past 12 months |
+| **group** | a header printed above items (levels 2–4), followed across years; its id is its code and first year, e.g. `01124-1383` |
+| **chain** | one code with one label, followed while both stay the same; its id is its code and first year, e.g. `011241-1384` |
+| **link** | joins two chains that are the same item (`same`: reworded; `recoded`: new code); always one chain to one |
+| **series** | chains joined by links: one item followed for as long as it can be compared on its own |
+| **relation** | a merge, split or regrouping: ends a set of series and starts another |
+| **group link** | how two groups relate, read from where their items went (`continued`, `split`, `merged`, …) |
+| **decision** | who settled a link, relation or group link (`decided_by`): the code, a row in `curated/`, or nobody yet (`open`) |
 
 ## Corrections
 
@@ -57,7 +72,7 @@ years, applied to every description in file order:
 
 | Column | Meaning |
 |---|---|
-| `find` | the wrong form (may be several words), as it reads after the punctuation rules |
+| `find` | the wrong form (may be several words), as it reads after the punctuation rules; ZWNJs are ignored, so `شدهباشد` also finds `شده‌باشد` |
 | `replace` | the right form |
 | `match` | `word`: whole words only (`بجز` does not touch `بجزروانی`); `text`: anywhere in the label |
 | `years` | empty for all years, or years and ranges: `1386`, `1383-1385 1390` |
@@ -173,6 +188,34 @@ chains to a *set* of later chains; the shape gives the kind:
 | `split` | 1 → n | خدمات آمبولانس → G / NG (1395) |
 | `regrouped` | n → m | added by hand, e.g. the 1395 dental items |
 
+One example of each shape (codes and labels as printed):
+
+```mermaid
+flowchart TB
+  subgraph rec["recoded: 1 → 1 (1386)"]
+    direction LR
+    r1["011837<br>انواع شیرینی خشک"] --> r2["011174<br>انواع شیرینی خشک"]
+  end
+  subgraph mer["merged: n → 1 (1390)"]
+    direction LR
+    m1["022111<br>انواع سیگار ایرانی به جز بهمن"] --> m3["022111<br>انواع سیگار ایرانی"]
+    m2["022112<br>سیگار بهمن"] --> m3
+  end
+  subgraph spl["split: 1 → n (1385)"]
+    direction LR
+    p1["073216<br>کرایه تاکسی و سواری داخل شهری"] --> p2["073216<br>کرایه تاکسی داخل شهری"]
+    p1 --> p3["073224<br>کرایه سواری داخل شهری (مسافرکش شخصی)"]
+  end
+  subgraph reg["regrouped: n → m (1395)"]
+    direction LR
+    g1["062313<br>رادیولوژی، سونوگرافی ... (outpatient)"] --> g3["062334<br>خدمات رادیولوژی ... G"]
+    g1 --> g4["062335<br>خدمات رادیولوژی ... NG"]
+    g2["063313<br>رادیولوژی، سونوگرافی ... (hospital)"] --> g3
+    g2 --> g4
+  end
+  rec ~~~ mer ~~~ spl ~~~ reg
+```
+
 The two families do different jobs, so they are kept in separate files:
 
 - **Links** (`same`, `recoded`; always 1 → 1) *continue* an item. The
@@ -188,6 +231,29 @@ The two families do different jobs, so they are kept in separate files:
   `from_chains` / `to_chains` (chain ids separated by spaces). A chain that
   goes on with its label unchanged can appear on both sides of a merge or
   split.
+
+The ready-to-cook hamburger shows both at work. Its first label is printed
+only in 1383; in 1384 it adds کباب لقمه, a link (`same`, broadened) that
+keeps one series. In 1389 the cutlet and steak items stop and the hamburger
+label takes them in: a merge (`R0003`) ends three series and starts one.
+From 1389 the hamburger alone has no match in 1388; the sum of the three
+does.
+
+```mermaid
+flowchart LR
+  subgraph series["one series"]
+    direction LR
+    a["011241-1383<br>همبرگر آماده برای طبخ<br>1383"] -->|"link: same, broadened<br>1384"| b["011241-1384<br>همبرگر و کباب لقمه آماده برای طبخ<br>1384–1388"]
+  end
+  c["011242-1383<br>کتلت آماده برای طبخ<br>1383–1388"]
+  d["011243-1383<br>استیک آماده برای طبخ<br>1383–1388"]
+  r(("merged<br>1389"))
+  m["011241-1389<br>همبرگر، کباب لقمه، کتلت و استیک آماده برای طبخ<br>1389–1403"]
+  b --> r
+  c --> r
+  d --> r
+  r --> m
+```
 
 Both are found in one pass, because a merge is found by extending a link.
 They must agree: a chain has at most one link onward and one link into it,
@@ -357,6 +423,20 @@ pair is a split (e.g. خدمات آمبولانس in 1395).
 
 ## Groups across years
 
+The questionnaire prints up to three levels of headers between a section and
+its items. In 1403, the hamburger item sits under its section and three headers:
+
+```mermaid
+flowchart LR
+  s["section 1<br>هزینه‌های خوراکی خانوار در ماه گذشته"] --> l2["level 2 · 011<br>مواد خوراکی"]
+  l2 --> l3["level 3 · 0112, 0113<br>گوشت"]
+  l3 --> l4a["level 4 · 01121, 01122<br>گوشت دام"]
+  l3 --> l4b["level 4 · 01123<br>گوشت پرندگان"]
+  l3 --> l4c["level 4 · 01124<br>گوشت‌های آماده برای طبخ"]
+  l3 --> l4d["level 4 · 01131, 01132<br>ماهی و میگو و فراورده‌های آن"]
+  l4c --> i["item · 011241<br>همبرگر، کباب لقمه، کتلت و استیک آماده برای طبخ"]
+```
+
 `groups.py` follows the group headers (levels 2–4, above the items) the
 way the chains follow items:
 
@@ -375,11 +455,21 @@ way the chains follow items:
 
 | Relation | Meaning |
 |---|---|
-| `continued` | the old group ends, the new one starts and takes its items: the same group under another code (`0313` → `0313 M`, `01192, 01193` → `01192, 01193, 01194`) |
+| `continued` | the old group ends, the new one starts and takes its items: the same group under another code (`112` → `112 M` in 1397, `01192, 01193` → `01192, 01193, 01194`) |
 | `split` | the old group ends and its items go to several new ones (`0314` → `0314 M` and `0314 A` in 1389) |
 | `merged` | several old groups end in one new group (`05111`, `05112`, `05113` → `05117` in 1386) |
 | `regrouped` | both at once |
 | `moved` | items moved between groups printed before and after: a reorganisation, or a wrong item link |
+
+For example, in 1389 the semi-durable clothing group `0313` is printed in two
+parts, and the items say which went where (see the `M` and `A` suffixes below):
+
+```mermaid
+flowchart LR
+  o["0313-1383 · section 3<br>سایر انواع پوشاک و لوازم پوشاکی (کم‌دوام)<br>1383–1388, 12 items"]
+  o -->|"split 1389<br>11 items"| m["0313M-1389 · section 3<br>1389–1403"]
+  o -->|"split 1389<br>1 item"| a["0313A-1389 · section 13<br>1389–1403"]
+```
 
 The code decides a group link (`decided_by` `code`) when three things hold:
 it is not `moved`; the codes are related (one shares a code with the other,
@@ -427,8 +517,11 @@ work: `extraction/` (PDFs to `output/1_extracted/`), `correction/` (to
 across years, to `output/3_items/` and `output/4_groups/`).
 
 - `pdf_text.py` rebuilds right-to-left text from glyph positions. Glyphs without
-  a Unicode mapping (1382) are decoded through their glyph names, and ZWNJs are
-  recovered where the font uses contextual glyph forms.
+  a Unicode mapping (1382) are decoded through their glyph names. A gap wider than
+  0.15 of the font size is a space. A ZWNJ is recovered where a joining letter is
+  drawn in its final or isolated form and touches the next letter (`چراغ‌خوراک‌پزی`);
+  fonts that map each letter form to its own code map the isolated form to the
+  plain letter, so there a plain letter counts as isolated.
 - `glyph_db.py` repairs fonts whose ToUnicode map is wrong (1395, 1396, 1399,
   1402: بخش extracts as لاوش). Each glyph's outline is hashed and looked up in
   `src/hiesir_codebook/extraction/data/glyph_db.json` (tracked), which is built from the clean PDFs. A font is treated as

@@ -134,6 +134,15 @@ def test_label_fix_text_and_years():
     assert fix_label("دیبرستان", 1390, fixes) == "دیبرستان"
 
 
+def test_label_fix_is_blind_to_zwnj():
+    z = "‌"
+    fixes = [_fix("شدهباشد", "شده باشد"), _fix(f"چربی{z}ها ی", f"چربی{z}های")]
+    assert fix_label(f"پرداخت شده{z}باشد", 1390, fixes) == "پرداخت شده باشد"
+    assert fix_label("پرداخت شدهباشد", 1390, fixes) == "پرداخت شده باشد"
+    assert fix_label("چربیها ی حیوانی", 1390, fixes) == f"چربی{z}های حیوانی"
+    assert fix_label(f"شده{z}باشدن", 1390, fixes) == f"شده{z}باشدن"  # still whole words only
+
+
 def test_label_fix_counts_hits():
     hits = {}
     fix_label("بجز کره بجز شیر", 1390, [_fix("بجز", "به جز")], hits)

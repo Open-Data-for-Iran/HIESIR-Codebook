@@ -305,10 +305,12 @@ class _Finder:
         first, sure = self._segment(segs[0])
         out = [first]
         for prev, seg in itertools.pairwise(segs):
-            # a ZWNJ before a suffix, after می / نمی, inside a word or in a token the
-            # questionnaires repeat (house style: اجاره‌بهای, کم‌دوام) stays; else it is a space
+            # a ZWNJ before a suffix, after می / نمی, inside a word, or between two
+            # pieces the questionnaires repeat as a token of their own (house style:
+            # اجاره‌بهای, کم‌دوام) stays; else it is a space.  Judged per ZWNJ, not per
+            # token: some years join a whole phrase with ZWNJs (حق‌بیمه‌های‌غیردرمانی‌...)
             keep = (
-                self.uses[w] > RARE
+                self.uses[prev + ZWNJ + seg] > RARE
                 or seg in _KEEP_AFTER
                 or prev in ("می", "نمی")
                 or self.lex.has(prev + ZWNJ + seg)
