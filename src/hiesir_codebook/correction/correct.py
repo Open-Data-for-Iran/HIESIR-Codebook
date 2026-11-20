@@ -227,8 +227,11 @@ def apply(
     hits: dict[str, int] | None = None,
     suggestions: list[LabelFix] = (),
     suggestion_hits: dict[str, int] | None = None,
+    tidy: bool = True,
 ) -> list[dict]:
-    """The rows of one questionnaire with its corrections applied."""
+    """The rows of one questionnaire with its corrections applied (with
+    ``tidy`` False, without the punctuation rules either: the listed
+    corrections alone, for counting what each later step changes)."""
     rows = [dict(r) for r in rows]
     for c in corrections:
         if c.year != year:
@@ -258,7 +261,8 @@ def apply(
     # house style for every description, the recurring spelling fixes, then
     # the accepted spelling suggestions
     for r in rows:
-        text = fix_label(tidy_punctuation(r["description"]), year, list(labels), hits)
+        text = tidy_punctuation(r["description"]) if tidy else r["description"]
+        text = fix_label(text, year, list(labels), hits)
         r["description"] = fix_label(text, year, list(suggestions), suggestion_hits)
     return rows
 

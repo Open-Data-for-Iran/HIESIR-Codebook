@@ -55,10 +55,10 @@ wording change.
 
 | | |
 |---|---|
-| Questionnaires | 21 years: 1382–1400, 1402, 1403 (1401's PDF is a data dictionary; 1363–1381 are scans) |
-| Items | about 1,900 chains: one code with one label, followed while both stay the same |
-| Links between them | 415 links that continue an item (reworded or recoded) and 142 merges, splits and regroupings; every one verified |
-| Corrections | 39 fixes to the printed questionnaires, plus spelling and punctuation across all years |
+| Questionnaires | {{ questionnaires.years }} years: 1382–1400, 1402, 1403 (1401's PDF is a data dictionary; 1363–1381 are scans) |
+| Items | {{ chains.total }} chains: one code with one label, followed while both stay the same |
+| Links between them | {{ links.kept }} links that continue an item (reworded or recoded) and {{ relations.kept }} merges, splits and regroupings; every one verified |
+| Corrections | {{ corrections.total }} fixes to the printed questionnaires, plus spelling and punctuation across all years |
 
 ## How it is made
 

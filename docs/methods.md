@@ -30,7 +30,7 @@ one row per fix, each with its evidence:
 | `value` | the corrected code or text (for `add_section`: the source year, with the section number in `description`) |
 | `reason` | evidence: neighbouring years, the raw data |
 
-The 39 corrections, all in 1383–1390, are of a few kinds:
+The {{ corrections.total }} corrections, all in {{ corrections.years }}, are of a few kinds:
 
 - **Code typos:** the 1386 imputed-rent items printed under 0412 instead of
   0421/0422, and 0144 for 0411, 0341 for 0431, 0736 for 0735 that year;
@@ -50,7 +50,7 @@ The 39 corrections, all in 1383–1390, are of a few kinds:
   `1241 M` (1388–1390).
 
 After the listed fixes every description is brought to one punctuation
-style (`utils.tidy_punctuation`), about 2,500 rows in all:
+style (`utils.tidy_punctuation`), {{ labels.punctuation }} descriptions in all:
 
 - "،", "؛", ":", "؟", "!" attach to the word before them and are followed by
   one space: `آرد ، رشته ،غلات` → `آرد، رشته، غلات`;
@@ -78,7 +78,7 @@ years, applied to every description in file order:
 | `years` | empty for all years, or years and ranges: `1386`, `1383-1385 1390` |
 | `reason` | why |
 
-Its 397 rows change about 4,700 descriptions (it had 1,069 before the hazm
+Its {{ spelling.total }} rows change {{ labels.spelling }} descriptions (it had 1,069 before the hazm
 suggestions below took over 672 mechanical ones: glued words, plurals,
 compounds, ZWNJs):
 
@@ -137,8 +137,8 @@ uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.spelling
 
 Regenerate after changing the corrections or `spelling.csv`; a test (run where
 hazm is installed) checks that the file is up to date. On the current labels
-it makes 1,133 suggestions, of which the build applies 1,064, changing about
-7,000 labels. A row in `spelling.csv` is only worth keeping when the
+it makes {{ suggestions.total }} suggestions, of which the build applies
+{{ suggestions.applied }}, changing {{ labels.suggestions }} descriptions. A row in `spelling.csv` is only worth keeping when the
 suggestions do not already produce its result: removing the 672 rows they
 reproduce left every label unchanged.
 
@@ -269,7 +269,7 @@ whose label was part of an older one; an item asked for all providers that
 becomes a G / NG pair).
 
 When a code's new label is unrelated, the code was reused for another
-item. That is no link, so nothing goes into `links.csv`; the 6
+item. That is no link, so nothing goes into `links.csv`; the {{ code_reuse }}
 pairs (for example 053125: انواع آبگرمکن گازی → کولرگازی) are listed in
 `reports/code_reuse.csv` for review.
 
@@ -286,10 +286,10 @@ A 1 → 1 relation is *definite* (`decided_by` `code`) when both labels carry th
 the conjunction (`،` / `و`), word order, spacing, generic words (`انواع`)
 or "etc." markers (`و نظایر آن` / `و ...`) differ: `جگر، دل، قلوه` →
 `جگر، دل و قلوه`. Every other relation, and every merge, split or
-regrouping, needs a check. Everything is now settled: of 447 links, 162 are
-definite and `curated/3_items/links.csv` decides the rest (189 confirmed, 60
-changed, 32 rejected, 4 added); `curated/3_items/relations.csv` decides all 156
-merges, splits and regroupings (93 confirmed, 14 rejected, 49 added).
+regrouping, needs a check. Everything is now settled: of {{ links.total }} links, {{ links.code }} are
+definite and `curated/3_items/links.csv` decides the rest ({{ links.confirmed }} confirmed, {{ links.changed }}
+changed, {{ links.rejected }} rejected, {{ links.added }} added); `curated/3_items/relations.csv` decides all {{ relations.total }}
+merges, splits and regroupings ({{ relations.confirmed }} confirmed, {{ relations.rejected }} rejected, {{ relations.added }} added).
 
 Decisions go in `curated/3_items/links.csv` and `curated/3_items/relations.csv`, one row per
 link or relation, named by its chains:
@@ -334,7 +334,7 @@ another item does not distort it.
 What the verification found:
 
 - **Wrong direction.** Dropping a qualifier broadens an item, adding one
-  narrows it, and compare reads both the other way round (22 of the 60
+  narrows it, and compare reads both the other way round (22 of the {{ links.changed }}
   changed links, see above).
 - **"Outside the home" items (1386).** 062315, 062321, 062323, 062328 and
   062331 ended when their "at home" twins dropped `در منزل`. These are
@@ -427,7 +427,7 @@ The questionnaire prints up to three levels of headers between a section and
 its items. In 1403, the hamburger item sits under its section and three headers:
 
 ```mermaid
-flowchart LR
+flowchart TB
   s["section 1<br>هزینه‌های خوراکی خانوار در ماه گذشته"] --> l2["level 2 · 011<br>مواد خوراکی"]
   l2 --> l3["level 3 · 0112, 0113<br>گوشت"]
   l3 --> l4a["level 4 · 01121, 01122<br>گوشت دام"]
@@ -481,9 +481,9 @@ others are `open` until a row in `curated/4_groups/links.csv` decides
 them (`from_group`, `to_group`, `decision`, `relation`, `note`; the
 decisions of `links.csv`). The 1384 split of `هزینه آموزش` into
 `هزینه آموزش ابتدایی و پیش دبستانی` and the other levels is one of them:
-the codes are related but the labels narrowed. All 48 such links are
-decided (43 confirmed; one `split` changed to `continued`, as only one of
-its items left for another group; four rejected: a regrouping links every
+the codes are related but the labels narrowed. All {{ groups.links.curated }} such links are
+decided ({{ groups.links.confirmed }} confirmed; one `split` changed to `continued`, as only one of
+its items left for another group; {{ groups.links.rejected }} rejected: a regrouping links every
 source with every target, so the 1384 baby gear and 16-inch bicycle seemed
 to swap groups). Two more `moved` links came from the
 1388–1390 questionnaires, which print the level-2 header `124 M` as

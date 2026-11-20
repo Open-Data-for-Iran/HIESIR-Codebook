@@ -94,6 +94,12 @@ Diagrams are written in [Mermaid](https://mermaid.js.org/) as a ` ```mermaid `
 code block, so they stay text and take the site's light or dark theme. In the
 Farsi page, use `flowchart RL` so that the flow reads right to left.
 
+Counts are never typed into a page: write the name of a figure in
+`output/metrics.json` between double curly braces, such as `links.confirmed`,
+and the build writes the number (in Persian digits on Farsi pages). Each build
+rewrites the file, so its diff shows what a change did; an unknown name
+stops the site build and fails a test.
+
 Every page has two versions: `page.md` (English) and `page.fa.md` (Farsi, served
 under `/fa/`, right to left). A page without a Farsi version falls back to the
 English one. When you change a page, update the other language too; Farsi

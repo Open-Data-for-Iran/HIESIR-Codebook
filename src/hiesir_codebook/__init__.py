@@ -38,9 +38,10 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
 
     extract (PDFs -> 1_extracted, skipped when the PDFs are not available)
     -> correct (+ curated/2_corrected -> 2_corrected) -> chains and relations
-    (-> 3_items) -> the groups (-> 4_groups) -> the explorer page.
+    (-> 3_items) -> the groups (-> 4_groups) -> the explorer page -> the
+    figures of it all (-> metrics.json).
     """
-    from . import explorer
+    from . import explorer, metrics
     from .correction import correct
     from .linking import chains, groups, relations
 
@@ -57,6 +58,7 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
     relations.main([])
     groups.main([])
     explorer.main([])
+    metrics.main([])
 
 
 def main(argv: list[str] | None = None) -> None:

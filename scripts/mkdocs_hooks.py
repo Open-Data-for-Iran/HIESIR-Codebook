@@ -16,6 +16,10 @@ without any, the site is built without them. The list on the questionnaires
 page (docs/questionnaires.md and its translation) is filled in from what is
 found, in place of the marker <!-- questionnaire-pdfs -->.
 
+Figures in the pages are written as {{ links.confirmed }}: each is read from
+output/metrics.json (see hiesir_codebook.metrics), with thousands separators,
+in Persian digits on the Farsi pages. An unknown name stops the build.
+
 The explorer page itself is docs/explorer.md (and its translations), drawn by
 overrides/explorer.html.
 
@@ -29,6 +33,7 @@ uses its own links.
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import re
@@ -37,7 +42,7 @@ from pathlib import Path
 
 from mkdocs.structure.files import File, Files
 
-from hiesir_codebook import explorer
+from hiesir_codebook import explorer, metrics
 from hiesir_codebook.extraction import pdfs
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -132,9 +137,13 @@ def pdf_table(found: list[pdfs.Pdf], lang: str) -> str:
 
 
 def on_page_markdown(markdown: str, page, config, files) -> str:
+    lang = config.theme.get("language", "en")
+    if "{{" in markdown:
+        figures = json.loads((OUTPUT / "metrics.json").read_text(encoding="utf-8"))
+        markdown = metrics.fill(markdown, figures, lang, page.file.src_uri)
     if MARKER not in markdown:
         return markdown
-    return markdown.replace(MARKER, pdf_table(_found, config.theme.get("language", "en")))
+    return markdown.replace(MARKER, pdf_table(_found, lang))
 
 
 def on_post_page(output: str, page, config) -> str:

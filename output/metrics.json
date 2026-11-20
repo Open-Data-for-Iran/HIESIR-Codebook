@@ -1,0 +1,105 @@
+{
+  "questionnaires": {
+    "years": 21,
+    "items": 22476,
+    "items_by_year": {
+      "1382": 655,
+      "1383": 1238,
+      "1384": 1281,
+      "1385": 1286,
+      "1386": 1083,
+      "1387": 1083,
+      "1388": 1084,
+      "1389": 1076,
+      "1390": 1071,
+      "1391": 1071,
+      "1392": 1071,
+      "1393": 1071,
+      "1394": 1071,
+      "1395": 1041,
+      "1396": 1042,
+      "1397": 1042,
+      "1398": 1042,
+      "1399": 1042,
+      "1400": 1042,
+      "1402": 1042,
+      "1403": 1042
+    }
+  },
+  "corrections": {
+    "total": 39,
+    "years": "1383–1390",
+    "add_section": 1,
+    "delete": 1,
+    "recode": 10,
+    "recode_header": 4,
+    "retext": 22,
+    "retext_header": 1
+  },
+  "labels": {
+    "total": 27753,
+    "punctuation": 3691,
+    "spelling": 3403,
+    "suggestions": 4017
+  },
+  "spelling": {
+    "total": 366
+  },
+  "suggestions": {
+    "total": 1026,
+    "auto": 956,
+    "decisions": 8,
+    "applied": 957
+  },
+  "chains": {
+    "total": 1912,
+    "asked_last_year": 1042
+  },
+  "links": {
+    "total": 447,
+    "kept": 415,
+    "code": 162,
+    "curated": 285,
+    "open": 0,
+    "confirmed": 189,
+    "changed": 60,
+    "rejected": 32,
+    "added": 4,
+    "same": 405,
+    "recoded": 10
+  },
+  "relations": {
+    "total": 156,
+    "kept": 142,
+    "code": 0,
+    "curated": 156,
+    "open": 0,
+    "confirmed": 93,
+    "changed": 0,
+    "rejected": 14,
+    "added": 49,
+    "merged": 123,
+    "split": 7,
+    "regrouped": 12
+  },
+  "code_reuse": 6,
+  "groups": {
+    "total": 309,
+    "links": {
+      "total": 101,
+      "kept": 97,
+      "code": 53,
+      "curated": 48,
+      "open": 0,
+      "confirmed": 43,
+      "changed": 1,
+      "rejected": 4,
+      "added": 0,
+      "continued": 20,
+      "split": 33,
+      "merged": 14,
+      "regrouped": 4,
+      "moved": 26
+    }
+  }
+}
