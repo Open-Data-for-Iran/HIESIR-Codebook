@@ -4,7 +4,7 @@ They are added to the site at build time instead of being copied into docs/,
 so git holds one copy and the site always shows what output/ holds:
 
     explorer.collect() over output/          -> explorer/data.json
-    src/.../data/explorer/explorer.{js,css}  -> assets/explorer/
+    src/.../data/explorer/{strings,explorer}.js, explorer.css -> assets/explorer/
     output/2_corrected/*.csv                 -> 2_corrected/*.csv
     output/3_items/*.csv                     -> 3_items/*.csv
     output/4_groups/*.csv                    -> 4_groups/*.csv
@@ -68,7 +68,7 @@ def on_files(files: Files, config) -> Files:
     cache = Path(tempfile.mkdtemp(prefix="hiesir-explorer-")) / "data.json"
     cache.write_text(data, encoding="utf-8")
     files.append(File.generated(config, "explorer/data.json", abs_src_path=str(cache)))
-    for src in (explorer.JS, explorer.CSS):
+    for src in (explorer.STRINGS, explorer.JS, explorer.CSS):
         files.append(File.generated(config, f"assets/explorer/{src.name}", abs_src_path=str(src)))
     for pattern in PUBLISH:
         paths = sorted(OUTPUT.glob(pattern))

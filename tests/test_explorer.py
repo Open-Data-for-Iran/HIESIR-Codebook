@@ -28,6 +28,7 @@ def test_every_chain_and_kept_relation_is_embedded():
     # and its groups in each year, from output/4_groups/ (indexes into data["groups"])
     (y0, path), *_ = rice["gp"]
     assert y0 == 1383 and [data["groups"][i][0] for i in path] == ["011", "0111", "01111, 01112"]
+    assert [data["groupIds"][i] for i in path] == ["011-1383", "0111-1383", "01111+01112-1383"]
     for c in data["chains"]:
         assert [y for y, _ in c["gp"]] == sorted({y for y, _ in c["gp"]}), c["id"]
     # a group's wording by year, for the list under a picked year: 0111 spelled
@@ -46,10 +47,11 @@ def test_render_escapes_closing_tags(tmp_path):
         "<script>/*__JS__*/</script>",
         encoding="utf-8",
     )
-    js, css = tmp_path / "x.js", tmp_path / "x.css"
+    js, css, strings = tmp_path / "x.js", tmp_path / "x.css", tmp_path / "s.js"
     js.write_text('const s = "</script>";', encoding="utf-8")
     css.write_text(".a { color: red }", encoding="utf-8")
-    html = explorer.render({"x": "</script><b>"}, template, js=js, css=css)
+    strings.write_text("window.HX_STRINGS = {};", encoding="utf-8")
+    html = explorer.render({"x": "</script><b>"}, template, js=js, css=css, strings=strings)
     assert html.count("</script>") == 2  # only the template's own closing tags
     assert '"<\\/script><b>"' in html
     assert ".a { color: red }" in html
@@ -57,13 +59,16 @@ def test_render_escapes_closing_tags(tmp_path):
 
 def test_docs_page_and_standalone_share_the_component():
     """docs/explorer.md is drawn by overrides/explorer.html, which loads the same
-    explorer.js and explorer.css that the standalone page inlines."""
+    strings.js, explorer.js and explorer.css that the standalone page inlines."""
     template = (ROOT / "overrides" / "explorer.html").read_text(encoding="utf-8")
-    assert "assets/explorer/explorer.js" in template and "assets/explorer/explorer.css" in template
+    for name in ("strings.js", "explorer.js", "explorer.css"):
+        assert f"assets/explorer/{name}" in template
+    # the strings come first: explorer.js reads them when it loads
+    assert template.index("strings.js") < template.index("explorer.js")
     for page in ("explorer.md", "explorer.fa.md"):
         assert "template: explorer.html" in (ROOT / "docs" / page).read_text(encoding="utf-8")
-    js = explorer.JS.read_text(encoding="utf-8")
-    assert js.count("tabs: {") == 2  # an English and a Farsi set of strings
+    strings = explorer.STRINGS.read_text(encoding="utf-8")
+    assert strings.count("tabs: {") == 2  # an English and a Farsi set of strings
 
 
 def test_explorer_is_up_to_date(tmp_path):
