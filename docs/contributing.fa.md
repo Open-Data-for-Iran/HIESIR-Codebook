@@ -59,6 +59,7 @@ uv run python -m hiesir_codebook.explorer    # just the explorer page
 
 ```bash
 uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.spelling   # -> output/2_corrected/spelling_suggestions.csv
+uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.check      # -> reports/label_check.csv (to review)
 ```
 
 ## آزمون‌ها {#tests}

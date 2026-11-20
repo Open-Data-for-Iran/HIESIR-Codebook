@@ -38,32 +38,32 @@
   },
   "labels": {
     "total": 27753,
-    "punctuation": 3691,
-    "spelling": 3403,
-    "suggestions": 4017
+    "punctuation": 3914,
+    "spelling": 2514,
+    "suggestions": 4597
   },
   "spelling": {
-    "total": 366
+    "total": 250
   },
   "suggestions": {
-    "total": 1026,
-    "auto": 956,
-    "decisions": 8,
-    "applied": 957
+    "total": 1169,
+    "auto": 1085,
+    "decisions": 12,
+    "applied": 1083
   },
   "chains": {
     "total": 1912,
     "asked_last_year": 1042
   },
   "links": {
-    "total": 447,
+    "total": 446,
     "kept": 415,
     "code": 162,
-    "curated": 285,
+    "curated": 284,
     "open": 0,
     "confirmed": 189,
     "changed": 60,
-    "rejected": 32,
+    "rejected": 31,
     "added": 4,
     "same": 405,
     "recoded": 10

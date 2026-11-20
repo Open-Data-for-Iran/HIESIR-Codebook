@@ -58,6 +58,7 @@ suggestions from hazm's dictionary (hazm needs Python 3.12 or 3.13), review the
 
 ```bash
 uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.spelling   # -> output/2_corrected/spelling_suggestions.csv
+uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.check      # -> reports/label_check.csv (to review)
 ```
 
 ## Tests

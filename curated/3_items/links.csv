@@ -86,7 +86,6 @@
 056154-1384,056154-1387,confirm,,,"households 1386: 242 -> 1387: 446, x1.63 relative to the group (x1.13); fits"
 056211-1383,056211-1384,confirm,,,"households 1383: 129 -> 1384: 65, x0.38 relative to the group (x1.33); fits"
 056218-1383,056218-1384,confirm,,,"households 1383: 96 -> 1384: 132, x1.04 relative to the group (x1.33); fits"
-056218-1384,056215-1386,reject,,,not a broadening alone: replaced by the merged relation 056218-1384 056219-1383 -> 056215-1386 in relations.csv
 061117-1386,061117-1395,confirm,,,"households 1394: 176 -> 1395: 308, x1.75; fits"
 061118-1384,061118-1386,confirm,,,"households 1385: 234 -> 1386: 246, x1.08 relative to the group (x0.98); fits"
 061211-1386,061211-1389,reject,,,not a narrowing or broadening alone: replaced by the split relation 061211-1386 -> 061211-1389 061212-1389 in relations.csv

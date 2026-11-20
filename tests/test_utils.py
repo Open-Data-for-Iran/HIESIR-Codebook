@@ -1,7 +1,7 @@
 import pytest
 
 from hiesir_codebook import utils
-from hiesir_codebook.utils import ZWNJ, tidy_punctuation
+from hiesir_codebook.utils import ZWNJ, standard_spelling, tidy_punctuation
 
 
 def test_unify_letters():
@@ -90,3 +90,21 @@ def test_tidy_punctuation(raw, tidy):
 def test_conjunction_after_zwnj_becomes_a_word():
     assert tidy_punctuation("وسایل‌و لوازم") == "وسایل و لوازم"
     assert tidy_punctuation("حمل‌ونقل") == "حمل‌ونقل"  # a compound, not a conjunction
+
+
+@pytest.mark.parametrize(
+    ("raw", "standard"),
+    [
+        ("دمپائی", "دمپایی"),
+        ("روستائیان", "روستاییان"),
+        ("خدمات هوائی و دریائی", "خدمات هوایی و دریایی"),
+        (f"روستائی{ZWNJ}ها", f"روستایی{ZWNJ}ها"),
+        ("گازوئیل", "گازوئیل"),  # a loanword, more letters follow
+        ("موزائیک", "موزائیک"),
+        ("ارائه", "ارائه"),
+        ("جزئی", "جزئی"),  # not after a vowel
+        ("پارچه ائی", "پارچه ائی"),  # ه + ای misprinted, left to the spelling fixes
+    ],
+)
+def test_standard_spelling(raw, standard):
+    assert standard_spelling(raw) == standard

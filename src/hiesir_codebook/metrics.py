@@ -23,7 +23,6 @@ from .correction import correct
 from .linking.chains import read_chains
 from .linking.compare import YEARS
 from .linking.relations import code_reuse
-from .utils import tidy_punctuation
 
 OUT = OUTPUT / "metrics.json"
 DECIDED_BY = ("code", "curated", "open")
@@ -68,7 +67,7 @@ def _labels(
         rows = correct.read_rows(extracted / f"questionnaire_{year}.csv")
         for r in correct.apply(year, rows, fixes, extracted, tidy=False):
             t0 = r["description"]
-            t1 = tidy_punctuation(t0)
+            t1 = correct.house_style(t0)
             t2 = correct.fix_label(t1, year, label_fixes)
             t3 = correct.fix_label(t2, year, sugg_fixes)
             n["rows"] += 1

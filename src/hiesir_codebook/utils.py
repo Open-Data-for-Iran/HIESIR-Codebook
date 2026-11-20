@@ -141,6 +141,23 @@ def tidy_punctuation(s: str) -> str:
     return collapse_whitespace(s)
 
 
+# the suffix ی after ا / و, at the end of a word or before ان / ها (but not in
+# a loanword such as گازوئیل, موزائیک, where more letters follow)
+_SUFFIX_YE = re.compile(
+    rf"(?<=[{_PERSIAN_LETTER}][اآو])ئی(?=(?:ان|ها|های|هایی)?(?![{_PERSIAN_LETTER}]))"
+)  # a lone "ائی" is ه + ای misprinted (پارچه ائی), left to the spelling fixes
+
+
+def standard_spelling(s: str) -> str:
+    """Spelling rules of the Academy of Persian Language and Literature that
+    need no word list.
+
+    - the suffix ی after a vowel is written یی, not ئی: "دمپائی" -> "دمپایی",
+      "روستائیان" -> "روستاییان", "هوائی" -> "هوایی" (گازوئیل, ارائه stay)
+    """
+    return _SUFFIX_YE.sub("یی", s)
+
+
 # --- right-to-left visual text ------------------------------------------------
 
 

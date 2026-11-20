@@ -41,6 +41,19 @@ LEX = Lexicon(
         "ثبت": 5_000_000,
         "نام": 9_000_000,
         f"ثبت{ZWNJ}نام": 800_000,
+        "خریداری": 900_000,
+        "شده": 90_000_000,
+        f"خریداری{ZWNJ}شده": 190_000,
+        "اجاره": 2_000_000,
+        "بها": 3_000_000,
+        "بهای": 1_000_000,
+        f"اجاره{ZWNJ}بها": 600_000,
+        "قطب": 500_000,
+        f"حشره{ZWNJ}کش": 90_000,
+        "کیف": 2_000_000,
+        "وکیف": 1_000,
+        "نما": 2_000_000,
+        f"قطب{ZWNJ}نما": 90_000,
         "سر": 9_000_000,
         "سرو": 400_000,
         "صورت": 9_000_000,
@@ -103,6 +116,25 @@ def test_zwnj_joined_phrase_is_split_per_zwnj():
     assert f"پودر{ZWNJ}پیاز" not in got
     got = _find([*labels, f"تعمیر{ZWNJ}پنجره"] + [f"تعمیر{ZWNJ}پنجره"] * 4)
     assert got[f"هزینه{ZWNJ}تعمیر{ZWNJ}پنجره"].replace == f"هزینه تعمیر{ZWNJ}پنجره"
+
+
+def test_years_follow_the_form_written_most():
+    def years(labels):
+        keys = ["item 1"] * len(labels)
+        return {s.find: s for s in suggest(labels, LEX, keys=keys) if s.kind == "years"}
+
+    # the other years write known words: applied on its own
+    got = years([(1383, "هزینه پودرپیازی"), (1386, "هزینه پودر پیازی"), (1387, "هزینه پودر پیازی")])
+    s = got["پودرپیازی"]
+    assert (s.replace, s.apply, s.years) == ("پودر پیازی", True, {1383})
+    # two spellings of known words (درو / در و): only suggested
+    got = years([(1383, "تعمیر درو پنجره"), (1386, "تعمیر در و پنجره"), (1387, "تعمیر در و پنجره")])
+    assert (got["درو"].replace, got["درو"].apply) == ("در و", False)
+    # the rest of the labels differs: the other year still shows how to write the word
+    got = years([(1383, "هزینه پودرپیازی کهنه"), (1386, "انواع پودر پیازی")])
+    assert (got["پودرپیازی"].replace, got["پودرپیازی"].apply) == ("پودر پیازی", True)
+    # without keys, no years suggestions
+    assert all(s.kind != "years" for s in suggest([(1383, "پودرپیازی"), (1386, "پودر پیازی")], LEX))
 
 
 def test_typo_is_only_suggested():
@@ -201,12 +233,36 @@ def test_spaced_ye_and_prefix():
     assert (got["می شود"].replace, got["می شود"].kind) == (f"می{ZWNJ}شود", "prefix")
 
 
-def test_compound_applies_only_when_printed_joined():
-    printed = ["هزینه ثبت نام", f"ثبت{ZWNJ}نام"]
-    s = {x.find: x for x in suggest([(1, "هزینه ثبت نام")], LEX, printed)}["ثبت نام"]
+def test_compound_hazm_knows_applies():
+    s = _find(["هزینه ثبت نام"])["ثبت نام"]
     assert (s.replace, s.kind, s.apply) == (f"ثبت{ZWNJ}نام", "compound", True)
-    s = {x.find: x for x in suggest([(1, "هزینه ثبت نام")], LEX, ["هزینه ثبت نام"])}["ثبت نام"]
-    assert s.apply is False  # never printed joined: a choice of style left to review
+    # with a suffix on the second word, whose stem makes the compound
+    s = _find(["برآورد اجاره بهای ماهانه"])["اجاره بهای"]
+    assert (s.replace, s.apply) == (f"اجاره{ZWNJ}بهای", True)
+    # followed by a spaced plural suffix: one suggestion, the suffix joined too
+    s = _find(["انواع قطب نما ها"])["قطب نما ها"]
+    assert (s.replace, s.apply) == (f"قطب{ZWNJ}نماها", True)
+
+
+def test_compound_hazm_lists_only_with_zwnj():
+    # hazm lists حشره‌کش, never حشرهکش: applied when the questionnaires write it apart
+    s = {x.find: x for x in suggest([(1, "حشرهکش")], LEX, ["حشرهکش", "سم حشره کش"])}["حشرهکش"]
+    assert (s.replace, s.kind, s.apply) == (f"حشره{ZWNJ}کش", "compound", True)
+    s = {x.find: x for x in suggest([(1, "حشرهکش")], LEX, ["حشرهکش"])}["حشرهکش"]
+    assert s.apply is False  # never written apart: their joined style, left to review
+
+
+def test_glued_and_before_a_common_word_hazm_also_lists():
+    s = _find(["کفش وکیف"])["وکیف"]  # hazm lists وکیف, but کیف is far more common
+    assert (s.replace, s.kind, s.apply) == ("و کیف", "glued", True)
+
+
+def test_compound_verb_phrase_applies_only_when_printed_joined():
+    s = {x.find: x for x in suggest([(1, "کالای خریداری شده")], LEX)}["خریداری شده"]
+    assert (s.replace, s.apply) == (f"خریداری{ZWNJ}شده", False)  # Persian writes it apart
+    printed = ["کالای خریداری شده", f"خریداری{ZWNJ}شده"]
+    s = {x.find: x for x in suggest([(1, "کالای خریداری شده")], LEX, printed)}["خریداری شده"]
+    assert s.apply is True  # the questionnaires print it joined: their style
 
 
 def test_no_compound_across_a_conjunction():

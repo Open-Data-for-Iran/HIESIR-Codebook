@@ -67,6 +67,16 @@ style (`utils.tidy_punctuation`), {{ labels.punctuation }} descriptions in all:
 - a slash between words gets a space on each side: `دبیرستان/ متوسطه` →
   `دبیرستان / متوسطه` (`1/2` stays).
 
+The same step applies the spelling rules of the Academy of Persian Language
+and Literature that need no word list (`utils.standard_spelling`):
+
+- the suffix ی after a vowel is written یی, not ئی: `دمپائی` → `دمپایی`,
+  `روستائیان` → `روستاییان`, `هوائی` → `هوایی`; only at the end of a word or
+  before ان / ها, so loanwords keep theirs (`گازوئیل`, `موزائیک`).
+
+A rule replaces a list of words: this one made 15 rows of `spelling.csv`
+unnecessary.
+
 Then `curated/2_corrected/spelling.csv` fixes spellings that recur across rows and
 years, applied to every description in file order:
 
@@ -108,16 +118,18 @@ the questionnaires' own words, and writes what it finds to
 | `plural` | a plural without its ZWNJ, joined or spaced, whose stem is a word and which is no word of its own; after a letter that does not join (`ا د ذ ر ز ژ و`) no ZWNJ is needed, so `کالاهای` stays and `نما ها` becomes `نماها` | `سبزیهای` → `سبزی‌های`; `تنها` stays |
 | `he_ye` | `ه + ای` without the ZWNJ: spaced, or joined when `Xه` is far more common than `X` | `پارچه ای` → `پارچه‌ای`, `جادهای` → `جاده‌ای` |
 | `prefix` | the verb prefix `می` / `نمی` spaced | `می شود` → `می‌شود` |
-| `compound` | two words whose joined form is a common word; applied on its own only when the printed questionnaires write it joined somewhere (a choice of style), and never across `و`, `در`, `که` … | `ثبت نام` → `ثبت‌نام`; `خریداری شده` waits for review |
+| `compound` | two words whose joined form is a common word in hazm (the second need not be a word of its own: `طبقه‌بندی`), also with a suffix on the second (`اجاره بهای` → `اجاره‌بهای`); applied on its own, but never across `و`, `در`, `که`, `برای` …, and a verb phrase (`… شده`, `قابل …`), which hazm's corpus also joins, applies only when the printed questionnaires write it joined somewhere. A word written joined that hazm lists only with a ZWNJ (`حشرهکش` → `حشره‌کش`) gets it when the questionnaires write it apart somewhere (hazm's corpus puts a ZWNJ in many words written joined, such as `دست‌مال`). A compound hazm lacks (`تخم‌مرغ`, `سرمایه‌گذاری`, `کم‌دوام`) still needs a row in `spelling.csv` | `ثبت نام` → `ثبت‌نام`, `اسباب بازی` → `اسباب‌بازی`; `خریداری شده` waits for review |
 | `broken` | a word split by a space: joined it is a common word, and one piece is no word | `ا نواع` → `انواع` |
-| `glued` | words written as one, or joined by a stray ZWNJ: every way of cutting it into words is scored by how common the words are and how few, and a cut the questionnaires write elsewhere wins; a glue the questionnaires repeat every year is cut only around a joining word (`و`, `در`, `سایر`, `نظیر` …) or as they write the phrase elsewhere, and its ZWNJs stay, so compounds written joined (`لباسشویی`, `اجاره‌بهای`) are kept | `پودرپیاز` → `پودر پیاز`, `دروپنجره` → `در و پنجره`, `هزینه‌هایپرداختی` → `هزینه‌های پرداختی` |
+| `glued` | words written as one, or joined by a stray ZWNJ (a `و` glued to a common word is cut even when hazm lists the glue too, if the word is ten times as common: `وکیف` → `و کیف`): every way of cutting it into words is scored by how common the words are and how few, and a cut the questionnaires write elsewhere wins; a glue the questionnaires repeat every year is cut only around a joining word (`و`, `در`, `سایر`, `نظیر` …) or as they write the phrase elsewhere, so compounds written joined (`لباسشویی`) are kept; in such a glue each ZWNJ is judged on its own: it stays before a suffix, after `می`, in a compound hazm knows, or between two pieces the questionnaires write as a word of their own (`اجاره‌بهای`, `کم‌دوام`), and is a space elsewhere (`حق‌بیمه‌های‌غیردرمانی` → `حق بیمه‌های غیردرمانی`) | `پودرپیاز` → `پودر پیاز`, `دروپنجره` → `در و پنجره`, `هزینه‌هایپرداختی` → `هزینه‌های پرداختی` |
 | `typo` | a rare non-word one letter away from a common word with the same first letter | `رایو` → `رادیو` |
+| `years` | an item that reads with the same letters but other spacing or ZWNJs in other years: every way the labels write those letters is counted (on the labels as the other suggestions leave them) and the form written most wins, but a form with a word hazm does not know never beats one without; applied on its own only when every other form has such a word, since a count follows how long a questionnaire kept a wording, not which is right | `سایرحق` → `سایر حق`, `وآب` → `و آب`; `موتور سیکلت` → `موتورسیکلت` waits for review |
 
 Each row has `find`, `replace`, `kind`, `apply`, `uses` (occurrences),
 `labels`, `years`, the `evidence` (the hazm frequencies behind it) and an
 `example` label. `apply` is `yes` when the build applies the suggestion on
 its own: plural and broken suggestions on common words, and glued words cut
-into common words where the best cut clearly beats the next. It is `no` for
+into common words where the best cut clearly beats the next, and `years`
+suggestions whose other forms all hold a word hazm lacks. It is `no` for
 the rest, for every `he_ye` (`فرآوردهای` may be a plural that lost an `ه`) and
 for every typo, since a rare word may be a name or a term hazm lacks.
 
@@ -141,6 +153,21 @@ it makes {{ suggestions.total }} suggestions, of which the build applies
 {{ suggestions.applied }}, changing {{ labels.suggestions }} descriptions. A row in `spelling.csv` is only worth keeping when the
 suggestions do not already produce its result: removing the 672 rows they
 reproduce left every label unchanged.
+
+**Label check.** After the corrections, the build lists in
+`reports/label_check.csv` what may still be misspelled, for review; it changes
+nothing, and a decision goes to `spelling.csv`. An `unknown` row is a word hazm
+does not know (nor as a plural, with a suffix, or as a ZWNJ compound of known
+words); most are right (`لیزیک`, `بتادین`), some are glued (`جانفتی`). Its
+`other` column gives how other years write the same letters for the same code,
+when that is all known words (`سایرحق` → `سایر حق`). A `variant` row is a code
+whose label has the same letters but other spacing or ZWNJs in other years
+(`سرو صورت` / `سر و صورت`): `find` is the form of the fewer years, `other` that
+of the most, and either may be right. The `unknown` rows need hazm:
+
+```bash
+uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.check
+```
 
 `--check` tests both against the household occurrence table:
 
@@ -526,7 +553,9 @@ across years, to `output/3_items/` and `output/4_groups/`).
   1402: بخش extracts as لاوش). Each glyph's outline is hashed and looked up in
   `src/hiesir_codebook/extraction/data/glyph_db.json` (tracked), which is built from the clean PDFs. A font is treated as
   broken when its ToUnicode map disagrees with the database: clean PDFs agree
-  100%, broken fonts disagree on 0.8% or more. To rebuild the database:
+  100%, broken fonts disagree on 0.8% or more. The database keeps each glyph's
+  form as the clean PDFs' shaped fonts map it (ﻬ medial, ﻪ final, ه isolated), so
+  the ZWNJ recovery works in the repaired years too (میوه‌گیری). To rebuild the database:
   `uv run python -m hiesir_codebook.extraction.build_glyph_db`.
 - `parse.py` finds code lines and attaches wrapped description lines to them,
   using the table rules and column borders.

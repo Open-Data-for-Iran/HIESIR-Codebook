@@ -46,7 +46,7 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 | `data/` | ورودی‌های بیرونی: فایل‌های PDF و جدول‌های تعداد خانوارهای گزارش‌دهنده هر کد | خیر | هیچ‌کس (فقط جایگزین می‌شود) |
 | `curated/` | تصمیم‌های دستی: `2_corrected/` (`corrections.csv`: اصلاح اقلام و سرگروه‌ها؛ `spelling.csv`)، `3_items/` (`links.csv`، `relations.csv`) و `4_groups/` (`links.csv`): تصمیم‌های پوشه هم‌نام در `output/` | بله | افراد |
 | `output/` | خروجی همه مراحل: `1_extracted/`، `2_corrected/`، `3_items/`، `4_groups/`، صفحه `explorer/` و `metrics.json` (اعداد ساخت، که همین صفحه‌ها نقل می‌کنند) | بله | فقط برنامه |
-| `reports/` | کمک‌های بازبینی: `relation_evidence.csv` (تعداد خانوارهای پشت هر پیوند و رابطه) و `code_reuse.csv` (کدهایی که برای قلم دیگری به کار رفته‌اند) | خیر | فقط برنامه |
+| `reports/` | کمک‌های بازبینی: `relation_evidence.csv` (تعداد خانوارهای پشت هر پیوند و رابطه) و `code_reuse.csv` (کدهایی که برای قلم دیگری به کار رفته‌اند) و `label_check.csv` (واژه‌هایی که ممکن است هنوز نادرست نوشته شده باشند) | خیر | فقط برنامه |
 
 ## ستون‌های CSV {#csv-columns}
 

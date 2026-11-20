@@ -24,10 +24,12 @@ value      the corrected code or description (empty for ``delete``)
 reason     why: evidence from neighbouring years, the raw data, ...
 ========== ===================================================================
 
-After the listed corrections, every description gets the same punctuation
-spacing (:func:`hiesir_codebook.utils.tidy_punctuation`): "،" and ":"
-attach to the word before them, brackets hug their content, "..." has three
-dots.
+After the listed corrections, every description gets the same house style
+(:func:`house_style`): the same punctuation spacing
+(:func:`hiesir_codebook.utils.tidy_punctuation`: "،" and ":" attach to the
+word before them, brackets hug their content, "..." has three dots) and the
+spelling rules that need no word list
+(:func:`hiesir_codebook.utils.standard_spelling`: دمپائی -> دمپایی).
 
 Then ``curated/2_corrected/spelling.csv`` fixes spellings that recur across rows and
 years (typos, joined words, missing ZWNJs), applied to every description in
@@ -69,7 +71,7 @@ from pathlib import Path
 
 from .. import CORRECTED, CSV_COLUMNS, CURATED_CORRECTED, DATA_DIR, EXTRACTED, SUPPORTED_YEARS
 from ..extraction.parse import LAST_OLD_SCHEME_YEAR, header_level
-from ..utils import ZWNJ, collapse_whitespace, tidy_punctuation
+from ..utils import ZWNJ, collapse_whitespace, standard_spelling, tidy_punctuation
 from .spelling import DECISIONS as SUGGESTION_DECISIONS
 from .spelling import SUGGESTIONS, accepted, load_decisions, load_suggestions
 
@@ -124,7 +126,8 @@ class LabelFix:
     def pattern(self) -> re.Pattern:
         # blind to ZWNJs: a fix for شدهباشد also finds شده‌باشد, since where the
         # PDF shows a ZWNJ the extractor keeps it and a curated decision should
-        # still apply
+        # still apply; a suggestion found in a year without ZWNJs likewise
+        # reaches the years that print them
         p = f"{ZWNJ}?".join(re.escape(ch) for ch in self.find.replace(ZWNJ, ""))
         if self.match == "word":
             edge = _WORD_CHAR  # letters and digits, not "،" or "؛"
@@ -157,6 +160,11 @@ def load_label_fixes(path: Path = LABELS) -> list[LabelFix]:
         if not fx.find or not fx.reason.strip():
             raise ValueError(f"{path}: every row needs find and reason ({fx.find})")
     return out
+
+
+def house_style(text: str) -> str:
+    """Punctuation spacing, then the spelling rules that need no word list."""
+    return standard_spelling(tidy_punctuation(text))
 
 
 def fix_label(text: str, year: int, fixes: list[LabelFix], hits: dict[str, int] | None = None) -> str:
@@ -261,7 +269,7 @@ def apply(
     # house style for every description, the recurring spelling fixes, then
     # the accepted spelling suggestions
     for r in rows:
-        text = tidy_punctuation(r["description"]) if tidy else r["description"]
+        text = house_style(r["description"]) if tidy else r["description"]
         text = fix_label(text, year, list(labels), hits)
         r["description"] = fix_label(text, year, list(suggestions), suggestion_hits)
     return rows

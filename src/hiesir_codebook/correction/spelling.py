@@ -19,9 +19,11 @@ he_ye     ``ه + ای`` without the ZWNJ: spaced (``پارچه ای`` -> ``پا�
           or joined (``جادهای`` -> ``جاده‌ای``) when ``Xه`` is far more common
           than ``X`` (so not a plural of ``X``)
 prefix    the verb prefix ``می`` / ``نمی`` spaced (``می شود`` -> ``می‌شود``)
-compound  two words whose joined form is a common word (``ثبت نام`` ->
-          ``ثبت‌نام``); applied on its own only when the printed
-          questionnaires write it joined somewhere (a choice of style)
+compound  two words whose joined form is a common word in hazm, also with
+          a suffix on the second (``ثبت نام`` -> ``ثبت‌نام``, ``اجاره بهای`` ->
+          ``اجاره‌بهای``); applied on its own, except a verb phrase
+          (``خریداری شده``, ``قابل حمل``), applied only when the printed
+          questionnaires write it joined somewhere
 glued     two or more words written as one (``پودرپیاز``, ``منزلو``), or
           joined by a stray ZWNJ: not a word, and it can be cut into words
           of the dictionary or of the questionnaires; the best cut has the
@@ -29,13 +31,19 @@ glued     two or more words written as one (``پودرپیاز``, ``منزلو``
           questionnaires write that phrase elsewhere
 typo      a rare word that is no word, one letter away from a common one
           that starts with the same letter (``رایو`` -> ``رادیو``)
+years     one item reads with the same letters but other spacing or ZWNJs in
+          other years: the form all the labels write most wins, but never a
+          form with a word the dictionary lacks over one without
+          (``سایرحق`` -> ``سایر حق``, ``موتور سیکلت`` -> ``موتورسیکلت``)
 ========= =====================================================================
 
 ``apply`` says whether the build applies a suggestion on its own: ``yes``
 for plural and broken suggestions on common words, and for glued words cut
-into common words where the best cut clearly beats the next; ``no`` for the
-others, for ``he_ye`` (``فرآوردهای`` may be a plural with a ``ه`` lost) and for
-every typo, since a rare word may be a name or a term the dictionary lacks.
+into common words where the best cut clearly beats the next, and for years
+suggestions where every other form has a word the dictionary lacks; ``no`` for
+the others (a years choice between two spellings of known words), for
+``he_ye`` (``فرآوردهای`` may be a plural with a ``ه`` lost) and for every typo,
+since a rare word may be a name or a term the dictionary lacks.
 ``curated/2_corrected/spelling_suggestions.csv`` overrides it, one row per
 suggestion (``find``): ``confirm`` applies it, ``reject`` blocks it,
 ``change`` applies ``replace`` instead.  Every row needs a ``reason``.
@@ -52,6 +60,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import difflib
 import functools
 import itertools
 import math
@@ -66,7 +75,7 @@ from ..utils import ZWNJ
 
 SUGGESTIONS = CORRECTED / "spelling_suggestions.csv"
 DECISIONS = CURATED_CORRECTED / "spelling_suggestions.csv"
-KINDS = ("plural", "he_ye", "prefix", "compound", "broken", "glued", "typo")
+KINDS = ("plural", "he_ye", "prefix", "compound", "broken", "glued", "typo", "years")
 DECISION_KINDS = ("confirm", "reject", "change")
 
 # a word as label fixes see it: letters, digits and ZWNJ (see correct._WORD_CHAR)
@@ -77,8 +86,12 @@ _SUFFIXES = ("ها", "های", "هایی")
 _KEEP_AFTER = (*_SUFFIXES, "ای", "ی", "ام", "ات", "اش", "تر", "ترین")  # a ZWNJ before these stays
 _NON_JOINING = "اآأإدذرزژوؤ"  # letters that never join the next one
 _SHORT = ("و", "در", "از", "با", "به", "یا", "جز", "تا", "آن", "این")  # short words a glued token may hold
-_FUNCTION = (*_SHORT, "که", "را", "هر", "نیز", "هم")  # words that are never half of a compound
+_FUNCTION = (*_SHORT, "که", "را", "هر", "نیز", "هم", "برای")  # words that are never half of a compound
 # words that glue a phrase together; a token the questionnaires repeat is only cut around one
+# a second word that makes a verb phrase, a first word that heads an adjective
+# phrase: hazm's corpus joins them (خریداری‌شده, قابل‌حمل), Persian writes them apart
+_VERB_PHRASE = ("شده", "نشده", "شود", "نشود", "شدن", "شوند", "گردد", "گردیده", "است")
+_PHRASE_HEAD = ("قابل", "غیرقابل")
 _GLUE = (*_SHORT, "سایر", "نظیر", "شامل", "برای", "جهت", "انواع", "کلیه", "مانند", "مربوط", "هزینه")
 _LETTERS = "ءآأؤئابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی"
 
@@ -106,11 +119,22 @@ class Lexicon:
     freq: dict[str, int]  # word -> frequency
     stem: Callable[[str], str] = lambda w: w
     _bare: dict[str, int] = field(default_factory=dict, repr=False)
+    _with_zwnj: dict[str, str] = field(default_factory=dict, repr=False)
 
     def __post_init__(self) -> None:
         for w, n in self.freq.items():
             b = _key(w)
             self._bare[b] = max(n, self._bare.get(b, 0))
+            if ZWNJ in w and n > self.freq.get(self._with_zwnj.get(b, ""), -1):
+                self._with_zwnj[b] = w
+
+    def zwnj_form(self, w: str) -> str | None:
+        """How hazm writes ``w`` (no ZWNJ) when it has only a ZWNJ form of it:
+        حشرهکش -> حشره‌کش.  A word hazm also lists joined (دستمال, نگهداری)
+        stays: its corpus puts a ZWNJ in many words written joined."""
+        if ZWNJ in w or w in self.freq:
+            return None
+        return self._with_zwnj.get(_key(w))
 
     def has(self, w: str) -> bool:
         """Is ``w`` a word (ignoring ZWNJs, ئ / ی, ي / ی and ك / ک)?"""
@@ -221,6 +245,26 @@ class _Finder:
 
     # -- one word ---------------------------------------------------------------
 
+    def missing_zwnj(self, w: str) -> Suggestion | None:
+        """``حشرهکش`` -> ``حشره‌کش``: a compound written joined that hazm lists
+        only with a ZWNJ (so ``glued`` takes it for a word).  hazm's corpus puts
+        a ZWNJ in many words written joined (دست‌مال), so it applies on its own
+        only when the questionnaires write it apart somewhere."""
+        if ZWNJ in w or len(w) < 4:
+            return None
+        form = self.lex.zwnj_form(w)
+        if form is None or form.split(ZWNJ)[-1] in _KEEP_AFTER:
+            return None  # a suffix (ها, ای ...) is the plural and he_ye rules' business
+        apart = self._printed(form) or self._printed(form.replace(ZWNJ, " "))
+        return Suggestion(
+            w,
+            form,
+            "compound",
+            apart,
+            f"hazm: {form} {_n(self.lex.count(form))}; {w} not listed"
+            + ("; the questionnaires write it apart" if apart else ""),
+        )
+
     def he_ye(self, w: str) -> Suggestion | None:
         """``جادهای`` is ``جاده‌ای`` (ه + ای), not a plural of ``جاد``."""
         if ZWNJ in w[-4:] or self.lex.has(w) or not self._he_ye_reading(w):
@@ -293,6 +337,22 @@ class _Finder:
         token out; a repeated token without a ZWNJ is cut only around a word
         that glues a phrase (و, در, سایر, نظیر ...), which keeps compounds the
         questionnaires write joined (لباسشویی) whole."""
+        rest = w[1:]
+        if (
+            w.startswith("و")
+            and ZWNJ not in w
+            and len(rest) >= 3
+            and self.lex.count(rest) >= COMMON
+            and self.lex.count(w) * 10 < self.lex.count(rest)
+        ):
+            # و glued to a common word, though hazm lists the glue too (وکیف, ولوله)
+            return Suggestion(
+                w,
+                f"و {rest}",
+                "glued",
+                True,
+                f"hazm: {rest} {_n(self.lex.count(rest))}; {w} {_n(self.lex.count(w))}",
+            )
         if w == "و" or self.lex.has(w) or self.lex.has(self.lex.stem(w)):
             return None
         segs = w.split(ZWNJ)
@@ -369,27 +429,49 @@ class _Finder:
             return None
         return Suggestion(f"{a} {b}", f"{a}{ZWNJ}{b}", "prefix", True, f"{a} + verb takes a ZWNJ")
 
+    def _joined(self, a: str, b: str) -> str:
+        """``a`` and ``b`` as one word, the way hazm writes it more often."""
+        if a[-1] in _NON_JOINING:
+            return a + b  # after ا د ذ ر ز ژ و no ZWNJ is needed
+        return max((a + ZWNJ + b, a + b), key=self.lex.count)
+
     def compound(self, a: str, b: str) -> Suggestion | None:
         """``ثبت نام`` -> ``ثبت‌نام``: two words whose joined form is a common
-        word.  Joining is a choice of style, so it applies on its own only when
-        the printed questionnaires write the word joined somewhere."""
+        word in hazm's dictionary, also with a suffix on the second
+        (``اجاره بهای`` -> ``اجاره‌بهای``, as ``اجاره‌بها``).  Applied on its own,
+        except a verb phrase (``خریداری شده``, ``قابل حمل``), which hazm's
+        corpus also joins but Persian writes apart: that one applies only when
+        the printed questionnaires write it joined somewhere."""
         if b in _SUFFIXES or b in ("ای", "ی") or a in _FUNCTION or b in _FUNCTION:
             return None  # no compound holds و, در, که ... (سر و صورت is not سرو)
-        if not (self.lex.has(a) and self.lex.has(b)):
+        if not self.lex.has(a):
             return None
-        joined = max((a + ZWNJ + b, a + b), key=self.lex.count)
-        if a[-1] in _NON_JOINING:
-            joined = a + b  # after ا د ذ ر ز ژ و no ZWNJ is needed
+        # the compound must be common in hazm; its second piece need not be a
+        # word of its own (بندی in طبقه‌بندی)
+        joined, suffix = self._joined(a, b), ""
         if self.lex.count(joined) < COMMON:
-            return None
+            if not self.lex.has(b):
+                return None  # a suffix is read only off a word (بهای, not ارهای: کاردار + های)
+            for x in ("هایی", "های", "ها", "ای", "ی"):
+                stem = b[: -len(x)]
+                if b.endswith(x) and len(stem) >= 2 and self.lex.has(stem):
+                    j = self._joined(a, stem)
+                    if self.lex.count(j) >= COMMON:
+                        joined, suffix = j, x
+                        break
+            else:
+                return None
+        joint = ZWNJ if suffix.startswith("ها") and joined[-1] not in _NON_JOINING else ""
         printed = any(self._printed(x) for x in (a + ZWNJ + b, a + b))
+        phrase = b in _VERB_PHRASE or a in _PHRASE_HEAD
         return Suggestion(
             f"{a} {b}",
-            joined,
+            joined + joint + suffix,
             "compound",
-            printed,
+            printed or not phrase,
             f"hazm: {joined} {_n(self.lex.count(joined))}"
-            + ("; the questionnaires print it joined" if printed else "; never printed joined"),
+            + ("; the questionnaires print it joined" if printed else "")
+            + ("; a verb phrase" if phrase else ""),
         )
 
     def _printed(self, word: str) -> bool:
@@ -433,12 +515,16 @@ def _edits1(w: str) -> set[str]:
 
 
 def suggest(
-    labels: Iterable[tuple[int, str]], lex: Lexicon, printed: Iterable[str] | None = None
+    labels: Iterable[tuple[int, str]],
+    lex: Lexicon,
+    printed: Iterable[str] | None = None,
+    keys: Iterable[str] | None = None,
 ) -> list[Suggestion]:
     """Spelling suggestions for ``(year, label)`` pairs.  ``printed`` are the
     labels as printed (after the corrections and punctuation only), the
     evidence for how the questionnaires write a compound; ``labels`` by
-    default."""
+    default.  ``keys`` name the item of each label across years (its kind and
+    code); with them come the ``years`` suggestions."""
     labels = list(labels)
     tokens = [(y, s, _WORD.findall(s)) for y, s in labels]
     uses = Counter(w for _, _, ts in tokens for w in ts)
@@ -454,7 +540,7 @@ def suggest(
     for w in uses:
         if not _PERSIAN_ONLY.fullmatch(w):
             continue
-        add(f.he_ye(w)) or add(f.plural(w)) or add(f.glued(w)) or add(f.typo(w))
+        add(f.he_ye(w)) or add(f.plural(w)) or add(f.missing_zwnj(w)) or add(f.glued(w)) or add(f.typo(w))
     for _, _, ts in tokens:
         for a, b in itertools.pairwise(ts):
             if not (_PERSIAN_ONLY.fullmatch(a) and _PERSIAN_ONLY.fullmatch(b)):
@@ -469,6 +555,18 @@ def suggest(
                 or add(f.broken(a, b))
                 or add(f.compound(a, b))
             )
+    # a compound followed by a spaced plural suffix (قطب نما ها): one suggestion,
+    # or the compound would take نما and leave ها apart
+    for _, _, ts in tokens:
+        for a, b, c in zip(ts, ts[1:], ts[2:], strict=False):
+            pair = found.get(f"{a} {b}")
+            if c in _SUFFIXES and pair is not None and pair.kind == "compound":
+                joint = "" if pair.replace[-1] in _NON_JOINING else ZWNJ
+                add(
+                    Suggestion(
+                        f"{a} {b} {c}", pair.replace + joint + c, "compound", pair.apply, pair.evidence
+                    )
+                )
     # a piece of a broken pair is no word, so it was also read as a typo or a glue
     pieces = {p for s in found.values() if s.kind == "broken" for p in s.find.split(" ")}
     for p in pieces:
@@ -484,7 +582,129 @@ def suggest(
                 s.labels.add(label)
                 s.years.add(y)
     out = [s for s in found.values() if s.uses]
+    if keys is not None:
+        out += _across_years(labels, list(keys), out, lex)
     return sorted(out, key=lambda s: (KINDS.index(s.kind), -s.uses, s.find))
+
+
+# --- across years --------------------------------------------------------------
+
+_SUFFIX_FORMS = ("هایی", "های", "ها", "ترین", "تر", "ای", "ی", "ام", "ات", "اش")
+_GAPS = re.compile(f"[ {ZWNJ}]")
+
+
+def known(w: str, lex: Lexicon) -> bool:
+    """A word of the dictionary, or a plural / suffixed form or ZWNJ compound of one."""
+    if w in _SHORT or lex.has(w) or lex.has(lex.stem(w)):
+        return True
+    if ZWNJ in w:
+        return all(p in _SUFFIX_FORMS or known(p, lex) for p in w.split(ZWNJ) if p)
+    return any(w.endswith(s) and len(w) - len(s) >= 2 and lex.has(w[: -len(s)]) for s in _SUFFIX_FORMS)
+
+
+def _all_known(span: str, lex: Lexicon) -> bool:
+    return all(known(w, lex) for w in _WORD.findall(span) if _PERSIAN_ONLY.fullmatch(w))
+
+
+def other_form(w: str, siblings: Iterable[tuple[int, str]], lex: Lexicon) -> tuple[str, int] | None:
+    """How another label (``(year, text)``, nearest first) writes the letters of
+    ``w``, when that is whole words the dictionary knows: ``سایرحق`` in 1383,
+    ``سایر حق`` in 1386, though the rest of the two labels may differ."""
+    bare = w.replace(ZWNJ, "")
+    for year, text in siblings:
+        letters, where = [], []
+        for i, ch in enumerate(text):
+            if ch not in f" {ZWNJ}":
+                letters.append(ch)
+                where.append(i)
+        joined = "".join(letters)
+        i = joined.find(bare)
+        while i >= 0:
+            a, b = where[i], where[i + len(bare) - 1] + 1
+            whole = (a == 0 or not _WORD.match(text[a - 1])) and (b == len(text) or not _WORD.match(text[b]))
+            span = text[a:b]
+            if whole and span != w and _all_known(span, lex):
+                return span, year
+            i = joined.find(bare, i + 1)
+    return None
+
+
+def _across_years(
+    labels: list[tuple[int, str]], keys: list[str], suggestions: list[Suggestion], lex: Lexicon
+) -> list[Suggestion]:
+    """``years``: where one item reads with the same letters but other spacing or
+    ZWNJs in other years (the whole label, or a word the dictionary does not
+    know that another year writes as known words: مستقردرکارخانه‌ها / مستقر در
+    کارخانه‌ها), every way the labels write those letters is counted,
+    on the labels as the other suggestions leave them.  The form written most
+    wins, but a form with a word the dictionary does not know never beats one
+    without.  Applied on its own only when every other form has such a word
+    (سایرحق -> سایر حق); a choice between two spellings of known words
+    (موتورسیکلت / موتور سیکلت) waits for review."""
+    from .correct import LabelFix, fix_label  # correct imports this module
+
+    fixes = [
+        LabelFix(s.find, s.replace, "word", None, "")
+        for s in sorted(suggestions, key=lambda s: -len(s.find))
+        if s.apply
+    ]
+    final = [(y, fix_label(s, y, fixes)) for y, s in labels]
+    text = "\n".join(s for _, s in final)
+    # the spans whose spacing differs between years of one item
+    by_key: dict[str, list[tuple[int, str]]] = defaultdict(list)
+    for key, (y, s) in zip(keys, final, strict=True):
+        by_key[key].append((y, s))
+    spans: set[str] = set()
+    for items in by_key.values():
+        for y, s in items:
+            for w in _WORD.findall(s):
+                if not _PERSIAN_ONLY.fullmatch(w) or known(w, lex):
+                    continue
+                siblings = sorted((t for t in items if t[0] != y), key=lambda t: abs(t[0] - y))
+                if other_form(w, siblings, lex):
+                    spans.add(w.replace(ZWNJ, ""))
+        same: dict[str, set[str]] = defaultdict(set)
+        for _, s in items:
+            same[_GAPS.sub("", s)].add(s)
+        for forms in same.values():
+            for a, b in itertools.combinations(sorted(forms), 2):
+                wa, wb = _WORD.findall(a), _WORD.findall(b)
+                sm = difflib.SequenceMatcher(None, wa, wb, autojunk=False)
+                for op, i1, i2, j1, j2 in sm.get_opcodes():
+                    if op != "equal" and i2 > i1 and j2 > j1:
+                        spans.add("".join(wa[i1:i2]).replace(ZWNJ, ""))
+    edge = f"[ء-ٟٮ-ۓە۰-۹{ZWNJ}A-Za-z0-9]"
+    taken = {s.find: s for s in suggestions}
+    out = []
+    for bare in sorted(spans):
+        pat = re.compile(f"(?<!{edge})" + f"[ {ZWNJ}]?".join(map(re.escape, bare)) + f"(?!{edge})")
+        count = Counter(pat.findall(text))
+        if len(count) < 2:
+            continue
+        win = max(count, key=lambda s: (_all_known(s, lex), count[s], s))
+        safe = _all_known(win, lex) and not any(_all_known(s, lex) for s in count if s != win)
+        evidence = "the labels write " + "; ".join(f"{s} {n}" for s, n in count.most_common())
+        for form in count:
+            if form == win:
+                continue
+            if form in taken:
+                # another kind suggests the same and held it back (a glue it could
+                # not cut for sure): the other years settle it
+                other = taken[form]
+                if safe and not other.apply and other.replace == win:
+                    other.apply = True
+                    other.evidence += f"; {evidence}"
+                continue
+            s = Suggestion(form, win, "years", safe, evidence)
+            pf = _pattern(form)
+            for y, label in final:
+                if form in label and pf.search(label):
+                    s.uses += len(pf.findall(label))
+                    s.labels.add(label)
+                    s.years.add(y)
+            if s.uses:
+                out.append(s)
+    return out
 
 
 def _pattern(find: str) -> re.Pattern:
@@ -551,22 +771,24 @@ def load_decisions(path: Path = DECISIONS) -> list[Decision]:
 def accepted(
     suggestions: list[dict[str, str]], decisions: list[Decision]
 ) -> tuple[list[tuple[str, str]], list[Decision]]:
-    """The (find, replace) pairs the build applies, longest first, and the
-    decisions that match no suggestion (stale)."""
+    """The (find, replace) pairs the build applies, longest first, the
+    ``years`` ones last (they are found on the labels the others leave), and
+    the decisions that match no suggestion (stale)."""
     by_find = {d.find: d for d in decisions}
     pairs = []
     for s in suggestions:
         d = by_find.get(s["find"])
+        last = s.get("kind") == "years"
         if d is None:
             if s["apply"] == "yes":
-                pairs.append((s["find"], s["replace"]))
+                pairs.append((last, s["find"], s["replace"]))
         elif d.decision == "confirm":
-            pairs.append((s["find"], s["replace"]))
+            pairs.append((last, s["find"], s["replace"]))
         elif d.decision == "change":
-            pairs.append((s["find"], d.replace))
-    known = {s["find"] for s in suggestions}
-    stale = [d for d in decisions if d.find not in known]
-    return sorted(pairs, key=lambda p: -len(p[0])), stale
+            pairs.append((last, s["find"], d.replace))
+    listed = {s["find"] for s in suggestions}
+    stale = [d for d in decisions if d.find not in listed]
+    return [(f, r) for _, f, r in sorted(pairs, key=lambda p: (p[0], -len(p[1])))], stale
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -578,11 +800,16 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--extracted", type=Path, default=EXTRACTED)
     ap.add_argument("--out", type=Path, default=SUGGESTIONS)
     args = ap.parse_args(argv)
-    labels = [(y, r["description"]) for y, rows in correct.before_suggestions(args.extracted) for r in rows]
+    rows = [
+        (y, r["description"], f"{r['kind']} {r['expenditure_code'] or r['code'] or r['section']}")
+        for y, year_rows in correct.before_suggestions(args.extracted)
+        for r in year_rows
+        if r["description"]
+    ]
     printed = [
         r["description"] for _, rows in correct.before_suggestions(args.extracted, labels=None) for r in rows
     ]
-    suggestions = suggest(((y, s) for y, s in labels if s), hazm_lexicon(), printed)
+    suggestions = suggest(((y, s) for y, s, _ in rows), hazm_lexicon(), printed, keys=(k for _, _, k in rows))
     write_suggestions(suggestions, args.out)
     kinds = defaultdict(lambda: [0, 0])
     for s in suggestions:
