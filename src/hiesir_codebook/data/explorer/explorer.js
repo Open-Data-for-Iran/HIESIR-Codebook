@@ -39,7 +39,8 @@
       otherUnder: c => `Other items under code ${c}`, corrections: "Corrections to the printed questionnaire", evidence: "Evidence",
       lgThis: "this item", lgOther: "same series, other code or label (click)", lgGap: "not asked", lgMark: "change year",
       openPdf: (y, p) => `${y}: page ${p}, open the printed form`,
-      pdfHint: "Click a year to see the item on the printed questionnaire.",
+      pdfHint: "Click a year to see the item on the printed questionnaire; double-click it to compare every year with it.",
+      refHint: "Double-click a year to compare every year with it.",
       cm: {
         st: ["strictly comparable", "same item, scope changed", "recoverable by adding codes", "not recoverable"],
         ref: "reference year", na: "not asked",
@@ -137,7 +138,8 @@
       otherUnder: c => `اقلام دیگر با کد ${c}`, corrections: "اصلاحات پرسشنامه چاپی", evidence: "شاهد",
       lgThis: "همین قلم", lgOther: "همان سری با کد یا عبارت دیگر (کلیک کنید)", lgGap: "پرسیده نشده", lgMark: "سال تغییر",
       openPdf: (y, p) => `${y}: صفحه ${p}، باز کردن فرم چاپی`,
-      pdfHint: "برای دیدن قلم در پرسشنامه چاپی، روی یک سال کلیک کنید.",
+      pdfHint: "برای دیدن قلم در پرسشنامه چاپی، روی یک سال کلیک کنید؛ با دو بار کلیک، سال‌های دیگر با آن سال مقایسه می‌شوند.",
+      refHint: "با دو بار کلیک روی یک سال، سال‌های دیگر با آن سال مقایسه می‌شوند.",
       cm: {
         st: ["کاملاً قابل مقایسه", "همان قلم، با تغییر دامنه", "قابل بازسازی با جمع کدها", "غیرقابل بازسازی"],
         ref: "سال مرجع", na: "پرسیده نشده",
@@ -584,24 +586,26 @@
       const np = M.YEARS.filter(y => { const e = cmp.get(y); return e && e.st !== null && e.set.every(x => !x.page.get(y)); });
       const why = [...new Set(np.flatMap(y => cmp.get(y).set.map(x => M.DATA.corrections.find(k =>
         +k.year === y && k.action === "add_section" && +k.description === x.secAt(y))).filter(Boolean)))];
-      h += `<div class="verdict ${vcls}"><b>${t.cm.seenFrom(yr(R))}</b><ul class="spans">` +
+      h += `<div class="verdict ${vcls}"><b>${t.cm.seenFrom(`<span class="refy">${yr(R)}</span>`)}</b><ul class="spans">` +
         by.map((ys, k) => ys.length ? `<li><i class="sw s${k}"></i>${t.cm.st[k]}: ${ranges(ys)}</li>` : "").join("") +
         (np.length ? `<li class="np"><i class="sw np"></i>${t.cm.npLine(ranges(np))}${why.length ? ":" : "."}` +
           why.map(k => `<div class="why" dir="ltr">${esc(k.reason)}</div>`).join("") + `</li>` : "") + `</ul></div>`;
 
       // timeline
       h += `<h3>${t.timeline}</h3>`;
-      if (pdfBase && s.chains.some(x => x.years.some(y => x.page.get(y)))) h += `<div class="pdfhint">${t.pdfHint}</div>`;
-      h += `<div class="timeline"><div class="tl" style="grid-template-columns:repeat(${M.YEARS.length},1fr)">`;
-      h += M.YEARS.map(y => `<div class="y">${yr(y).slice(2)}</div>`).join("");
+      h += `<div class="pdfhint">${pdfBase && s.chains.some(x => x.years.some(y => x.page.get(y))) ? t.pdfHint : t.refHint}</div>`;
+      h += `<div class="timeline"><div class="tl" style="grid-template-columns:repeat(${M.YEARS.length},minmax(0,1fr))">`;
+      // the reference year: its label a chip, its cell ringed, a note under it
+      h += M.YEARS.map(y => `<div class="y${y === R ? " ref" : ""}"${y === R ? ` title="${esc(t.cm.ref)}"` : ""}><span>${yr(y).slice(2)}</span></div>`).join("");
       h += M.YEARS.map(y => {
         const e = cmp.get(y), cls = stCls(e), text = tip(y, e);
         const printed = e && e.set.filter(x => pdfUrl(x, y));
         if (pdfBase && printed && printed.length) {
-          return `<a class="c ${cls}" href="${pdfUrl(printed[0], y)}" target="_blank" rel="noopener" data-pdf="${esc(printed.map(x => x.id).join(" "))}" data-year="${y}" data-st="${e.st === "ref" ? 0 : e.st}" title="${esc(text)} · ${t.cm.openForm}"></a>`;
+          return `<a class="c ${cls}"${s.years.includes(y) ? ` data-y="${y}"` : ""} href="${pdfUrl(printed[0], y)}" target="_blank" rel="noopener" data-pdf="${esc(printed.map(x => x.id).join(" "))}" data-year="${y}" data-st="${e.st === "ref" ? 0 : e.st}" title="${esc(text)} · ${t.cm.openForm}"></a>`;
         }
-        return `<div class="c ${cls}${np.includes(y) ? " np" : ""}" title="${esc(text)}${np.includes(y) ? ` · ${t.notPrinted}` : ""}"></div>`;
+        return `<div class="c ${cls}${np.includes(y) ? " np" : ""}"${s.years.includes(y) ? ` data-y="${y}"` : ""} title="${esc(text)}${np.includes(y) ? ` · ${t.notPrinted}` : ""}"></div>`;
       }).join("");
+      h += `<div class="refnote" style="grid-column:${M.YEARS.indexOf(R) + 1}" title="${esc(t.cm.ref)}" aria-label="${esc(t.cm.ref)}">▲</div>`;
       const present = new Set([...cmp.values()].map(e => (e.st === "ref" ? 0 : e.st)));
       h += `</div></div><div class="legend">` +
         [0, 1, 2, 3].filter(k => present.has(k)).map(k => `<span><i class="sw s${k}"></i>${t.cm.st[k]}</span>`).join("") +
@@ -920,7 +924,30 @@
       if (selected) renderDetail(selected);
       setHash(hashFor(current()));
     });
+    let cellTimer = null, cellYear = null;
+    function setRefYear(y) {
+      const s = M.serOf.get(selected);
+      if (!s || !s.years.includes(y) || ref === y) return;
+      ref = y; elRef.value = String(y);
+      renderList(); renderDetail(selected);
+      root.querySelector(`.row[data-id="${CSS.escape(selected)}"]`)?.classList.add("sel");
+      setHash(hashFor(current()));
+    }
     root.addEventListener("click", e => {
+      // a timeline year: one click opens the printed form, a double click makes
+      // it the reference year (the click waits a moment to tell them apart)
+      const cell = e.target.closest(".tl .c[data-y]");
+      if (cell && !(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button)) {
+        e.preventDefault();
+        const y = +cell.dataset.y;
+        if (cellTimer && cellYear === y) { clearTimeout(cellTimer); cellTimer = null; setRefYear(y); return; }
+        clearTimeout(cellTimer); cellYear = y;
+        cellTimer = setTimeout(() => {
+          cellTimer = null;
+          if (cell.dataset.pdf) openPdf(cell.dataset.pdf.split(" ").map(id => M.CH.get(id)).filter(Boolean), y, cell, cell.dataset.st);
+        }, 280);
+        return;
+      }
       const pdfLink = e.target.closest("a[data-pdf]");
       if (pdfLink && !(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button)) {
         e.preventDefault(); openPdf(pdfLink.dataset.pdf.split(" ").map(id => M.CH.get(id)).filter(Boolean), +pdfLink.dataset.year, pdfLink, pdfLink.dataset.st); return;
