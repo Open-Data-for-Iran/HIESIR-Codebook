@@ -215,7 +215,6 @@
 ودرمان,و درمان,word,,glued و
 وسنگ‌های,و سنگ‌های,word,,glued و
 ورایانه‌ای,و رایانه‌ای,word,,glued و
-ولوازمالتحریر,و لوازمالتحریر,word,,glued و
 شیرینیها,شیرینی‌ها,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 ماهیتابه,ماهی‌تابه,word,,glued words (reviewed)
 تختخواب,تخت‌خواب,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
@@ -246,13 +245,6 @@
 آبمیوه,آب‌میوه,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 لباسزیر,لباس زیر,word,,glued words (questionnaires write them apart)
 باغوحش,باغ وحش,word,,glued words (questionnaires write them apart)
-خدماتمشاورهای,خدمات مشاوره‌ای,word,,glued words (reviewed)
-لوازمخانگی,لوازم خانگی,word,,glued words (questionnaires write them apart)
-اقلامووسایل,اقلام و وسایل,word,,glued words (reviewed)
-انواعلوازم,انواع لوازم,word,,glued words (questionnaires write them apart)
-نگهداریوتعمیر,نگهداری و تعمیر,word,,glued words (reviewed)
-صورتحساب,صورت حساب,word,,glued words (questionnaires write them apart)
-نشدهدرجای,نشده در جای,word,,glued words (reviewed)
 میوه خوری,میوه‌خوری,word,,compound written with ZWNJ (also printed spaced)
 اندازه گیری,اندازه‌گیری,word,,compound written with ZWNJ (also printed spaced)
 بسته بندی,بسته‌بندی,word,,compound written with ZWNJ (also printed spaced)
@@ -284,9 +276,6 @@
 رنگ‌روغن,رنگ روغن,word,,ZWNJ where a space belongs
 روغن‌نباتی,روغن نباتی,word,,ZWNJ where a space belongs
 ترخیص‌خارج,ترخیص خارج,word,,ZWNJ where a space belongs
-آینه‌جیبی,آینه جیبی,word,,ZWNJ where a space belongs
-حمایت‌اجتماعی,حمایت اجتماعی,word,,ZWNJ where a space belongs
-مستقیم‌اندازهگیری,مستقیم اندازه‌گیری,word,,glued words (reviewed)
 وسایرانواع,و سایر انواع,word,,glued و
 ونظایر,و نظایر,word,,glued و
 وپخت,و پخت,word,,glued و
@@ -372,27 +361,12 @@
 چربیها ی,چربیهای,word,,word broken by a space (چربیهای)
 چربی‌ها ی,چربی‌های,word,,word broken by a space (چربی‌های)
 اردوگاه هاو,اردوگاه‌ها و,word,,spaces lost (glued words)
-بالااشاره,بالا اشاره,word,,spaces lost (glued words)
-کرایه‌پوشاک,کرایه پوشاک,word,,spaces lost (glued words)
 دوساله,دو ساله,word,,spaces lost (glued words)
-آبو,آب و,word,,spaces lost (glued words)
-هزینه‌هایجمع‌آوری,هزینه‌های جمع‌آوری,word,,spaces lost (glued words)
-لوازمپارچه‌ایخانگی,لوازم پارچه‌ای خانگی,word,,spaces lost (glued words)
-بی‌دوامخانگی,بی‌دوام خانگی,word,,spaces lost (glued words)
-خدماتدندانپزشکی,خدمات دندانپزشکی,word,,spaces lost (glued words)
-نگهداریوتعمیروسایل,نگهداری و تعمیر وسایل,word,,spaces lost (glued words)
-فیلم‌برداریوتجهیزات,فیلم‌برداری و تجهیزات,word,,spaces lost (glued words)
-باغهاوحیوانهای,باغها و حیوانهای,word,,spaces lost (glued words)
-بازیووسایل,بازی و وسایل,word,,spaces lost (glued words)
 وگلها,و گلها,word,,spaces lost (glued words)
 نظایرآن,نظایر آن,word,,spaces lost (glued words)
-غذاخوریهاو,غذاخوریها و,word,,spaces lost (glued words)
 درجای,در جای,word,,spaces lost (glued words)
-مالی‌طبقه بندی,مالی طبقه‌بندی,word,,spaces lost (glued words)
-تعمیرو,تعمیر و,word,,spaces lost (glued words)
-رایانه‌ایو,رایانه‌ای و,word,,spaces lost (glued words)
 مسافرهای دستجمعی,مسافرتهای دستجمعی,word,,typo (مسافرتهای); other years have the right spelling
-خدماتواسطه‌گریهای,خدمات واسطه‌گریهای,word,,spaces lost (glued words)
-خسارتودیه,خسارت و دیه,word,,spaces lost (glued words)
 خانواردرساختمان,خانوار در ساختمان,word,,spaces lost (glued words)
-سرمایه‌گذاریخانوار,سرمایه‌گذاری خانوار,word,,spaces lost (glued words)
+غذا خوری,غذاخوری,text,,"one word (غذاخوری, dining hall / dish), printed spaced in most years"
+اندازهگیری,اندازه‌گیری,word,,compound written with ZWNJ (also printed joined)
+سمعی- بصری,سمعی-بصری,text,,no space after the hyphen (1393 prints سمعی-بصری)

@@ -277,8 +277,12 @@ def _needs_zwnj(prev: Glyph, cur: Glyph) -> bool:
 
 
 def group_lines(
-    glyphs: list[Glyph], tol: float = 3.0, gap: float = 0.2, column_gap: float = 2.0
+    glyphs: list[Glyph], tol: float = 3.0, gap: float = 0.15, column_gap: float = 2.0
 ) -> list[Line]:
+    """Glyphs -> lines.  A gap wider than ``gap`` x the font size is a space:
+    letters inside a word sit within 0.02 of each other, while spaces run from
+    0.15 (1402 sets them at 0.16-0.20, where the PDF also has a space
+    character) to about 0.25; at 0.12 words start to break (پزشک)."""
     rows: list[list[Glyph]] = []
     mids: list[float] = []
     for g in sorted(glyphs, key=lambda g: g.mid):
