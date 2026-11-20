@@ -33,7 +33,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from .utils import loose_key, words
+from ..utils import loose_key, words
 
 # questionnaires with COICOP-based codes (the 1401 PDF is not a questionnaire)
 YEARS = [*range(1383, 1401), 1402, 1403]

@@ -113,7 +113,7 @@ hazm وابستگی اختیاری است و فقط برای ساختن دوبا
 یا ۳.۱۳ نیاز دارد)؛ ساخت خروجی فقط فایل را می‌خواند و بی آن اجرا می‌شود:
 
 ```bash
-uv run --python 3.13 --extra hazm python -m hiesir_codebook.spelling
+uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.spelling
 ```
 
 پس از تغییر اصلاحات یا `spelling.csv` فایل را دوباره بسازید؛ آزمونی (جایی که hazm
@@ -140,8 +140,8 @@ uv run --python 3.13 --extra hazm python -m hiesir_codebook.spelling
 کند، کدش عوض شود یا در سالی پرسیده نشود.
 
 ```bash
-uv run python -m hiesir_codebook.chains      # stage 1: output/2_corrected/ -> output/3_items/chains.csv
-uv run python -m hiesir_codebook.relations   # stage 2: chains.csv -> output/3_items/links.csv, relations.csv
+uv run python -m hiesir_codebook.linking.chains      # stage 1: output/2_corrected/ -> output/3_items/chains.csv
+uv run python -m hiesir_codebook.linking.relations   # stage 2: chains.csv -> output/3_items/links.csv, relations.csv
 ```
 
 تطبیق در دو مرحله انجام می‌شود.
@@ -397,16 +397,21 @@ uv run python -m hiesir_codebook.relations   # stage 2: chains.csv -> output/3_i
 
 ## چگونه کار می‌کند {#how-it-works}
 
+کد در سه پوشه زیر `src/hiesir_codebook/` است، هر کدام برای یک کار:
+`extraction/` (از PDF تا `output/1_extracted/`)، `correction/` (تا
+`output/2_corrected/`) و `linking/` (زنجیره‌ها، پیوندها، رابطه‌ها و گروه‌ها
+در طول سال‌ها، تا `output/3_items/` و `output/4_groups/`).
+
 - `pdf_text.py` متن راست‌به‌چپ را از جایگاه گلیف‌ها بازسازی می‌کند. گلیف‌های بدون
   نگاشت یونیکد (۱۳۸۲) از روی نام گلیف خوانده می‌شوند و نیم‌فاصله‌ها هر جا قلم از
   شکل‌های بافتاری گلیف استفاده می‌کند بازیابی می‌شوند.
 - `glyph_db.py` قلم‌هایی را که نگاشت ToUnicode آن‌ها نادرست است ترمیم می‌کند
   (۱۳۹۵، ۱۳۹۶، ۱۳۹۹، ۱۴۰۲: «بخش» به صورت «لاوش» استخراج می‌شود). از طرح هر گلیف
-  یک هش گرفته و در `src/hiesir_codebook/data/glyph_db.json` (در git) جست‌وجو
+  یک هش گرفته و در `src/hiesir_codebook/extraction/data/glyph_db.json` (در git) جست‌وجو
   می‌شود که از PDFهای سالم ساخته شده است. قلمی خراب شمرده می‌شود که نگاشت
   ToUnicode آن با این پایگاه ناسازگار باشد: PDFهای سالم ۱۰۰٪ سازگارند و قلم‌های
   خراب در ۰٫۸٪ یا بیشتر ناسازگار. برای ساختن دوباره پایگاه:
-  `uv run python -m hiesir_codebook.build_glyph_db`.
+  `uv run python -m hiesir_codebook.extraction.build_glyph_db`.
 - `parse.py` سطرهای کد را پیدا می‌کند و سطرهای شکسته شرح را با کمک خطوط جدول و
   مرز ستون‌ها به آن‌ها می‌چسباند.
 - `correct.py` فایل‌های `curated/2_corrected/corrections.csv` و `curated/2_corrected/spelling.csv` را روی

@@ -42,7 +42,7 @@ suggestion (``find``): ``confirm`` applies it, ``reject`` blocks it,
 
 hazm is an optional dependency, needed only to regenerate the file:
 
-    uv run --python 3.13 --extra hazm python -m hiesir_codebook.spelling
+    uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.spelling
 
 The build (``correct``) only reads the file and the decisions, so it runs
 without hazm.  Regenerate after changing the corrections or ``spelling.csv``.
@@ -61,8 +61,8 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import CORRECTED, CURATED_CORRECTED, EXTRACTED
-from .utils import ZWNJ
+from .. import CORRECTED, CURATED_CORRECTED, EXTRACTED
+from ..utils import ZWNJ
 
 SUGGESTIONS = CORRECTED / "spelling_suggestions.csv"
 DECISIONS = CURATED_CORRECTED / "spelling_suggestions.csv"
@@ -125,7 +125,8 @@ def hazm_lexicon() -> Lexicon:
         import hazm
     except ImportError as e:  # pragma: no cover - depends on the environment
         raise SystemExit(
-            "hazm is not installed: uv run --python 3.13 --extra hazm python -m hiesir_codebook.spelling"
+            "hazm is not installed: "
+            "uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.spelling"
         ) from e
     return Lexicon({w: n for w, n, _ in hazm.words_list()}, stem=hazm.Stemmer().stem)
 
@@ -570,7 +571,7 @@ def main(argv: list[str] | None = None) -> None:
     from . import correct
 
     ap = argparse.ArgumentParser(
-        prog="python -m hiesir_codebook.spelling", description=__doc__.split("\n")[0]
+        prog="python -m hiesir_codebook.correction.spelling", description=__doc__.split("\n")[0]
     )
     ap.add_argument("--extracted", type=Path, default=EXTRACTED)
     ap.add_argument("--out", type=Path, default=SUGGESTIONS)

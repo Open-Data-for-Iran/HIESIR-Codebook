@@ -94,11 +94,11 @@ from dataclasses import dataclass, field
 from functools import cache
 from pathlib import Path
 
-from . import CURATED_ITEMS, ITEMS, REPORTS
+from .. import CURATED_ITEMS, ITEMS, REPORTS
+from ..correction.correct import OCCURRENCE, load_occurrence
+from ..utils import loose_key, words
 from .chains import Chain, read_chains
 from .compare import MAX_GAP, YEARS, compare, contained, is_etc, relate, split_qualifier
-from .correct import OCCURRENCE, load_occurrence
-from .utils import loose_key, words
 
 DECISIONS = CURATED_ITEMS / "relations.csv"
 LINK_DECISIONS = CURATED_ITEMS / "links.csv"
@@ -777,7 +777,7 @@ def write_evidence(relations: list[Relation], chains: list[Chain], occ: Occurren
 
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(
-        prog="python -m hiesir_codebook.relations",
+        prog="python -m hiesir_codebook.linking.relations",
         description="Matching stage 2: relations between chains.",
     )
     ap.add_argument("--chains", type=Path, default=ITEMS / "chains.csv")

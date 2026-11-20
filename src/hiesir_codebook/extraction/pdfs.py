@@ -5,8 +5,8 @@ The PDFs are not in git. They are attached to the GitHub release
 Published names are lower case without spaces (GitHub turns spaces in release
 file names into dots): ``Questionnaire 1363 Urban.pdf`` -> ``questionnaire_1363_urban.pdf``.
 
-    uv run python -m hiesir_codebook.pdfs stage    # data/pdf -> data/release, renamed for upload
-    uv run python -m hiesir_codebook.pdfs list     # what a folder holds
+    uv run python -m hiesir_codebook.extraction.pdfs stage    # data/pdf -> data/release, renamed for upload
+    uv run python -m hiesir_codebook.extraction.pdfs list     # what a folder holds
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
-from . import DATA_DIR, SUPPORTED_YEARS
+from .. import DATA_DIR, SUPPORTED_YEARS
 
 RELEASE_TAG = "questionnaires"
 RE_NAME = re.compile(r"^questionnaire[ _](\d{4})(?:[ _](urban|rural))?\.pdf$", re.IGNORECASE)
@@ -64,7 +64,7 @@ def stage(src: Path, dst: Path) -> list[Path]:
 
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(
-        prog="python -m hiesir_codebook.pdfs",
+        prog="python -m hiesir_codebook.extraction.pdfs",
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )

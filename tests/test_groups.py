@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from hiesir_codebook.chains import Chain
-from hiesir_codebook.groups import (
+from hiesir_codebook.linking.chains import Chain
+from hiesir_codebook.linking.groups import (
     Decision,
     build_groups,
     build_links,
@@ -167,7 +167,7 @@ def test_groups_are_up_to_date(tmp_path):
     """output/4_groups/groups.csv, members.csv and links.csv must
     match output/2_corrected/ and the item links; if this fails, run
     `uv run hiesir-codebook build --no-extract`."""
-    from hiesir_codebook import groups
+    from hiesir_codebook.linking import groups
 
     root = Path(__file__).resolve().parents[1]
     groups.main(

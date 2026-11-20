@@ -117,7 +117,7 @@ hazm is an optional dependency, needed only to regenerate the file (it needs
 Python 3.12 or 3.13); the build reads the file and runs without it:
 
 ```bash
-uv run --python 3.13 --extra hazm python -m hiesir_codebook.spelling
+uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.spelling
 ```
 
 Regenerate after changing the corrections or `spelling.csv`; a test (run where
@@ -146,8 +146,8 @@ passes.
 changes slightly, its code changes, or it is missing from a year.
 
 ```bash
-uv run python -m hiesir_codebook.chains      # stage 1: output/2_corrected/ -> output/3_items/chains.csv
-uv run python -m hiesir_codebook.relations   # stage 2: chains.csv -> output/3_items/links.csv, relations.csv
+uv run python -m hiesir_codebook.linking.chains      # stage 1: output/2_corrected/ -> output/3_items/chains.csv
+uv run python -m hiesir_codebook.linking.relations   # stage 2: chains.csv -> output/3_items/links.csv, relations.csv
 ```
 
 Matching runs in two stages.
@@ -421,15 +421,20 @@ a `split` (`0313` → `0313 M` and `0313 A` in 1389).
 
 ## How it works
 
+The code lives in three folders under `src/hiesir_codebook/`, one per kind of
+work: `extraction/` (PDFs to `output/1_extracted/`), `correction/` (to
+`output/2_corrected/`) and `linking/` (chains, links, relations and groups
+across years, to `output/3_items/` and `output/4_groups/`).
+
 - `pdf_text.py` rebuilds right-to-left text from glyph positions. Glyphs without
   a Unicode mapping (1382) are decoded through their glyph names, and ZWNJs are
   recovered where the font uses contextual glyph forms.
 - `glyph_db.py` repairs fonts whose ToUnicode map is wrong (1395, 1396, 1399,
   1402: بخش extracts as لاوش). Each glyph's outline is hashed and looked up in
-  `src/hiesir_codebook/data/glyph_db.json` (tracked), which is built from the clean PDFs. A font is treated as
+  `src/hiesir_codebook/extraction/data/glyph_db.json` (tracked), which is built from the clean PDFs. A font is treated as
   broken when its ToUnicode map disagrees with the database: clean PDFs agree
   100%, broken fonts disagree on 0.8% or more. To rebuild the database:
-  `uv run python -m hiesir_codebook.build_glyph_db`.
+  `uv run python -m hiesir_codebook.extraction.build_glyph_db`.
 - `parse.py` finds code lines and attaches wrapped description lines to them,
   using the table rules and column borders.
 - `correct.py` applies `curated/2_corrected/corrections.csv` and `curated/2_corrected/spelling.csv`

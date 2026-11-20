@@ -28,8 +28,8 @@ uv run hiesir-codebook build                 # regenerate every stage of output/
 uv run hiesir-codebook build --no-extract    # keep 1_extracted/ (no PDFs needed)
 uv run hiesir-codebook all                   # just extract: PDFs -> output/1_extracted/
 uv run hiesir-codebook 1382 1403             # or just some years
-uv run python -m hiesir_codebook.correct --check   # correct and check against the raw data
-uv run python -m hiesir_codebook.validate    # check extracted codes against the raw data
+uv run python -m hiesir_codebook.correction.correct --check   # correct and check against the raw data
+uv run python -m hiesir_codebook.extraction.validate    # check extracted codes against the raw data
 uv run python -m hiesir_codebook.explorer    # just the explorer page
 ```
 
@@ -57,7 +57,7 @@ suggestions from hazm's dictionary (hazm needs Python 3.12 or 3.13), review the
 `curated/2_corrected/spelling_suggestions.csv`:
 
 ```bash
-uv run --python 3.13 --extra hazm python -m hiesir_codebook.spelling   # -> output/2_corrected/spelling_suggestions.csv
+uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.spelling   # -> output/2_corrected/spelling_suggestions.csv
 ```
 
 ## Tests
@@ -117,7 +117,7 @@ the [Questionnaires](questionnaires.md) page and linked from each item in the
 explorer. To add or replace one, put it in `data/pdf/`, then
 
 ```bash
-uv run python -m hiesir_codebook.pdfs stage   # data/pdf -> data/release, renamed questionnaire_<year>[_urban|_rural].pdf
+uv run python -m hiesir_codebook.extraction.pdfs stage   # data/pdf -> data/release, renamed questionnaire_<year>[_urban|_rural].pdf
 ```
 
 and upload the file from `data/release/` to the release (Edit release, attach

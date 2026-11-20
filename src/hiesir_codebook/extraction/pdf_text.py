@@ -25,8 +25,8 @@ from functools import cache, lru_cache
 import pymupdf
 from fontTools.ttLib import TTFont
 
+from ..utils import ZWNJ, canonical, is_arabic_letter, joins_next, normalize_visual
 from . import glyph_db
-from .utils import ZWNJ, canonical, is_arabic_letter, joins_next, normalize_visual
 
 # --- glyph-name decoding ----------------------------------------------------
 

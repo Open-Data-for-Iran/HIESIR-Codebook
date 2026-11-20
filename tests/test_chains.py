@@ -1,5 +1,5 @@
-from hiesir_codebook.chains import build_chains, read_chains, write_chains
-from hiesir_codebook.compare import Item
+from hiesir_codebook.linking.chains import build_chains, read_chains, write_chains
+from hiesir_codebook.linking.compare import Item
 
 YEARS = [1, 2, 3, 4, 5]
 
@@ -48,9 +48,9 @@ def test_matched_is_up_to_date(tmp_path):
     if this fails, run `uv run hiesir-codebook build --no-extract`."""
     from pathlib import Path
 
-    from hiesir_codebook.compare import YEARS as ALL_YEARS
-    from hiesir_codebook.compare import load_year
-    from hiesir_codebook.relations import (
+    from hiesir_codebook.linking.compare import YEARS as ALL_YEARS
+    from hiesir_codebook.linking.compare import load_year
+    from hiesir_codebook.linking.relations import (
         build_relations,
         conflicts,
         load_decisions,

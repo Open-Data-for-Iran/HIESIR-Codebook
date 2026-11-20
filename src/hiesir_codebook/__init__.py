@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import argparse
-import csv
 from pathlib import Path
 
-__all__ = ["extract", "extract_year", "main", "write_csv"]
+__all__ = ["CSV_COLUMNS", "Row", "build", "extract", "extract_year", "main", "write_csv"]
 
 # --- where things live --------------------------------------------------------
 # data/     external inputs, not in git (PDFs, household occurrence tables)
@@ -26,63 +25,12 @@ CURATED_CORRECTED = CURATED / "2_corrected"  # corrections.csv, spelling.csv
 CURATED_ITEMS = CURATED / "3_items"  # links.csv, relations.csv
 CURATED_GROUPS = CURATED / "4_groups"  # links.csv
 
-from .parse import Row, extract, extract_year  # noqa: E402  (after the paths it may use)
-
 # years whose PDF has a usable text layer (1363-1381 are scans; the 1401 PDF
 # is a data dictionary, not the questionnaire)
 SUPPORTED_YEARS = [1382, *range(1383, 1401), 1402, 1403]
 
-CSV_COLUMNS = [
-    "section",
-    "kind",
-    "level",
-    "code",
-    "sub",
-    "expenditure_code",
-    "description",
-    "page",
-    "top",
-    "bottom",
-    "left",
-    "right",
-]
-
-
-def write_csv(rows: list[Row], path: Path) -> None:
-    """One row per section / group header / item, in questionnaire order.
-
-    The section rows carry the full PDF title in ``description``; ``page``
-    is the 1-based PDF page.  UTF-8 with BOM so Excel shows Persian text.
-    """
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8-sig", newline="") as f:
-        w = csv.writer(f, lineterminator="\n")  # LF: tracked data diffs cleanly on every OS
-        w.writerow(CSV_COLUMNS)
-        for r in rows:
-            w.writerow(
-                [
-                    r.section,
-                    r.kind,
-                    r.level or "",
-                    r.code,
-                    r.sub or "",
-                    r.expenditure_code or "",
-                    r.desc,
-                    r.page + 1,
-                    "" if r.top is None else f"{r.top:.1f}",
-                    "" if r.bottom is None else f"{r.bottom:.1f}",
-                    "" if r.left is None else f"{r.left:.1f}",
-                    "" if r.right is None else f"{r.right:.1f}",
-                ]
-            )
-
-
-def build(year: int, data: Path = DATA_DIR, csv_dir: Path = EXTRACTED) -> Path:
-    """Extract one year's questionnaire and write ``<csv_dir>/questionnaire_<year>.csv``."""
-    rows = extract_year(year, data)
-    out = csv_dir / f"questionnaire_{year}.csv"
-    write_csv(rows, out)
-    return out
+# the extraction code lives in extraction/ (after the paths and years it uses)
+from .extraction import CSV_COLUMNS, Row, build, extract, extract_year, write_csv  # noqa: E402
 
 
 def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
@@ -92,7 +40,9 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
     -> correct (+ curated/2_corrected -> 2_corrected) -> chains and relations
     (-> 3_items) -> the groups (-> 4_groups) -> the explorer page.
     """
-    from . import chains, correct, explorer, groups, relations
+    from . import explorer
+    from .correction import correct
+    from .linking import chains, groups, relations
 
     if extract_pdfs and (data / "pdf").is_dir():
         for y in SUPPORTED_YEARS:

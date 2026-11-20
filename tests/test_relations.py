@@ -1,6 +1,6 @@
-from hiesir_codebook.chains import build_chains
-from hiesir_codebook.compare import Item
-from hiesir_codebook.relations import Decision, apply_decisions, code_reuse, definite, find_relations
+from hiesir_codebook.linking.chains import build_chains
+from hiesir_codebook.linking.compare import Item
+from hiesir_codebook.linking.relations import Decision, apply_decisions, code_reuse, definite, find_relations
 
 YEARS = [1, 2, 3]
 
@@ -147,11 +147,11 @@ def test_change_decision():
 
 
 def _rel(src_codes, tgt_codes, detail, year=3):
-    from hiesir_codebook.chains import Chain
+    from hiesir_codebook.linking.chains import Chain
 
     sources = [Chain(f"{c}-1", 1, c, "x", [1, 2]) for c in src_codes]
     targets = [Chain(f"{c}-3", 1, c, "y", [3]) for c in tgt_codes]
-    from hiesir_codebook.relations import Relation
+    from hiesir_codebook.linking.relations import Relation
 
     return Relation(sources, targets, "same", detail, at=year)
 
@@ -164,7 +164,7 @@ OCC = {
 
 
 def test_evidence_relative_to_group():
-    from hiesir_codebook.relations import evidence
+    from hiesir_codebook.linking.relations import evidence
 
     e = evidence(_rel(["011111"], ["011111"], "label_broadened"), OCC)
     assert (e.before_year, e.before, e.after, e.group) == (2, 400, 410, 2.0)
@@ -175,7 +175,7 @@ def test_evidence_relative_to_group():
 
 
 def test_evidence_merge_and_missing_year():
-    from hiesir_codebook.relations import evidence
+    from hiesir_codebook.linking.relations import evidence
 
     # group 0211 has no other code: plain ratio of the sums
     e = evidence(_rel(["021111"], ["021111", "021112"], ""), OCC)
@@ -193,9 +193,9 @@ def test_curated_notes_match_evidence():
 
     import pytest
 
-    from hiesir_codebook.chains import read_chains
-    from hiesir_codebook.correct import load_occurrence
-    from hiesir_codebook.relations import build_relations, evidence, load_decisions
+    from hiesir_codebook.correction.correct import load_occurrence
+    from hiesir_codebook.linking.chains import read_chains
+    from hiesir_codebook.linking.relations import build_relations, evidence, load_decisions
 
     root = Path(__file__).resolve().parents[1]
     path = root / "data" / "commodity_code_occurrence_1383-1403.csv"
@@ -216,7 +216,7 @@ def test_curated_notes_match_evidence():
 
 
 def test_evidence_merge_counts_households_once():
-    from hiesir_codebook.relations import evidence
+    from hiesir_codebook.linking.relations import evidence
 
     # tyres: the same households buy outer and inner tyres, so the merged code
     # has far fewer households than the sum of the two
@@ -231,8 +231,8 @@ def test_evidence_merge_counts_households_once():
 
 
 def test_evidence_ignores_reused_sibling_codes():
-    from hiesir_codebook.chains import Chain
-    from hiesir_codebook.relations import evidence
+    from hiesir_codebook.linking.chains import Chain
+    from hiesir_codebook.linking.relations import evidence
 
     # 011112 and 011113 tripled because their codes were reused for other items in year 3
     occ = {2: {11111: 400, 11112: 100, 11113: 100}, 3: {11111: 400, 11112: 300, 11113: 300}}
@@ -246,7 +246,7 @@ def test_evidence_ignores_reused_sibling_codes():
 def test_decisions_go_in_their_own_file(tmp_path):
     import pytest
 
-    from hiesir_codebook.relations import load_decisions
+    from hiesir_codebook.linking.relations import load_decisions
 
     link_head = "from_chain,to_chain,decision,relation,detail,note\n"
     links = tmp_path / "links.csv"
@@ -268,8 +268,8 @@ def test_decisions_go_in_their_own_file(tmp_path):
 
 
 def test_conflicts_between_links_and_relations():
-    from hiesir_codebook.chains import Chain
-    from hiesir_codebook.relations import Relation, conflicts
+    from hiesir_codebook.linking.chains import Chain
+    from hiesir_codebook.linking.relations import Relation, conflicts
 
     a, b, c = (Chain(i, 1, i[:3], "x", [y]) for i, y in (("011-1", 1), ("012-1", 1), ("011-2", 2)))
     link = Relation([a], [c], "same", id="L0001")

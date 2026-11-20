@@ -8,7 +8,7 @@ in a database built from the clean PDFs.
 
 Build (or rebuild) the database with::
 
-    uv run python -m hiesir_codebook.build_glyph_db
+    uv run python -m hiesir_codebook.extraction.build_glyph_db
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ import pymupdf
 from fontTools.pens.recordingPen import RecordingPen
 from fontTools.ttLib import TTFont
 
-from .utils import canonical
+from ..utils import canonical
 
 # The embedded font subsets have harmless table quirks ("3 extra bytes in
 # post.stringData array", "'created' timestamp out of range") that fontTools

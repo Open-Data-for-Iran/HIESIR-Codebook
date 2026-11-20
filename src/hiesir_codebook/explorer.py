@@ -18,7 +18,7 @@ import math
 from pathlib import Path
 
 from . import CORRECTED, CURATED_CORRECTED, GROUPS, ITEMS, OUTPUT
-from .compare import YEARS
+from .linking.compare import YEARS
 
 # The component (strings.js, explorer.js, explorer.css) is shared by the standalone page
 # written here and by the documentation site (docs/explorer.md,

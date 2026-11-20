@@ -6,8 +6,8 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from ..utils import OPT_SPACE, collapse_whitespace, has_letters, has_persian
 from .pdf_text import Line, Rule, Segment, VRule, page_count, page_lines, page_rules, page_vrules
-from .utils import OPT_SPACE, collapse_whitespace, has_letters, has_persian
 
 _CODE = r"(?:[AM] ?)?\d{2,5}(?: ?[AM])?"
 ITEM_RE = re.compile(rf"^(\d{{2}}) ({_CODE})(?: (.*))?$")

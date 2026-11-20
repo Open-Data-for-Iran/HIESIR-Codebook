@@ -1,6 +1,6 @@
 import pytest
 
-from hiesir_codebook.compare import compare, relate, split_qualifier
+from hiesir_codebook.linking.compare import compare, relate, split_qualifier
 
 
 @pytest.mark.parametrize(

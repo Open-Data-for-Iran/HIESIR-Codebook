@@ -37,7 +37,8 @@ from pathlib import Path
 
 from mkdocs.structure.files import File, Files
 
-from hiesir_codebook import explorer, pdfs
+from hiesir_codebook import explorer
+from hiesir_codebook.extraction import pdfs
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "output"

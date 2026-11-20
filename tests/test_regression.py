@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from hiesir_codebook import SUPPORTED_YEARS, write_csv
-from hiesir_codebook.parse import extract_year, pdf_path
+from hiesir_codebook.extraction.parse import extract_year, pdf_path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"

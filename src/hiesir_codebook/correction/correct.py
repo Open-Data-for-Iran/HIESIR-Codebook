@@ -46,7 +46,7 @@ reason     why
 
 Last come the spelling suggestions from hazm's dictionary
 (``output/2_corrected/spelling_suggestions.csv``, written by
-:mod:`hiesir_codebook.spelling` from the labels as they are at this point):
+:mod:`hiesir_codebook.correction.spelling` from the labels as they are at this point):
 those marked ``apply`` ``yes``, unless
 ``curated/2_corrected/spelling_suggestions.csv`` rejects them, and those it
 confirms or changes.
@@ -67,11 +67,11 @@ from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
 
-from . import CORRECTED, CSV_COLUMNS, CURATED_CORRECTED, DATA_DIR, EXTRACTED, SUPPORTED_YEARS
-from .parse import LAST_OLD_SCHEME_YEAR, header_level
+from .. import CORRECTED, CSV_COLUMNS, CURATED_CORRECTED, DATA_DIR, EXTRACTED, SUPPORTED_YEARS
+from ..extraction.parse import LAST_OLD_SCHEME_YEAR, header_level
+from ..utils import ZWNJ, collapse_whitespace, tidy_punctuation
 from .spelling import DECISIONS as SUGGESTION_DECISIONS
 from .spelling import SUGGESTIONS, accepted, load_decisions, load_suggestions
-from .utils import ZWNJ, collapse_whitespace, tidy_punctuation
 
 CORRECTIONS = CURATED_CORRECTED / "corrections.csv"
 LABELS = CURATED_CORRECTED / "spelling.csv"
@@ -274,7 +274,7 @@ def before_suggestions(
     labels: Path | None = LABELS,
 ):
     """``(year, rows)`` with everything applied except the spelling
-    suggestions: what :mod:`hiesir_codebook.spelling` reads.  With ``labels``
+    suggestions: what :mod:`hiesir_codebook.correction.spelling` reads.  With ``labels``
     None, without the spelling list either (the labels as printed, corrected)."""
     fixes = load_corrections(corrections)
     label_fixes = [] if labels is None else load_label_fixes(labels)

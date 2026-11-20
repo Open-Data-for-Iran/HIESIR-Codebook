@@ -1,6 +1,6 @@
 import pytest
 
-from hiesir_codebook.parse import (
+from hiesir_codebook.extraction.parse import (
     FOOTNOTE_TAIL_RE,
     NOT_DESC_RE,
     Row,
@@ -9,7 +9,7 @@ from hiesir_codebook.parse import (
     _page_entries,
     normalize_code,
 )
-from hiesir_codebook.pdf_text import Line, Segment, glyph_name_to_text
+from hiesir_codebook.extraction.pdf_text import Line, Segment, glyph_name_to_text
 
 
 @pytest.mark.parametrize(

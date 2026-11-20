@@ -55,7 +55,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import CORRECTED, CURATED_GROUPS, GROUPS, ITEMS
+from .. import CORRECTED, CURATED_GROUPS, GROUPS, ITEMS
 from .chains import Chain, read_chains
 from .compare import MAX_GAP, YEARS, compare
 from .relations import DECISION_KINDS, VERIFIED, decided_by, definite
@@ -422,7 +422,7 @@ def write_links(links: list[GroupLink], path: Path) -> None:
 
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(
-        prog="python -m hiesir_codebook.groups", description="Group headers across years."
+        prog="python -m hiesir_codebook.linking.groups", description="Group headers across years."
     )
     ap.add_argument(
         "--source", type=Path, default=CORRECTED, help="yearly CSVs (default: output/2_corrected/)"

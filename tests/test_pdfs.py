@@ -3,7 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from hiesir_codebook import explorer, pdfs
+from hiesir_codebook import explorer
+from hiesir_codebook.extraction import pdfs
 
 ROOT = Path(__file__).resolve().parents[1]
 

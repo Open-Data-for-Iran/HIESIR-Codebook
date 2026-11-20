@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from hiesir_codebook.correct import LabelFix, apply
-from hiesir_codebook.spelling import (
+from hiesir_codebook.correction.correct import LabelFix, apply
+from hiesir_codebook.correction.spelling import (
     Decision,
     Lexicon,
     accepted,
@@ -158,7 +158,7 @@ def test_written_file_round_trips(tmp_path):
 
 
 def test_curated_decisions_are_not_stale():
-    from hiesir_codebook.spelling import load_suggestions
+    from hiesir_codebook.correction.spelling import load_suggestions
 
     _, stale = accepted(
         load_suggestions(ROOT / "output" / "2_corrected" / "spelling_suggestions.csv"),
@@ -170,9 +170,9 @@ def test_curated_decisions_are_not_stale():
 def test_suggestions_are_up_to_date(tmp_path):
     """output/2_corrected/spelling_suggestions.csv must match the labels and
     hazm; if this fails, run
-    `uv run --python 3.13 --extra hazm python -m hiesir_codebook.spelling`."""
+    `uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.spelling`."""
     pytest.importorskip("hazm")
-    from hiesir_codebook import spelling
+    from hiesir_codebook.correction import spelling
 
     spelling.main(["--extracted", str(ROOT / "output" / "1_extracted"), "--out", str(tmp_path / "s.csv")])
     assert (tmp_path / "s.csv").read_bytes() == (
