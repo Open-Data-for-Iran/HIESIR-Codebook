@@ -26,3 +26,7 @@
   direction: ltr;
   unicode-bidi: isolate;
 }
+
+/* Mermaid diagrams: keep Latin paths (1_extracted/, curated/...) in order on the
+   right-to-left Farsi pages; Persian labels still read right to left */
+[dir="rtl"] .mermaid { direction: ltr; }
