@@ -86,12 +86,13 @@ GitHub، رد می‌شوند.
 `output/` افزوده می‌شوند (`scripts/mkdocs_hooks.py`)، پس هرگز در git تکرار
 نمی‌شوند.
 
-جست‌وجوی اقلام یک جزء واحد در `web/explorer/` است، جدا از کد پایتون:
-`src/explorer.js`، `styles/explorer.css` و `src/strings.js` با متن‌های انگلیسی و
-فارسی. صفحه
-`docs/explorer.md` (و `explorer.fa.md`) آن را از طریق `overrides/explorer.html`
-درون سایت نشان می‌دهد و رنگ، قلم و حالت تیره سایت را می‌گیرد؛ فایل آفلاین
-`output/explorer/index.html` همین سه فایل را درون خود دارد (`hosts/standalone.html`).
+جست‌وجوی اقلام یک جزء واحد در `web/explorer/` است، جدا از کد پایتون (اجزای آن
+در `README.md` همان پوشه آمده است): ماژول‌های ES در `src/` (متن‌های رابط در
+`src/i18n/`، انگلیسی و فارسی) و سبک‌ها در `styles/`. ساخت پروژه، بدون Node،
+آن‌ها را در یک اسکریپت و یک فایل سبک بسته‌بندی می‌کند. صفحه
+`docs/explorer.md` (و `explorer.fa.md`) آن‌ها را از طریق `overrides/explorer.html`
+درون سایت بار می‌کند و رنگ، قلم و حالت تیره سایت را می‌گیرد؛ فایل آفلاین
+`output/explorer/index.html` آن‌ها را درون خود دارد (`hosts/standalone.html`).
 جزء را یک بار تغییر دهید تا هر دو به‌روز شوند.
 
 نمودارها با [Mermaid](https://mermaid.js.org/) در یک بلوک کد ` ```mermaid `

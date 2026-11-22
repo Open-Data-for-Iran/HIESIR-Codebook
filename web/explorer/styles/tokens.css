@@ -1,0 +1,41 @@
+/* HIES explorer. Everything is scoped under .hx so the same styles work in the
+   standalone page (.hx-standalone) and inside the MkDocs Material site (.hx-docs),
+   where the colours and fonts come from the theme. Logical properties
+   (inline-start/end) make the layout mirror itself for Farsi (dir="rtl"). */
+
+.hx {
+  --bg: #f7f7f5; --panel: #ffffff; --ink: #1d1f23; --muted: #6a6f78; --line: #e3e3df;
+  --accent: #2563eb; --accent-soft: #e6eefc; --on-accent: #fff;
+  --on: #2f7d62; --other: #9db7e8; --gap: #e9e9e6;
+  --warn: #a15c07; --warn-soft: #fcefd9; --bad: #b42318; --bad-soft: #fde4e1;
+  --ok: #2f7d62; --ok-soft: #dcefe6;
+  --s0: #2f7d62; --s1: #9fd2b6; --s2: #e5b22f; --s3: #d4574e;
+  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.04);
+  --sticky-top: 16px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-fa: Vazirmatn, Tahoma, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color: var(--ink);
+  font: 14px/1.55 var(--font);
+}
+:root[data-theme="dark"] .hx,
+[data-md-color-scheme="slate"] .hx {
+  --bg: #15171a; --panel: #1d2024; --ink: #e8e9eb; --muted: #9aa0a8; --line: #30343a;
+  --accent: #7aa7ff; --accent-soft: #23314d; --on-accent: #10131a;
+  --on: #5fbf98; --other: #4a6aa8; --gap: #2a2d32;
+  --warn: #f0b45a; --warn-soft: #3d2f17; --bad: #ff8a7a; --bad-soft: #43221e;
+  --ok: #5fbf98; --ok-soft: #1f3a30;
+  --s0: #5fbf98; --s1: #2f6a54; --s2: #c99a2e; --s3: #d9655c;
+  --shadow: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .hx.hx-standalone {
+    --bg: #15171a; --panel: #1d2024; --ink: #e8e9eb; --muted: #9aa0a8; --line: #30343a;
+    --accent: #7aa7ff; --accent-soft: #23314d; --on-accent: #10131a;
+    --on: #5fbf98; --other: #4a6aa8; --gap: #2a2d32;
+    --warn: #f0b45a; --warn-soft: #3d2f17; --bad: #ff8a7a; --bad-soft: #43221e;
+    --ok: #5fbf98; --ok-soft: #1f3a30;
+    --s0: #5fbf98; --s1: #2f6a54; --s2: #c99a2e; --s3: #d9655c;
+    --shadow: none;
+  }
+}

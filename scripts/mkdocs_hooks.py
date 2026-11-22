@@ -4,8 +4,8 @@ They are added to the site at build time instead of being copied into docs/,
 so git holds one copy and the site always shows what output/ holds:
 
     explorer.collect() over output/          -> explorer/data.json
-    web/explorer/src/{strings,explorer}.js   -> assets/explorer/
-    web/explorer/styles/explorer.css         -> assets/explorer/
+    web/explorer/src/ (bundled)              -> assets/explorer/explorer.js
+    web/explorer/styles/ (bundled)           -> assets/explorer/explorer.css
     output/2_corrected/*.csv                 -> 2_corrected/*.csv
     output/3_items/*.csv                     -> 3_items/*.csv
     output/4_groups/*.csv                    -> 4_groups/*.csv
@@ -75,8 +75,10 @@ def on_files(files: Files, config) -> Files:
     cache = Path(tempfile.mkdtemp(prefix="hiesir-explorer-")) / "data.json"
     cache.write_text(data, encoding="utf-8")
     files.append(File.generated(config, "explorer/data.json", abs_src_path=str(cache)))
-    for src in (explorer.STRINGS, explorer.JS, explorer.CSS):
-        files.append(File.generated(config, f"assets/explorer/{src.name}", abs_src_path=str(src)))
+    # the component, bundled as for the standalone page: one script, one stylesheet
+    for name, text in (("explorer.js", explorer.bundle_js()), ("explorer.css", explorer.bundle_css())):
+        (cache.parent / name).write_text(text, encoding="utf-8", newline="\n")
+        files.append(File.generated(config, f"assets/explorer/{name}", abs_src_path=str(cache.parent / name)))
     for pattern in PUBLISH:
         paths = sorted(OUTPUT.glob(pattern))
         if not paths:

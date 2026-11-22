@@ -1,0 +1,63 @@
+/* an item's or a heading's page: crumbs, title, ids, verdict, codes to use */
+.hx-detail { padding: 20px; min-height: 320px; position: sticky; top: var(--sticky-top); max-height: calc(100vh - var(--sticky-top) - 16px); overflow: auto; }
+.hx .empty { color: var(--muted); text-align: center; padding: 60px 20px; }
+.hx .empty .big { font-size: 1.07em; color: var(--ink); margin-bottom: 8px; font-weight: 600; }
+.hx .crumbs { color: var(--muted); font-size: .9em; text-align: right; margin-bottom: 6px; }
+/* "›" is mirrored in right-to-left text: it shows as "‹", pointing at the inner group */
+.hx .crumbs span + span::before { content: " › "; }
+.hx .title { font-size: 1.57em; line-height: 1.5; margin: 0 0 8px; text-align: right; font-weight: 700; color: var(--ink); }
+.hx .locate {
+  display: inline-flex; vertical-align: middle; margin-inline-start: 8px; padding: 4px; border: 0; border-radius: 8px;
+  background: none; color: var(--muted); cursor: pointer;
+}
+.hx .locate:hover, .hx .locate:focus-visible { color: var(--accent); background: var(--accent-soft); }
+@keyframes hx-flash { 0%, 40% { box-shadow: inset 0 0 0 2px var(--accent); } 100% { box-shadow: inset 0 0 0 2px transparent; } }
+.hx .row.flash, .hx-list summary.flash { animation: hx-flash 1.6s ease-out; }
+/* a heading's page */
+.hx .crumbs a { cursor: pointer; color: inherit; }
+.hx .crumbs a:hover { color: var(--accent); }
+.hx a[data-group] { cursor: pointer; }
+.hx .gdiff { font-size: .92em; margin-top: 2px; }
+.hx .gdiff .muted { margin-inline-end: 4px; }
+.hx .gdiff details.more { display: inline; }
+.hx .gdiff details.more > summary { display: inline; color: var(--accent); }
+.hx .gdiff details.more[open] > summary { display: none; }
+.hx .use .gcodes { display: flex; flex-direction: column; gap: 2px; }
+.hx details.members > summary h3 { display: inline-block; }
+.hx details.members > summary h3::before { content: "▸ "; color: var(--muted); }
+.hx details.members[open] > summary h3::before { content: "▾ "; }
+.hx .ids { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
+.hx .pdfhint { font-size: .86em; color: var(--muted); margin: -2px 0 8px; }
+/* a document icon (page with folded corner and text lines), drawn in the text colour */
+.hx .pdfhint::before {
+  content: ""; display: inline-block; width: 1.25em; height: 1.25em; margin-inline-end: 5px; vertical-align: -.28em;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6m0 2h7v5h5v11H6V4m2 8v2h8v-2H8m0 4v2h5v-2H8z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6m0 2h7v5h5v11H6V4m2 8v2h8v-2H8m0 4v2h5v-2H8z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.hx .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: .86em; font-weight: 600; background: var(--gap); color: var(--muted); white-space: nowrap; }
+.hx .pill.ok { background: var(--ok-soft); color: var(--ok); }
+.hx .pill.warn { background: var(--warn-soft); color: var(--warn); }
+.hx .pill.bad { background: var(--bad-soft); color: var(--bad); }
+.hx .pill.info { background: var(--accent-soft); color: var(--accent); }
+.hx .verdict { border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; }
+.hx .verdict.ok { background: var(--ok-soft); }
+.hx .verdict.warn { background: var(--warn-soft); }
+.hx .verdict b { display: block; margin-bottom: 2px; }
+
+.hx .verdict li.np .why { font-size: .86em; color: var(--muted); margin-top: 2px; text-align: left; }
+.hx .verdict.bad { background: var(--bad-soft); }
+.hx .verdict ul.spans { list-style: none; margin: 6px 0 0; padding: 0; }
+.hx .verdict ul.spans li { margin: 2px 0; }
+.hx .ids .yrs { color: var(--muted); font-size: .9em; }
+.hx .uses { border: 1px solid var(--line); border-radius: 10px; padding: 2px 12px; }
+.hx .use { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.hx .use:last-child { border-bottom: 0; }
+.hx .use .yrs { min-width: 96px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.hx .use .codes { flex: 1; }
+.hx .use .st { color: var(--muted); font-size: .9em; white-space: nowrap; }
+.hx .copy { margin-top: 8px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); cursor: pointer; }
+.hx .copy:hover { border-color: var(--accent); color: var(--accent); }
+.hx a.doc { display: inline-block; width: 1.1em; height: 1.2em; vertical-align: -.25em; background: var(--accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6m0 2h7v5h5v11H6V4m2 8v2h8v-2H8m0 4v2h5v-2H8z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6m0 2h7v5h5v11H6V4m2 8v2h8v-2H8m0 4v2h5v-2H8z'/%3E%3C/svg%3E") center / contain no-repeat; }

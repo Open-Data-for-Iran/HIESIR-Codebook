@@ -1,0 +1,118 @@
+/* the search bar and the list: sections, groups and item rows as a tree */
+/* ---------- items ---------- */
+.hx-search { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.hx-q {
+  flex: 1 1 320px; min-width: 0; padding: 11px 14px; font-size: 1.14em; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--panel); color: var(--ink); outline: none;
+  font-family: var(--font-fa);
+}
+.hx-q:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.hx select, .hx .chip {
+  padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); font: inherit;
+}
+.hx .chip { cursor: pointer; user-select: none; display: inline-flex; align-items: center; gap: 6px; }
+.hx .chip input { margin: 0; }
+.hx .hx-sec { max-width: 100%; min-width: 0; text-overflow: ellipsis; }
+.hx .hint { color: var(--muted); font-size: .93em; margin: -4px 0 12px; }
+
+.hx .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+.hx-list { position: sticky; top: var(--sticky-top); max-height: calc(100vh - var(--sticky-top) - 16px); min-height: 320px; overflow: auto; }
+.hx-list .count {
+  padding: 8px 14px; color: var(--muted); font-size: .93em; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--panel); z-index: 20;
+  display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: space-between;
+}
+/* how deep the tree is open: one segmented control */
+.hx-list .levels { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.hx-list .levels button {
+  font: inherit; font-size: .88em; padding: 3px 9px; border: 0; background: none; color: var(--muted); cursor: pointer;
+}
+.hx-list .levels button + button { border-inline-start: 1px solid var(--line); }
+.hx-list .levels button:hover { color: var(--accent); background: var(--accent-soft); }
+.hx-list .levels button.on { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+/* the fold button of a heading: everything under it, shown on hover */
+.hx-list summary .fold {
+  flex: none; width: 1.3em; text-align: center; color: var(--muted); font-weight: 400; font-size: 1.05em; line-height: 1; border-radius: 4px;
+  opacity: 0; transition: opacity .12s;
+}
+.hx-list summary .fold.none { visibility: hidden; }
+.hx-list summary .fold::after { content: "⊟"; }
+.hx-list details:not([open]) > summary .fold::after,
+.hx-list details:has(details:not([open])) > summary .fold::after { content: "⊞"; }
+.hx-list summary:hover .fold, .hx-list summary:focus-visible .fold { opacity: 1; }
+.hx-list summary .fold:hover { color: var(--accent); background: var(--accent-soft); }
+@media (hover: none) { .hx-list summary .fold { opacity: .7; } }
+/* ---------- the tree's headings: sections and their groups ----------
+   The titles are Persian: in both languages the tree reads right to left,
+   arrow and number on the right, the number of items on the left. Open
+   headings stick while their rows scroll (the script sets each one's top,
+   below the count bar and its parents), so they need an opaque background,
+   and a shallower heading is drawn over a deeper one scrolling up under it
+   (the count bar, z-index 20, over them all). */
+.hx-list details { margin: 0; border: 0; box-shadow: none; border-radius: 0; background: none; padding: 0; font-size: 1em; }
+.hx .hx-list details > summary {
+  direction: rtl; position: sticky; z-index: calc(10 - var(--d, 0)); list-style: none; cursor: pointer; margin: 0; min-height: 0;
+  display: flex; gap: 8px; align-items: baseline; border-bottom: 1px solid var(--line); background: var(--panel);
+}
+.hx-list details > summary::-webkit-details-marker { display: none; }
+.hx-list details > summary::after { display: none; }
+.hx-list details > summary::before {
+  content: "◂"; color: var(--muted); position: static; background: none; mask: none; -webkit-mask: none; width: auto; height: auto; transform: none;
+}
+.hx-list details[open] > summary::before { content: "▾"; }
+/* the number of items: one width for all, so the dots beside it line up */
+.hx-list details > summary .n { flex: none; min-width: 26px; text-align: left; color: var(--muted); font-weight: 400; font-size: .86em; font-variant-numeric: tabular-nums; }
+/* in the right-to-left headings, codes ("01131, 01132") and years read in
+   their own order: codes left to right, years as the page reads them */
+.hx-list details > summary .code { unicode-bidi: isolate; direction: ltr; }
+.hx-list details > summary .yrs { unicode-bidi: isolate; }
+.hx[dir="ltr"] .hx-list details > summary .yrs { direction: ltr; }
+/* a group's years in print, after its label (only when not every year) */
+.hx-list details.grp > summary .yrs { flex: none; color: var(--muted); font-size: .82em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+/* a section: bold, on a tint (--bg is translucent: over the panel) */
+.hx .hx-list details.sec > summary { padding: 9px 14px; font-weight: 600; background: linear-gradient(var(--bg), var(--bg)), var(--panel); }
+.hx-list details.sec > summary .st { flex: 1; min-width: 0; text-align: right; }
+.hx-list details.sec > summary .code { font-size: .93em; }
+/* a group: each level indented one step */
+.hx .hx-list details.grp > summary { padding: 7px 14px; padding-inline-start: calc(14px + var(--d) * 12px); font-size: .93em; }
+.hx-list details.grp > summary .code { color: var(--muted); font-size: .9em; white-space: nowrap; }
+.hx-list details.grp > summary .fa { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
+/* hovered, or the heading whose page is shown: the accent tint over the
+   panel (on the docs site --accent-soft is translucent) */
+.hx .hx-list details.grp > summary:hover, .hx .hx-list details > summary.sel { background: linear-gradient(var(--accent-soft), var(--accent-soft)), var(--panel); }
+.hx .hx-list details > summary.sel { box-shadow: inset -3px 0 0 var(--accent); }
+.hx .perhead {
+  direction: rtl; display: flex; justify-content: center; gap: 10px; align-items: baseline; padding: 14px 64px 6px;
+  border-bottom: 1px solid var(--line); font-size: .86em; color: var(--muted); background: var(--panel); position: relative;
+}
+.hx .perhead b { color: var(--ink); font-weight: 600; letter-spacing: .02em; }
+/* the heading in the middle; its number of items on the left, like the rows */
+.hx .perhead .n { position: absolute; left: 14px; bottom: 6px; }
+.hx .secmoved {
+  direction: rtl; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; padding: 8px 14px;
+  padding-inline-start: 30px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: .93em;
+}
+/* a section whose items moved on (10, in 1383 only), under "All items" */
+.hx-list .secnote { direction: rtl; padding: 6px 14px; color: var(--muted); font-size: .86em; text-align: center; border-bottom: 1px solid var(--line); }
+.hx .secmoved .to { font-size: .9em; width: 100%; text-align: center; }
+.hx .per { font-weight: 400; font-size: .78em; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 7px; white-space: nowrap; align-self: center; }
+.hx-list details .row { padding-left: 14px; padding-right: calc(14px + (var(--d) + 1) * 12px); }
+.hx .row {
+  display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 2px 10px; padding: 8px 14px;
+  border-bottom: 1px solid var(--line); cursor: pointer;
+}
+.hx .row:hover { background: var(--accent-soft); }
+.hx .row.sel { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.hx[dir="rtl"] .row.sel { box-shadow: inset -3px 0 0 var(--accent); }
+.hx .row .code { grid-row: span 2; padding-top: 2px; }
+.hx .row .fa { text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hx .row .meta { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.hx .row .yrs { color: var(--muted); font-size: .86em; white-space: nowrap; }
+
+.hx .strip { display: flex; gap: 1px; }
+.hx .strip i { display: block; width: 7px; height: 9px; border-radius: 1.5px; background: var(--gap); }
+.hx .strip i.on { background: var(--on); }
+.hx .strip i.other { background: var(--other); }
+
+.hx .strip { align-items: center; }
+.hx .strip i.ref { height: 13px; }
+.hx .row .was { grid-column: 2; font-size: .82em; color: var(--muted); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

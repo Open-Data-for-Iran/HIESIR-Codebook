@@ -1,0 +1,58 @@
+/* changes by year: the kinds, the table and the list of changes */
+/* ---------- years ---------- */
+/* changes by year */
+.hx .kinds { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.hx .kind {
+  font: inherit; font-size: .9em; padding: 5px 10px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--panel); color: var(--muted); user-select: none;
+}
+.hx .kind b { font-weight: 600; font-variant-numeric: tabular-nums; margin-inline-start: 4px; }
+.hx .kind.on { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.hx .kind.reset { border-style: dashed; }
+.hx .heat { padding: 14px; margin-bottom: 16px; }
+.hx .heatwrap { overflow-x: auto; }
+.hx .heat table { border-collapse: separate; border-spacing: 2px; font-size: .82em; display: table; margin: 0; border: 0; box-shadow: none; background: none; }
+.hx .heat th, .hx .heat td { border: 0; padding: 0 4px; background: none; vertical-align: middle; min-width: 0; }
+.hx .heat th { font-weight: 400; color: var(--muted); white-space: nowrap; text-align: center; }
+.hx .heat th.yh { cursor: pointer; border-radius: 4px; padding: 2px 4px; }
+.hx .heat th.yh:hover, .hx .heat th.s:hover { color: var(--accent); }
+.hx .heat th.yh.base { opacity: .55; }
+.hx .heat th.on { color: var(--accent); font-weight: 700; }
+.hx .heat th.s {
+  direction: rtl; text-align: right; max-width: 240px; overflow: hidden; text-overflow: ellipsis; cursor: pointer; padding: 0 4px 0 8px;
+  position: sticky; left: 0; background: var(--panel); z-index: 1;
+}
+.hx .heat th.s .code { color: var(--muted); }
+/* pinned on the side the rows start from (physical sides: the cells read right to left) */
+.hx[dir="rtl"] .heat th.s, .hx[dir="rtl"] .heat tr.band th { left: auto; right: 0; }
+.hx .heat tr.band th { text-align: start; padding: 10px 2px 2px; color: var(--muted); font-size: .95em; position: sticky; left: 0; }
+.hx .heat tr.band th b { color: var(--ink); font-weight: 600; margin-inline-end: 6px; }
+.hx .heat td { width: 34px; height: 24px; text-align: center; border-radius: 4px; cursor: pointer; font-variant-numeric: tabular-nums; background: var(--gap); }
+.hx .heat td.z { color: transparent; }
+.hx .heat td.on { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 55%, transparent); }
+.hx .heat td.sel { box-shadow: inset 0 0 0 2px var(--accent); }
+.hx .heat td.tot { background: none; color: var(--muted); font-weight: 600; }
+.hx .heat td.tot.on { color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.hx .heat td.tot.all { cursor: default; color: var(--ink); }
+.hx .heat tr.tots th, .hx .heat tr.tots td { border-top: 1px solid var(--line); padding-top: 4px; }
+.hx .heat th.corner a { cursor: pointer; color: var(--muted); }
+.hx .heat .cap { color: var(--muted); font-size: .9em; padding-bottom: 8px; }
+.hx .heatleg { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: .82em; margin-top: 8px; }
+.hx .heatleg i { width: 90px; height: 10px; border-radius: 3px; background: linear-gradient(to right, color-mix(in srgb, var(--accent) 12%, var(--panel)), var(--accent)); }
+.hx[dir="rtl"] .heatleg i { background: linear-gradient(to left, color-mix(in srgb, var(--accent) 12%, var(--panel)), var(--accent)); }
+.hx .chhead { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 4px 2px 10px; }
+.hx .chhead h3 { margin: 0; text-transform: none; letter-spacing: 0; font-size: 1.05em; color: var(--ink); }
+.hx .chhead .n, .hx .group h3 .n { color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+.hx .chlist.empty { padding: 16px; color: var(--muted); text-align: center; margin-bottom: 14px; }
+.hx .yi .reason { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; color: var(--muted); font-size: .86em; }
+.hx .pill.yr { font-variant-numeric: tabular-nums; }
+.hx .yi .gh { display: flex; gap: 8px; align-items: baseline; direction: rtl; }
+.hx .yi .gh .code { color: var(--muted); white-space: nowrap; }
+.hx .group { padding: 4px 16px 12px; margin-bottom: 14px; }
+.hx .group h3 { margin-top: 14px; }
+.hx .yi { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); align-items: center; }
+.hx .yi:first-of-type { border-top: 0; }
+.hx .yi.single { grid-template-columns: 64px minmax(0,1fr); }
+.hx .yi .fa { text-align: right; }
+.hx .yi .side { display: flex; flex-direction: column; gap: 2px; }
+.hx .reason { grid-column: 1 / -1; color: var(--muted); font-size: .9em; }

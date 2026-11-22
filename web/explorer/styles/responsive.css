@@ -1,0 +1,12 @@
+/* narrow screens */
+@media (max-width: 860px) {
+  .hx .split { grid-template-columns: 1fr; }
+  .hx-list { position: static; max-height: 45vh; min-height: 0; }
+  .hx-detail { position: static; max-height: none; }
+  .hx .sides, .hx .yi { grid-template-columns: 1fr; }
+  .hx .arrow { transform: rotate(90deg); justify-self: center; }
+  .hx[dir="rtl"] .arrow { transform: rotate(-90deg); }
+  .hx-viewer { padding: 0; }
+  .hx-vbox { border-radius: 0; }
+}
+@media (max-width: 600px) { .hx .heat th.s { max-width: 110px; } .hx .heat th.s .fa { font-size: .92em; } }

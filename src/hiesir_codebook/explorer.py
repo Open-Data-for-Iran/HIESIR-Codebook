@@ -15,6 +15,7 @@ import argparse
 import csv
 import json
 import math
+import re
 from pathlib import Path
 
 from . import CORRECTED, CURATED_CORRECTED, GROUPS, ITEMS, OUTPUT
@@ -25,9 +26,8 @@ from .linking.compare import YEARS
 # (docs/explorer.md, overrides/explorer.html, scripts/mkdocs_hooks.py), so the two
 # cannot drift. Like output/ and curated/, it is read from the repository.
 WEB = Path(__file__).resolve().parents[2] / "web" / "explorer"
-STRINGS = WEB / "src" / "strings.js"  # the interface text, loaded before explorer.js
-JS = WEB / "src" / "explorer.js"
-CSS = WEB / "styles" / "explorer.css"
+JS = WEB / "src" / "explorer.js"  # the entry module; bundle_js() follows its imports
+CSS = WEB / "styles" / "explorer.css"  # @imports the partials; bundle_css() inlines them
 TEMPLATE = WEB / "hosts" / "standalone.html"
 OUT = OUTPUT / "explorer" / "index.html"
 PLACEHOLDER = "/*__DATA__*/null"
@@ -205,17 +205,108 @@ def to_json(data: dict) -> str:
     return json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
 
 
-def render(
-    data: dict, template: Path = TEMPLATE, js: Path = JS, css: Path = CSS, strings: Path = STRINGS
-) -> str:
+# --- the bundler ----------------------------------------------------------------
+# The component is written as plain ES modules, so a site with its own build
+# can import them as they are. The two pages here need one classic script (an
+# ES module does not load from file://), so bundle_js() joins them, without
+# Node: each module becomes a function returning what it exports, in the order
+# of their imports. It reads only the forms the component uses, and stops on
+# any other:
+#   import { a, b as c } from "./x.js";      (relative, at the start of a line)
+#   export function f / export async function f / export const|let|class x
+#   export { a, b as c };
+# Dynamic import() (PDF.js, from its CDN) is left alone.
+_IMPORT = re.compile(r'^import\s*\{([^}]*)\}\s*from\s*"(\.{1,2}/[^"]+)";?[ \t]*$', re.M)
+_EXPORT = re.compile(r"^export\s+((?:async\s+)?function\*?|const|let|class)\s+([A-Za-z_$][\w$]*)", re.M)
+_EXPORT_LIST = re.compile(r"^export\s*\{([^}]*)\};?[ \t]*$", re.M)
+_OTHER = re.compile(r"^[ \t]*(?:import\s*[^\s(]|export\b)", re.M)
+_CSS_IMPORT = re.compile(r'^@import\s+"([^"]+)";[ \t]*\n?', re.M)
+
+
+def _names(spec: str) -> list[tuple[str, str]]:
+    """'a, b as c' -> [("a", "a"), ("b", "c")]"""
+    out = []
+    for part in filter(None, (p.strip() for p in spec.split(","))):
+        name, _, alias = (x.strip() for x in part.partition(" as "))
+        out.append((name, alias or name))
+    return out
+
+
+def _modules(entry: Path) -> list[Path]:
+    """The modules entry needs, each after the ones it imports."""
+    order: list[Path] = []
+    state: dict[Path, str] = {}
+
+    def visit(path: Path, trail: list[Path]) -> None:
+        path = path.resolve()
+        if state.get(path) == "done":
+            return
+        if state.get(path) == "open":
+            raise ValueError("import cycle: " + " -> ".join(p.name for p in [*trail, path]))
+        if not path.is_file():
+            raise FileNotFoundError(f"{trail[-1] if trail else entry} imports {path}, which does not exist")
+        state[path] = "open"
+        for _, spec in _IMPORT.findall(path.read_text(encoding="utf-8")):
+            visit(path.parent / spec, [*trail, path])
+        state[path] = "done"
+        order.append(path)
+
+    visit(entry, [])
+    return order
+
+
+def bundle_js(entry: Path = JS) -> str:
+    """entry and every module it imports, as one script."""
+    paths = _modules(entry)
+    var = {p: f"$m{i}" for i, p in enumerate(paths)}
+    root = entry.resolve().parent
+    out = ["(function () {", '"use strict";']
+    for path in paths:
+        src = path.read_text(encoding="utf-8")
+        exports: list[tuple[str, str]] = [(m.group(2), m.group(2)) for m in _EXPORT.finditer(src)]
+        for m in _EXPORT_LIST.finditer(src):
+            exports += [(alias, name) for name, alias in _names(m.group(1))]
+
+        def imp(m: re.Match, path: Path = path) -> str:
+            names = ", ".join(n if n == a else f"{n}: {a}" for n, a in _names(m.group(1)))
+            return f"const {{ {names} }} = {var[(path.parent / m.group(2)).resolve()]};"
+
+        src = _EXPORT_LIST.sub("", _EXPORT.sub(r"\1 \2", _IMPORT.sub(imp, src)))
+        left = _OTHER.search(src)
+        if left:
+            line = src.count("\n", 0, left.start()) + 1
+            raise ValueError(f"{path}:{line}: the bundler cannot read this import or export")
+        ret = ", ".join(k if k == v else f"{k}: {v}" for k, v in exports)
+        out += [
+            f"// ---- {path.relative_to(root).as_posix() if path.is_relative_to(root) else path.name}",
+            f"const {var[path]} = (() => {{",
+            src.rstrip("\n"),
+            f"return {{ {ret} }};" if ret else "return {};",
+            "})();",
+        ]
+    out.append("})();")
+    return "\n".join(out) + "\n"
+
+
+def bundle_css(entry: Path = CSS, _seen: frozenset[Path] = frozenset()) -> str:
+    """entry with its @import "x.css"; lines replaced by the files, recursively."""
+    entry = entry.resolve()
+    if entry in _seen:
+        raise ValueError(f"@import cycle at {entry}")
+
+    def inline(m: re.Match) -> str:
+        return bundle_css(entry.parent / m.group(1), _seen | {entry})
+
+    return _CSS_IMPORT.sub(inline, entry.read_text(encoding="utf-8"))
+
+
+def render(data: dict, template: Path = TEMPLATE, js: Path = JS, css: Path = CSS) -> str:
     """The standalone page: template + component + data in one file."""
     html = template.read_text(encoding="utf-8")
-    # the strings first: explorer.js reads them when it loads
-    script = strings.read_text(encoding="utf-8") + "\n" + js.read_text(encoding="utf-8")
     parts = {
         PLACEHOLDER: to_json(data),
-        "/*__JS__*/": script.replace("</script", "<\\/script"),
-        "/*__CSS__*/": css.read_text(encoding="utf-8"),
+        "/*__JS__*/": bundle_js(js).replace("</script", "<\\/script"),
+        "/*__CSS__*/": bundle_css(css),
     }
     for key, value in parts.items():
         if key not in html:

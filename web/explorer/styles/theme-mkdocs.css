@@ -1,0 +1,17 @@
+/* inside the MkDocs Material site: the theme's colours and fonts */
+/* inside the docs: take the theme's colours and fonts */
+.hx.hx-docs {
+  --bg: var(--md-default-fg-color--lightest);
+  --panel: var(--md-default-bg-color);
+  --ink: var(--md-default-fg-color);
+  --muted: var(--md-default-fg-color--light);
+  --line: var(--md-default-fg-color--lightest);
+  --accent: var(--md-typeset-a-color);
+  --accent-soft: var(--md-accent-fg-color--transparent);
+  --on-accent: var(--md-default-bg-color);
+  --shadow: none;
+  --sticky-top: 3.4rem;
+  --font: var(--md-text-font-family, system-ui), Vazirmatn, sans-serif;
+  --font-mono: var(--md-code-font-family, monospace);
+  font-size: .7rem;
+}

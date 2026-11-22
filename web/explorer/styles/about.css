@@ -1,0 +1,8 @@
+/* the How to read tab */
+/* ---------- about ---------- */
+.hx .about { max-width: 820px; padding: 8px 24px 20px; }
+.hx .about h4 { margin: 20px 0 6px; font-size: 1.14em; }
+.hx .about dl { margin: 0; }
+.hx .about dt { font-weight: 700; margin-top: 10px; }
+.hx .about dd { margin: 2px 0 0 0; color: var(--muted); }
+.hx .about ul { margin: 6px 0; padding-inline-start: 20px; }

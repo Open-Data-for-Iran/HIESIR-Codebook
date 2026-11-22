@@ -1,0 +1,41 @@
+/* the comparability colours on every mark that shows one; the reference year */
+/* ---------- comparability colours ---------- */
+/* the four states, on every mark that shows one: the list's strips and
+   dots, the timelines (the card's and the dot's popup), the legend swatches */
+.hx :is(.strip i, .tl .c, .sw, .gdot, .gp-tl i).s0 { background: var(--s0); }
+.hx :is(.strip i, .tl .c, .sw, .gdot, .gp-tl i).s1 { background: var(--s1); }
+.hx :is(.strip i, .tl .c, .sw, .gdot, .gp-tl i).s2 { background: var(--s2); }
+.hx :is(.strip i, .tl .c, .sw, .gdot, .gp-tl i).s3 { background: var(--s3); }
+/* a heading's dot in the list (its least comparable year) and, on hover, its timeline */
+.hx-list summary .gdot { flex: none; width: 8px; height: 8px; border-radius: 50%; align-self: center; background: var(--gap); cursor: help; }
+.hx .gpop {
+  position: fixed; z-index: 20; width: 300px; padding: 10px 12px; border-radius: 10px; pointer-events: none;
+  background: var(--panel); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 6px 24px rgba(0, 0, 0, .18); font-size: .86em;
+}
+.hx .gpop[hidden] { display: none; }
+.hx .gpop .gp-h { font-weight: 600; margin-bottom: 8px; }
+.hx .gpop .gp-tl { display: grid; gap: 2px; }
+.hx .gpop .gp-tl i { display: block; height: 14px; border-radius: 2px; background: var(--gap); }
+.hx .gpop .gp-tl i.ref { outline: 2px solid var(--accent); outline-offset: 1px; }
+.hx .gpop .gp-tl span { font-size: .78em; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+.hx .gpop .gp-tl span.ref { color: var(--accent); font-weight: 700; }
+.hx .gpop ul { list-style: none; margin: 8px 0 0; padding: 0; }
+.hx .gpop li { margin: 2px 0; }
+/* the reference year keeps its colour: a ring outside the cell, its year
+   label a chip, a note under it (and a taller square in the list's strips) */
+/* narrower than its column, so the ring stays clear of the neighbours */
+.hx .tl .c.ref { outline: 2px solid var(--accent); outline-offset: 1px; }
+.hx .tl a.c.ref:hover { outline-offset: 2px; }
+.hx .sw.ref { outline: 2px solid var(--accent); outline-offset: 1px; }
+.hx .tl .y.ref span, .hx .refy {
+  display: inline-block; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-weight: 600;
+}
+.hx .refnote { grid-row: 3; justify-self: center; font-size: .95em; line-height: .9; color: var(--accent); padding-top: 2px; }
+/* asked, but on no printed page (added by a correction): hatched over its colour */
+.hx .tl .c.np, .hx .sw.np {
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .6) 0 3px, transparent 3px 7px);
+  cursor: help;
+}
+.hx .sw.np { background-color: var(--muted); }
+.hx .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-inline-end: 6px; vertical-align: -1px; background: var(--gap); }
+.hx .legend .sw { margin-inline-end: 5px; }

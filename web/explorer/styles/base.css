@@ -1,0 +1,21 @@
+/* type, links, panels; the tabs and views */
+.hx[dir="rtl"] { --font: var(--font-fa); }
+
+.hx *, .hx *::before, .hx *::after { box-sizing: border-box; }
+.hx .fa { font-family: var(--font-fa); direction: rtl; unicode-bidi: isolate; }
+.hx .code { font: 600 .93em/1.4 var(--font-mono); direction: ltr; unicode-bidi: isolate; letter-spacing: .02em; }
+.hx a { color: var(--accent); text-decoration: none; cursor: pointer; }
+.hx a:hover { text-decoration: underline; }
+.hx button { font: inherit; color: inherit; }
+.hx h3 { font-size: .86em; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 22px 0 8px; font-weight: 600; }
+.hx[dir="rtl"] h3 { text-transform: none; letter-spacing: 0; font-size: .93em; }
+.hx .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+
+/* ---------- views ---------- */
+.hx-tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 14px; }
+.hx-tabs a { padding: 6px 14px; border-radius: 8px; color: var(--muted); font-weight: 600; border: 1px solid transparent; }
+.hx-tabs a:hover { color: var(--ink); text-decoration: none; }
+.hx-tabs a.active { background: var(--accent-soft); color: var(--accent); }
+.hx-view { display: none; }
+.hx-view.active { display: block; }
+.hx .muted { color: var(--muted); }

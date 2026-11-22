@@ -1,0 +1,26 @@
+/* the wording history, the links to other items, notes and disclosures */
+.hx .steps { border-inline-start: 2px solid var(--line); margin-inline-start: 6px; padding-inline-start: 16px; }
+.hx .step { position: relative; padding: 4px 0 10px; }
+.hx .step::before { content: ""; position: absolute; inset-inline-start: -23px; top: 10px; width: 12px; height: 12px; border-radius: 50%; background: var(--panel); border: 2px solid var(--muted); }
+.hx .step.cur::before { background: var(--on); border-color: var(--on); }
+.hx .step .hd { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.hx .step .fa { display: block; text-align: right; margin-top: 2px; }
+.hx .link { font-size: .9em; color: var(--muted); margin: 0 0 6px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+.hx .rel { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+.hx .rel .hd { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.hx .sides { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: 10px; align-items: center; }
+.hx .arrow { color: var(--muted); font-size: 1.3em; }
+.hx .rel ul { list-style: none; margin: 0; padding: 0; }
+.hx .rel li { padding: 3px 0; margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; align-items: baseline; }
+.hx .rel li .fa { text-align: right; font-size: .93em; }
+.hx .rel li.me .fa { font-weight: 700; }
+.hx .note { margin-top: 8px; font-size: .9em; color: var(--muted); background: var(--bg); border-radius: 8px; padding: 8px 10px; }
+/* plain disclosures (the evidence of a link, a folded list, a heading's
+   items): none of the site's admonition styling */
+.hx details.note, .hx details.more, .hx details.members { border: 0; box-shadow: none; padding: 0; margin: 0; background: none; font-size: 1em; }
+.hx details.note { font-size: .9em; }
+.hx :is(details.note, details.more, details.members) > summary { cursor: pointer; list-style: none; padding: 0; background: none; font-weight: 400; min-height: 0; }
+.hx :is(details.note, details.more, details.members) > summary::before,
+.hx :is(details.note, details.more, details.members) > summary::after { display: none; }
+.hx .step.focus { background: var(--accent-soft); border-radius: 8px; padding-inline: 8px; }
