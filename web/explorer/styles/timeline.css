@@ -6,10 +6,7 @@
 .hx .tl .c[data-y] { cursor: pointer; }
 .hx .tl .y { font-size: .75em; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
 .hx .tl .c { height: 26px; border-radius: 4px; background: var(--gap); }
-.hx .tl .c.on { background: var(--on); }
 .hx .tl a.c { display: block; }
 .hx .tl a.c:hover { outline: 2px solid var(--accent); outline-offset: 1px; text-decoration: none; }
-.hx .tl .c.other { background: var(--other); cursor: pointer; }
-.hx .tl .c.mark { box-shadow: inset 0 0 0 2px var(--warn); }
 .hx .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .86em; color: var(--muted); margin-top: 8px; }
 .hx .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-inline-end: 5px; vertical-align: -1px; }

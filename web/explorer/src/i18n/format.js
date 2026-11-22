@@ -7,7 +7,6 @@ export function makeFormat(lang, years) {
   const fa = lang === "fa";
   const num = n => Number(n).toLocaleString(fa ? "fa-IR" : "en-US");
   const yr = y => fa ? String(y).replace(/\d/g, d => FA_DIGITS[d]) : String(y);
-  const yrs = ys => ys.map(yr).join(fa ? "، " : ", ");
   const span = (a, b) => a === b ? yr(a) : `${yr(a)}–${yr(b)}`;
   // the years a chain is asked under its code
   const ylabel = c => span(c.first, c.last);
@@ -23,5 +22,5 @@ export function makeFormat(lang, years) {
     }
     return parts.join(fa ? "، " : ", ");
   }
-  return { num, yr, yrs, span, ylabel, ranges, ARROW };
+  return { num, yr, span, ylabel, ranges, ARROW };
 }

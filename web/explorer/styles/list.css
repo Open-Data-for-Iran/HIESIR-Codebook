@@ -94,7 +94,6 @@
 /* a section whose items moved on (10, in 1383 only), under "All items" */
 .hx-list .secnote { direction: rtl; padding: 6px 14px; color: var(--muted); font-size: .86em; text-align: center; border-bottom: 1px solid var(--line); }
 .hx .secmoved .to { font-size: .9em; width: 100%; text-align: center; }
-.hx .per { font-weight: 400; font-size: .78em; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 7px; white-space: nowrap; align-self: center; }
 .hx-list details .row { padding-left: 14px; padding-right: calc(14px + (var(--d) + 1) * 12px); }
 .hx .row {
   display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 2px 10px; padding: 8px 14px;
@@ -110,8 +109,6 @@
 
 .hx .strip { display: flex; gap: 1px; }
 .hx .strip i { display: block; width: 7px; height: 9px; border-radius: 1.5px; background: var(--gap); }
-.hx .strip i.on { background: var(--on); }
-.hx .strip i.other { background: var(--other); }
 
 .hx .strip { align-items: center; }
 .hx .strip i.ref { height: 13px; }
