@@ -1,4 +1,5 @@
 /* type, links, panels; the tabs and views */
+hies-explorer { display: block; }
 .hx[dir="rtl"] { --font: var(--font-fa); }
 
 .hx *, .hx *::before, .hx *::after { box-sizing: border-box; }

@@ -34,7 +34,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
   </div>
 </header>
 <main>
-  <div class="hx hx-standalone" data-root="../" data-pdf="https://open-data-for-iran.github.io/HIESIR-Codebook/pdf/"></div>
+  <hies-explorer class="hx hx-standalone" data-root="../" data-pdf="https://open-data-for-iran.github.io/HIESIR-Codebook/pdf/"></hies-explorer>
 </main>
 <script>
 (function () {
@@ -56,7 +56,10 @@ main { max-width: 1280px; margin: 0 auto; padding: 16px; }
     d.dataset.theme = dark ? "light" : "dark"; store.set("hx-theme", d.dataset.theme);
   };
   document.addEventListener("keydown", function (e) {
-    if (e.key === "/" && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && window.HX) { e.preventDefault(); window.HX[0].focus(); }
+    if (e.key === "/" && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) {
+      var hx = document.querySelector("hies-explorer");
+      if (hx && hx.focusSearch) { e.preventDefault(); hx.focusSearch(); }
+    }
   });
 })();
 </script>

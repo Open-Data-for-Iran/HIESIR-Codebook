@@ -110,7 +110,7 @@ def test_component_bundles():
     """web/explorer/ bundles into one script holding both languages, and
     (when Node is installed) the script parses."""
     js = explorer.bundle_js()
-    for part in ("i18n/en.js", "i18n/fa.js", "core/model.js", "core/search.js", "explorer.js"):
+    for part in ("i18n/fa.js", "core/model.js", "ui/tree.js", "app/mount.js", "explorer.js"):
         assert f"// ---- {part}\n" in js
     assert js.count("tabs: {") == 2  # an English and a Farsi set of strings
     assert '@import "' not in explorer.bundle_css()
@@ -127,8 +127,14 @@ import { search } from "CORE/search.js";
 import { events, KINDS } from "CORE/changes.js";
 import { codesSnippet } from "CORE/snippets.js";
 import { norm } from "CORE/text.js";
+import { itemsHash, changesHash, parseHash } from "SRC/app/state.js";
+import { makeFormat } from "SRC/i18n/format.js";
 
 const M = model(JSON.parse(readFileSync(process.argv[2], "utf8")));
+const fa = makeFormat("fa", M.YEARS);
+const v = { item: "011111-1383", ref: 1390, q: "برنج", sec: "1", partial: true };
+const item = parseHash(M, itemsHash(M, v));
+const ch = parseHash(M, changesHash({ y: 1386, sec: 2, kinds: new Set(["merged", "split"]) }));
 const ids = res => res.map(([s, rank, hit]) => [hit.id, rank]);
 const rice = M.serOf.get("011111-1383");
 const st = cmp => Object.fromEntries([...cmp].map(([y, e]) => [y, e.st]));
@@ -142,6 +148,12 @@ console.log(JSON.stringify({
   kinds: [...new Set(events(M).map(e => e.kind))].every(k => KINDS.includes(k)),
   events: events(M).length,
   snippet: codesSnippet(M.YEARS, compare(M, rice, 1403), "# rice").split("\\n").slice(0, 4),
+  item: [item.view, item.series.id, item.ref, item.q, item.sec, item.partial],
+  changes: [ch.view, ch.y, ch.sec, [...ch.kinds]],
+  // a heading not printed in the latest year, linked without a year: all items
+  oldGroup: parseHash(M, "#group=" + [...M.NODES.values()].find(n => n.kind === "g" && n.last < M.LAST).id)
+    .ref,
+  ranges: fa.ranges([1383, 1384, 1385, 1390]),
 }));
 """
 
@@ -153,8 +165,8 @@ def test_core_runs_on_its_own(tmp_path):
     data = tmp_path / "data.json"
     data.write_text(explorer.to_json(_collect()), encoding="utf-8")
     script = tmp_path / "check.mjs"
-    core = (explorer.WEB / "src" / "core").as_uri() + "/"
-    script.write_text(CORE_CHECK.replace("CORE/", core), encoding="utf-8")
+    src = (explorer.WEB / "src").as_uri() + "/"
+    script.write_text(CORE_CHECK.replace("CORE/", src + "core/").replace("SRC/", src), encoding="utf-8")
     r = subprocess.run(["node", str(script), str(data)], capture_output=True, encoding="utf-8")
     assert r.returncode == 0, r.stderr
     out = json.loads(r.stdout)
@@ -171,6 +183,11 @@ def test_core_runs_on_its_own(tmp_path):
         "codes = {",
         "    1383: [11111],",
     ]
+    # the URL scheme (app/state.js) reads back what it writes
+    assert out["item"] == ["items", "011111-1383", 1390, "برنج", "1", True]
+    assert out["changes"] == ["years", 1386, 2, ["merged", "split"]]
+    assert out["oldGroup"] is None
+    assert out["ranges"] == "۱۳۸۳–۱۳۸۵، ۱۳۹۰"  # i18n/format.js, in Persian digits
 
 
 def test_docs_page_and_standalone_share_the_component():
@@ -180,6 +197,9 @@ def test_docs_page_and_standalone_share_the_component():
     template = (ROOT / "overrides" / "explorer.html").read_text(encoding="utf-8")
     for name in ("explorer.js", "explorer.css"):
         assert f"assets/explorer/{name}" in template
+    # both pages embed it as the <hies-explorer> element
+    for host in (template, explorer.TEMPLATE.read_text(encoding="utf-8")):
+        assert '<hies-explorer class="hx ' in host and "</hies-explorer>" in host
     hooks = (ROOT / "scripts" / "mkdocs_hooks.py").read_text(encoding="utf-8")
     assert "bundle_js()" in hooks and "bundle_css()" in hooks
     for page in ("explorer.md", "explorer.fa.md"):

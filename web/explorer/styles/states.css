@@ -13,6 +13,8 @@
   background: var(--panel); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 6px 24px rgba(0, 0, 0, .18); font-size: .86em;
 }
 .hx .gpop[hidden] { display: none; }
+/* a popover (the top layer): placed by the script, not centred */
+.hx .gpop[popover] { inset: auto; margin: 0; height: auto; overflow: visible; }
 .hx .gpop .gp-h { font-weight: 600; margin-bottom: 8px; }
 .hx .gpop .gp-tl { display: grid; gap: 2px; }
 .hx .gpop .gp-tl i { display: block; height: 14px; border-radius: 2px; background: var(--gap); }

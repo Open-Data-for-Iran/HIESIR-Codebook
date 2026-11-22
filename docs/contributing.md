@@ -88,8 +88,10 @@ from `docs/` and `mkdocs.yml`. The explorer and the CSVs are copied in from
 `output/` at build time (`scripts/mkdocs_hooks.py`), so they are never duplicated in git.
 
 The explorer is one component in `web/explorer/`, apart from the Python code
-(its `README.md` describes the parts): ES modules in `src/` (the interface text
-in `src/i18n/`, English and Farsi) and styles in `styles/`. The build bundles
+(its `README.md` describes the parts): the `<hies-explorer>` element, written
+as ES modules in `src/` (the data logic in `src/core/`, the interface text in
+`src/i18n/`, English and Farsi, the views in `src/ui/`) and styles in
+`styles/`. The build bundles
 them, without Node, into one script and one stylesheet. The docs page
 `docs/explorer.md` (and `explorer.fa.md`) loads those inside the site through
 `overrides/explorer.html`, taking the site's colours, fonts and dark mode; the
