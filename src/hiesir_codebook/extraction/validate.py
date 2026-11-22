@@ -1,49 +1,44 @@
-"""Check extracted questionnaires against the codes that occur in the raw data."""
+"""Check the extracted questionnaires against the codes that occur in the raw data.
+
+It reads ``output/1_extracted/`` (which the regression test keeps equal to
+what the PDFs extract to), so it needs the occurrence tables but not the PDFs.
+``correct --check`` does the same for the corrected questionnaires.
+"""
 
 from __future__ import annotations
 
 import csv
 from pathlib import Path
 
-from .parse import Row, extract_year
+from ..occurrence import load_occurrence, occurrence_files
 
 
-def load_counts(csv_paths: list[Path], year: int) -> dict[int, int]:
-    """Occurrences per code in the raw data, keyed by the numeric code (11111)."""
-    counts: dict[int, int] = {}
-    for p in csv_paths:
-        with open(p, encoding="utf-8-sig") as f:
-            reader = csv.DictReader(f)
-            if str(year) not in (reader.fieldnames or []):
-                continue
-            for rec in reader:
-                v = rec[str(year)]
-                if v:
-                    counts[int(rec["Commodity_Code"])] = int(float(v))
-    return counts
+def item_codes(csv_path: Path) -> set[int]:
+    """The item codes of an extracted questionnaire, as numbers (011111 -> 11111)."""
+    with open(csv_path, encoding="utf-8-sig") as f:
+        return {int(r["expenditure_code"]) for r in csv.DictReader(f) if r["kind"] == "item"}
 
 
-def compare_counts(rows: list[Row], counts: dict[int, int]) -> dict[str, list[int]]:
+def compare_counts(codes: set[int], counts: dict[int, int]) -> dict[str, list[int]]:
     """Codes in the raw data but not extracted, and extracted codes never used.
 
     Codes are compared as numbers: the raw data drops the leading zero
     ('011111' -> 11111).
     """
-    keys = {int(r.expenditure_code) for r in rows if r.kind == "item" and r.expenditure_code}
     return {
-        "in_data_not_pdf": sorted(counts.keys() - keys),
-        "in_pdf_not_data": sorted(keys - counts.keys()),
+        "in_data_not_pdf": sorted(counts.keys() - codes),
+        "in_pdf_not_data": sorted(codes - counts.keys()),
     }
 
 
-def main(years: list[int], data: Path = Path("data"), verbose: bool = False) -> None:
-    csvs = sorted(data.glob("commodity_code_occurrence_*.csv"))
+def main(years: list[int], extracted: Path, data: Path, verbose: bool = False) -> None:
+    occ = load_occurrence(occurrence_files(data))
     for y in years:
-        rows = extract_year(y, data)
-        n = {k: sum(r.kind == k for r in rows) for k in ("section", "header", "item")}
-        cc = compare_counts(rows, load_counts(csvs, y))
+        path = extracted / f"questionnaire_{y}.csv"
+        codes = item_codes(path)
+        cc = compare_counts(codes, occ.get(y, {}))
         print(
-            f"{y}: sections={n['section']} headers={n['header']} items={n['item']}"
+            f"{y}: items={len(codes)}"
             f" | data: not_in_pdf={len(cc['in_data_not_pdf'])} not_in_data={len(cc['in_pdf_not_data'])}",
             flush=True,
         )
@@ -56,11 +51,12 @@ def main(years: list[int], data: Path = Path("data"), verbose: bool = False) -> 
 if __name__ == "__main__":
     import argparse
 
-    from .. import DATA_DIR, SUPPORTED_YEARS
+    from .. import DATA_DIR, EXTRACTED, SUPPORTED_YEARS
 
     ap = argparse.ArgumentParser(prog="python -m hiesir_codebook.extraction.validate", description=__doc__)
     ap.add_argument("years", nargs="*", type=int, help="years to check (default: all supported)")
     ap.add_argument("-v", "--verbose", action="store_true", help="list the codes that differ")
-    ap.add_argument("--data", type=Path, default=DATA_DIR, help="folder with pdf/ and the occurrence CSVs")
+    ap.add_argument("--extracted", type=Path, default=EXTRACTED, help="folder with the extracted CSVs")
+    ap.add_argument("--data", type=Path, default=DATA_DIR, help="folder with the occurrence CSVs")
     args = ap.parse_args()
-    main(args.years or SUPPORTED_YEARS, args.data, args.verbose)
+    main(args.years or SUPPORTED_YEARS, args.extracted, args.data, args.verbose)

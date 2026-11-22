@@ -75,7 +75,11 @@ The regression tests re-extract every year and compare byte-for-byte with
 Fast tests also check that `output/2_corrected/`, `output/3_items/`,
 `output/4_groups/` and `output/explorer/` are up to date; after changing `curated/` or the code, run
 `uv run hiesir-codebook build --no-extract` and review the diff. Tests that
-need `data/` (not in git) are skipped when it is missing, as on GitHub.
+need the PDFs are skipped when `data/pdf/` is missing; on GitHub the workflow
+downloads them from the release, and the occurrence tables are in git, so
+every test runs there. `python -m hiesir_codebook.correction.structure`
+checks the corrected CSVs from the CSVs alone (duplicate codes, sub-code and
+section order, empty texts, items outside their header; a test runs it too).
 
 ## Documentation
 

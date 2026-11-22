@@ -42,7 +42,7 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
     figures of it all (-> metrics.json).
     """
     from . import explorer, metrics
-    from .correction import check, correct
+    from .correction import check, correct, structure
     from .linking import chains, groups, relations
 
     if extract_pdfs and (data / "pdf").is_dir():
@@ -55,6 +55,7 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
     else:
         print(f"keeping {EXTRACTED} as it is")
     correct.main([])
+    structure.main([])
     check.main([])
     chains.main([])
     relations.main([])

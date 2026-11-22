@@ -1,0 +1,11 @@
+header,item_code,years,reason
+01192,0119,1383,"As printed (p. 11): items 0119 31 and on follow the header 01192 with no header of their own."
+"01192, 01193",0119,1384-1390,"As printed: the header lists 01192 and 01193, and the items under it run on to 0119 4x."
+05114,0511,1383-1390,"As printed (1383 p. 50): items 0511 47-51 and on follow the header 05114 (other furniture) with no header of their own."
+06312,0631,1383-1389,"As printed (1383 p. 30): items 0631 21-31 and on follow the header 06312 (specialist hospitals) with no header of their own."
+06312 A,0631,1390,"As printed (p. 29): items 0631 21-36 follow the header 06312 A/M (specialist hospitals) with no header of their own."
+06312 M,0631,1390,"As printed (p. 29): items 0631 21-36 follow the header 06312 A/M (specialist hospitals) with no header of their own."
+09111,0911,1383,"As printed (p. 55): items 0911 18-21 continue after the header 09111 (televisions) with no header of their own."
+"1011, 1021, 1031, 1041",1022,1383,"As printed (p. 59): item 1022 11 (state high school) follows the 1021 items with no header of its own."
+1021,1022,1384-1386,"As printed (1384 p. 61): item 1022 11 (state high school) follows the 1021 items with no header of its own."
+1051,1052,1384-1386,"As printed (1384 p. 61): the last item under the header 1051 is coded 1052 15; the raw data has 105215."

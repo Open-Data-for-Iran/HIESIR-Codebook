@@ -155,3 +155,23 @@ def test_left_out_text_is_reported():
 
 def test_discards_are_optional():
     assert _page_entries([_line("یادداشت", 300, 450)], [], []) == []
+
+
+def test_quirks_are_reported():
+    from hiesir_codebook.extraction.layout import QUIRKS
+
+    notes = [q.note for q in QUIRKS.values()]
+    assert len(set(notes)) == len(notes)
+    assert all(n.startswith(("repaired: ", "left out: ")) for n in notes)
+
+    discards = []
+    lines = [
+        _line("69 312,0 سایر انواع پوشاک بچگانه", 100),  # 1384/1385: stray comma
+        _line("مبلغ وام", 110, 450),  # a field label in the cell
+        _line("3 یا 4", 120, 450),  # a source-code note
+    ]
+    (e,) = _page_entries(lines, [], [], discards, page=2)
+    assert (e.code, e.sub) == ("0312", "69")
+    assert sorted(d.reason for d in discards) == sorted(
+        QUIRKS[k].note for k in ("stray_comma", "cell_label", "source_note")
+    )

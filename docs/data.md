@@ -43,7 +43,7 @@ The same files can be downloaded from this site:
 
 | Folder | Content | In git | Edited by |
 |---|---|---|---|
-| `data/` | external inputs: the PDFs, the household occurrence tables | no | nobody (only replaced) |
+| `data/` | external inputs: the PDFs, the household occurrence tables | the occurrence tables only (the PDFs are in a GitHub release) | nobody (only replaced) |
 | `curated/` | hand-kept decisions: `2_corrected/` (`corrections.csv`: item and header fixes; `spelling.csv`), `3_items/` (`links.csv`, `relations.csv`) and `4_groups/` (`links.csv`): the decisions for the `output/` folder of the same name | yes | people |
 | `output/` | every stage's result: `1_extracted/`, `2_corrected/`, `3_items/`, `4_groups/`, the `explorer/` page, and `metrics.json` (the figures of the build, which these pages quote) | yes | the pipeline only |
 | `reports/` | review aids: `relation_evidence.csv` (household counts behind each link and relation) and `code_reuse.csv` (codes reused for another item) and `label_check.csv` (words that may still be misspelled) | no | the pipeline only |
@@ -100,7 +100,8 @@ Persian digits, later wording), not extraction errors.
 
 ## Input files
 
-The inputs are kept out of git (see `.gitignore`) and are expected in `data/`:
+The PDFs are kept out of git (see `.gitignore`; the `questionnaires` release holds them),
+the two household occurrence tables are in git. All are expected in `data/`:
 
 ```
 data/

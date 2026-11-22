@@ -147,3 +147,26 @@ def test_label_fix_counts_hits():
     hits = {}
     fix_label("بجز کره بجز شیر", 1390, [_fix("بجز", "به جز")], hits)
     assert hits == {"بجز": 1}  # descriptions changed, not occurrences
+
+
+def test_corrected_codes_agree_with_the_raw_data(capsys):
+    """Every code households report (5 or more) is printed, none twice, and
+    the raw data supports every code-level correction.  Needs the occurrence
+    table (data/, downloaded in CI)."""
+    from hiesir_codebook.correction.correct import check, load_corrections, verify
+    from hiesir_codebook.occurrence import OCCURRENCE
+
+    path = ROOT / OCCURRENCE
+    if not path.exists():
+        pytest.skip(f"no {path.name} in data/")
+    years = [y for y in SUPPORTED_YEARS if y >= 1383]
+    contradicted = verify(
+        load_corrections(ROOT / "curated" / "2_corrected" / "corrections.csv"),
+        ROOT / "output" / "1_extracted",
+        path,
+    )
+    failed = check(years, ROOT / "output" / "2_corrected", path)
+    out = capsys.readouterr().out
+    assert (contradicted, failed) == (0, 0), "\n".join(
+        ln for ln in out.splitlines() if "<--" in ln or "not printed:" in ln or "twice" in ln
+    )

@@ -95,7 +95,7 @@ from functools import cache
 from pathlib import Path
 
 from .. import CURATED_ITEMS, ITEMS, REPORTS
-from ..correction.correct import OCCURRENCE, load_occurrence
+from ..occurrence import OCCURRENCE, Occurrence, load_occurrence
 from ..utils import loose_key, words
 from .chains import Chain, read_chains
 from .compare import MAX_GAP, YEARS, compare, contained, is_etc, relate, split_qualifier
@@ -583,7 +583,6 @@ def build_relations(
 
 # --- household evidence -------------------------------------------------------
 
-Occurrence = dict[int, dict[int, int]]  # {year: {code: households}}, see correct.load_occurrence
 
 # the household ratio a scope change allows, relative to the code's group
 EXPECTED = {"label_broadened": (0.67, None), "label_narrowed": (None, 1.5)}

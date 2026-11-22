@@ -179,7 +179,19 @@ uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.check
   extraction miss.
 
 All corrections are backed by the data, and every year from 1383 to 1403
-passes.
+passes. The occurrence tables are in git, so a test runs this check in CI.
+
+The structure check (`python -m hiesir_codebook.correction.structure`) needs
+no data: from the CSVs alone it finds codes printed twice, sub-codes or
+sections out of order, headers or items without text, malformed codes, and
+items that their header's code does not cover. The corrected questionnaires
+have none. Some headers are printed that way: under `06312` (specialist
+hospitals) the items run on as `0631 21`–`0631 36` with no header of their own.
+`curated/2_corrected/header_exceptions.csv` accepts these (header, item code,
+years, reason: what the PDF shows); a row that no longer accepts anything is
+reported as stale. In `output/1_extracted/` the check finds exactly the print
+errors that `corrections.csv` fixes (1386: 041211–041213 and 073611 printed
+twice, the header 062 M; 1384: 102216).
 
 ## Matching items across years
 
@@ -563,12 +575,24 @@ across years, to `output/3_items/` and `output/4_groups/`).
   unnoticed. A unit test pins the hash of a known outline for the same reason.
 - `parse.py` finds code lines and attaches wrapped description lines to them,
   using the table rules and column borders.
+- `layout.py` holds what a new year may need changed: the distances within a
+  table row (in points; not relative to the font size, since the 12 pt text of
+  1382–1385 sits in rows as tall as the 11 pt text of later years, and scaled
+  distances pulled column headings into descriptions there), the field labels
+  printed inside description cells, and the print quirks the parser repairs,
+  each with the years it is seen in: a stray comma inside a code (1384–1385),
+  a header code list wrapped onto the next line or split around its text, a
+  sub-code above its code in a tall cell (1391–1394), an item continued on
+  the next page, source-code notes and field labels left out.
 - Each extraction also writes `reports/extraction_<year>.csv`: the text it left
-  out (not aligned to its column border, no code line within 30 pt, a code
+  out (not aligned to its column border, no code line near it, a code
   continuation with no header, a page number, a stray two-digit header, text
-  before the first section, a page whose text is turned sideways) and the glyphs it could not read (a broken font's
-  glyph missing from the database, an unmapped glyph without a usable name),
-  one row per reason and text with its count and pages. Most rows are table
+  before the first section, a page whose text is turned sideways), the glyphs it could not read (a broken font's
+  glyph missing from the database, an unmapped glyph without a usable name)
+  and every quirk repair it made (`repaired: ...`, `left out: ...`),
+  one row per reason and text with its count and pages. A test fails when a
+  repair turns up in a year `layout.QUIRKS` does not list for it: look at the
+  PDF, then add the year there. Most rows are table
   headings repeated on every page; the rest is what to look at in a new year.
   Pages turned sideways (a /Rotate, or text drawn vertically on an upright
   page) are not read: glyph boxes are read unrotated, so their text would fall
@@ -583,8 +607,11 @@ across years, to `output/3_items/` and `output/4_groups/`).
 - `chains.py` builds the chains (matching stage 1), `relations.py` links them
   (stage 2), and `groups.py`
   follows the group headers.
-- `validate.py` checks each year's extracted codes against the codes that
-  occur in the raw data (`data/commodity_code_occurrence_*.csv`).
+- `validate.py` checks each year's extracted codes (`output/1_extracted/`)
+  against the codes that occur in the raw data (`data/commodity_code_occurrence_*.csv`,
+  read by `occurrence.py`, which `correct.py` and `relations.py` share).
+- `structure.py` checks the corrected CSVs from the CSVs alone (see
+  [Corrections](#corrections)).
 - `utils.py` holds the Persian text normalisation helpers, usable on their own:
   `normalize_persian` (letters, digits, tatweel, spacing), `to_ascii_digits` /
   `to_persian_digits`, `canonical` (presentation forms → base letters),

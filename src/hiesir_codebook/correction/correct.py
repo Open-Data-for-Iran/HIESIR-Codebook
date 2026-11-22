@@ -69,8 +69,9 @@ from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
 
-from .. import CORRECTED, CSV_COLUMNS, CURATED_CORRECTED, DATA_DIR, EXTRACTED, SUPPORTED_YEARS
+from .. import CORRECTED, CSV_COLUMNS, CURATED_CORRECTED, EXTRACTED, SUPPORTED_YEARS
 from ..extraction.parse import LAST_OLD_SCHEME_YEAR, header_level
+from ..occurrence import OCCURRENCE, load_occurrence
 from ..utils import ZWNJ, collapse_whitespace, standard_spelling, tidy_punctuation
 from .spelling import DECISIONS as SUGGESTION_DECISIONS
 from .spelling import SUGGESTIONS, accepted, load_decisions, load_suggestions
@@ -79,7 +80,6 @@ CORRECTIONS = CURATED_CORRECTED / "corrections.csv"
 LABELS = CURATED_CORRECTED / "spelling.csv"
 # a letter or digit of a word (Arabic-script letters, not punctuation such as "،")
 _WORD_CHAR = f"[ء-ٟٮ-ۓە۰-۹{ZWNJ}A-Za-z0-9]"
-OCCURRENCE = DATA_DIR / "commodity_code_occurrence_1383-1403.csv"
 ACTIONS = ("recode", "retext", "delete", "add_section", "recode_header", "retext_header")
 
 
@@ -334,18 +334,6 @@ def correct(
 
 
 # --- check against the raw data ----------------------------------------------
-
-
-def load_occurrence(path: Path = OCCURRENCE) -> dict[int, dict[int, int]]:
-    """{year: {code: households}} from the occurrence table."""
-    out: dict[int, dict[int, int]] = {}
-    with open(path, encoding="utf-8-sig") as f:
-        for r in csv.DictReader(f):
-            code = int(r["Commodity_Code"])
-            for k, v in r.items():
-                if k != "Commodity_Code" and v:
-                    out.setdefault(int(k), {})[code] = int(v)
-    return out
 
 
 def check(years: Iterable[int], corrected: Path, occurrence: Path, min_households: int = 5) -> int:

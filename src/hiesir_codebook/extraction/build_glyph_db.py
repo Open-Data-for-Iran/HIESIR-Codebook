@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 from .glyph_db import DB_PATH, build
+from .parse import pdf_path
 
 
 def main() -> None:
@@ -22,7 +23,7 @@ def main() -> None:
     )
     ap.add_argument("--data", type=Path, default=Path("data"), help="folder with pdf/ (default: data/)")
     args = ap.parse_args()
-    db = build([args.data / "pdf" / f"Questionnaire {y}.pdf" for y in args.years])
+    db = build([pdf_path(y, args.data) for y in args.years])
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     DB_PATH.write_text(
         json.dumps(db, ensure_ascii=False, sort_keys=True, indent=0), encoding="utf-8", newline="\n"

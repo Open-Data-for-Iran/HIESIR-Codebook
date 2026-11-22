@@ -193,9 +193,9 @@ def test_curated_notes_match_evidence():
 
     import pytest
 
-    from hiesir_codebook.correction.correct import load_occurrence
     from hiesir_codebook.linking.chains import read_chains
     from hiesir_codebook.linking.relations import build_relations, evidence, load_decisions
+    from hiesir_codebook.occurrence import load_occurrence
 
     root = Path(__file__).resolve().parents[1]
     path = root / "data" / "commodity_code_occurrence_1383-1403.csv"
