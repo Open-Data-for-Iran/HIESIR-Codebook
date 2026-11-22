@@ -3,9 +3,10 @@
 ``output/1_extracted/`` holds each questionnaire exactly as printed, typos
 included.  ``curated/2_corrected/corrections.csv`` lists every deviation from
 the print in codes, rows and sections, one row each, with the reason;
-:func:`apply_corrections` applies them.  The descriptions are then styled by
-:mod:`.rules` (step 2), fixed with hazm's word list by :mod:`.autocorrect`
-(step 3) and spelled by :mod:`.spelling` (step 4).
+:func:`apply_corrections` applies them.  The descriptions then get one
+wording per group of variants (:mod:`.canonical`, step 2), the house style
+(:mod:`.rules`, step 3), fixes from hazm's word list (:mod:`.autocorrect`,
+step 4) and the spelling fixes (:mod:`.spelling`, step 5).
 
 Columns of ``corrections.csv``:
 

@@ -1,9 +1,8 @@
 {
   "questionnaires": {
-    "years": 21,
-    "items": 22476,
+    "years": 20,
+    "items": 21821,
     "items_by_year": {
-      "1382": 655,
       "1383": 1238,
       "1384": 1281,
       "1385": 1286,
@@ -37,37 +36,41 @@
     "retext_header": 1
   },
   "labels": {
-    "total": 27753,
-    "punctuation": 3920,
-    "spelling": 2606,
-    "autocorrect": 4703
+    "total": 26961,
+    "canonical": 6330,
+    "punctuation": 861,
+    "spelling": 1145,
+    "autocorrect": 797
   },
   "spelling": {
-    "total": 297
+    "total": 139
+  },
+  "canonical": {
+    "total": 1296
   },
   "autocorrect": {
-    "total": 1071,
-    "compound": 155,
-    "glued_vav": 433,
-    "glued_words": 281,
-    "joined_plural": 69,
-    "spaced_suffix": 133
+    "total": 194,
+    "compound": 48,
+    "glued_vav": 65,
+    "glued_words": 43,
+    "joined_plural": 8,
+    "spaced_suffix": 30
   },
   "chains": {
-    "total": 1911,
+    "total": 1908,
     "asked_last_year": 1042
   },
   "links": {
-    "total": 444,
-    "kept": 414,
-    "code": 162,
-    "curated": 282,
+    "total": 441,
+    "kept": 411,
+    "code": 160,
+    "curated": 281,
     "open": 0,
-    "confirmed": 188,
+    "confirmed": 187,
     "changed": 60,
     "rejected": 30,
     "added": 4,
-    "same": 404,
+    "same": 401,
     "recoded": 10
   },
   "relations": {

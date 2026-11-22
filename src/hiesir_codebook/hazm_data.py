@@ -35,6 +35,8 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
+import polars as pl
+
 from . import DATA_DIR
 from .extraction.pdfs import sha256
 
@@ -168,23 +170,37 @@ def _lines(name: str, folder: Path) -> list[str]:
         return [s for line in f if (s := line.strip())]
 
 
+def words_frame(folder: Path = HAZM_DIR) -> pl.DataFrame:
+    """``words.dat`` as a polars table: ``word``, ``freq`` (its frequency in
+    hazm's corpus) and ``pos`` (its parts of speech, comma-separated, ``0``
+    for none), every line that has all three."""
+    return (
+        pl.read_csv(
+            _path("words.dat", folder),
+            separator="\t",
+            has_header=False,
+            new_columns=["word", "freq", "pos"],
+            quote_char=None,  # a word may hold a quote
+            truncate_ragged_lines=True,
+            schema_overrides={"word": pl.String, "freq": pl.String, "pos": pl.String},
+        )
+        .with_columns(pl.col(c).str.strip_chars() for c in ("word", "freq", "pos"))
+        .filter(pl.col("word").is_not_null() & (pl.col("word") != "") & pl.col("pos").is_not_null())
+        .with_columns(pl.col("freq").cast(pl.Int64))
+    )
+
+
 def words_list(folder: Path = HAZM_DIR) -> list[tuple[str, int, tuple[str, ...]]]:
     """``(word, frequency, parts of speech)`` for every word, as
     ``hazm.words_list()`` gives them: ``("آب", 549005877, ("N", "AJ"))``."""
-    out = []
-    for line in _lines("words.dat", folder):
-        item = line.split("\t")
-        if len(item) == 3:
-            out.append((item[0], int(item[1]), tuple(item[2].split(","))))
-    return out
+    df = words_frame(folder)
+    return [(w, n, tuple(p.split(","))) for w, n, p in df.iter_rows()]
 
 
 def word_frequencies(folder: Path = HAZM_DIR) -> dict[str, int]:
     """Word -> frequency; a word listed twice keeps its higher count."""
-    freq: dict[str, int] = {}
-    for w, n, _ in words_list(folder):
-        freq[w] = max(n, freq.get(w, 0))
-    return freq
+    df = words_frame(folder).group_by("word").agg(pl.col("freq").max())
+    return dict(zip(df["word"], df["freq"], strict=True))
 
 
 def stopwords_list(folder: Path = HAZM_DIR) -> list[str]:

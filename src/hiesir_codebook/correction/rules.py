@@ -1,7 +1,8 @@
-"""Correction step 2: the house style every description gets, with no
+"""Correction step 3: the house style every description gets, with no
 word list.  :func:`house_style` runs the rules in order, after the
-structure (:mod:`.corrections`, step 1) and before the automatic and
-spelling fixes (:mod:`.autocorrect`, :mod:`.spelling`, steps 3 and 4):
+structure (:mod:`.corrections`, step 1) and the canonical wording
+(:mod:`.canonical`, step 2), and before the automatic and spelling fixes
+(:mod:`.autocorrect`, :mod:`.spelling`, steps 4 and 5):
 
 - :func:`tidy_punctuation`: the same punctuation spacing everywhere
 - :func:`standard_spelling`: the Academy's spelling rules that need no word list

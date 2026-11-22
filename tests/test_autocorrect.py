@@ -272,3 +272,78 @@ def test_compound(a, b, fixed):
     labels = autocorrect.Labels.of(["تخم مرغ", "تخم\u200cمرغ محلی", "نمک سود", "پرداخت شده", "قابل حمل"])
     fix = autocorrect.compound(a, b, COMP_LEX, labels)
     assert (fix.replace if fix else None) == fixed
+
+
+# --- canonical: one wording per group, and the polars pipeline -----------------
+
+
+def test_canonical_key_ignores_spacing_and_letter_forms():
+    from hiesir_codebook.correction.canonical import canonical_key
+
+    assert canonical_key("تختخواب و میز توالت") == canonical_key("تختخواب و میزتوالت")
+    assert canonical_key("حق‌بیمه") == canonical_key("حق بیمه")
+    assert canonical_key("موسسات و . .") == canonical_key("مؤسسات و ...")
+    assert canonical_key("تخم مرغ") != canonical_key("تخم مرغ محلی")
+
+
+def test_canonical_gives_a_group_its_best_finished_form():
+    from collections import Counter
+
+    from hiesir_codebook.correction.canonical import choose
+
+    lex = Lexicon(freq={"میز": 1, "توالت": 1}, words={"میز", "توالت"})
+    variants = Counter({"میزتوالت": 17, "میز توالت": 9})
+    years = {"میزتوالت": {1403}, "میز توالت": {1385}}
+    assert choose(variants, years, lex) == "میز توالت"  # fewer unknown words beats more prints
+    # judged by what the later steps make of it: both finish alike, so the commoner wins
+    assert choose(variants, years, lex, finish=lambda t: "میز توالت") == "میزتوالت"
+
+
+def test_run_steps_runs_each_distinct_label_once():
+    from hiesir_codebook.correction.correct import Steps, run_steps
+
+    calls = []
+
+    class Counting(Steps):
+        def __call__(self, text, year, hits=None, auto_hits=None):
+            calls.append(text)
+            return text.upper()
+
+    pairs = [(1383, "a"), (1384, "a"), (1385, "b"), (1386, "a")]
+    assert run_steps(pairs, Counting()) == ["A", "A", "B", "A"]
+    assert sorted(calls) == ["a", "b"]
+
+
+def test_aligned_pieces_teach_word_fixes():
+    from hiesir_codebook.correction.canonical import aligned_pieces
+
+    assert aligned_pieces(
+        "انواع ژنراتور، ترانسفورماتورو انواع وسائل مشابه", "انواع ژنراتور، ترانسفورماتور و انواع وسایل مشابه"
+    ) == [("ترانسفورماتورو", "ترانسفورماتور و"), ("وسائل", "وسایل")]
+    assert aligned_pieces("تختخواب و میزتوالت", "تختخواب و میز توالت") == [("میزتوالت", "میز توالت")]
+    assert aligned_pieces("نان", "نام") == []  # other letters: nothing to learn
+
+
+def test_learned_fixes_keep_one_way_and_leave_letters_to_folding():
+    from hiesir_codebook.correction.canonical import learned_fixes
+
+    rows = learned_fixes(
+        [
+            ("بی دوام و کم دوام", "بی‌دوام و کم دوام", 5),  # بی دوام -> بی‌دوام, 5 uses
+            ("بی‌دوام", "بی دوام", 1),  # the other way, 1 use: dropped
+            ("وسائل", "ویدیؤ", 1),  # other letters: nothing
+            ("ویدیؤ", "ویدیو", 3),  # letter forms only: the folded fixes decide
+        ]
+    )
+    assert [(r["find"], r["replace"]) for r in rows] == [("بی دوام", "بی‌دوام")]
+
+
+def test_folded_fixes_follow_the_house_spelling():
+    from hiesir_codebook.correction.canonical import folded_fixes
+
+    lex = Lexicon(freq={"دائره": 1, "اعضاء": 1}, words={"دائره", "اعضاء"})
+    rows = folded_fixes(["دائره دایره دایره", "اعضاء اعضا", "روئی رویی"], lex)
+    assert sorted((r["find"], r["replace"]) for r in rows) == [("اعضاء", "اعضا"), ("دائره", "دایره")]
+    # a form a hand row rewrites is never chosen
+    rows = folded_fixes(["دائره دایره"], lex, settle=lambda w: w.replace("دایره", "دائره"))
+    assert [(r["find"], r["replace"]) for r in rows] == [("دایره", "دائره")]

@@ -162,3 +162,36 @@ def test_corrected_codes_agree_with_the_raw_data(capsys):
     assert (contradicted, failed) == (0, 0), "\n".join(
         ln for ln in out.splitlines() if "<--" in ln or "not printed:" in ln or "twice" in ln
     )
+
+
+def test_build_applies_the_canonical_word_fixes(tmp_path):
+    """correct() runs the word fixes of canonical_words.csv on every label (a
+    label printed only once included), not just the canonical step itself."""
+    from hiesir_codebook import CSV_COLUMNS, csv_io
+
+    extracted = tmp_path / "extracted"
+    row = dict.fromkeys(CSV_COLUMNS, "")
+    row |= {"section": "1", "kind": "item", "code": "0111", "sub": "11", "expenditure_code": "011111"}
+    csv_io.write(extracted / "questionnaire_1383.csv", CSV_COLUMNS, [row | {"description": "سایر وسائل"}])
+    csv_io.write(
+        tmp_path / "corrections.csv",
+        ["year", "action", "expenditure_code", "description", "value", "reason"],
+        [],
+    )
+    csv_io.write(
+        tmp_path / "words.csv",
+        ["find", "replace", "kind", "uses", "evidence"],
+        [{"find": "وسائل", "replace": "وسایل", "kind": "folded", "uses": "1", "evidence": "test"}],
+    )
+    out = tmp_path / "out"
+    correct(
+        [1383],
+        extracted,
+        out,
+        tmp_path / "corrections.csv",
+        tmp_path / "no_spelling.csv",
+        autocorrect=tmp_path / "no_hazm.csv",
+        canonical=tmp_path / "no_canonical.csv",
+        canonical_words=tmp_path / "words.csv",
+    )
+    assert csv_io.read(out / "questionnaire_1383.csv")[0]["description"] == "سایر وسایل"

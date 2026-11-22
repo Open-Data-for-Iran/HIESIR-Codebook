@@ -111,6 +111,34 @@ descriptions. Its rows cover:
   spaced (`سی دی`, `پرداخت شده`). `--check` lists how many descriptions each row
 changed, and the run warns about rows that match nothing.
 
+**One wording per label.** Before the house style, the automatic fixes and
+`spelling.csv`, `output/2_corrected/autocorrect/canonical.csv` gives every label
+printed in several ways one wording. `canonical.py` reads the labels as the
+corrections leave them and groups those that differ only in spaces, ZWNJs, the
+Arabic forms of ی and ک, hamza and the length of an ellipsis
+(`تختخواب و میزتوالت` / `تختخواب و میز توالت`). It judges what the steps make of
+each variant by how many words hazm does not know, then by how often the variant
+is printed, then by the latest year, and gives the whole group that finished
+form. The later steps meet each group already fixed and work only on labels
+printed one way. It holds {{ canonical.total }} variants, which change
+{{ labels.canonical }} descriptions. Regenerate it, then the automatic fixes,
+with hazm's data downloaded; a second run finds what the first did:
+
+```bash
+uv run python -m hiesir_codebook.correction.canonical
+uv run python -m hiesir_codebook.correction.autocorrect
+```
+
+Then the words: `output/2_corrected/autocorrect/canonical_words.csv` applies to
+every label what the groups teach, so a label printed only once gains from the
+others. Each loser of a group is lined up with its winner letter by letter,
+spaces and ZWNJs aside, and cut where both end a word; every stretch the loser
+writes otherwise becomes a fix (`ترانسفورماتورو` → `ترانسفورماتور و`, `وسائل` →
+`وسایل`, `میزتوالت` → `میز توالت`), kept when two thirds of the uses behind it
+agree. A word written with other forms of ی, ک or hamza gets the house's
+spelling (ی over ئ, no hamza after a final ا: `اعضاء` → `اعضا`), then hazm's,
+then the majority, never one a row of `spelling.csv` rewrites.
+
 **Automatic fixes from hazm.** Before `spelling.csv`,
 `output/2_corrected/autocorrect/hazm.csv` applies the fixes found automatically
 with the word list of [hazm](https://github.com/roshan-research/hazm).
@@ -588,16 +616,18 @@ across years, to `output/3_items/` and `output/4_groups/`).
   apart into letters. In every year they are the landscape income tables after
   the expenditure part.
 - `correct.py` runs each questionnaire of `output/1_extracted/` through the
-  four correction steps, in this order, and with `--check` tests the result
-  against the household occurrence table:
+  five correction steps, in this order, and with `--check` tests the result
+  against the household occurrence table (each distinct label once, with polars):
   1. `corrections.py` applies `curated/2_corrected/corrections.csv` (codes,
      rows, sections) and holds the structure check, with
      `curated/2_corrected/header_exceptions.csv` (see [Corrections](#corrections));
-  2. `rules.py` gives every description the house style (punctuation spacing,
+  2. `canonical.py` gives each group of labels printed in several ways one
+     wording (`output/2_corrected/autocorrect/canonical.csv`);
+  3. `rules.py` gives every description the house style (punctuation spacing,
      the Academy's spelling rules);
-  3. `autocorrect.py` finds fixes with hazm's word list in the extracted labels
-     and writes `output/2_corrected/autocorrect/hazm.csv`, which `correct.py` applies;
-  4. `spelling.py` applies `curated/2_corrected/spelling.csv`.
+  4. `autocorrect.py` finds fixes with hazm's word list and writes
+     `output/2_corrected/autocorrect/hazm.csv`, which `correct.py` applies;
+  5. `spelling.py` applies `curated/2_corrected/spelling.csv`.
 - `compare.py` compares two descriptions (`same`, `minor`, `broadened`, ...)
   and handles provider qualifiers; shared by the matching stages.
 - `chains.py` builds the chains (matching stage 1), `relations.py` links them

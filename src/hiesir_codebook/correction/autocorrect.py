@@ -1,12 +1,13 @@
-"""Correction step 3: automatic fixes from hazm's word list.
+"""Correction step 4: automatic fixes from hazm's word list.
 
-This step reads every label once, straight from ``output/1_extracted/`` with
-only the structural corrections (:mod:`.corrections`, step 1) and the house
-style (:mod:`.rules`, step 2) applied, so it meets the print's own errors.  It
-tries each rule below on each word and saves what it finds to
+This step reads every label once, as the structural corrections
+(:mod:`.corrections`, step 1), the canonical wording (:mod:`.canonical`, step
+2) and the house style (:mod:`.rules`, step 3) leave it: a label printed in
+several ways reaches it already fixed, so its work is in the labels printed
+one way.  It tries each rule below on each word and saves what it finds to
 ``output/2_corrected/autocorrect/hazm.csv``.  The build applies that file, one
-whole word at a time, before ``spelling.csv`` (:mod:`.spelling`, step 4), so it
-runs without hazm's data.  Regenerate it after changing steps 1-2 or the rules,
+whole word at a time, before ``spelling.csv`` (:mod:`.spelling`, step 5), so it
+runs without hazm's data.  Regenerate it after changing steps 1-3 or the rules,
 with hazm's data downloaded (``uv run hiesir-codebook hazm download``):
 
     uv run python -m hiesir_codebook.correction.autocorrect
@@ -84,6 +85,8 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import polars as pl
+
 from .. import CORRECTED, CURATED_CORRECTED, csv_io
 from ..utils import ZWNJ
 from .spelling import LabelFix
@@ -135,12 +138,22 @@ _SPACED_PAIR = re.compile(f"(?<![{_LETTERS}])([{_LETTERS}]+) ({'|'.join(SPACED)}
 
 
 _FOLD = str.maketrans({"ي": "ی", "ك": "ک", "ئ": "ی", "أ": "ا", "إ": "ا", "ؤ": "و", "ء": None, ZWNJ: None})
+# the letter forms alone, ZWNJs kept
+_LETTERS = str.maketrans({"ي": "ی", "ك": "ک", "ئ": "ی", "أ": "ا", "إ": "ا", "ؤ": "و", "ء": None})
 
 
 def _key(w: str) -> str:
     """A word for lookup: no ZWNJ, one way to write ی and ک, and no hamza
     (تامین finds تأمین, موسسات مؤسسات); آ stays, as آب is not اب."""
     return w.translate(_FOLD)
+
+
+_FOLD_PAIRS = {"ي": "ی", "ك": "ک", "ئ": "ی", "أ": "ا", "إ": "ا", "ؤ": "و", "ء": "", ZWNJ: ""}
+
+
+def _key_expr(column: str) -> pl.Expr:
+    """:func:`_key` as a polars expression."""
+    return pl.col(column).str.replace_many(list(_FOLD_PAIRS), list(_FOLD_PAIRS.values()))
 
 
 @dataclass
@@ -156,10 +169,27 @@ class Lexicon:
     _word_keys: set[str] = field(default_factory=set, repr=False)
 
     def __post_init__(self) -> None:
+        if self._by_key or not self.freq:  # built by from_frame, or empty
+            return
         for w, n in self.freq.items():
             k = _key(w)
             self._by_key[k] = max(n, self._by_key.get(k, 0))
         self._word_keys = {_key(w) for w in self.words}
+
+    @classmethod
+    def from_frame(cls, df: pl.DataFrame, stems: frozenset[str] = frozenset()) -> Lexicon:
+        """A lexicon from a table of ``word``, ``freq`` and ``vouched``, its
+        lookup keys (no ZWNJ, no hamza, one ی and one ک) worked out in polars."""
+        df = df.group_by("word").agg(pl.col("freq").max(), pl.col("vouched").any())
+        df = df.with_columns(_key_expr("word").alias("key"))
+        by_key = df.group_by("key").agg(pl.col("freq").max())
+        return cls(
+            dict(zip(df["word"], df["freq"], strict=True)),
+            set(df.filter("vouched")["word"]),
+            stems,
+            dict(zip(by_key["key"], by_key["freq"], strict=True)),
+            set(df.filter("vouched")["key"]),
+        )
 
     def count(self, w: str) -> int:
         return self.freq.get(w) or self._by_key.get(_key(w), 0)
@@ -220,33 +250,30 @@ def load_words(path: Path = WORDS) -> list[str]:
 
 
 def hazm_lexicon(words: Path = WORDS) -> Lexicon:
-    """hazm's word list, with the words of ``words`` as known."""
-    from ..hazm_data import verbs_list, words_list
+    """hazm's word list (read with polars), with the forms of its verbs and
+    the words of ``words`` as known."""
+    from ..hazm_data import verbs_list, words_frame
 
-    freq: dict[str, int] = {}
-    vouched: set[str] = set()
-    for w, n, tags in words_list():
-        freq[w] = max(n, freq.get(w, 0))
-        if n > 0 or tags != ("0",):
-            vouched.add(w)
-    for w in verb_forms():
-        # a form that is و + a word hazm lists is a glued و far more
-        # often than a rare verb (وسیم of وشت#وس is و + سیم)
-        if w.startswith("و") and w[1:] in freq:
-            continue
-        freq[w] = max(COMMON, freq.get(w, 0))
-        vouched.add(w)
+    hazm = words_frame().select(
+        "word", "freq", ((pl.col("freq") > 0) | (pl.col("pos") != "0")).alias("vouched")
+    )
+    listed = set(hazm["word"])
+    # a verb form that is و + a word hazm lists is a glued و far more often
+    # than a rare verb (وسیم of وشت#وس is و + سیم); ورزید stays
+    forms = sorted(w for w in verb_forms() if not (w.startswith("و") and w[1:] in listed))
+    curated = [x for w in load_words(words) for x in {w, *w.split(" ")}]  # گالینا بلانکا and its words
+    extra = pl.DataFrame(
+        {"word": forms + curated, "freq": [COMMON] * (len(forms) + len(curated)), "vouched": True},
+        schema={"word": pl.String, "freq": pl.Int64, "vouched": pl.Boolean},
+    )
+    listed.update(forms)
     stems = frozenset(
         pres
         for line in verbs_list()
         for pres in [line.partition("#")[2].strip()]
-        if len(pres) >= 2 and " " not in pres and not (pres.startswith("و") and pres[1:] in freq)
+        if len(pres) >= 2 and " " not in pres and not (pres.startswith("و") and pres[1:] in listed)
     )
-    for w in load_words(words):
-        for x in {w, *w.split(" ")}:  # a name of two words (گالینا بلانکا) and its words
-            freq[x] = max(COMMON, freq.get(x, 0))
-            vouched.add(x)
-    return Lexicon(freq, vouched, stems)
+    return Lexicon.from_frame(pl.concat([hazm, extra]), stems)
 
 
 _PAST_ENDINGS = ("م", "ی", "", "یم", "ید", "ند")
@@ -329,7 +356,7 @@ def compound(a: str, b: str, lex: Lexicon, labels: Labels | None = None) -> Fix 
     joined = f"{a}{ZWNJ}{b}"
     if joined not in lex.words:
         return None
-    written = labels is not None and (labels.uses[joined] + labels.uses[a + b]) > 0
+    written = labels is not None and (labels.count(joined) + labels.count(a + b)) > 0
     return Fix(
         f"{a} {b}",
         joined,
@@ -357,7 +384,7 @@ def spaced_suffix(word: str, suffix: str, lex: Lexicon) -> Fix | None:
     )
 
 
-@dataclass
+@dataclass(eq=False)
 class Labels:
     """What the rules may know of the labels: how often each word is written,
     and all the text (to see whether a phrase is written somewhere)."""
@@ -371,11 +398,26 @@ class Labels:
         return cls(Counter(w for t in labels for w in _WORD.findall(t)), "\n".join(labels))
 
     def seen(self, phrase: str) -> bool:
-        """Do the labels write ``phrase`` somewhere, as whole words?"""
-        return (
-            phrase in self.text
-            and re.search(f"(?<!{_EDGE}){re.escape(phrase)}(?!{_EDGE})", self.text) is not None
-        )
+        """Do the labels write ``phrase`` somewhere, as whole words, whatever the
+        forms of ی, ک and hamza (سایر موسسات is سایر مؤسسات)?"""
+        text, phrase = self._folded, phrase.translate(_LETTERS)
+        return phrase in text and re.search(f"(?<!{_EDGE}){re.escape(phrase)}(?!{_EDGE})", text) is not None
+
+    @functools.cached_property
+    def _folded(self) -> str:
+        return self.text.translate(_LETTERS)
+
+    @functools.cached_property
+    def _folded_uses(self) -> Counter:
+        out: Counter = Counter()
+        for w, n in self.uses.items():
+            out[w.translate(_LETTERS)] += n
+        return out
+
+    def count(self, w: str) -> int:
+        """How often the labels write ``w``, whatever the forms of ی, ک and
+        hamza (موسسات counts مؤسسات)."""
+        return self._folded_uses[w.translate(_LETTERS)]
 
 
 class Cutter:
@@ -388,15 +430,15 @@ class Cutter:
         self.lex, self.labels = lex, labels
 
     def common(self, w: str) -> bool:
-        return w in _SHORT or self.lex.count(w) >= COMMON or self.labels.uses[w] > RARE
+        return w in _SHORT or self.lex.count(w) >= COMMON or self.labels.count(w) > RARE
 
     def part_ok(self, w: str) -> bool:
         """Can ``w`` be one of the words a token is cut into?  A plural counts as its stem."""
         if w in _SHORT:
             return True
-        if len(w) < 3 or w in PLURALS:
+        if len(w) < 3 or w in PLURALS or w.startswith("ء"):  # no word starts with a bare hamza
             return False
-        if self.lex.count(w) >= PART or self.labels.uses[w] > RARE:
+        if self.lex.count(w) >= PART or self.labels.count(w) > RARE:
             return True
         m = _PLURAL.fullmatch(w)
         return bool(m) and len(m.group(1)) >= 2 and self.part_ok(m.group(1))
@@ -404,7 +446,7 @@ class Cutter:
     def base(self, w: str) -> str:
         """A part as the frequency lookup sees it: the stem of a plural it does not know."""
         m = _PLURAL.fullmatch(w)
-        if m and not (self.lex.count(w) >= PART or self.labels.uses[w] > RARE):
+        if m and not (self.lex.count(w) >= PART or self.labels.count(w) > RARE):
             return m.group(1)
         return w
 
@@ -439,7 +481,7 @@ class Cutter:
         """Mean log frequency of the words (و left out), less a cost per extra
         word, plus a bonus for a و at an edge and for a phrase the labels write."""
         words = [self.base(p) for p in parts if p != "و"] or list(parts)
-        weight = [self.lex.count(p) + 100_000 * self.labels.uses[p] for p in words]
+        weight = [self.lex.count(p) + 100_000 * self.labels.count(p) for p in words]
         score = sum(math.log(1 + x) for x in weight) / len(words) - PART_COST * (len(parts) - 2)
         if parts[0] == "و" or parts[-1] == "و":
             score += EDGE_AND
@@ -452,7 +494,7 @@ class Cutter:
         """``s`` (no ZWNJ) cut into words, and whether the cut is sure: its words
         are common and it clearly beats the next best one.  ``s`` itself when it
         is a word or cannot be cut (``force``: even when the labels use it often)."""
-        if self.is_word(s) or (not force and self.labels.uses[s] > RARE) or s.startswith("ال"):
+        if self.is_word(s) or (not force and self.labels.count(s) > RARE) or s.startswith("ال"):
             return s, True
         ranked = sorted(self.cuts(s), key=self.score, reverse=True)
         if not ranked:
@@ -487,7 +529,7 @@ class Cutter:
         if self.is_word(w):
             return w, True
         segs = w.split(ZWNJ)
-        if len(segs) == 1 and self.labels.uses[w] > RARE:
+        if len(segs) == 1 and self.labels.count(w) > RARE:
             cut, sure = self.segment(w, force=True)
             if not (any(x in _GLUE for x in cut.split(" ")) or (" " in cut and self.labels.seen(cut))):
                 return w, True
@@ -496,7 +538,7 @@ class Cutter:
         out = [first]
         for prev, seg in itertools.pairwise(segs):
             keep = (
-                self.labels.uses[prev + ZWNJ + seg] > RARE
+                self.labels.count(prev + ZWNJ + seg) > RARE
                 or seg in _KEEP_AFTER
                 or prev in ("می", "نمی")
                 or self.lex.listed(prev + ZWNJ + seg)
@@ -610,21 +652,34 @@ def find_fixes(
     extra = {"glued_words": (cutter,), "compound": (cutter.labels,)}
     found: dict[tuple[str, str], Found | None] = {}
 
-    def apply(rule: Callable[..., Fix | None], key: str, args: tuple, year: int, label: str) -> str:
+    def apply(rule: Callable[..., Fix | None], key: str, args: tuple, uses: tuple[int, set, str]) -> str:
         """Count ``key`` for ``rule`` (asking the rule once per key) and return
-        what the label reads after it."""
+        what the label reads after it; ``uses``: how many rows print the label,
+        in which years, and the label."""
         if (rule.__name__, key) not in found:
             fix = rule(*args, lex, *extra.get(rule.__name__, ()))
             found[rule.__name__, key] = Found(fix) if fix else None
         hit = found[rule.__name__, key]
         if hit is None:
             return key
-        hit.uses += 1
-        hit.years.add(year)
+        n, years, label = uses
+        hit.uses += n
+        hit.years |= years
         hit.example = hit.example or label
         return hit.fix.replace
 
-    for year, label in labels:
+    # each distinct label once, with how many rows print it and in which years
+    # (27,000 rows hold about 3,500 labels), in the order they are first met
+    df = pl.DataFrame({"year": [y for y, _ in labels], "label": [t for _, t in labels]}, orient="col")
+    distinct = (
+        df.group_by("label", maintain_order=True).agg(
+            pl.len().alias("n"), pl.col("year").unique().alias("years")
+        )
+        if labels
+        else df
+    )
+    for label, n, years in distinct.iter_rows() if labels else ():
+        use = (n, set(years), label)
         parts = []
         for text, free in free_parts(label, rows):
             if free:
@@ -633,16 +688,14 @@ def find_fixes(
                     words = _WORD.findall(text)
                     out = [pieces[0]]
                     for w, after in zip(words, pieces[1:], strict=True):
-                        out += [apply(rule, w, (w,), year, label), after]
+                        out += [apply(rule, w, (w,), use), after]
                     text = "".join(out)
-                text = _join_pairs(
-                    text, lambda a, b, y=year, t=label: apply(compound, f"{a} {b}", (a, b), y, t)
-                )
+                text = _join_pairs(text, lambda a, b, u=use: apply(compound, f"{a} {b}", (a, b), u))
             parts.append(text)
         # a suffix joined to its word changes no word, so it may cross a stretch
         # a spelling.csv row matches (سی دی + های)
         for m in _SPACED_PAIR.finditer("".join(parts)):
-            apply(spaced_suffix, m.group(0), (m.group(1), m.group(2)), year, label)
+            apply(spaced_suffix, m.group(0), (m.group(1), m.group(2)), use)
     return sorted(
         (f for f in found.values() if f), key=lambda f: (RULES.index(f.fix.rule), -f.uses, f.fix.find)
     )

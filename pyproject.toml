@@ -11,6 +11,7 @@ license = "MIT"
 license-files = ["LICENSE"]
 dependencies = [
     "fonttools>=4.68.0",
+    "polars>=2.1.0",
     "pymupdf>=2.1",
 ]
 

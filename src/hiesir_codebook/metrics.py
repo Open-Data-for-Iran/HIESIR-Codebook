@@ -53,29 +53,32 @@ def _decisions(rows: list[dict[str, str]], kinds: tuple[str, ...] = ()) -> dict[
     return out
 
 
-def _labels(extracted: Path, corrections: Path, labels: Path, auto: Path) -> dict[str, int]:
+def _labels(extracted: Path, corrections: Path, labels: Path, auto: Path, canonical: Path) -> dict[str, int]:
     """How many descriptions (items, headers and section titles, all years)
     each step of the correction changes, replayed in the order correct.apply
-    runs them."""
-    fixes = step1.load_corrections(corrections)
+    runs them (each distinct description once)."""
+    from .correction.canonical import load_variants, load_word_fixes
+    from .correction.correct import Steps, labels_after_corrections, run_steps
+
     label_fixes = step3.load_label_fixes(labels)
-    letters = [fx for fx in label_fixes if fx.match == "text"]
-    words = [fx for fx in label_fixes if fx.match == "word"]
-    auto_fixes = autocorrect.load_fixes(auto)
-    n = Counter()
-    for year in SUPPORTED_YEARS:
-        rows = csv_io.read(extracted / f"questionnaire_{year}.csv")
-        for r in step1.apply_corrections(year, rows, fixes, extracted):
-            t0 = r["description"]
-            t1 = rules.house_style(t0)
-            tl = step3.fix_label(t1, year, letters)
-            t2 = autocorrect.fix_free(tl, year, auto_fixes, words) if auto_fixes else tl
-            t3 = step3.fix_label(t2, year, words)
-            n["rows"] += 1
-            n["punctuation"] += t1 != t0
-            n["autocorrect"] += t2 != tl
-            n["spelling"] += (tl != t1) or (t3 != t2)
-    return dict(n)
+    variants = load_variants(canonical)
+    words = load_word_fixes(canonical.with_name("canonical_words.csv"))
+    pairs = labels_after_corrections(SUPPORTED_YEARS, extracted, corrections)
+    t0 = [t for _, t in pairs]
+    # the canonical wording and words
+    t1 = run_steps(pairs, Steps(label_fixes, [], variants, upto=2, words=words))
+    style = {t: rules.house_style(t) for t in set(t1)}
+    t2 = [style[t] for t in t1]  # the house style alone
+    t3 = run_steps(pairs, Steps(label_fixes, [], variants, upto=3, words=words))  # + the letter fixes
+    t4 = run_steps(pairs, Steps(label_fixes, autocorrect.load_fixes(auto), variants, upto=4, words=words))
+    t5 = run_steps(pairs, Steps(label_fixes, autocorrect.load_fixes(auto), variants, upto=5, words=words))
+    return {
+        "rows": len(pairs),
+        "canonical": sum(a != b for a, b in zip(t0, t1, strict=True)),
+        "punctuation": sum(a != b for a, b in zip(t1, t2, strict=True)),
+        "autocorrect": sum(a != b for a, b in zip(t3, t4, strict=True)),
+        "spelling": sum((a != b) or (c != d) for a, b, c, d in zip(t2, t3, t4, t5, strict=True)),
+    }
 
 
 def compute(
@@ -89,10 +92,12 @@ def compute(
     corrections = curated / "corrections.csv"
     labels = curated / "spelling.csv"
     auto = corrected / "autocorrect" / "hazm.csv"
+    canonical = corrected / "autocorrect" / "canonical.csv"
 
     fixes = step1.load_corrections(corrections)
-    changed = _labels(extracted, corrections, labels, auto)
+    changed = _labels(extracted, corrections, labels, auto, canonical)
     auto_rows = csv_io.read(auto) if auto.exists() else []
+    canonical_rows = csv_io.read(canonical) if canonical.exists() else []
 
     item_years = {}
     for y in SUPPORTED_YEARS:
@@ -121,11 +126,13 @@ def compute(
         },
         "labels": {
             "total": changed["rows"],
+            "canonical": changed["canonical"],
             "punctuation": changed["punctuation"],
             "spelling": changed["spelling"],
             "autocorrect": changed["autocorrect"],
         },
         "spelling": {"total": len(step3.load_label_fixes(labels))},
+        "canonical": {"total": len(canonical_rows)},
         "autocorrect": {
             "total": len(auto_rows),
             **dict(sorted(Counter(r["rule"] for r in auto_rows).items())),

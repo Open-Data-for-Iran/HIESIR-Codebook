@@ -1,8 +1,9 @@
-"""Correction step 4: the spelling of each description.
+"""Correction step 5: the spelling of each description.
 
-After the structure (:mod:`.corrections`, step 1), the house style
-(:mod:`.rules`, step 2) and the automatic fixes from hazm's word list
-(:mod:`.autocorrect`, step 3), ``curated/2_corrected/spelling.csv`` fixes the
+After the structure (:mod:`.corrections`, step 1), the canonical wording
+(:mod:`.canonical`, step 2), the house style (:mod:`.rules`, step 3) and the
+automatic fixes from hazm's word list (:mod:`.autocorrect`, step 4),
+``curated/2_corrected/spelling.csv`` fixes the
 spellings that recur across rows and years and that hazm cannot settle
 (typos, glued words, missing ZWNJs, compounds), applied to every description
 in file order.  Its ``text`` rows fix letters inside words (تزئین -> تزیین)
