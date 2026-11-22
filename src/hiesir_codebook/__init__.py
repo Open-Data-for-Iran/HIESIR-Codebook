@@ -49,7 +49,7 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
         for y in SUPPORTED_YEARS:
             build(y, data, EXTRACTED)
         print(f"extracted {len(SUPPORTED_YEARS)} years -> {EXTRACTED}")
-        print(f"what each left out or repaired: {EXTRACTED}/report_<year>.csv")
+        print(f"what each left out or repaired: {EXTRACTED}/reports/report_<year>.csv")
     elif extract_pdfs:
         print(f"no {data / 'pdf'}: keeping {EXTRACTED} as it is")
     else:

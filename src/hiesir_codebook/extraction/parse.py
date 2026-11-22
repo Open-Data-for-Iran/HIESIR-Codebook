@@ -201,7 +201,7 @@ def _aligned(seg: Segment, y: float, vrules: list[VRule], d: Distances = DISTANC
     return min(borders) - seg.x1 < d.border
 
 
-# why text was left out (the "reason" column of output/1_extracted/report_<year>.csv)
+# why text was left out (the "reason" column of output/1_extracted/reports/report_<year>.csv)
 DROP_UNALIGNED = "text not aligned to its column border (a label inside the cell?)"
 DROP_NO_CODE = "text with no code line near it"
 DROP_CODE_TAIL = "code continuation with no header to join"

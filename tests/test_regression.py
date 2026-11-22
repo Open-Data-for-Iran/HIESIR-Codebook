@@ -40,7 +40,7 @@ def test_extract_matches_tracked_csv(year, tmp_path):
     assert out.read_bytes() == (EXTRACTED / out.name).read_bytes()
     report = tmp_path / f"report_{year}.csv"
     write_report(notes.items, report)
-    assert report.read_bytes() == (EXTRACTED / report.name).read_bytes()
+    assert report.read_bytes() == (EXTRACTED / "reports" / report.name).read_bytes()
 
     quirk_of = {q.note: name for name, q in QUIRKS.items()}
     unlisted = sorted(

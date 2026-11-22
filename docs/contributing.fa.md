@@ -27,7 +27,7 @@ GitHub این فایل‌ها را در نمایش تفاوت‌ها جمع می
 uv run hiesir-codebook build                 # regenerate every stage of output/
 uv run hiesir-codebook build --no-extract    # keep 1_extracted/ (no PDFs needed)
 uv run hiesir-codebook pdfs download        # the PDFs from the release, checked against data/pdfs.csv
-uv run hiesir-codebook extract               # just extract: PDFs -> output/1_extracted/ (with report_<year>.csv)
+uv run hiesir-codebook extract               # just extract: PDFs -> output/1_extracted/ (reports in reports/)
 uv run hiesir-codebook extract 1382 1403     # or just some years
 uv run python -m hiesir_codebook.correction.correct --check   # correct and check against the raw data
 uv run python -m hiesir_codebook.correction.structure         # check the corrected CSVs from the CSVs alone

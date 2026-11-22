@@ -12,7 +12,7 @@ What a new year may need changed lives here, not in ``parse.py``:
   are not part of the description.
 - :data:`QUIRKS`: the repairs ``parse.py`` makes for print quirks, with the
   years each is seen in.  Every repair it applies is listed in
-  ``output/1_extracted/report_<year>.csv``, and a test fails when one turns up in a
+  ``output/1_extracted/reports/report_<year>.csv``, and a test fails when one turns up in a
   year not listed here: look at the PDF there, then add the year (or fix the
   parser if the repair was wrong).
 - :data:`LAST_OLD_SCHEME_YEAR`: the last year of the pre-COICOP code scheme.

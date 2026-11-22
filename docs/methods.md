@@ -587,7 +587,7 @@ across years, to `output/3_items/` and `output/4_groups/`).
   a header code list wrapped onto the next line or split around its text, a
   sub-code above its code in a tall cell (1391–1394), an item continued on
   the next page, source-code notes and field labels left out.
-- Each extraction also writes `output/1_extracted/report_<year>.csv` (tracked, so a change shows in the diff): the text it left
+- Each extraction also writes `output/1_extracted/reports/report_<year>.csv` (tracked, so a change shows in the diff): the text it left
   out (not aligned to its column border, no code line near it, a code
   continuation with no header, a page number, a stray two-digit header, text
   before the first section, a page whose text is turned sideways), the glyphs it could not read (a broken font's

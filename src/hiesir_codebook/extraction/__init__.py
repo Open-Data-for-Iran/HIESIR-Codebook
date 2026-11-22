@@ -5,7 +5,7 @@ layer (``glyph_db`` repairs broken fonts, rebuilt by ``build_glyph_db``),
 ``parse`` turns the lines into rows, with the layout and the print quirks of
 particular years in ``layout``.
 
-Next to each ``questionnaire_<year>.csv``, ``report_<year>.csv`` lists what
+For each ``questionnaire_<year>.csv``, ``reports/report_<year>.csv`` lists what
 the extraction left out, the glyphs it could not read and the print quirks it
 repaired, for review; both are tracked, so a change shows in the diff.
 """
@@ -119,10 +119,10 @@ def write_report(notes: list[Note], path: Path) -> None:
 
 def build(year: int, data: Path = DATA_DIR, csv_dir: Path = EXTRACTED) -> Path:
     """Extract one year's questionnaire to ``<csv_dir>/questionnaire_<year>.csv``
-    and its report to ``<csv_dir>/report_<year>.csv``."""
+    and its report to ``<csv_dir>/reports/report_<year>.csv``."""
     notes = Notes()
     rows = extract_year(year, data, notes)
     out = csv_dir / f"questionnaire_{year}.csv"
     write_csv(rows, out)
-    write_report(notes.items, csv_dir / f"report_{year}.csv")
+    write_report(notes.items, csv_dir / "reports" / f"report_{year}.csv")
     return out
