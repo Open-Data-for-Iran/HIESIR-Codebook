@@ -12,7 +12,7 @@ from hiesir_codebook.extraction.parse import (
     _page_entries,
     normalize_code,
 )
-from hiesir_codebook.extraction.pdf_text import Line, Notes, Segment, VRule, glyph_name_to_text
+from hiesir_codebook.extraction.pdf_text import Line, Notes, Rule, Segment, VRule, glyph_name_to_text
 
 
 @pytest.mark.parametrize(
@@ -151,6 +151,21 @@ def test_left_out_text_is_reported():
         (4, 300, DROP_NO_CODE, "یادداشت پایین جدول"),
         (4, 790, DROP_PAGE_NUMBER, "33"),
     }
+
+
+def test_third_line_of_a_tall_cell_stays_with_its_item():
+    # 1389 p. 52: the third line of 093124 is 32.6 pt below its code line
+    # (beyond Distances.wrap) and nearer the next item, across a row rule
+    lines = [
+        _line("24 0931 اقلام و ملزومات", 163.1),
+        _line("نمونه‌های مربوط به جانورشناسی", 179.4, 486),
+        _line("تمبر و ..)", 195.7, 486),
+        _line("25 0931 انواع نرم‌افزارهای بازی", 214.5),
+    ]
+    rules = [Rule(y, 44, 553) for y in (152.6, 204.0, 222.8)]
+    e24, e25 = _page_entries(lines, rules, [])
+    assert [s.text for s in e24.after] == ["نمونه‌های مربوط به جانورشناسی", "تمبر و ..)"]
+    assert (e25.before, e25.after) == ([], [])
 
 
 def test_notes_are_optional():

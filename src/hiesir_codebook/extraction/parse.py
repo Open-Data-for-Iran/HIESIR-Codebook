@@ -253,6 +253,7 @@ def _page_entries(
         else:
             loose.append(seg)
             loose_lines.append(ln)
+    prev: tuple[float, _Entry] | None = None  # the last wrapped line placed, and its entry
     for seg, ln in zip(loose, loose_lines, strict=True):
         y = ln.y
         if not _aligned(seg, y, vrules, d):
@@ -266,7 +267,16 @@ def _page_entries(
             for e in cands
             if not _separated(rules, y, e.line.y, seg.x1 - 2, e.line.segments[0].x1 - d.code_column)
         ]
-        if not cands:
+        if not same_row and prev is not None:
+            # the third line of a tall cell can be too far from its code line:
+            # it follows the wrapped line just above it in the same table row
+            # ("... آلبوم" / "تمبر و ..)", 1386-1389)
+            py, pe = prev
+            if 0 < y - py <= d.wrap and not _separated(
+                rules, py, y, seg.x1 - 2, pe.line.segments[0].x1 - d.code_column
+            ):
+                same_row = [pe]
+        if not (cands or same_row):
             notes.add(y, DROP_NO_CODE, seg.text)
             continue
         # no candidate in the same table row: the text overflowed its cell,
@@ -274,6 +284,7 @@ def _page_entries(
         e = min(same_row or cands, key=lambda e: abs(e.line.y - y))
         (e.before if y < e.line.y else e.after).append(seg)
         e.lines.append(ln)
+        prev = (y, e)
     for text, y in code_tails:
         # a header code list split over two lines ("و03123 M" / "03124 M"):
         # prefer an adjacent code-only header, else the header just above

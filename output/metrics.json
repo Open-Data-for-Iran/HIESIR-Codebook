@@ -27,19 +27,19 @@
     }
   },
   "corrections": {
-    "total": 39,
+    "total": 29,
     "years": "1383–1390",
     "add_section": 1,
     "delete": 1,
     "recode": 10,
     "recode_header": 4,
-    "retext": 22,
+    "retext": 12,
     "retext_header": 1
   },
   "labels": {
     "total": 27753,
-    "punctuation": 3916,
-    "spelling": 2605,
+    "punctuation": 3920,
+    "spelling": 2606,
     "autocorrect": 4703
   },
   "spelling": {
