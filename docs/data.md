@@ -83,7 +83,6 @@ not in the questionnaire, before → after the corrections.
 
 | Years | Raw-data codes missing | Notes |
 |---|---|---|
-| 1382 | 0 | Old 3+2 digit code scheme |
 | 1383 | 7 → 1 | Section 2 page blank in the PDF; the one left, `231`, is not an item code |
 | 1384 | 1 → 0 | |
 | 1385 | 0 | |

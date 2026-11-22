@@ -164,7 +164,7 @@ uv run python -m hiesir_codebook.correction.autocorrect
   questionnaire lacks, or a code printed twice, points to a typo or an
   extraction miss.
 
-All corrections are backed by the data, and every year from 1382 to 1403
+All corrections are backed by the data, and every year from 1383 to 1403
 passes. The occurrence tables are in git, so a test runs this check in CI.
 
 The structure check (`python -m hiesir_codebook.correction.corrections`) needs

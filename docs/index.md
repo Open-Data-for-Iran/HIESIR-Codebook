@@ -55,7 +55,7 @@ wording change.
 
 | | |
 |---|---|
-| Questionnaires | {{ questionnaires.years }} years: 1382–1400, 1402, 1403 (1401's PDF is a data dictionary; 1363–1381 are scans) |
+| Questionnaires | {{ questionnaires.years }} years: 1383–1400, 1402, 1403 (1382, with its older code scheme, is left out; 1401's PDF is a data dictionary; 1363–1381 are scans) |
 | Items | {{ chains.total }} chains: one code with one label, followed while both stay the same |
 | Links between them | {{ links.kept }} links that continue an item (reworded or recoded) and {{ relations.kept }} merges, splits and regroupings; every one verified |
 | Corrections | {{ corrections.total }} fixes to the printed questionnaires, plus spelling and punctuation across all years |

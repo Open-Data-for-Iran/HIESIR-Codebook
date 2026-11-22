@@ -101,6 +101,7 @@ TABLE = {
         "area": {"urban": "urban", "rural": "rural", "": "urban and rural"},
         "kind": {
             "extracted": "extracted: see the explorer",
+            "text": "text layer, left out (older code scheme)",
             "dictionary": "data dictionary, not a questionnaire",
             "scan": "scanned images only",
         },
@@ -113,6 +114,7 @@ TABLE = {
         "area": {"urban": "شهری", "rural": "روستایی", "": "شهری و روستایی"},
         "kind": {
             "extracted": "استخراج‌شده: در جست‌وجوی اقلام",
+            "text": "لایه متنی دارد، کنار گذاشته شده (نظام کدگذاری قدیمی)",
             "dictionary": "راهنمای داده، نه پرسشنامه",
             "scan": "فقط تصویر اسکن‌شده",
         },

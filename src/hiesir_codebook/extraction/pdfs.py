@@ -47,10 +47,18 @@ def published_name(year: int, area: str = "") -> str:
     return f"questionnaire_{year}{'_' + area if area else ''}.pdf"
 
 
+# a text layer, left out of the codebook: the older 3+2 digit code scheme,
+# which the matching across years does not cover
+LEFT_OUT = (1382,)
+
+
 def kind(year: int) -> str:
-    """``extracted`` (in output/), ``dictionary`` (1401) or ``scan`` (image only)."""
+    """``extracted`` (in output/), ``text`` (a text layer, left out: 1382),
+    ``dictionary`` (1401) or ``scan`` (image only)."""
     if year in SUPPORTED_YEARS:
         return "extracted"
+    if year in LEFT_OUT:
+        return "text"
     return "dictionary" if year == 1401 else "scan"
 
 
