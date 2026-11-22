@@ -27,9 +27,17 @@ jobs:
       - name: Download the questionnaire PDFs (release "questionnaires")
         env:
           GH_TOKEN: ${{ github.token }}
+        # without the PDFs the extraction tests skip, so on main that is an error;
+        # a pull request only warns
         run: |
-          gh release download questionnaires --repo "$GITHUB_REPOSITORY" --pattern '*.pdf' --dir data/pdf \
-            || echo "::warning::no 'questionnaires' release with PDFs; extraction is not tested and the site is built without them"
+          if ! gh release download questionnaires --repo "$GITHUB_REPOSITORY" --pattern '*.pdf' --dir data/pdf; then
+            if [ "${{ github.event_name }}" = pull_request ]; then
+              echo "::warning::no 'questionnaires' release with PDFs; extraction is not tested and the site is built without them"
+            else
+              echo "::error::no 'questionnaires' release with PDFs; the extraction cannot be tested"
+              exit 1
+            fi
+          fi
       - name: Tests (output/ and the explorer must be up to date; with the PDFs, 1_extracted/ too)
         run: uv run --group docs pytest
       - name: Lint

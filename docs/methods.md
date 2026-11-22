@@ -556,9 +556,20 @@ across years, to `output/3_items/` and `output/4_groups/`).
   100%, broken fonts disagree on 0.8% or more. The database keeps each glyph's
   form as the clean PDFs' shaped fonts map it (ﻬ medial, ﻪ final, ه isolated), so
   the ZWNJ recovery works in the repaired years too (میوه‌گیری). To rebuild the database:
-  `uv run python -m hiesir_codebook.extraction.build_glyph_db`.
+  `uv run python -m hiesir_codebook.extraction.build_glyph_db`. The extraction
+  stops with an error when the database is missing, or knows under 10% of a
+  PDF's glyph outlines (0.87–1.0 in 1383–1403, 0.24 in 1382): then the hashes no
+  longer match, for example after a fontTools change, and broken fonts would go
+  unnoticed. A unit test pins the hash of a known outline for the same reason.
 - `parse.py` finds code lines and attaches wrapped description lines to them,
   using the table rules and column borders.
+- Each extraction also writes `reports/extraction_<year>.csv`: the text it left
+  out (not aligned to its column border, no code line within 30 pt, a code
+  continuation with no header, a page number, a stray two-digit header, text
+  before the first section) and the glyphs it could not read (a broken font's
+  glyph missing from the database, an unmapped glyph without a usable name),
+  one row per reason and text with its count and pages. Most rows are table
+  headings repeated on every page; the rest is what to look at in a new year.
 - `correct.py` applies `curated/2_corrected/corrections.csv` and `curated/2_corrected/spelling.csv`
   to `output/1_extracted/` and checks the result against the household occurrence
   table. `spelling.py` writes the spelling suggestions from hazm's

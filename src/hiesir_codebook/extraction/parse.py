@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from ..utils import OPT_SPACE, collapse_whitespace, has_letters, has_persian
-from .pdf_text import Line, Rule, Segment, VRule, page_count, page_lines, page_rules, page_vrules
+from .pdf_text import Discard, Line, Rule, Segment, VRule, page_count, page_lines, page_rules, page_vrules
 
 _CODE = r"(?:[AM] ?)?\d{2,5}(?: ?[AM])?"
 ITEM_RE = re.compile(rf"^(\d{{2}}) ({_CODE})(?: (.*))?$")
@@ -189,14 +189,38 @@ def _aligned(seg: Segment, y: float, vrules: list[VRule]) -> bool:
     return min(borders) - seg.x1 < 15
 
 
-def _page_entries(lines: list[Line], rules: list[Rule], vrules: list[VRule]) -> list[_Entry]:
+# why text was left out (the "reason" column of reports/extraction_<year>.csv)
+DROP_UNALIGNED = "text not aligned to its column border (a label inside the cell?)"
+DROP_NO_CODE = "text with no code line within 30 pt"
+DROP_CODE_TAIL = "code continuation with no header to join"
+DROP_PAGE_NUMBER = "two-digit line with no text around it (page number?)"
+DROP_STRAY_TWO_DIGIT = "two-digit header with no code below it"
+DROP_BEFORE_SECTION = "before the first section heading"
+
+
+def _page_entries(
+    lines: list[Line],
+    rules: list[Rule],
+    vrules: list[VRule],
+    discards: list[Discard] | None = None,
+    page: int = -1,
+) -> list[_Entry]:
     """Pair code lines with the wrapped description lines of the same table row.
 
     Only the right-most segment of each visual line is used (code and
     description columns); text further left belongs to other columns (units,
     footnote marks).  A wrapped line belongs to the nearest code line that is
     not separated from it by a rule crossing the description column.
+
+    Text with letters that is left out for lack of a place is recorded in
+    ``discards`` (labels and notes that ``NOT_DESC_RE`` / ``SKIP_RE`` name are
+    left out on purpose and are not).
     """
+
+    def drop(y: float, reason: str, text: str) -> None:
+        if discards is not None:
+            discards.append(Discard(page, y, reason, text))
+
     coded: list[_Entry] = []
     loose: list[Segment] = []
     loose_lines: list[Line] = []
@@ -214,6 +238,7 @@ def _page_entries(lines: list[Line], rules: list[Rule], vrules: list[VRule]) -> 
     for seg, ln in zip(loose, loose_lines, strict=True):
         y = ln.y
         if not _aligned(seg, y, vrules):
+            drop(y, DROP_UNALIGNED, seg.text)
             continue
         cands = [
             e
@@ -224,6 +249,7 @@ def _page_entries(lines: list[Line], rules: list[Rule], vrules: list[VRule]) -> 
             e for e in cands if not _separated(rules, y, e.line.y, seg.x1 - 2, e.line.segments[0].x1 - 10)
         ]
         if not cands:
+            drop(y, DROP_NO_CODE, seg.text)
             continue
         # no candidate in the same table row: the text overflowed its cell,
         # so fall back to the nearest code line
@@ -238,9 +264,15 @@ def _page_entries(lines: list[Line], rules: list[Rule], vrules: list[VRule]) -> 
         if heads:
             e = min(heads, key=lambda e: abs(y - e.line.y))
             e.code = f"{e.code} {text}"
+        else:
+            drop(y, DROP_CODE_TAIL, text)
     # a two-digit code line with no text anywhere around it is a page number
-    coded = [e for e in coded if not (re.fullmatch(r"\d{2}", e.code) and not (e.desc or e.before or e.after))]
-    return _join_code_heads(coded)
+    page_numbers = [
+        e for e in coded if re.fullmatch(r"\d{2}", e.code) and not (e.desc or e.before or e.after)
+    ]
+    for e in page_numbers:
+        drop(e.line.y, DROP_PAGE_NUMBER, e.line.text)
+    return _join_code_heads([e for e in coded if e not in page_numbers])
 
 
 def _join_code_heads(entries: list[_Entry]) -> list[_Entry]:
@@ -263,7 +295,9 @@ def _join_code_heads(entries: list[_Entry]) -> list[_Entry]:
     return [e for e in entries if e.kind != "absorbed"]
 
 
-def _join_split_codes(entries: list[_Entry]) -> list[_Entry]:
+def _join_split_codes(
+    entries: list[_Entry], discards: list[Discard] | None = None, page: int = -1
+) -> list[_Entry]:
     """COICOP scheme: repair entries whose code is just two digits.
 
     In a tall cell the sub-code can sit on the first line and the code
@@ -285,6 +319,8 @@ def _join_split_codes(entries: list[_Entry]) -> list[_Entry]:
             None,
         )
         if code is None:
+            if discards is not None:
+                discards.append(Discard(page, e.line.y, DROP_STRAY_TWO_DIGIT, e.line.text))
             continue
         e.kind, e.sub, e.code = "item", e.code, code.code
         e.after.extend([*code.before, *([Segment(code.desc, 0, 0)] if code.desc else []), *code.after])
@@ -294,29 +330,37 @@ def _join_split_codes(entries: list[_Entry]) -> list[_Entry]:
     return [e for e in out if e.kind != "absorbed"]
 
 
-def extract(pdf_path: str | Path, old_scheme: bool = False) -> list[Row]:
+def extract(
+    pdf_path: str | Path, old_scheme: bool = False, discards: list[Discard] | None = None
+) -> list[Row]:
     """Rows (sections, group headers, items) of the expenditure part.
 
     The expenditure part runs from the first "بخش 1" heading to "قسمت چهارم"
     (income).  A heading whose number drops below the current one also ends
     it (e.g. the income "بخش 3" in 1382).
+
+    What is left out inside the expenditure pages, and glyphs that could not
+    be read, are appended to ``discards`` (pages before it are not).
     """
     pdf = str(pdf_path)
     rows: list[Row] = []
     section: int | None = None
     for p in range(page_count(pdf)):
-        lines = page_lines(pdf, p)
+        unread: list[Discard] = []  # glyphs; kept only for the expenditure pages
+        lines = page_lines(pdf, p, unread)
         if section is not None and any(PART4_RE.match(x.text) for x in lines):
             break
         headings = [(ln.y, SECTION_RE.match(ln.text)) for ln in lines]
         headings = [(y, int(m.group(1)), m.group(2).strip()) for y, m in headings if m]
         if section is None and not any(num == 1 for _y, num, _t in headings):
             continue
+        if discards is not None:
+            discards.extend(unread)
         body = [ln for ln in lines if not SECTION_RE.match(ln.text)]
         rules, vrules = page_rules(pdf, p), page_vrules(pdf, p)
-        entries = _page_entries(body, rules, vrules)
+        entries = _page_entries(body, rules, vrules, discards, p)
         if not old_scheme:
-            entries = _join_split_codes(entries)
+            entries = _join_split_codes(entries, discards, p)
         # walk entries and headings top-to-bottom; a heading switches the section
         events = [(y, 0, h) for y, *h in headings] + [(e.line.y, 1, e) for e in entries]
         for _y, is_entry, ev in sorted(events, key=lambda t: (t[0], t[1])):
@@ -329,6 +373,8 @@ def extract(pdf_path: str | Path, old_scheme: bool = False) -> list[Row]:
                     rows.append(Row("section", num, "", None, title, p))
                 continue
             if section is None:
+                if discards is not None:
+                    discards.append(Discard(p, ev.line.y, DROP_BEFORE_SECTION, ev.line.text))
                 continue
             e = ev
             div = _division(e.code)
@@ -398,9 +444,9 @@ def pdf_path(year: int, data: Path) -> Path:
     return published if published.exists() and not local.exists() else local
 
 
-def extract_year(year: int, data: Path) -> list[Row]:
+def extract_year(year: int, data: Path, discards: list[Discard] | None = None) -> list[Row]:
     """Extract one survey year from ``<data>/pdf/Questionnaire <year>.pdf``."""
-    return extract(pdf_path(year, data), old_scheme=year <= LAST_OLD_SCHEME_YEAR)
+    return extract(pdf_path(year, data), old_scheme=year <= LAST_OLD_SCHEME_YEAR, discards=discards)
 
 
 def _division(code: str) -> int | None:

@@ -1,6 +1,9 @@
 import pytest
 
 from hiesir_codebook.extraction.parse import (
+    DROP_NO_CODE,
+    DROP_PAGE_NUMBER,
+    DROP_UNALIGNED,
     FOOTNOTE_TAIL_RE,
     NOT_DESC_RE,
     Row,
@@ -9,7 +12,7 @@ from hiesir_codebook.extraction.parse import (
     _page_entries,
     normalize_code,
 )
-from hiesir_codebook.extraction.pdf_text import Line, Segment, glyph_name_to_text
+from hiesir_codebook.extraction.pdf_text import Line, Segment, VRule, glyph_name_to_text
 
 
 @pytest.mark.parametrize(
@@ -128,3 +131,27 @@ def test_glyph_name_to_text(name, text):
 def test_stray_comma_in_code():
     # 1384/1385 print "0312" as "312,0" (read right-to-left)
     assert _classify("69 312,0 سایر انواع پوشاک بچگانه") == ("item", "0312", "69", "سایر انواع پوشاک بچگانه")
+
+
+def test_left_out_text_is_reported():
+    discards = []
+    lines = [
+        _line("11 0111 برنج", 100),
+        _line("انواع برنج ایرانی", 110, 450),  # wraps the item above: kept
+        _line("یادداشت پایین جدول", 300, 450),  # no code line within 30 pt
+        _line("33", 790),  # a page number that reads as investment group 33 (1386)
+    ]
+    vrules = [VRule(560, 0, 800)]  # the right border of the code column
+    lines.append(_line("برچسب", 105, 300))  # far from its column border (450)
+    vrules.append(VRule(460, 0, 800))
+    (e,) = _page_entries(lines, [], vrules, discards, page=4)
+    assert (e.code, [s.text for s in e.after]) == ("0111", ["انواع برنج ایرانی"])
+    assert {(d.page, d.y, d.reason, d.text) for d in discards} == {
+        (4, 105, DROP_UNALIGNED, "برچسب"),
+        (4, 300, DROP_NO_CODE, "یادداشت پایین جدول"),
+        (4, 790, DROP_PAGE_NUMBER, "33"),
+    }
+
+
+def test_discards_are_optional():
+    assert _page_entries([_line("یادداشت", 300, 450)], [], []) == []

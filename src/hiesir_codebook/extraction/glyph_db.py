@@ -116,9 +116,40 @@ def build(pdf_paths: list[Path]) -> dict[str, str]:
     return db
 
 
+class GlyphDBError(RuntimeError):
+    """The glyph database is missing or does not match the PDFs' glyphs."""
+
+
+_REBUILD = "uv run python -m hiesir_codebook.extraction.build_glyph_db"
+
+
 @lru_cache(maxsize=1)
 def load() -> dict[str, str]:
+    """The database (outline hash -> character).  Raises GlyphDBError when it
+    is missing or empty: without it, broken fonts extract as garbage."""
     try:
-        return json.loads(DB_PATH.read_text(encoding="utf-8"))
+        db = json.loads(DB_PATH.read_text(encoding="utf-8"))
     except FileNotFoundError:
-        return {}
+        raise GlyphDBError(f"no glyph database at {DB_PATH}; rebuild it with `{_REBUILD}`") from None
+    if not db:
+        raise GlyphDBError(f"the glyph database {DB_PATH} is empty; rebuild it with `{_REBUILD}`")
+    return db
+
+
+# The share of a PDF's glyph outlines the database knows: 0.87-1.0 in the
+# 1383-1403 PDFs, 0.24 in 1382 (fonts the database is not built from).  Near
+# zero means the outline hashes no longer match the database, for example
+# after a fontTools change to RecordingPen's output.
+MIN_COVERAGE = 0.1
+
+
+def check_coverage(known: int, outlines: int, what: str, minimum: float = MIN_COVERAGE) -> None:
+    """Raise GlyphDBError when the database knows under ``minimum`` of the
+    ``outlines`` glyphs of a PDF (``what`` names it in the message)."""
+    if outlines >= 1000 and known / outlines < minimum:
+        raise GlyphDBError(
+            f"the glyph database knows {known} of {outlines} glyph outlines in {what}"
+            f" ({known / outlines:.1%}, expected at least {minimum:.0%}): the outline hashes"
+            f" have probably changed (fontTools?); rebuild it with `{_REBUILD}` and check"
+            " that the repaired years (1395, 1396, 1399, 1402) still extract the same"
+        )
