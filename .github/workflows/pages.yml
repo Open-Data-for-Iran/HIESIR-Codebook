@@ -24,19 +24,19 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.12"
-      - name: Tests (output/ and the explorer must be up to date)
-        run: uv run --group docs pytest -m "not slow"
-      - name: Lint
-        run: uv run ruff check . && uv run ruff format --check .
       - name: Download the questionnaire PDFs (release "questionnaires")
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download questionnaires --repo "$GITHUB_REPOSITORY" --pattern '*.pdf' --dir pdf-release \
-            || echo "::warning::no 'questionnaires' release with PDFs; building the site without them"
+          gh release download questionnaires --repo "$GITHUB_REPOSITORY" --pattern '*.pdf' --dir data/pdf \
+            || echo "::warning::no 'questionnaires' release with PDFs; extraction is not tested and the site is built without them"
+      - name: Tests (output/ and the explorer must be up to date; with the PDFs, 1_extracted/ too)
+        run: uv run --group docs pytest
+      - name: Lint
+        run: uv run ruff check . && uv run ruff format --check .
       - name: Build the site
         env:
-          HIESIR_PDF_DIR: pdf-release
+          HIESIR_PDF_DIR: data/pdf
         run: uv run --group docs mkdocs build --strict
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'

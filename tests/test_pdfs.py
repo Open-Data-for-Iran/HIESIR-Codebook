@@ -95,3 +95,12 @@ def test_every_printed_item_has_its_position():
                 if r["top"]:
                     assert 0 < float(r["top"]) < float(r["bottom"]) < 1200, (f.name, r["expenditure_code"])
                     assert float(r["bottom"]) - float(r["top"]) < 120, (f.name, r["expenditure_code"])
+
+
+def test_pdf_path_takes_the_published_name_when_only_that_is_there(tmp_path):
+    from hiesir_codebook.extraction.parse import pdf_path
+
+    (tmp_path / "pdf").mkdir()
+    assert pdf_path(1390, tmp_path).name == "Questionnaire 1390.pdf"  # neither: the local name
+    (tmp_path / "pdf" / "questionnaire_1390.pdf").touch()
+    assert pdf_path(1390, tmp_path).name == "questionnaire_1390.pdf"

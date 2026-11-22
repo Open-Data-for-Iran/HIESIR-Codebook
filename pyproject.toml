@@ -33,6 +33,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "marimo>=0.25.2",  # notebooks for drafts (*_draft.py); not needed by the package
     "pytest>=9.2.0",
     "ruff>=0.17.5",
 ]

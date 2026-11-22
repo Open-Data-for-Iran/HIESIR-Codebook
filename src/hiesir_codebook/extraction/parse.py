@@ -390,7 +390,12 @@ LAST_OLD_SCHEME_YEAR = 1382
 
 
 def pdf_path(year: int, data: Path) -> Path:
-    return data / "pdf" / f"Questionnaire {year}.pdf"
+    """``<data>/pdf/Questionnaire <year>.pdf``, or the file under its published
+    name (``questionnaire_<year>.pdf``, as the GitHub release holds it) when
+    only that one is there."""
+    local = data / "pdf" / f"Questionnaire {year}.pdf"
+    published = data / "pdf" / f"questionnaire_{year}.pdf"
+    return published if published.exists() and not local.exists() else local
 
 
 def extract_year(year: int, data: Path) -> list[Row]:

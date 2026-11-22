@@ -3,7 +3,8 @@
 The expenditure items of the Household Income and Expenditure Survey of Iran (HIES)
 questionnaires, 1383–1403: extracted from the PDF forms, corrected, and
 matched across years, so that the same item can be followed as its code and
-wording change.
+wording change. (The 1382 form, with its older code scheme, is extracted and
+corrected too, but not matched.)
 
 - **Look up an item:** open the explorer, [`output/explorer/index.html`](output/explorer/index.html)
   (a single file, works offline). Search a code or Persian text to see the
