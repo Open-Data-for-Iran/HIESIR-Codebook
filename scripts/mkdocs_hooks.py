@@ -4,7 +4,8 @@ They are added to the site at build time instead of being copied into docs/,
 so git holds one copy and the site always shows what output/ holds:
 
     explorer.collect() over output/          -> explorer/data.json
-    src/.../data/explorer/{strings,explorer}.js, explorer.css -> assets/explorer/
+    web/explorer/src/{strings,explorer}.js   -> assets/explorer/
+    web/explorer/styles/explorer.css         -> assets/explorer/
     output/2_corrected/*.csv                 -> 2_corrected/*.csv
     output/3_items/*.csv                     -> 3_items/*.csv
     output/4_groups/*.csv                    -> 4_groups/*.csv

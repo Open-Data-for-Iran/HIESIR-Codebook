@@ -83,12 +83,12 @@ This site is built with [Material for MkDocs](https://squidfunk.github.io/mkdocs
 from `docs/` and `mkdocs.yml`. The explorer and the CSVs are copied in from
 `output/` at build time (`scripts/mkdocs_hooks.py`), so they are never duplicated in git.
 
-The explorer is one component in `src/hiesir_codebook/data/explorer/`:
-`explorer.js`, `explorer.css`, and `strings.js` with its English and Farsi
+The explorer is one component in `web/explorer/`, apart from the Python code:
+`src/explorer.js`, `styles/explorer.css`, and `src/strings.js` with its English and Farsi
 strings. The docs page `docs/explorer.md` (and `explorer.fa.md`) draws it
 inside the site through `overrides/explorer.html`, taking the site's colours,
 fonts and dark mode; the offline file `output/explorer/index.html` inlines the
-same three files (`standalone.html`). Change the component once and both
+same three files (`hosts/standalone.html`). Change the component once and both
 follow.
 
 Diagrams are written in [Mermaid](https://mermaid.js.org/) as a ` ```mermaid `

@@ -20,14 +20,15 @@ from pathlib import Path
 from . import CORRECTED, CURATED_CORRECTED, GROUPS, ITEMS, OUTPUT
 from .linking.compare import YEARS
 
-# The component (strings.js, explorer.js, explorer.css) is shared by the standalone page
-# written here and by the documentation site (docs/explorer.md,
-# overrides/explorer.html, scripts/mkdocs_hooks.py), so the two cannot drift.
-ASSETS = Path(__file__).parent / "data" / "explorer"
-STRINGS = ASSETS / "strings.js"  # the interface text, loaded before explorer.js
-JS = ASSETS / "explorer.js"
-CSS = ASSETS / "explorer.css"
-TEMPLATE = ASSETS / "standalone.html"
+# The component lives in web/explorer/ (website code, not Python; see its README).
+# It is shared by the standalone page written here and by the documentation site
+# (docs/explorer.md, overrides/explorer.html, scripts/mkdocs_hooks.py), so the two
+# cannot drift. Like output/ and curated/, it is read from the repository.
+WEB = Path(__file__).resolve().parents[2] / "web" / "explorer"
+STRINGS = WEB / "src" / "strings.js"  # the interface text, loaded before explorer.js
+JS = WEB / "src" / "explorer.js"
+CSS = WEB / "styles" / "explorer.css"
+TEMPLATE = WEB / "hosts" / "standalone.html"
 OUT = OUTPUT / "explorer" / "index.html"
 PLACEHOLDER = "/*__DATA__*/null"
 
