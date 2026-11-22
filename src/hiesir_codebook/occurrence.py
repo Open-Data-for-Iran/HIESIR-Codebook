@@ -3,8 +3,8 @@
 ``data/commodity_code_occurrence_1363-1382.csv`` and ``..._1383-1403.csv``
 have one row per ``Commodity_Code`` (the expenditure code as a number,
 without its leading zero: 11111) and one column per year.  They are the
-evidence for corrections (``correct --check``), for links between items
-(``relations``) and for the extracted codes (``extraction.validate``).
+evidence for corrections and for the corrected codes (``correct --check``)
+and for links between items (``relations``).
 """
 
 from __future__ import annotations

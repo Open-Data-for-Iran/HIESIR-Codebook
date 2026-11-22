@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from ..utils import OPT_SPACE, collapse_whitespace, has_letters, has_persian
 from .layout import CELL_LABELS, DISTANCES, LAST_OLD_SCHEME_YEAR, QUIRKS, Distances, distances
 from .pdf_text import (
-    Discard,
     Line,
+    Note,
+    Notes,
     Rule,
     Segment,
     VRule,
@@ -21,6 +21,7 @@ from .pdf_text import (
     page_turned,
     page_vrules,
 )
+from .pdfs import published_name
 
 _CODE = r"(?:[AM] ?)?\d{2,5}(?: ?[AM])?"
 ITEM_RE = re.compile(rf"^(\d{{2}}) ({_CODE})(?: (.*))?$")
@@ -200,7 +201,7 @@ def _aligned(seg: Segment, y: float, vrules: list[VRule], d: Distances = DISTANC
     return min(borders) - seg.x1 < d.border
 
 
-# why text was left out (the "reason" column of reports/extraction_<year>.csv)
+# why text was left out (the "reason" column of output/1_extracted/report_<year>.csv)
 DROP_UNALIGNED = "text not aligned to its column border (a label inside the cell?)"
 DROP_NO_CODE = "text with no code line near it"
 DROP_CODE_TAIL = "code continuation with no header to join"
@@ -214,8 +215,7 @@ def _page_entries(
     lines: list[Line],
     rules: list[Rule],
     vrules: list[VRule],
-    discards: list[Discard] | None = None,
-    page: int = -1,
+    notes: Notes | None = None,
     d: Distances = DISTANCES,
 ) -> list[_Entry]:
     """Pair code lines with the wrapped description lines of the same table row.
@@ -225,14 +225,11 @@ def _page_entries(
     footnote marks).  A wrapped line belongs to the nearest code line that is
     not separated from it by a rule crossing the description column.
 
-    Text with letters that is left out is recorded in ``discards`` (what
+    Text with letters that is left out is recorded in ``notes`` (what
     ``SKIP_RE`` names is left out unrecorded), and so are the print quirks
     repaired here (``layout.QUIRKS``).
     """
-
-    def drop(y: float, reason: str, text: str) -> None:
-        if discards is not None:
-            discards.append(Discard(page, y, reason, text))
+    notes = notes if notes is not None else Notes()
 
     coded: list[_Entry] = []
     loose: list[Segment] = []
@@ -245,21 +242,21 @@ def _page_entries(
             code_tails.append((seg.text, ln.y))  # e.g. "و01184" wrapped from a header code
         elif c:
             if STRAY_COMMA_RE.match(seg.text):
-                drop(ln.y, QUIRKS["stray_comma"].note, seg.text)
+                notes.add(ln.y, QUIRKS["stray_comma"].note, seg.text)
             coded.append(_Entry(ln, *c))
         elif not has_letters(seg.text) or SKIP_RE.search(seg.text):
             continue
         elif SOURCE_NOTE_RE.match(seg.text):
-            drop(ln.y, QUIRKS["source_note"].note, seg.text)
+            notes.add(ln.y, QUIRKS["source_note"].note, seg.text)
         elif CELL_LABEL_RE.match(seg.text):
-            drop(ln.y, QUIRKS["cell_label"].note, seg.text)
+            notes.add(ln.y, QUIRKS["cell_label"].note, seg.text)
         else:
             loose.append(seg)
             loose_lines.append(ln)
     for seg, ln in zip(loose, loose_lines, strict=True):
         y = ln.y
         if not _aligned(seg, y, vrules, d):
-            drop(y, DROP_UNALIGNED, seg.text)
+            notes.add(y, DROP_UNALIGNED, seg.text)
             continue
         cands = [
             e for e in coded if abs(e.line.y - y) <= d.wrap and seg.x1 < e.line.segments[0].x1 - d.code_column
@@ -270,7 +267,7 @@ def _page_entries(
             if not _separated(rules, y, e.line.y, seg.x1 - 2, e.line.segments[0].x1 - d.code_column)
         ]
         if not cands:
-            drop(y, DROP_NO_CODE, seg.text)
+            notes.add(y, DROP_NO_CODE, seg.text)
             continue
         # no candidate in the same table row: the text overflowed its cell,
         # so fall back to the nearest code line
@@ -286,21 +283,21 @@ def _page_entries(
         heads = heads or [e for e in coded if e.kind == "header" and 0 < y - e.line.y <= d.tail_above]
         if heads:
             e = min(heads, key=lambda e: abs(y - e.line.y))
-            drop(y, QUIRKS["code_tail"].note, f"{e.code} / {text}")
+            notes.add(y, QUIRKS["code_tail"].note, f"{e.code} / {text}")
             e.code = f"{e.code} {text}"
         else:
-            drop(y, DROP_CODE_TAIL, text)
+            notes.add(y, DROP_CODE_TAIL, text)
     # a two-digit code line with no text anywhere around it is a page number
     page_numbers = [
         e for e in coded if re.fullmatch(r"\d{2}", e.code) and not (e.desc or e.before or e.after)
     ]
     for e in page_numbers:
-        drop(e.line.y, DROP_PAGE_NUMBER, e.line.text)
-    return _join_code_heads([e for e in coded if e not in page_numbers], d, drop)
+        notes.add(e.line.y, DROP_PAGE_NUMBER, e.line.text)
+    return _join_code_heads([e for e in coded if e not in page_numbers], notes, d)
 
 
 def _join_code_heads(
-    entries: list[_Entry], d: Distances = DISTANCES, note: Callable[[float, str, str], None] | None = None
+    entries: list[_Entry], notes: Notes | None = None, d: Distances = DISTANCES
 ) -> list[_Entry]:
     """Join a header code list split over two code lines, the connector
     ending the first ("06312 و" / "06313 M" with the description between
@@ -315,8 +312,8 @@ def _join_code_heads(
         upper, lower = sorted((h, other), key=lambda e: e.line.y)
         texts = [s.text for e in (upper, lower) for s in (*e.before, Segment(e.desc, 0, 0), *e.after)]
         upper.desc, upper.before, upper.after = collapse_whitespace(" ".join(texts)), [], []
-        if note is not None:
-            note(upper.line.y, QUIRKS["code_head"].note, f"{h.code} / {other.code}")
+        if notes is not None:
+            notes.add(upper.line.y, QUIRKS["code_head"].note, f"{h.code} / {other.code}")
         upper.code = f"{h.code}, {other.code}"
         upper.lines.extend([lower.line, *lower.lines])
         lower.kind = "absorbed"
@@ -324,7 +321,7 @@ def _join_code_heads(
 
 
 def _join_split_codes(
-    entries: list[_Entry], discards: list[Discard] | None = None, page: int = -1, d: Distances = DISTANCES
+    entries: list[_Entry], notes: Notes | None = None, d: Distances = DISTANCES
 ) -> list[_Entry]:
     """COICOP scheme: repair entries whose code is just two digits.
 
@@ -333,6 +330,7 @@ def _join_split_codes(
     into one item.  Any other two-digit header (other than the investment
     groups 33/34) is stray text from outside the tables and is dropped.
     """
+    notes = notes if notes is not None else Notes()
     out = []
     for e in entries:
         if e.kind != "header" or not re.fullmatch(r"\d{2}", e.code) or e.code.startswith("3"):
@@ -349,11 +347,9 @@ def _join_split_codes(
             None,
         )
         if code is None:
-            if discards is not None:
-                discards.append(Discard(page, e.line.y, DROP_STRAY_TWO_DIGIT, e.line.text))
+            notes.add(e.line.y, DROP_STRAY_TWO_DIGIT, e.line.text)
             continue
-        if discards is not None:
-            discards.append(Discard(page, e.line.y, QUIRKS["split_code"].note, f"{e.code} / {code.code}"))
+        notes.add(e.line.y, QUIRKS["split_code"].note, f"{e.code} / {code.code}")
         e.kind, e.sub, e.code = "item", e.code, code.code
         e.after.extend([*code.before, *([Segment(code.desc, 0, 0)] if code.desc else []), *code.after])
         e.lines.extend([code.line, *code.lines])
@@ -365,7 +361,7 @@ def _join_split_codes(
 def extract(
     pdf_path: str | Path,
     old_scheme: bool = False,
-    discards: list[Discard] | None = None,
+    notes: Notes | None = None,
     d: Distances = DISTANCES,
 ) -> list[Row]:
     """Rows (sections, group headers, items) of the expenditure part.
@@ -377,20 +373,22 @@ def extract(
     Pages whose text is turned sideways are skipped (see ``page_turned``): in
     every year they are landscape tables after the expenditure part (income).
 
-    What is left out inside the expenditure pages, and glyphs that could not
-    be read, are appended to ``discards``.  Pages before the part are not
-    reported; on the page that ends it, only the text above the ending heading.
+    What is left out inside the expenditure pages, the glyphs that could not
+    be read and the print quirks repaired are added to ``notes``.  Pages
+    before the part are not reported; on the page that ends it, only what is
+    above the ending heading.
     """
+    notes = notes if notes is not None else Notes()
     pdf = str(pdf_path)
     rows: list[Row] = []
     section: int | None = None
     for p in range(page_count(pdf)):
         if page_turned(pdf, p):
-            if section is not None and discards is not None:
-                discards.append(Discard(p, None, DROP_TURNED, ""))
+            if section is not None:
+                notes.items.append(Note(p, None, DROP_TURNED, ""))
             continue
-        page_discards: list[Discard] = []  # reported once the page is known to be in the part
-        lines = page_lines(pdf, p, page_discards)
+        page_notes = Notes(p)  # kept once the page is known to be in the part
+        lines = page_lines(pdf, p, page_notes)
         if section is not None and any(PART4_RE.match(x.text) for x in lines):
             break
         headings = [(ln.y, SECTION_RE.match(ln.text)) for ln in lines]
@@ -399,9 +397,9 @@ def extract(
             continue
         body = [ln for ln in lines if not SECTION_RE.match(ln.text)]
         rules, vrules = page_rules(pdf, p), page_vrules(pdf, p)
-        entries = _page_entries(body, rules, vrules, page_discards, p, d)
+        entries = _page_entries(body, rules, vrules, page_notes, d)
         if not old_scheme:
-            entries = _join_split_codes(entries, page_discards, p, d)
+            entries = _join_split_codes(entries, page_notes, d)
         # walk entries and headings top-to-bottom; a heading switches the section
         events = [(y, 0, h) for y, *h in headings] + [(e.line.y, 1, e) for e in entries]
         for _y, is_entry, ev in sorted(events, key=lambda t: (t[0], t[1])):
@@ -409,15 +407,14 @@ def extract(
                 num, title = ev
                 if section is not None and num < section:
                     # the rest of the page belongs to the next part (income)
-                    if discards is not None:
-                        discards.extend(x for x in page_discards if x.y is not None and x.y < _y)
-                    return _finish(rows, old_scheme, discards)
+                    notes.items.extend(x for x in page_notes.items if x.y is not None and x.y < _y)
+                    return _finish(rows, old_scheme, notes)
                 if num != section:
                     section = num
                     rows.append(Row("section", num, "", None, title, p))
                 continue
             if section is None:
-                page_discards.append(Discard(p, ev.line.y, DROP_BEFORE_SECTION, ev.line.text))
+                page_notes.add(ev.line.y, DROP_BEFORE_SECTION, ev.line.text)
                 continue
             e = ev
             div = _division(e.code)
@@ -426,12 +423,12 @@ def extract(
                 # COICOP division of the codes (sections 1-12 = divisions 01-12)
                 section = div
                 rows.append(Row("section", div, "", None, "", p))
-                page_discards.append(Discard(p, e.line.y, QUIRKS["image_heading"].note, f"section {div}"))
+                page_notes.add(e.line.y, QUIRKS["image_heading"].note, f"section {div}")
             desc = " ".join([*(s.text for s in e.before), e.desc, *(s.text for s in e.after)])
             desc = collapse_whitespace(desc)
             tail = FOOTNOTE_TAIL_RE.search(desc)
             if tail:
-                page_discards.append(Discard(p, e.line.y, QUIRKS["source_note"].note, tail.group().strip()))
+                page_notes.add(e.line.y, QUIRKS["source_note"].note, tail.group().strip())
                 desc = desc[: tail.start()]
             top, bottom, left, right = _row_box(e, rules, vrules, d)
             rows.append(
@@ -448,18 +445,17 @@ def extract(
                     right=right,
                 )
             )
-        if discards is not None:
-            discards.extend(page_discards)
-    return _finish(rows, old_scheme, discards)
+        notes.items.extend(page_notes.items)
+    return _finish(rows, old_scheme, notes)
 
 
-def _finish(rows: list[Row], old_scheme: bool, discards: list[Discard] | None = None) -> list[Row]:
-    rows = _merge_page_breaks(rows, discards)
+def _finish(rows: list[Row], old_scheme: bool, notes: Notes | None = None) -> list[Row]:
+    rows = _merge_page_breaks(rows, notes)
     _assign_levels(rows, old_scheme)
     return rows
 
 
-def _merge_page_breaks(rows: list[Row], discards: list[Discard] | None = None) -> list[Row]:
+def _merge_page_breaks(rows: list[Row], notes: Notes | None = None) -> list[Row]:
     """Join an item whose description continues on the next page.
 
     Some PDFs repeat the code on the next page next to the tail of the text
@@ -476,26 +472,23 @@ def _merge_page_breaks(rows: list[Row], discards: list[Discard] | None = None) -
             and r.page == prev.page + 1
         ):
             prev.desc = collapse_whitespace(f"{prev.desc} {r.desc}")
-            if discards is not None:
-                discards.append(Discard(r.page, r.top, QUIRKS["page_break"].note, f"{r.code} {r.sub}"))
+            if notes is not None:
+                notes.items.append(Note(r.page, r.top, QUIRKS["page_break"].note, f"{r.code} {r.sub}"))
             continue
         out.append(r)
     return out
 
 
 def pdf_path(year: int, data: Path) -> Path:
-    """``<data>/pdf/Questionnaire <year>.pdf``, or the file under its published
-    name (``questionnaire_<year>.pdf``, as the GitHub release holds it) when
-    only that one is there."""
-    local = data / "pdf" / f"Questionnaire {year}.pdf"
-    published = data / "pdf" / f"questionnaire_{year}.pdf"
-    return published if published.exists() and not local.exists() else local
+    """``<data>/pdf/questionnaire_<year>.pdf``, the name the GitHub release
+    gives it (``hiesir-codebook pdfs download`` fetches it)."""
+    return data / "pdf" / published_name(year)
 
 
-def extract_year(year: int, data: Path, discards: list[Discard] | None = None) -> list[Row]:
-    """Extract one survey year from ``<data>/pdf/Questionnaire <year>.pdf``."""
+def extract_year(year: int, data: Path, notes: Notes | None = None) -> list[Row]:
+    """Extract one survey year from its PDF in ``<data>/pdf/``."""
     return extract(
-        pdf_path(year, data), old_scheme=year <= LAST_OLD_SCHEME_YEAR, discards=discards, d=distances(year)
+        pdf_path(year, data), old_scheme=year <= LAST_OLD_SCHEME_YEAR, notes=notes, d=distances(year)
     )
 
 

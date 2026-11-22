@@ -54,9 +54,9 @@ those marked ``apply`` ``yes``, unless
 confirms or changes.
 
 ``--check`` compares the corrected item codes with the household
-occurrence table (``data/commodity_code_occurrence_1383-1403.csv``): a code
-reported by households but missing from the questionnaire, or printed but
-never reported, is worth a look.
+occurrence tables (``data/commodity_code_occurrence_*.csv``, 1382-1403): a
+code reported by households but missing from the questionnaire, or printed
+but never reported, is worth a look.
 """
 
 from __future__ import annotations
@@ -71,8 +71,8 @@ from pathlib import Path
 
 from .. import CORRECTED, CSV_COLUMNS, CURATED_CORRECTED, EXTRACTED, SUPPORTED_YEARS
 from ..extraction.parse import LAST_OLD_SCHEME_YEAR, header_level
-from ..occurrence import OCCURRENCE, load_occurrence
-from ..utils import ZWNJ, collapse_whitespace, standard_spelling, tidy_punctuation
+from ..occurrence import load_occurrence, occurrence_files
+from ..utils import ZWNJ, collapse_whitespace, parse_years, standard_spelling, tidy_punctuation
 from .spelling import DECISIONS as SUGGESTION_DECISIONS
 from .spelling import SUGGESTIONS, accepted, load_decisions, load_suggestions
 
@@ -135,23 +135,12 @@ class LabelFix:
         return re.compile(p)
 
 
-def _years(spec: str) -> frozenset[int] | None:
-    """'' -> None (all years); '1383-1385 1390' -> {1383, 1384, 1385, 1390}."""
-    if not spec.strip():
-        return None
-    out: set[int] = set()
-    for part in re.split(r"[\s,]+", spec.strip()):
-        lo, _, hi = part.partition("-")
-        out.update(range(int(lo), int(hi or lo) + 1))
-    return frozenset(out)
-
-
 def load_label_fixes(path: Path = LABELS) -> list[LabelFix]:
     if not path.exists():
         return []
     with open(path, encoding="utf-8-sig") as f:
         out = [
-            LabelFix(r["find"], r["replace"], r["match"] or "word", _years(r["years"]), r["reason"])
+            LabelFix(r["find"], r["replace"], r["match"] or "word", parse_years(r["years"]), r["reason"])
             for r in csv.DictReader(f)
         ]
     for fx in out:
@@ -336,7 +325,9 @@ def correct(
 # --- check against the raw data ----------------------------------------------
 
 
-def check(years: Iterable[int], corrected: Path, occurrence: Path, min_households: int = 5) -> int:
+def check(
+    years: Iterable[int], corrected: Path, occurrence: Path | list[Path], min_households: int = 5
+) -> int:
     """Print codes that disagree with the raw data; return the number of
     years with a code reported by households but missing from the
     questionnaire (the strong signal of a typo or an extraction miss)."""
@@ -368,7 +359,7 @@ def check(years: Iterable[int], corrected: Path, occurrence: Path, min_household
     return bad
 
 
-def verify(corrections: list[Correction], extracted: Path, occurrence: Path) -> int:
+def verify(corrections: list[Correction], extracted: Path, occurrence: Path | list[Path]) -> int:
     """Print the household evidence for each code-level correction; return
     the number that the raw data contradicts (a recode to a code nobody
     reports, a deleted or copied item that households do / do not report)."""
@@ -422,7 +413,13 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--corrections", type=Path, default=CORRECTIONS)
     ap.add_argument("--check", action="store_true", help="compare with the household occurrence table")
     ap.add_argument("--labels", type=Path, default=LABELS)
-    ap.add_argument("--occurrence", type=Path, default=OCCURRENCE)
+    ap.add_argument(
+        "--occurrence",
+        type=Path,
+        nargs="+",
+        default=occurrence_files(),
+        help="default: data/commodity_code_occurrence_*.csv",
+    )
     ap.add_argument("--suggestions", type=Path, default=SUGGESTIONS)
     ap.add_argument("--decisions", type=Path, default=SUGGESTION_DECISIONS)
     args = ap.parse_args(argv)
@@ -459,7 +456,7 @@ def main(argv: list[str] | None = None) -> None:
     for d in stale:
         print(f"stale spelling decision (no such suggestion): {d.find}")
     if args.check:
-        years = [y for y in SUPPORTED_YEARS if y >= 1383]
+        years = SUPPORTED_YEARS  # 1382 from the 1363-1382 table
         print("\nEvidence for each correction (households reporting the code):")
         contradicted = verify(load_corrections(args.corrections), args.extracted, args.occurrence)
         print("\nCorrected questionnaires against the raw data:")

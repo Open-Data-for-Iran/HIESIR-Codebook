@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 
 from hiesir_codebook import SUPPORTED_YEARS, write_csv
+from hiesir_codebook.extraction import Notes, write_report
 from hiesir_codebook.extraction.layout import QUIRKS
 from hiesir_codebook.extraction.parse import extract_year, pdf_path
 
@@ -25,7 +26,7 @@ REPAIRED_FONT_YEARS = [1395, 1396, 1399, 1402]
 def test_extract_matches_tracked_csv(year, tmp_path):
     """One extraction per year, three checks:
 
-    - the CSV is the tracked one;
+    - the CSV and its report are the tracked ones;
     - every print-quirk repair it makes is one ``layout.QUIRKS`` lists for the
       year (a repair in a new year: look at the PDF, then add the year);
     - in the repaired-font years every glyph is found in the glyph database
@@ -33,23 +34,26 @@ def test_extract_matches_tracked_csv(year, tmp_path):
     """
     if not pdf_path(year, DATA).exists():
         pytest.skip(f"no PDF for {year} in {DATA / 'pdf'}")
-    discards = []
+    notes = Notes()
     out = tmp_path / f"questionnaire_{year}.csv"
-    write_csv(extract_year(year, DATA, discards), out)
+    write_csv(extract_year(year, DATA, notes), out)
     assert out.read_bytes() == (EXTRACTED / out.name).read_bytes()
+    report = tmp_path / f"report_{year}.csv"
+    write_report(notes.items, report)
+    assert report.read_bytes() == (EXTRACTED / report.name).read_bytes()
 
     quirk_of = {q.note: name for name, q in QUIRKS.items()}
     unlisted = sorted(
         {
             quirk_of[d.reason]
-            for d in discards
+            for d in notes.items
             if d.reason in quirk_of and year not in QUIRKS[quirk_of[d.reason]].years
         }
     )
     assert unlisted == [], f"repairs not listed for {year} in layout.QUIRKS: {unlisted}"
 
     if year in REPAIRED_FONT_YEARS:
-        assert [d for d in discards if "glyph" in d.reason] == []
+        assert [n for n in notes.items if "glyph" in n.reason] == []
 
 
 @pytest.mark.parametrize("year", REPAIRED_FONT_YEARS)

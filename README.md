@@ -26,7 +26,7 @@ data/pdf ─extract─▶ 1_extracted ─correct─▶ 2_corrected ─match─�
 |---|---|---|
 | `curated/` | hand-kept decisions, one row each with its reason | people |
 | `output/` | every stage's result, tracked so each change shows as a diff | the pipeline only |
-| `data/` | the PDFs (not in git: a GitHub release holds them) and the household occurrence tables (in git) | nobody |
+| `data/` | the PDFs (not in git: a GitHub release holds them, `pdfs.csv` lists their sizes and hashes, `hiesir-codebook pdfs download` fetches them) and the household occurrence tables (in git) | nobody |
 | `docs/` | this documentation | people |
 
 ## Quick start

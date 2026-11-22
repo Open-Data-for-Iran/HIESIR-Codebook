@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from hiesir_codebook import explorer
+from hiesir_codebook import SUPPORTED_YEARS, explorer
 from hiesir_codebook.extraction import pdfs
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,8 +23,87 @@ def test_published_names(tmp_path):
         (1386, "", "questionnaire_1386.pdf", "extracted"),
         (1401, "", "questionnaire_1401.pdf", "dictionary"),
     ]
-    staged = pdfs.stage(tmp_path, tmp_path / "out")
-    assert sorted(p.name for p in staged) == [f.name for f in found]
+    renamed = pdfs.rename(tmp_path)
+    assert sorted(dst.name for _src, dst in renamed) == [
+        "questionnaire_1363_urban.pdf",
+        "questionnaire_1386.pdf",
+    ]
+    assert sorted(f.path.name for f in pdfs.find(tmp_path)) == [f.name for f in found]
+
+
+def _release(tmp_path):
+    """A folder standing in for the release, its manifest, and an empty data/pdf/."""
+    release = tmp_path / "release"
+    release.mkdir()
+    (release / "questionnaire_1386.pdf").write_bytes(b"%PDF-1386" * 100)
+    (release / "questionnaire_1363_urban.pdf").write_bytes(b"%PDF-1363u")
+    manifest = tmp_path / "pdfs.csv"
+    entries = pdfs.write_manifest(release, manifest)
+    return release, manifest, entries, tmp_path / "pdf"
+
+
+def test_manifest_lists_size_and_hash(tmp_path):
+    release, manifest, entries, _ = _release(tmp_path)
+    assert pdfs.load_manifest(manifest) == entries
+    (e,) = [e for e in entries if e.year == 1386]
+    assert (e.name, e.area, e.kind, e.bytes) == ("questionnaire_1386.pdf", "", "extracted", 900)
+    assert e.sha256 == pdfs.sha256(release / e.name) and len(e.sha256) == 64
+    assert manifest.read_text(encoding="utf-8").splitlines()[0] == ",".join(pdfs.MANIFEST_COLUMNS)
+    (release / "Questionnaire 1390.pdf").write_bytes(b"%PDF")
+    with pytest.raises(pdfs.PdfError, match="not a release name"):
+        pdfs.write_manifest(release, manifest)
+
+
+def test_download_checks_and_skips(tmp_path):
+    release, _manifest, entries, folder = _release(tmp_path)
+    url = release.as_uri()  # urllib reads file:// like https://
+    log = []
+    got = pdfs.download(entries, folder, base_url=url, log=log.append)
+    assert sorted(p.name for p in got) == sorted(e.name for e in entries)
+    assert pdfs.verify(folder, entries) == []
+    assert pdfs.download(entries, folder, base_url=url) == []  # all there: nothing fetched
+    assert not list(folder.glob("*.part"))
+
+
+def test_download_rejects_a_changed_file(tmp_path):
+    release, _manifest, entries, folder = _release(tmp_path)
+    (release / "questionnaire_1386.pdf").write_bytes(b"%PDF-other" * 90)  # same size, other bytes
+    with pytest.raises(pdfs.PdfError, match="SHA-256 differs"):
+        pdfs.download([e for e in entries if e.year == 1386], folder, base_url=release.as_uri())
+    assert not (folder / "questionnaire_1386.pdf").exists()
+    assert not list(folder.glob("*.part"))
+
+
+def test_download_reports_a_missing_file(tmp_path):
+    release, _manifest, entries, folder = _release(tmp_path)
+    (release / "questionnaire_1386.pdf").unlink()
+    with pytest.raises(pdfs.PdfError, match="download failed"):
+        pdfs.download(entries, folder, base_url=release.as_uri(), retries=1)
+
+
+def test_verify_finds_problems(tmp_path):
+    _release_dir, _manifest, entries, folder = _release(tmp_path)
+    folder.mkdir()
+    (folder / "questionnaire_1386.pdf").write_bytes(b"short")
+    (folder / "questionnaire_1390.pdf").write_bytes(b"%PDF")
+    assert pdfs.verify(folder, entries) == [
+        "questionnaire_1363_urban.pdf: missing",
+        "questionnaire_1386.pdf: 5 bytes, expected 900",
+        "questionnaire_1390.pdf: not in the list",
+    ]
+
+
+def test_tracked_manifest_matches_the_pdfs():
+    """data/pdfs.csv lists every PDF once, under its release name; with the
+    PDFs in data/pdf/ (downloaded in CI) they match it byte for byte."""
+    entries = pdfs.load_manifest(ROOT / "data" / "pdfs.csv")
+    assert len({e.name for e in entries}) == len(entries)
+    assert all(e.name == pdfs.published_name(e.year, e.area) for e in entries)
+    assert {e.year for e in entries if e.kind == "extracted"} == set(SUPPORTED_YEARS)
+    folder = ROOT / "data" / "pdf"
+    if not pdfs.find(folder):
+        pytest.skip("no PDFs in data/pdf/")
+    assert pdfs.verify(folder, entries) == []
 
 
 def _hooks():
@@ -97,10 +176,7 @@ def test_every_printed_item_has_its_position():
                     assert float(r["bottom"]) - float(r["top"]) < 120, (f.name, r["expenditure_code"])
 
 
-def test_pdf_path_takes_the_published_name_when_only_that_is_there(tmp_path):
+def test_pdf_path_is_the_release_name(tmp_path):
     from hiesir_codebook.extraction.parse import pdf_path
 
-    (tmp_path / "pdf").mkdir()
-    assert pdf_path(1390, tmp_path).name == "Questionnaire 1390.pdf"  # neither: the local name
-    (tmp_path / "pdf" / "questionnaire_1390.pdf").touch()
-    assert pdf_path(1390, tmp_path).name == "questionnaire_1390.pdf"
+    assert pdf_path(1390, tmp_path) == tmp_path / "pdf" / "questionnaire_1390.pdf"

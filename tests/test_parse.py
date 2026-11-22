@@ -12,7 +12,7 @@ from hiesir_codebook.extraction.parse import (
     _page_entries,
     normalize_code,
 )
-from hiesir_codebook.extraction.pdf_text import Line, Segment, VRule, glyph_name_to_text
+from hiesir_codebook.extraction.pdf_text import Line, Notes, Segment, VRule, glyph_name_to_text
 
 
 @pytest.mark.parametrize(
@@ -134,7 +134,7 @@ def test_stray_comma_in_code():
 
 
 def test_left_out_text_is_reported():
-    discards = []
+    notes = Notes(page=4)
     lines = [
         _line("11 0111 برنج", 100),
         _line("انواع برنج ایرانی", 110, 450),  # wraps the item above: kept
@@ -144,16 +144,16 @@ def test_left_out_text_is_reported():
     vrules = [VRule(560, 0, 800)]  # the right border of the code column
     lines.append(_line("برچسب", 105, 300))  # far from its column border (450)
     vrules.append(VRule(460, 0, 800))
-    (e,) = _page_entries(lines, [], vrules, discards, page=4)
+    (e,) = _page_entries(lines, [], vrules, notes)
     assert (e.code, [s.text for s in e.after]) == ("0111", ["انواع برنج ایرانی"])
-    assert {(d.page, d.y, d.reason, d.text) for d in discards} == {
+    assert {(n.page, n.y, n.reason, n.text) for n in notes.items} == {
         (4, 105, DROP_UNALIGNED, "برچسب"),
         (4, 300, DROP_NO_CODE, "یادداشت پایین جدول"),
         (4, 790, DROP_PAGE_NUMBER, "33"),
     }
 
 
-def test_discards_are_optional():
+def test_notes_are_optional():
     assert _page_entries([_line("یادداشت", 300, 450)], [], []) == []
 
 
@@ -164,14 +164,95 @@ def test_quirks_are_reported():
     assert len(set(notes)) == len(notes)
     assert all(n.startswith(("repaired: ", "left out: ")) for n in notes)
 
-    discards = []
+    notes = Notes(page=2)
     lines = [
         _line("69 312,0 سایر انواع پوشاک بچگانه", 100),  # 1384/1385: stray comma
         _line("مبلغ وام", 110, 450),  # a field label in the cell
         _line("3 یا 4", 120, 450),  # a source-code note
     ]
-    (e,) = _page_entries(lines, [], [], discards, page=2)
+    (e,) = _page_entries(lines, [], [], notes)
     assert (e.code, e.sub) == ("0312", "69")
-    assert sorted(d.reason for d in discards) == sorted(
+    assert sorted(n.reason for n in notes.items) == sorted(
         QUIRKS[k].note for k in ("stray_comma", "cell_label", "source_note")
     )
+
+
+def test_row_box_snaps_to_the_table_row():
+    from hiesir_codebook.extraction.parse import _Entry, _row_box
+    from hiesir_codebook.extraction.pdf_text import Glyph, Rule
+
+    ln = Line(
+        "11 0111 برنج",
+        100,
+        400,
+        550,
+        [Glyph("ب", 400, 550, 95, 105, 11)],
+        [Segment("11 0111 برنج", 400, 550)],
+    )
+    e = _Entry(ln, "item", "0111", "11", "برنج")
+    rules = [Rule(88, 50, 560), Rule(112, 50, 560), Rule(140, 50, 560)]  # the row is 88-112
+    vrules = [VRule(50, 0, 800), VRule(560, 0, 800), VRule(300, 0, 800)]
+    assert _row_box(e, rules, vrules) == (88, 112, 50, 560)
+    far = [Rule(60, 50, 560), Rule(140, 50, 560)]  # no rule within 14 pt: the text's extent
+    assert _row_box(e, far, []) == (95, 105, None, None)
+
+
+def test_split_code_is_joined_and_stray_two_digits_dropped():
+    from hiesir_codebook.extraction.layout import QUIRKS
+    from hiesir_codebook.extraction.parse import DROP_STRAY_TWO_DIGIT, _join_split_codes
+
+    lines = [
+        _line("13 رادیولوژی، سونوگرافی", 100),  # 1391-1394: the sub-code on the first line
+        _line("0623", 112),  # ... the code centred a line below
+        _line("47 متن بیرون از جدول", 400),  # two digits and text, no code below: stray text
+    ]
+    notes = Notes(page=3)
+    entries = _join_split_codes(_page_entries(lines, [], [], notes), notes)
+    assert [(e.kind, e.code, e.sub, e.desc) for e in entries] == [
+        ("item", "0623", "13", "رادیولوژی، سونوگرافی")
+    ]
+    assert [n.reason for n in notes.items] == [QUIRKS["split_code"].note, DROP_STRAY_TWO_DIGIT]
+
+
+def test_item_continued_on_the_next_page_is_joined():
+    from hiesir_codebook.extraction.layout import QUIRKS
+    from hiesir_codebook.extraction.parse import _merge_page_breaks
+
+    rows = [
+        Row("item", 9, "0932", "51", "ملزومات جمع آوری تمبر(... آلبوم تمبر", 40),
+        Row("item", 9, "0932", "51", "واقلام دیگر)", 41, top=60),
+        Row("item", 9, "0932", "52", "اسباب بازی", 41),
+    ]
+    notes = Notes()
+    out = _merge_page_breaks(rows, notes)
+    assert [(r.sub, r.desc) for r in out] == [
+        ("51", "ملزومات جمع آوری تمبر(... آلبوم تمبر واقلام دیگر)"),
+        ("52", "اسباب بازی"),
+    ]
+    assert [(n.page, n.reason) for n in notes.items] == [(41, QUIRKS["page_break"].note)]
+
+
+def test_report_groups_repeated_notes(tmp_path):
+    import csv
+
+    from hiesir_codebook.extraction import Note, write_report
+
+    notes = [
+        Note(5, 98.9, "left out", "کد"),
+        Note(6, 98.9, "left out", "کد"),
+        Note(7, 98.9, "left out", "کد"),
+    ]
+    notes += [
+        Note(9, None, "glyph", "ا", 40),
+        Note(5, 300.0, "left out", "یادداشت"),
+        Note(10, None, "glyph", "ا", 2),
+    ]
+    path = tmp_path / "report.csv"
+    write_report(notes, path)
+    with open(path, encoding="utf-8-sig") as f:
+        rows = list(csv.DictReader(f))
+    assert [(r["page"], r["y"], r["text"], r["count"], r["pages"]) for r in rows] == [
+        ("6", "98.9", "کد", "3", "6-8"),  # 1-based, first met, one row for the heading on every page
+        ("10", "", "ا", "42", "10-11"),
+        ("6", "300.0", "یادداشت", "1", "6"),
+    ]

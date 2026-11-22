@@ -12,7 +12,7 @@ What a new year may need changed lives here, not in ``parse.py``:
   are not part of the description.
 - :data:`QUIRKS`: the repairs ``parse.py`` makes for print quirks, with the
   years each is seen in.  Every repair it applies is listed in
-  ``reports/extraction_<year>.csv``, and a test fails when one turns up in a
+  ``output/1_extracted/report_<year>.csv``, and a test fails when one turns up in a
   year not listed here: look at the PDF there, then add the year (or fix the
   parser if the repair was wrong).
 - :data:`LAST_OLD_SCHEME_YEAR`: the last year of the pre-COICOP code scheme.
@@ -21,6 +21,8 @@ What a new year may need changed lives here, not in ``parse.py``:
 from __future__ import annotations
 
 from dataclasses import dataclass
+
+from ..utils import parse_years
 
 # 1382 and earlier use the pre-COICOP 3+2 digit code scheme
 LAST_OLD_SCHEME_YEAR = 1382
@@ -56,12 +58,8 @@ CELL_LABELS = ("تعداد افراد بیمه شده", "مبلغ وام", "مح
 
 
 def _years(spec: str) -> frozenset[int]:
-    """'1384-1385 1390' -> {1384, 1385, 1390}."""
-    out: set[int] = set()
-    for part in spec.split():
-        lo, _, hi = part.partition("-")
-        out.update(range(int(lo), int(hi or lo) + 1))
-    return frozenset(out)
+    """'1384-1385 1390' -> {1384, 1385, 1390}; '' -> no year."""
+    return parse_years(spec) or frozenset()
 
 
 @dataclass(frozen=True)

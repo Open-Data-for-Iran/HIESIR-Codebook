@@ -1,0 +1,22 @@
+﻿page,y,reason,text,count,pages
+6,88.7,text with no code line near it,طریق,29,6 8-16 30 44-61
+6,97.7,text not aligned to its column border (a label inside the cell?),کد,56,6-61
+6,106.4,text with no code line near it,تهیه گرم کیلو,11,6-16
+6,737.4,text with no code line near it,در برابر خدمت,56,6-61
+6,743.8,text not aligned to its column border (a label inside the cell?),خرید,56,6-61
+6,750.1,text not aligned to its column border (a label inside the cell?),عمومی,56,6-61
+7,97.7,text not aligned to its column border (a label inside the cell?),شرح هزینه,1,7
+10,240.3,"repaired: a header code list wrapped onto the next line (و01184), joined",01162 و 01161 / و 01163,1,10
+13,386.3,"repaired: a header code list wrapped onto the next line (و01184), joined",01183و01182 / و01184,1,13
+17,88.7,text not aligned to its column border (a label inside the cell?),هزینه,26,17-29 31-43
+17,106.1,text not aligned to its column border (a label inside the cell?),(ریال),26,17-29 31-43
+18,143.4,"repaired: a header code list wrapped onto the next line (و01184), joined",03124 M / و03123 M,1,18
+21,431.1,left out: a field label inside a description cell,مبلغ رهن (ریال),1,21
+30,106.1,text not aligned to its column border (a label inside the cell?),تهیه,1,30
+38,144.9,text with no code line near it,هزینه‌های آموزش در بخش سیزده ثبت خواهد شد.,1,38
+44,106.1,text with no code line near it,تهیه,18,44-61
+44,183.3,"repaired: a header code list wrapped onto the next line (و01184), joined",03124 A / و03123 A,1,44
+56,143.1,left out: a note of the allowed source codes (3 یا 4),3 یا 4,2,56
+56,176.1,left out: a note of the allowed source codes (3 یا 4),یا 8,2,56
+56,248.1,left out: a field label inside a description cell,تعداد افراد بیمه شده,5,56
+57,254.4,left out: a field label inside a description cell,مبلغ وام,2,57

@@ -49,7 +49,7 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
         for y in SUPPORTED_YEARS:
             build(y, data, EXTRACTED)
         print(f"extracted {len(SUPPORTED_YEARS)} years -> {EXTRACTED}")
-        print(f"left out of each: {REPORTS}/extraction_<year>.csv")
+        print(f"what each left out or repaired: {EXTRACTED}/report_<year>.csv")
     elif extract_pdfs:
         print(f"no {data / 'pdf'}: keeping {EXTRACTED} as it is")
     else:
@@ -64,25 +64,27 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
     metrics.main([])
 
 
-def main(argv: list[str] | None = None) -> None:
-    ap = argparse.ArgumentParser(
-        prog="hiesir-codebook",
-        description=__doc__,
-        epilog="'hiesir-codebook build' regenerates every stage of output/.",
-    )
-    ap.add_argument("years", nargs="+", help="survey years (e.g. 1382 1403), 'all', or 'build'")
-    ap.add_argument("--data", type=Path, default=DATA_DIR, help="folder with pdf/ (default: data/)")
-    ap.add_argument(
-        "--csv-dir",
-        type=Path,
-        default=EXTRACTED,
-        help=f"where to write the CSV extracts (default: {EXTRACTED.as_posix()}/)",
-    )
-    ap.add_argument("--no-extract", action="store_true", help="build: keep 1_extracted, do not read PDFs")
-    args = ap.parse_args(argv)
-    if args.years == ["build"]:
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(prog="hiesir-codebook", description=__doc__)
+    sub = ap.add_subparsers(dest="command", required=True)
+    b = sub.add_parser("build", help="regenerate every stage of output/")
+    b.add_argument("--no-extract", action="store_true", help="keep output/1_extracted/, do not read the PDFs")
+    b.add_argument("--data", type=Path, default=DATA_DIR, help="folder with pdf/ (default: data/)")
+    e = sub.add_parser("extract", help="just extract: the PDFs -> output/1_extracted/")
+    e.add_argument("years", nargs="*", type=int, help="survey years (default: all supported)")
+    e.add_argument("--data", type=Path, default=DATA_DIR, help="folder with pdf/ (default: data/)")
+    e.add_argument("--csv-dir", type=Path, default=EXTRACTED, help=f"default: {EXTRACTED.as_posix()}/")
+    sub.add_parser("pdfs", help="download, verify or list the PDFs (pdfs -h)", add_help=False)
+    args, rest = ap.parse_known_args(argv)
+    if args.command == "pdfs":
+        from .extraction import pdfs
+
+        return pdfs.main(rest)
+    if rest:
+        ap.error(f"unrecognized arguments: {' '.join(rest)}")
+    if args.command == "build":
         build_all(args.data, extract_pdfs=not args.no_extract)
-        return
-    years = SUPPORTED_YEARS if args.years == ["all"] else [int(y) for y in args.years]
-    for y in years:
+        return 0
+    for y in args.years or SUPPORTED_YEARS:
         print(build(y, args.data, args.csv_dir), flush=True)
+    return 0

@@ -141,14 +141,10 @@ def _font_glyph_names(pdf_path: str, xref: int) -> list[str]:
         return []
 
 
-def _undecoded_fonts(pdf_path: str, page: pymupdf.Page) -> dict[str, int]:
-    """Font base-name -> xref for page fonts that lack a ToUnicode map."""
-    doc = _open(pdf_path)
-    out = {}
-    for xref, _ext, _typ, basefont, *_ in page.get_fonts():
-        if "ToUnicode" not in doc.xref_object(xref):
-            out[basefont.split("+", 1)[-1]] = xref
-    return out
+@cache
+def _undecoded(pdf_path: str, xref: int) -> bool:
+    """Does the font lack a ToUnicode map?"""
+    return "ToUnicode" not in _open(pdf_path).xref_object(xref)
 
 
 # --- glyphs and lines ---------------------------------------------------------
@@ -170,15 +166,26 @@ class Glyph:
 
 
 @dataclass
-class Discard:
-    """Text the extraction left out, or a glyph it could not read, for the
-    per-year report (``reports/extraction_<year>.csv``)."""
+class Note:
+    """One line of the extraction report: text left out, a glyph that could
+    not be read, or a print quirk repaired (``layout.QUIRKS``)."""
 
     page: int  # 0-based
     y: float | None  # the line's height on the page, in points (None: whole page)
     reason: str
     text: str
     count: int = 1
+
+
+@dataclass
+class Notes:
+    """The notes of an extraction, written for one page at a time."""
+
+    page: int = -1
+    items: list[Note] = field(default_factory=list)
+
+    def add(self, y: float | None, reason: str, text: str, count: int = 1) -> None:
+        self.items.append(Note(self.page, y, reason, text, count))
 
 
 @dataclass
@@ -200,16 +207,16 @@ class Line:
     segments: list[Segment] = field(default_factory=list, repr=False)
 
 
-def _page_fonts(page: pymupdf.Page) -> dict[str, int]:
-    return {basefont.split("+", 1)[-1]: xref for xref, _e, _t, basefont, *_ in page.get_fonts()}
-
-
 @cache
 def _outline_hashes(pdf_path: str, xref: int) -> list[str | None]:
     try:
         return glyph_db.font_outline_hashes(_open(pdf_path).extract_font(xref)[3])
     except Exception:
         return []
+
+
+def _span_font(pdf_path: str, fonts: dict[str, list[int]], span: dict) -> int | None:
+    return glyph_db.span_font(fonts, span, lambda x: _outline_hashes(pdf_path, x))
 
 
 @lru_cache(maxsize=8)
@@ -229,9 +236,9 @@ def _broken_fonts(pdf_path: str, threshold: float = 0.005) -> frozenset[int]:
     total: dict[int, int] = {}
     outlines = 0  # glyphs with an outline, known to the database or not
     for page in _open(pdf_path):
-        fonts = _page_fonts(page)
+        fonts = glyph_db.page_fonts(page)
         for span in page.get_texttrace():
-            xref = fonts.get(span["font"])
+            xref = _span_font(pdf_path, fonts, span)
             if xref is None:
                 continue
             hs = _outline_hashes(pdf_path, xref)
@@ -252,23 +259,21 @@ def _shaped_fonts(pdf_path: str) -> frozenset[str]:
     return glyph_db.shaped_fonts(_open(pdf_path))
 
 
-def page_glyphs(pdf_path: str, page_no: int, discards: list[Discard] | None = None) -> list[Glyph]:
+def page_glyphs(pdf_path: str, page_no: int, notes: Notes | None = None) -> list[Glyph]:
     """The page's glyphs, decoded.  Glyphs that could not be read (a broken
     font's glyph missing from the database, an unmapped glyph without a usable
-    name) are counted per page into ``discards``."""
+    name) are counted into ``notes``."""
     page = _open(pdf_path)[page_no]
     unread: Counter[tuple[str, str]] = Counter()
-    undecoded = _undecoded_fonts(pdf_path, page)
-    fonts = _page_fonts(page)
+    fonts = glyph_db.page_fonts(page)
     broken = _broken_fonts(pdf_path)
     shaped = _shaped_fonts(pdf_path)
     db = glyph_db.load()
     glyphs: list[Glyph] = []
     seen: set[tuple[str, int, int]] = set()
     for span in page.get_texttrace():
-        xref = undecoded.get(span["font"])
-        names = _font_glyph_names(pdf_path, xref) if xref else []
-        fx = fonts.get(span["font"])
+        fx = _span_font(pdf_path, fonts, span)
+        names = _font_glyph_names(pdf_path, fx) if fx is not None and _undecoded(pdf_path, fx) else []
         hashes = _outline_hashes(pdf_path, fx) if fx in broken else None
         for code, gid, _origin, bbox in span["chars"]:
             from_db = False
@@ -309,8 +314,9 @@ def page_glyphs(pdf_path: str, page_no: int, discards: list[Discard] | None = No
                 unread[problem] += 1
             if t.strip():
                 glyphs.append(Glyph(t, x0, x1, y0, y1, span["size"], ends))
-    if discards is not None:
-        discards.extend(Discard(page_no, None, r, txt, n) for (r, txt), n in sorted(unread.items()))
+    if notes is not None:
+        for (reason, text), n in sorted(unread.items()):
+            notes.add(None, reason, text, n)
     return glyphs
 
 
@@ -367,8 +373,8 @@ def group_lines(
 # --- page helpers -------------------------------------------------------------
 
 
-def page_lines(pdf_path: str, page_no: int, discards: list[Discard] | None = None) -> list[Line]:
-    return group_lines(page_glyphs(pdf_path, page_no, discards))
+def page_lines(pdf_path: str, page_no: int, notes: Notes | None = None) -> list[Line]:
+    return group_lines(page_glyphs(pdf_path, page_no, notes))
 
 
 def page_count(pdf_path: str) -> int:

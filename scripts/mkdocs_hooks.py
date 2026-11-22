@@ -11,9 +11,9 @@ so git holds one copy and the site always shows what output/ holds:
     output/4_groups/*.csv                    -> 4_groups/*.csv
     the questionnaire PDFs                   -> pdf/questionnaire_<year>[_<area>].pdf
 
-The PDFs are not in git. They come from $HIESIR_PDF_DIR (the GitHub workflow
-downloads the release "questionnaires" there), else data/release/ or data/pdf/;
-without any, the site is built without them. The list on the questionnaires
+The PDFs are not in git. They come from $HIESIR_PDF_DIR, else data/pdf/
+(`hiesir-codebook pdfs download` fetches the release "questionnaires" there,
+as the GitHub workflow does); without any, the site is built without them. The list on the questionnaires
 page (docs/questionnaires.md and its translation) is filled in from what is
 found, in place of the marker <!-- questionnaire-pdfs -->.
 
@@ -58,7 +58,7 @@ _found: list[pdfs.Pdf] = []
 
 def _pdf_dir() -> Path | None:
     env = os.environ.get("HIESIR_PDF_DIR")
-    candidates = [Path(env)] if env else [ROOT / "data" / "release", ROOT / "data" / "pdf"]
+    candidates = [Path(env)] if env else [ROOT / "data" / "pdf"]
     return next((d for d in candidates if pdfs.find(d)), None)
 
 

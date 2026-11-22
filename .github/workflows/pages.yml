@@ -24,13 +24,11 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.12"
-      - name: Download the questionnaire PDFs (release "questionnaires")
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Download the questionnaire PDFs (release "questionnaires", checked against data/pdfs.csv)
         # without the PDFs the extraction tests skip, so on main that is an error;
         # a pull request only warns
         run: |
-          if ! gh release download questionnaires --repo "$GITHUB_REPOSITORY" --pattern '*.pdf' --dir data/pdf; then
+          if ! uv run hiesir-codebook pdfs download; then
             if [ "${{ github.event_name }}" = pull_request ]; then
               echo "::warning::no 'questionnaires' release with PDFs; extraction is not tested and the site is built without them"
             else

@@ -26,10 +26,11 @@ GitHub این فایل‌ها را در نمایش تفاوت‌ها جمع می
 ```bash
 uv run hiesir-codebook build                 # regenerate every stage of output/
 uv run hiesir-codebook build --no-extract    # keep 1_extracted/ (no PDFs needed)
-uv run hiesir-codebook all                   # just extract: PDFs -> output/1_extracted/
-uv run hiesir-codebook 1382 1403             # or just some years
+uv run hiesir-codebook pdfs download        # the PDFs from the release, checked against data/pdfs.csv
+uv run hiesir-codebook extract               # just extract: PDFs -> output/1_extracted/ (with report_<year>.csv)
+uv run hiesir-codebook extract 1382 1403     # or just some years
 uv run python -m hiesir_codebook.correction.correct --check   # correct and check against the raw data
-uv run python -m hiesir_codebook.extraction.validate    # check extracted codes against the raw data
+uv run python -m hiesir_codebook.correction.structure         # check the corrected CSVs from the CSVs alone
 uv run python -m hiesir_codebook.explorer    # just the explorer page
 ```
 
@@ -65,14 +66,14 @@ uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.check    
 ## آزمون‌ها {#tests}
 
 ```bash
-uv run pytest                 # unit tests + regression against output/1_extracted/ (needs data/)
+uv run pytest                 # unit tests + regression against output/1_extracted/ (needs data/pdf/)
 uv run pytest -m "not slow"   # unit tests only
 uv run ruff check . && uv run ruff format --check .
 ```
 
 آزمون‌های رگرسیون همه سال‌ها را دوباره استخراج و بایت‌به‌بایت با
 `output/1_extracted/` مقایسه می‌کنند. وقتی تغییری در استخراج‌گر عمدی است، با
-`uv run hiesir-codebook all` دوباره بسازید و پیش از commit تفاوت‌های CSV را
+`uv run hiesir-codebook extract` دوباره بسازید و پیش از commit تفاوت‌های CSV را
 بازبینی کنید. آزمون‌های سریع هم بررسی می‌کنند که `output/2_corrected/`،
 `output/3_items/`، `output/4_groups/` و `output/explorer/` به‌روز باشند؛ پس از تغییر `curated/` یا
 کد، `uv run hiesir-codebook build --no-extract` را اجرا و تفاوت‌ها را بازبینی
@@ -128,16 +129,21 @@ uv run --group docs mkdocs build --strict   # what GitHub runs: fails on broken 
 [`questionnaires`](https://github.com/Open-Data-for-Iran/HIESIR-Codebook/releases/tag/questionnaires)
 در GitHub پیوست شده‌اند و هر بار ساخت سایت آن‌ها را دریافت و در `pdf/` منتشر
 می‌کند؛ در صفحه [پرسشنامه‌ها](questionnaires.md) فهرست شده‌اند و هر قلم در جست‌وجوی
-اقلام به آن‌ها پیوند دارد. برای افزودن یا جایگزینی یک فایل، آن را در `data/pdf/`
-بگذارید، سپس
+اقلام به آن‌ها پیوند دارد. `data/pdfs.csv` (در git) هر فایل را با حجم و
+SHA-256 آن فهرست می‌کند؛ `hiesir-codebook pdfs download` آن‌ها را با نام‌های
+انتشار (`questionnaire_<year>[_urban|_rural].pdf`) در `data/pdf/` دانلود و هر یک را
+با فهرست مقایسه می‌کند، و `pdfs verify` نسخه‌ای را که دارید بررسی می‌کند. گردش‌کار
+سایت هم همین‌طور دانلود می‌کند. برای افزودن یا جایگزینی یک فایل:
 
 ```bash
-uv run python -m hiesir_codebook.extraction.pdfs stage   # data/pdf -> data/release, renamed questionnaire_<year>[_urban|_rural].pdf
+cp <file> data/pdf/questionnaire_1404.pdf                               # the release name
+uv run hiesir-codebook pdfs manifest                                    # data/pdfs.csv from data/pdf/
+gh release upload questionnaires data/pdf/questionnaire_1404.pdf --clobber
 ```
 
-را اجرا کنید و فایل را از `data/release/` به انتشار بارگذاری کنید (Edit release و
-پیوست فایل). برای انتشار، workflow مستندات را دوباره اجرا کنید. ساخت محلی از
-`data/release/` یا `data/pdf/` (اگر باشند) یا پوشه `$HIESIR_PDF_DIR` استفاده می‌کند.
+سپس `data/pdfs.csv` را commit کنید. ساخت محلی سایت از `data/pdf/` یا پوشه
+`$HIESIR_PDF_DIR` استفاده می‌کند. نسخه‌ای با نام‌های قدیمی (`Questionnaire 1386.pdf`)
+با `hiesir-codebook pdfs rename` تغییر نام می‌یابد.
 
 ## مجوز {#license}
 

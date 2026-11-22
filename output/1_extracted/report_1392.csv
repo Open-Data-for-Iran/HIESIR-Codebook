@@ -1,0 +1,29 @@
+﻿page,y,reason,text,count,pages
+6,83.5,text with no code line near it,طریق,29,6 8-16 43-61
+6,91.9,text not aligned to its column border (a label inside the cell?),کد,56,6-61
+6,100.0,text with no code line near it,تهیه گرم کیلو,11,6-16
+6,691.0,text with no code line near it,در برابر خدمت,54,6-9 11-24 26-61
+6,696.9,text not aligned to its column border (a label inside the cell?),خرید,56,6-61
+6,702.9,text not aligned to its column border (a label inside the cell?),عمومی,54,6-9 11-24 26-61
+7,91.9,text not aligned to its column border (a label inside the cell?),شرح هزینه,1,7
+10,679.6,text not aligned to its column border (a label inside the cell?),در برابر,2,10 25
+10,691.5,text with no code line near it,خدمت عمومی,2,10 25
+10,226.0,"repaired: a header code list wrapped onto the next line (و01184), joined",01162 ، 01161 / و 01163,1,10
+13,363.4,"repaired: a header code list wrapped onto the next line (و01184), joined",01183،01182 / و 01184,1,13
+14,386.3,"repaired: a header code list wrapped onto the next line (و01184), joined",01193 ،01192 / و 01194,1,14
+16,664.0,text not aligned to its column border (a label inside the cell?),ک 1,1,16
+17,83.5,text not aligned to its column border (a label inside the cell?),هزینه,26,17-42
+17,99.9,text not aligned to its column border (a label inside the cell?),(ریال),26,17-42
+18,134.9,"repaired: a header code list wrapped onto the next line (و01184), joined",03124 M / و03123 M,1,18
+21,405.6,left out: a field label inside a description cell,مبلغ رهن (ریال),1,21
+28,545.3,"repaired: a sub-code printed above its code in a tall cell (13 / 0623), joined",13 / 0623,1,28
+29,456.6,"repaired: a header code list split around its text (06312 و / 06313 M), joined",06312 / 06313 M,1,29
+37,136.3,text with no code line near it,هزینه‌های آموزش در بخش سیزده ثبت خواهد شد.,1,37
+43,99.9,text with no code line near it,تهیه,19,43-61
+43,172.4,"repaired: a header code list wrapped onto the next line (و01184), joined",03124 A / و03123 A,1,43
+44,456.7,"repaired: a header code list wrapped onto the next line (و01184), joined",05115، 05114 / و 05116,1,44
+55,489.4,left out: a note of the allowed source codes (3 یا 4),3 یا 4,2,55-56
+55,520.5,left out: a note of the allowed source codes (3 یا 4),یا 8,2,55-56
+55,588.3,left out: a field label inside a description cell,تعداد افراد بیمه شده,5,55-56
+56,596.1,left out: a field label inside a description cell,مبلغ وام,2,56
+56,399.3,left out: a note of the allowed source codes (3 یا 4),8,1,56

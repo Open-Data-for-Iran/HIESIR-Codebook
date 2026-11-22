@@ -26,10 +26,11 @@ of date; GitHub folds these files in diffs (`.gitattributes`).
 ```bash
 uv run hiesir-codebook build                 # regenerate every stage of output/
 uv run hiesir-codebook build --no-extract    # keep 1_extracted/ (no PDFs needed)
-uv run hiesir-codebook all                   # just extract: PDFs -> output/1_extracted/
-uv run hiesir-codebook 1382 1403             # or just some years
+uv run hiesir-codebook pdfs download        # the PDFs from the release, checked against data/pdfs.csv
+uv run hiesir-codebook extract               # just extract: PDFs -> output/1_extracted/ (with report_<year>.csv)
+uv run hiesir-codebook extract 1382 1403     # or just some years
 uv run python -m hiesir_codebook.correction.correct --check   # correct and check against the raw data
-uv run python -m hiesir_codebook.extraction.validate    # check extracted codes against the raw data
+uv run python -m hiesir_codebook.correction.structure         # check the corrected CSVs from the CSVs alone
 uv run python -m hiesir_codebook.explorer    # just the explorer page
 ```
 
@@ -64,14 +65,14 @@ uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.check    
 ## Tests
 
 ```bash
-uv run pytest                 # unit tests + regression against output/1_extracted/ (needs data/)
+uv run pytest                 # unit tests + regression against output/1_extracted/ (needs data/pdf/)
 uv run pytest -m "not slow"   # unit tests only
 uv run ruff check . && uv run ruff format --check .
 ```
 
 The regression tests re-extract every year and compare byte-for-byte with
 `output/1_extracted/`. When an extractor change is intended, regenerate with
-`uv run hiesir-codebook all` and review the CSV diff before committing.
+`uv run hiesir-codebook extract` and review the CSV diff before committing.
 Fast tests also check that `output/2_corrected/`, `output/3_items/`,
 `output/4_groups/` and `output/explorer/` are up to date; after changing `curated/` or the code, run
 `uv run hiesir-codebook build --no-extract` and review the diff. Tests that
@@ -128,15 +129,21 @@ The PDFs are not in git: they are attached to the GitHub release
 [`questionnaires`](https://github.com/Open-Data-for-Iran/HIESIR-Codebook/releases/tag/questionnaires),
 and every site build downloads them and publishes them under `pdf/`, listed on
 the [Questionnaires](questionnaires.md) page and linked from each item in the
-explorer. To add or replace one, put it in `data/pdf/`, then
+explorer. `data/pdfs.csv` (in git) lists each one with its size and SHA-256;
+`hiesir-codebook pdfs download` fetches them into `data/pdf/` under the
+release's names (`questionnaire_<year>[_urban|_rural].pdf`) and checks each
+against the list, and `pdfs verify` checks a copy you already have. The site
+workflow downloads them the same way. To add or replace one:
 
 ```bash
-uv run python -m hiesir_codebook.extraction.pdfs stage   # data/pdf -> data/release, renamed questionnaire_<year>[_urban|_rural].pdf
+cp <file> data/pdf/questionnaire_1404.pdf                               # the release name
+uv run hiesir-codebook pdfs manifest                                    # data/pdfs.csv from data/pdf/
+gh release upload questionnaires data/pdf/questionnaire_1404.pdf --clobber
 ```
 
-and upload the file from `data/release/` to the release (Edit release, attach
-files). Re-run the Docs workflow to publish it. A local build uses `data/release/`
-or `data/pdf/` if present, or the folder in `$HIESIR_PDF_DIR`.
+then commit `data/pdfs.csv`. A local site build uses `data/pdf/`, or the
+folder in `$HIESIR_PDF_DIR`. A copy with the old names (`Questionnaire 1386.pdf`)
+is renamed with `hiesir-codebook pdfs rename`.
 
 ## License
 

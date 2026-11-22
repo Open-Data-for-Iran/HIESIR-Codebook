@@ -1,0 +1,26 @@
+﻿page,y,reason,text,count,pages
+6,88.7,text with no code line near it,طریق,29,6 8-16 43-61
+6,97.7,text not aligned to its column border (a label inside the cell?),کد,56,6-61
+6,106.4,text with no code line near it,تهیه گرم کیلو,11,6-16
+6,734.4,text with no code line near it,در برابر خدمت,53,6-8 11-22 24-61
+6,740.7,text not aligned to its column border (a label inside the cell?),خرید,56,6-61
+6,747.1,text not aligned to its column border (a label inside the cell?),عمومی,55,6-9 11-61
+7,97.7,text not aligned to its column border (a label inside the cell?),شرح هزینه,1,7
+9,729.5,text with no code line near it,در بر ر خدمت,1,9
+10,722.2,text not aligned to its column border (a label inside the cell?),در برابر,1,10
+10,734.9,text with no code line near it,خدمت عمومی,1,10
+10,240.3,"repaired: a header code list wrapped onto the next line (و01184), joined",01162 و 01161 / و 01163,1,10
+13,386.3,"repaired: a header code list wrapped onto the next line (و01184), joined",01183و01182 / و01184,1,13
+17,88.7,text not aligned to its column border (a label inside the cell?),هزینه,26,17-42
+17,106.1,text not aligned to its column border (a label inside the cell?),(ریال),26,17-42
+18,143.4,"repaired: a header code list wrapped onto the next line (و01184), joined",03124 M / و03123 M,1,18
+21,431.1,left out: a field label inside a description cell,مبلغ رهن (ریال),1,21
+23,681.6,text with no code line near it,در بر بر خدمت,1,23
+37,144.9,text with no code line near it,هزینه‌های آموزش در بخش سیزده ثبت خواهد شد.,1,37
+43,106.1,text with no code line near it,تهیه,19,43-61
+43,183.3,"repaired: a header code list wrapped onto the next line (و01184), joined",03124 A / و03123 A,1,43
+55,521.7,left out: a note of the allowed source codes (3 یا 4),3 یا 4,2,55-56
+55,554.7,left out: a note of the allowed source codes (3 یا 4),یا 8,2,55-56
+55,626.7,left out: a field label inside a description cell,تعداد افراد بیمه شده,5,55-56
+56,633.6,left out: a field label inside a description cell,مبلغ وام,2,56
+56,424.4,left out: a note of the allowed source codes (3 یا 4),8,1,56

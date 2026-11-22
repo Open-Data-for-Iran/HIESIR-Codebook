@@ -35,7 +35,8 @@ from itertools import pairwise
 from pathlib import Path
 
 from .. import CORRECTED, CURATED_CORRECTED, SUPPORTED_YEARS
-from .correct import _years, read_rows
+from ..utils import parse_years
+from .correct import read_rows
 
 HEADER_EXCEPTIONS = CURATED_CORRECTED / "header_exceptions.csv"
 
@@ -61,7 +62,7 @@ def load_header_exceptions(path: Path = HEADER_EXCEPTIONS) -> list[HeaderExcepti
         return []
     with open(path, encoding="utf-8-sig") as f:
         return [
-            HeaderException(r["header"].strip(), r["item_code"].strip(), _years(r["years"]), r["reason"])
+            HeaderException(r["header"].strip(), r["item_code"].strip(), parse_years(r["years"]), r["reason"])
             for r in csv.DictReader(f)
         ]
 

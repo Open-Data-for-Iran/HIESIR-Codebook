@@ -248,3 +248,15 @@ def is_arabic_letter(ch: str) -> bool:
 def joins_next(ch: str) -> bool:
     """Does this letter connect to the following one (e.g. ب, س; not ا, د, ر)?"""
     return ch in _DUAL_JOINING
+
+
+def parse_years(spec: str) -> frozenset[int] | None:
+    """Years as written in the curated files: '' -> None (every year);
+    '1383-1385 1390' (or with commas) -> {1383, 1384, 1385, 1390}."""
+    if not spec.strip():
+        return None
+    out: set[int] = set()
+    for part in re.split(r"[\s,]+", spec.strip()):
+        lo, _, hi = part.partition("-")
+        out.update(range(int(lo), int(hi or lo) + 1))
+    return frozenset(out)

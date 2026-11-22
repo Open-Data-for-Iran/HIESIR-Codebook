@@ -1,0 +1,33 @@
+﻿page,y,reason,text,count,pages
+9,88.5,text with no code line near it,طریق,16,9-21 68-70
+9,96.7,text not aligned to its column border (a label inside the cell?),کد,65,9-73
+9,105.9,text with no code line near it,تهیه گرم,1,9
+9,714.9,text with no code line near it,در برابر خدمت در برابر خدمت در برابر خدمت از محل کسب از محل کسب مجانی (نه از,64,9-44 46-73
+9,723.1,text not aligned to its column border (a label inside the cell?),خرید،,64,9-44 46-73
+9,731.2,text not aligned to its column border (a label inside the cell?),عمومی،,64,9-44 46-73
+10,88.5,text with no code line near it,قیمت واحد,10,10-15 18-21
+10,114.1,text with no code line near it,تهیه,10,10-15 18-21
+10,123.8,text with no code line near it,گرم کیلو,10,10-15 18-21
+14,266.9,"repaired: a header code list wrapped onto the next line (و01184), joined",01162 و 01161 / و 01163,1,14
+16,104.1,text with no code line near it,تهیه گرم کیلو,1,16
+17,104.1,text with no code line near it,تهیه گرم کیلو (ریال),1,17
+17,646.8,"repaired: a header code list wrapped onto the next line (و01184), joined",01183و01182 / و01184,1,17
+19,203.7,"repaired: a header code list split around its text (06312 و / 06313 M), joined",01193 / 01192,1,19
+27,470.8,left out: a field label inside a description cell,مبلغ رهن (ریال),1,27
+36,802.3,two-digit line with no text around it (page number?),33,1,36
+37,802.3,two-digit line with no text around it (page number?),34,1,37
+45,728.6,text with no code line near it,در برابر خدمت از محل کسب از محل کسب مجانی (نه از,1,45
+45,736.8,text with no code line near it,تولید خانگی، در برابر خدمت در برابر خدمت,1,45
+45,744.8,text with no code line near it,خرید، کد 1,1,45
+48,148.4,text with no code line near it,هزینه‌های آموزش در بخش سیزده ثبت خواهد شد.,1,48
+54,88.5,text not aligned to its column border (a label inside the cell?),فروش,14,54-66 72
+54,91.7,text not aligned to its column border (a label inside the cell?),خرید,19,54-67 69-73
+54,105.7,text with no code line near it,یا هزینه دست دوم,15,54-67 71
+67,295.9,left out: a note of the allowed source codes (3 یا 4),3 یا 4 یا 5,1,67
+67,313.3,left out: a note of the allowed source codes (3 یا 4),یا 8,1,67
+67,405.8,left out: a field label inside a description cell,تعداد افراد بیمه شده,5,67-68
+68,109.5,text not aligned to its column border (a label inside the cell?),تهیه,3,68-70
+71,88.5,text with no code line near it,فروش,1,71
+72,105.7,text with no code line near it,یا هزینه,1,72
+73,104.2,text not aligned to its column border (a label inside the cell?),یا هزینه,1,73
+75,,"page turned sideways, not read (its text would run vertically)",,4,75-78

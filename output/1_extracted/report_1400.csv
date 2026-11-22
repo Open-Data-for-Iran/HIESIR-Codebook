@@ -1,0 +1,52 @@
+﻿page,y,reason,text,count,pages
+6,88.3,text with no code line near it,طریق,31,6 8-16 29-30 43-61
+6,97.3,text not aligned to its column border (a label inside the cell?),کد,56,6-61
+6,106.1,text with no code line near it,تهیه گرم کیلو,11,6-16
+6,734.0,text with no code line near it,در برابر خدمت,54,6-9 11-24 26-61
+6,740.4,text not aligned to its column border (a label inside the cell?),خرید,56,6-61
+6,746.7,text not aligned to its column border (a label inside the cell?),عمومی,54,6-9 11-24 26-61
+7,97.3,text not aligned to its column border (a label inside the cell?),شرح هزینه,1,7
+10,722.8,text not aligned to its column border (a label inside the cell?),در برابر,2,10 25
+10,735.6,text with no code line near it,خدمت عمومی,2,10 25
+10,240.0,"repaired: a header code list wrapped onto the next line (و01184), joined",01162 ، 01161 / و 01163,1,10
+13,386.0,"repaired: a header code list wrapped onto the next line (و01184), joined",01182،01183 / و 01184,1,13
+14,410.3,"repaired: a header code list wrapped onto the next line (و01184), joined",01193 ،01192 / و 01194,1,14
+17,88.3,text not aligned to its column border (a label inside the cell?),هزینه,24,17-28 31-42
+17,105.8,text not aligned to its column border (a label inside the cell?),(ریال),24,17-28 31-42
+18,143.7,"repaired: a header code list wrapped onto the next line (و01184), joined",03124 M / و03123 M,1,18
+21,430.7,left out: a field label inside a description cell,مبلغ رهن (ریال),1,21
+28,735.1,text with no code line near it,G : مراکز، درمانگاه و بیمارستان‌های متعلق به دانشگاه علوم پزشکی,2,28 47
+28,754.2,text with no code line near it,NG: سایر مراکز و بیمارستان‌ها (مراکز وابسته به سازمان تامین اجتماعی، نیروهای مسلح، شرکت نفت، دانشگاه آزاد، خصوصی و خیریه),2,28-29
+29,105.8,text with no code line near it,تهیه,21,29-30 43-61
+29,702.7,text with no code line near it,G: مراکز، درمانگاه و بیمارستان‌های متعلق به دانشگاه علوم پزشکی,1,29
+37,144.6,text with no code line near it,هزینه‌های آموزش در بخش سیزده ثبت خواهد شد.,1,37
+43,183.5,"repaired: a header code list wrapped onto the next line (و01184), joined",03124 A / و03123 A,1,43
+44,485.2,"repaired: a header code list wrapped onto the next line (و01184), joined",05115، 05114 / و 05116,1,44
+47,738.7,text with no code line near it,NG: سایر مراکز و بیمارستان‌ها ( مراکز وابسته به سازمان تامین اجتماعی، نیروهای مسلح، شرکت نفت، دانشگاه آزاد، خصوصی و خیریه),1,47
+55,619.1,left out: a note of the allowed source codes (3 یا 4),3 یا 4,2,55-56
+55,652.1,left out: a note of the allowed source codes (3 یا 4),یا 8,2,55-56
+56,200.5,left out: a field label inside a description cell,تعداد افراد بیمه شده,5,56
+56,550.5,left out: a note of the allowed source codes (3 یا 4),8,1,56
+57,220.0,left out: a field label inside a description cell,مبلغ وام,2,57
+62,59.9,text with no code line near it,وام های دریافتی خانوار در 12 ماه گذشته,1,62
+62,77.3,text with no code line near it,آیا خانوار در دوازده ماه گذشته مبلغی بابت وام‌های دریافتی پرداخت کرده‌است؟ بلی,1,62
+62,94.2,text with no code line near it,شماره,1,62
+62,110.1,text with no code line near it,ردیف,1,62
+62,120.1,text with no code line near it,بانک ها و موسسات مسکن,1,62
+62,126.0,text not aligned to its column border (a label inside the cell?),عضو,1,62
+62,135.9,text with no code line near it,مالی و اعتباری 1,1,62
+62,141.8,text with no code line near it,دریافت,1,62
+62,145.9,text with no code line near it,ازدواج,1,62
+62,157.6,text with no code line near it,کننده وام,1,62
+62,161.7,text with no code line near it,دانشجویی,2,62
+62,171.8,text with no code line near it,کالا,1,62
+62,187.6,text with no code line near it,صندوق‌های,1,62
+62,197.6,text with no code line near it,قرض الحسنه,1,62
+62,203.5,text with no code line near it,خانوادگی,1,62
+62,223.5,text with no code line near it,خرید و تعویض خودرو 5 کل مبلغ وام مضاربه‌ای که,1,62
+62,229.3,text with no code line near it,محل کار,1,62
+62,241.0,text with no code line near it,به بانک پرداخت شده,1,62
+62,249.3,text with no code line near it,تعمیر و ساخت مسکن 6,1,62
+62,255.2,text with no code line near it,سایر,2,62
+62,301.0,text with no code line near it,خود اشتغالی,1,62
+62,326.8,text with no code line near it,مضاربه‌ای,1,62

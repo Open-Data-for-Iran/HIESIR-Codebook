@@ -178,7 +178,7 @@ uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.check
   questionnaire lacks, or a code printed twice, points to a typo or an
   extraction miss.
 
-All corrections are backed by the data, and every year from 1383 to 1403
+All corrections are backed by the data, and every year from 1382 to 1403
 passes. The occurrence tables are in git, so a test runs this check in CI.
 
 The structure check (`python -m hiesir_codebook.correction.structure`) needs
@@ -565,12 +565,15 @@ across years, to `output/3_items/` and `output/4_groups/`).
   1402: بخش extracts as لاوش). Each glyph's outline is hashed and looked up in
   `src/hiesir_codebook/extraction/data/glyph_db.json` (tracked), which is built from the clean PDFs. A font is treated as
   broken when its ToUnicode map disagrees with the database: clean PDFs agree
-  100%, broken fonts disagree on 0.8% or more. The database keeps each glyph's
+  100%, broken fonts disagree on 0.8% or more. A text span names its font
+  without the subset prefix, and a page often embeds two subsets under one
+  name (a few digits, and the letters); the span's font is the one that has
+  outlines for its glyphs. The database keeps each glyph's
   form as the clean PDFs' shaped fonts map it (ﻬ medial, ﻪ final, ه isolated), so
   the ZWNJ recovery works in the repaired years too (میوه‌گیری). To rebuild the database:
   `uv run python -m hiesir_codebook.extraction.build_glyph_db`. The extraction
-  stops with an error when the database is missing, or knows under 10% of a
-  PDF's glyph outlines (0.87–1.0 in 1383–1403, 0.24 in 1382): then the hashes no
+  stops with an error when the database is missing, or knows under 50% of a
+  PDF's glyph outlines (0.94–1.0 in 1383–1403, 0.82 in 1382): then the hashes no
   longer match, for example after a fontTools change, and broken fonts would go
   unnoticed. A unit test pins the hash of a known outline for the same reason.
 - `parse.py` finds code lines and attaches wrapped description lines to them,
@@ -584,7 +587,7 @@ across years, to `output/3_items/` and `output/4_groups/`).
   a header code list wrapped onto the next line or split around its text, a
   sub-code above its code in a tall cell (1391–1394), an item continued on
   the next page, source-code notes and field labels left out.
-- Each extraction also writes `reports/extraction_<year>.csv`: the text it left
+- Each extraction also writes `output/1_extracted/report_<year>.csv` (tracked, so a change shows in the diff): the text it left
   out (not aligned to its column border, no code line near it, a code
   continuation with no header, a page number, a stray two-digit header, text
   before the first section, a page whose text is turned sideways), the glyphs it could not read (a broken font's
@@ -607,9 +610,10 @@ across years, to `output/3_items/` and `output/4_groups/`).
 - `chains.py` builds the chains (matching stage 1), `relations.py` links them
   (stage 2), and `groups.py`
   follows the group headers.
-- `validate.py` checks each year's extracted codes (`output/1_extracted/`)
-  against the codes that occur in the raw data (`data/commodity_code_occurrence_*.csv`,
-  read by `occurrence.py`, which `correct.py` and `relations.py` share).
+- `pdfs.py` lists the PDFs in `data/pdfs.csv` (name, year, form, size,
+  SHA-256), downloads them from the release and checks a copy against it.
+- `occurrence.py` reads the household occurrence tables
+  (`data/commodity_code_occurrence_*.csv`) for `correct.py` and `relations.py`.
 - `structure.py` checks the corrected CSVs from the CSVs alone (see
   [Corrections](#corrections)).
 - `utils.py` holds the Persian text normalisation helpers, usable on their own:

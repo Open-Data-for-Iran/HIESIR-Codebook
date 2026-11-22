@@ -6,12 +6,12 @@ from hiesir_codebook import SUPPORTED_YEARS
 from hiesir_codebook.correction.correct import (
     Correction,
     LabelFix,
-    _years,
     apply,
     correct,
     fix_label,
     write_rows,
 )
+from hiesir_codebook.utils import parse_years
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -115,7 +115,7 @@ def test_delete_removes_empty_group_headers():
 
 
 def _fix(find, replace, match="word", years=""):
-    return LabelFix(find, replace, match, _years(years), "test")
+    return LabelFix(find, replace, match, parse_years(years), "test")
 
 
 def test_label_fix_whole_words():
@@ -154,12 +154,12 @@ def test_corrected_codes_agree_with_the_raw_data(capsys):
     the raw data supports every code-level correction.  Needs the occurrence
     table (data/, downloaded in CI)."""
     from hiesir_codebook.correction.correct import check, load_corrections, verify
-    from hiesir_codebook.occurrence import OCCURRENCE
+    from hiesir_codebook.occurrence import occurrence_files
 
-    path = ROOT / OCCURRENCE
-    if not path.exists():
-        pytest.skip(f"no {path.name} in data/")
-    years = [y for y in SUPPORTED_YEARS if y >= 1383]
+    path = occurrence_files(ROOT / "data")
+    if len(path) < 2:
+        pytest.skip("no occurrence tables in data/")
+    years = SUPPORTED_YEARS
     contradicted = verify(
         load_corrections(ROOT / "curated" / "2_corrected" / "corrections.csv"),
         ROOT / "output" / "1_extracted",

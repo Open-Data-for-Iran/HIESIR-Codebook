@@ -64,8 +64,22 @@ def test_missing_database_raises(tmp_path, monkeypatch):
 
 
 def test_coverage():
-    check_coverage(870, 1000, "1384")  # the lowest COICOP year
-    check_coverage(240, 1000, "1382")  # fonts the database is not built from
+    check_coverage(944, 1000, "1384")  # the lowest COICOP year
+    check_coverage(815, 1000, "1382")  # fonts the database is not built from
     check_coverage(0, 999, "a few glyphs")  # too few to judge
     with pytest.raises(GlyphDBError, match="knows 5 of 70000"):
         check_coverage(5, 70000, "1403")
+
+
+def test_span_font_picks_the_subset_that_draws_it():
+    """1397 embeds BNazanin twice on a page: a few digits (xref 455) and the
+    letters (xref 474); a span's glyph ids are drawn in only one of them."""
+    from hiesir_codebook.extraction.glyph_db import span_font
+
+    outlines = {455: ["a", None, None, None], 474: [None, "b", "c", "d"]}
+    fonts = {"BNazanin": [474, 455], "BZar": [341]}
+    span = lambda name, *gids: {"font": name, "chars": [(0x41, g, None, None) for g in gids]}  # noqa: E731
+    assert span_font(fonts, span("BNazanin", 1, 2, 3), outlines.get) == 474
+    assert span_font(fonts, span("BNazanin", 0), outlines.get) == 455
+    assert span_font(fonts, span("BZar", 7), outlines.get) == 341  # one font of that name
+    assert span_font(fonts, span("Arial", 1), outlines.get) is None

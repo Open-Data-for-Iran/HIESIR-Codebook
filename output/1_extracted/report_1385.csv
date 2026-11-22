@@ -1,0 +1,19 @@
+﻿page,y,reason,text,count,pages
+4,58.9,text with no code line near it,طریق,28,4-11 13 47-60 64-65
+4,66.1,text not aligned to its column border (a label inside the cell?),کد,60,4-11 13-16 18-22 27-30 32-33 35-37 41-45 47-60 64-66
+4,73.5,text with no code line near it,تهیه,28,4-11 13 47-60 64-66
+4,746.5,text not aligned to its column border (a label inside the cell?),خرید ،,28,4-13 47-61 64-66
+7,427.0,"repaired: a header code list split around its text (06312 و / 06313 M), joined",01163 / 01162و01161,1,7
+10,194.2,"repaired: a header code list split around its text (06312 و / 06313 M), joined",01184 / 01183و01182,1,10
+14,44.2,text not aligned to its column border (a label inside the cell?),طریق,27,14-16 18-22 27-30 32-33 35-37 41-45
+14,60.3,text not aligned to its column border (a label inside the cell?),تهیه,27,14-16 18-22 27-30 32-33 35-37 41-45
+14,729.1,text with no code line near it,خرید،,27,14-23 27-33 35-38 41-46
+15,449.1,"repaired: a stray comma inside the code, read right to left (69 312,0 = 0312 69)","69 312,0 سایر انواع پوشاک بچگانه",1,15
+35,772.5,two-digit line with no text around it (page number?),33,1,35
+36,755.5,two-digit line with no text around it (page number?),34,1,36
+41,123.1,text with no code line near it,هزینه های آموزش در بخش سیزده ثبت خواهد شد.,1,41
+59,771.8,text not aligned to its column border (a label inside the cell?),تعداد افرادبیمه شده,1,59
+67,238.0,text with no code line near it,قسمت سوم,1,67
+67,362.2,text with no code line near it,هزینه های خوراکی و غیر خوراکی خانوار,1,67
+52,-4.7,"repaired: an item continued on the next page with its code repeated, joined",0714 11,1,52
+56,-4.7,"repaired: an item continued on the next page with its code repeated, joined",0931 23,1,56

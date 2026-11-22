@@ -25,6 +25,7 @@ import io
 import json
 import logging
 import unicodedata
+from collections.abc import Callable
 from functools import lru_cache
 from pathlib import Path
 
@@ -62,6 +63,36 @@ def font_outline_hashes(buf: bytes) -> list[str | None]:
     return out
 
 
+def page_fonts(page: pymupdf.Page) -> dict[str, list[int]]:
+    """Font name (as a text span names it: without the subset prefix) -> xrefs.
+
+    One name often stands for two subsets of a font on the same page (1397:
+    ``HKOEMJ+BNazanin``, a few digits, and ``HKOEMI+BNazanin``, the letters),
+    so a span's font is chosen among them with :func:`span_font`.
+    """
+    out: dict[str, list[int]] = {}
+    for xref, _ext, _typ, basefont, *_ in page.get_fonts():
+        out.setdefault(basefont.split("+", 1)[-1], []).append(xref)
+    return out
+
+
+def span_font(
+    fonts: dict[str, list[int]], span: dict, hashes: Callable[[int], list[str | None]]
+) -> int | None:
+    """The xref of a text span's font: of the fonts with its name, the one
+    that has outlines for the span's glyph ids (a subset holds only the glyphs
+    it uses).  ``hashes`` gives a font's outline hashes by xref."""
+    xrefs = fonts.get(span["font"], [])
+    if len(xrefs) <= 1:
+        return xrefs[0] if xrefs else None
+
+    def drawn(xref: int) -> int:
+        hs = hashes(xref)
+        return sum(1 for _c, gid, _o, _b in span["chars"] if 0 <= gid < len(hs) and hs[gid])
+
+    return max(xrefs, key=drawn)
+
+
 def is_presentation_form(code: int) -> bool:
     return 0xFB50 <= code <= 0xFDFF or 0xFE70 <= code <= 0xFEFF
 
@@ -90,15 +121,19 @@ def build(pdf_paths: list[Path]) -> dict[str, str]:
         doc = pymupdf.open(path)
         shaped = shaped_fonts(doc)
         hashes: dict[int, list[str | None]] = {}
+
+        def of(xref: int, doc=doc, hashes=hashes) -> list[str | None]:
+            if xref not in hashes:
+                hashes[xref] = font_outline_hashes(doc.extract_font(xref)[3])
+            return hashes[xref]
+
         for page in doc:
-            fonts = {f[3].split("+", 1)[-1]: f[0] for f in page.get_fonts()}
+            fonts = page_fonts(page)
             for span in page.get_texttrace():
-                xref = fonts.get(span["font"])
+                xref = span_font(fonts, span, of)
                 if xref is None:
                     continue
-                if xref not in hashes:
-                    hashes[xref] = font_outline_hashes(doc.extract_font(xref)[3])
-                hs = hashes[xref]
+                hs = of(xref)
                 for code, gid, _o, _b in span["chars"]:
                     if not (0 <= gid < len(hs) and hs[gid] and 0x20 < code != 0xFFFD):
                         continue
@@ -136,11 +171,11 @@ def load() -> dict[str, str]:
     return db
 
 
-# The share of a PDF's glyph outlines the database knows: 0.87-1.0 in the
-# 1383-1403 PDFs, 0.24 in 1382 (fonts the database is not built from).  Near
-# zero means the outline hashes no longer match the database, for example
+# The share of a PDF's glyph outlines the database knows: 0.94-1.0 in the
+# 1383-1403 PDFs, 0.82 in 1382 (fonts the database is not built from).  Far
+# below means the outline hashes no longer match the database, for example
 # after a fontTools change to RecordingPen's output.
-MIN_COVERAGE = 0.1
+MIN_COVERAGE = 0.5
 
 
 def check_coverage(known: int, outlines: int, what: str, minimum: float = MIN_COVERAGE) -> None:
