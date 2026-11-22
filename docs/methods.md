@@ -566,10 +566,14 @@ across years, to `output/3_items/` and `output/4_groups/`).
 - Each extraction also writes `reports/extraction_<year>.csv`: the text it left
   out (not aligned to its column border, no code line within 30 pt, a code
   continuation with no header, a page number, a stray two-digit header, text
-  before the first section) and the glyphs it could not read (a broken font's
+  before the first section, a page whose text is turned sideways) and the glyphs it could not read (a broken font's
   glyph missing from the database, an unmapped glyph without a usable name),
   one row per reason and text with its count and pages. Most rows are table
   headings repeated on every page; the rest is what to look at in a new year.
+  Pages turned sideways (a /Rotate, or text drawn vertically on an upright
+  page) are not read: glyph boxes are read unrotated, so their text would fall
+  apart into letters. In every year they are the landscape income tables after
+  the expenditure part.
 - `correct.py` applies `curated/2_corrected/corrections.csv` and `curated/2_corrected/spelling.csv`
   to `output/1_extracted/` and checks the result against the household occurrence
   table. `spelling.py` writes the spelling suggestions from hazm's

@@ -7,7 +7,18 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from ..utils import OPT_SPACE, collapse_whitespace, has_letters, has_persian
-from .pdf_text import Discard, Line, Rule, Segment, VRule, page_count, page_lines, page_rules, page_vrules
+from .pdf_text import (
+    Discard,
+    Line,
+    Rule,
+    Segment,
+    VRule,
+    page_count,
+    page_lines,
+    page_rules,
+    page_turned,
+    page_vrules,
+)
 
 _CODE = r"(?:[AM] ?)?\d{2,5}(?: ?[AM])?"
 ITEM_RE = re.compile(rf"^(\d{{2}}) ({_CODE})(?: (.*))?$")
@@ -196,6 +207,7 @@ DROP_CODE_TAIL = "code continuation with no header to join"
 DROP_PAGE_NUMBER = "two-digit line with no text around it (page number?)"
 DROP_STRAY_TWO_DIGIT = "two-digit header with no code below it"
 DROP_BEFORE_SECTION = "before the first section heading"
+DROP_TURNED = "page turned sideways, not read (its text would run vertically)"
 
 
 def _page_entries(
@@ -339,42 +351,50 @@ def extract(
     (income).  A heading whose number drops below the current one also ends
     it (e.g. the income "بخش 3" in 1382).
 
+    Pages whose text is turned sideways are skipped (see ``page_turned``): in
+    every year they are landscape tables after the expenditure part (income).
+
     What is left out inside the expenditure pages, and glyphs that could not
-    be read, are appended to ``discards`` (pages before it are not).
+    be read, are appended to ``discards``.  Pages before the part are not
+    reported; on the page that ends it, only the text above the ending heading.
     """
     pdf = str(pdf_path)
     rows: list[Row] = []
     section: int | None = None
     for p in range(page_count(pdf)):
-        unread: list[Discard] = []  # glyphs; kept only for the expenditure pages
-        lines = page_lines(pdf, p, unread)
+        if page_turned(pdf, p):
+            if section is not None and discards is not None:
+                discards.append(Discard(p, None, DROP_TURNED, ""))
+            continue
+        page_discards: list[Discard] = []  # reported once the page is known to be in the part
+        lines = page_lines(pdf, p, page_discards)
         if section is not None and any(PART4_RE.match(x.text) for x in lines):
             break
         headings = [(ln.y, SECTION_RE.match(ln.text)) for ln in lines]
         headings = [(y, int(m.group(1)), m.group(2).strip()) for y, m in headings if m]
         if section is None and not any(num == 1 for _y, num, _t in headings):
             continue
-        if discards is not None:
-            discards.extend(unread)
         body = [ln for ln in lines if not SECTION_RE.match(ln.text)]
         rules, vrules = page_rules(pdf, p), page_vrules(pdf, p)
-        entries = _page_entries(body, rules, vrules, discards, p)
+        entries = _page_entries(body, rules, vrules, page_discards, p)
         if not old_scheme:
-            entries = _join_split_codes(entries, discards, p)
+            entries = _join_split_codes(entries, page_discards, p)
         # walk entries and headings top-to-bottom; a heading switches the section
         events = [(y, 0, h) for y, *h in headings] + [(e.line.y, 1, e) for e in entries]
         for _y, is_entry, ev in sorted(events, key=lambda t: (t[0], t[1])):
             if not is_entry:
                 num, title = ev
                 if section is not None and num < section:
+                    # the rest of the page belongs to the next part (income)
+                    if discards is not None:
+                        discards.extend(d for d in page_discards if d.y is not None and d.y < _y)
                     return _finish(rows, old_scheme)
                 if num != section:
                     section = num
                     rows.append(Row("section", num, "", None, title, p))
                 continue
             if section is None:
-                if discards is not None:
-                    discards.append(Discard(p, ev.line.y, DROP_BEFORE_SECTION, ev.line.text))
+                page_discards.append(Discard(p, ev.line.y, DROP_BEFORE_SECTION, ev.line.text))
                 continue
             e = ev
             div = _division(e.code)
@@ -400,6 +420,8 @@ def extract(
                     right=right,
                 )
             )
+        if discards is not None:
+            discards.extend(page_discards)
     return _finish(rows, old_scheme)
 
 

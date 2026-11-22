@@ -375,6 +375,24 @@ def page_count(pdf_path: str) -> int:
     return len(_open(pdf_path))
 
 
+def page_turned(pdf_path: str, page_no: int) -> bool:
+    """Is the page's text turned sideways: a /Rotate on the page (1386
+    p. 75), or most glyphs drawn running vertically on an upright page
+    (1397 p. 62)?  Glyph boxes are read unrotated, so the text of such a
+    page falls apart into vertical runs of letters."""
+    page = _open(pdf_path)[page_no]
+    if page.rotation:
+        return True
+    upright = sideways = 0
+    for span in page.get_texttrace():
+        n = len(span["chars"])
+        if abs(span["dir"][0]) >= 0.5:
+            upright += n
+        else:
+            sideways += n
+    return sideways > upright
+
+
 @dataclass
 class Rule:
     y: float

@@ -34,3 +34,15 @@ def test_repaired_fonts_keep_zwnj(year):
     text = (EXTRACTED / f"questionnaire_{year}.csv").read_text(encoding="utf-8-sig")
     assert "میوه‌گیری" in text  # 053214, printed with a final ه
     assert "میوهگیری" not in text
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("year", [1395, 1396, 1399, 1402])
+def test_repaired_fonts_read_every_glyph(year):
+    """Every glyph of the broken fonts is found in the glyph database (the
+    1396 isolated alef is learnt from 1387)."""
+    if not pdf_path(year, DATA).exists():
+        pytest.skip(f"no PDF for {year} in {DATA / 'pdf'}")
+    discards = []
+    extract_year(year, DATA, discards)
+    assert [d for d in discards if "glyph" in d.reason] == []

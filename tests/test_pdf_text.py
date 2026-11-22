@@ -11,6 +11,7 @@ from hiesir_codebook.extraction.pdf_text import (
     _needs_zwnj,
     group_lines,
     page_rules,
+    page_turned,
     page_vrules,
 )
 from hiesir_codebook.utils import ZWNJ
@@ -119,3 +120,15 @@ def test_page_rules(ruled_pdf):
 def test_page_vrules(ruled_pdf):
     vrules = sorted(page_vrules(ruled_pdf, 0), key=lambda v: v.x)
     assert vrules == [VRule(100, 100, 120), VRule(300, 100, 120), VRule(400, 10, 90)]
+
+
+def test_page_turned(tmp_path):
+    path = tmp_path / "turned.pdf"
+    doc = pymupdf.open()
+    doc.new_page().insert_text((50, 100), "upright text " * 5)
+    doc.new_page().insert_text((100, 700), "sideways text " * 5, rotate=90)  # 1397 p. 62
+    rotated = doc.new_page()
+    rotated.insert_text((50, 100), "landscape table " * 5)
+    rotated.set_rotation(90)  # 1386 p. 75
+    doc.save(path)
+    assert [page_turned(str(path), i) for i in range(3)] == [False, True, True]
