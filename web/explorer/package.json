@@ -1,0 +1,11 @@
+{
+  "name": "hiesir-explorer",
+  "private": true,
+  "description": "The HIESIR Codebook explorer as plain ES modules: core/ (no DOM) and the component. See README.md.",
+  "type": "module",
+  "exports": {
+    "./core/*": "./src/core/*.js",
+    "./i18n": "./src/i18n/index.js",
+    "./styles.css": "./styles/explorer.css"
+  }
+}

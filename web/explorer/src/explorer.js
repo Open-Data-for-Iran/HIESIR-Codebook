@@ -13,15 +13,13 @@
  * what it imports, into one script for the two pages.
  */
 import { STRINGS as T } from "./i18n/index.js";
+import { DEFAULT_KINDS, KINDS, corrChain, events } from "./core/changes.js";
+import { compare, gcompare } from "./core/compare.js";
+import { is11, model } from "./core/model.js";
+import { search } from "./core/search.js";
+import { codesSnippet } from "./core/snippets.js";
+import { FA_DIGITS, norm } from "./core/text.js";
 
-/* ---------- text normalisation for search ---------- */
-const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹", AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
-function norm(s) {
-  return s.replace(/[۰-۹]/g, d => FA_DIGITS.indexOf(d)).replace(/[٠-٩]/g, d => AR_DIGITS.indexOf(d))
-    .replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/[ةۀ]/g, "ه").replace(/[أإٱ]/g, "ا").replace(/ؤ/g, "و")
-    .replace(/[ً-ٰٟـ]/g, "")
-    .replace(/[‌‍\s.,،؛;:!؟?()«»"'\/\\\-–_]+/g, "").toLowerCase();
-}
 const esc = s => String(s ?? "").replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
 
 /* ---------- PDF.js, loaded from the CDN on the first click ---------- */
@@ -38,211 +36,6 @@ async function pdfDoc(url) {
     pdfDocs.set(url, task.promise.catch(err => { pdfDocs.delete(url); throw err; }));
   }
   return pdfDocs.get(url);
-}
-
-/* ---------- data model (shared by every mounted component) ---------- */
-function model(DATA) {
-  const YEARS = DATA.years, LAST = YEARS[YEARS.length - 1];
-  const CH = new Map(DATA.chains.map(c => [c.id, c])), G = DATA.groups || [];
-  for (const c of DATA.chains) {
-    const miss = new Set(c.miss);
-    c.years = YEARS.filter(y => y >= c.first && y <= c.last && !miss.has(y));
-    c.page = new Map(c.years.map((y, i) => [y, c.pg ? c.pg[i] : null]));
-    c.box = new Map(c.years.map((y, i) => [y, c.bx ? c.bx[i] : null]));
-    // its groups (indexes into DATA.groups, outermost first) in year y
-    c.groupsAt = y => { let g = []; for (const [y0, p] of c.gp || []) if (y0 <= y) g = p; return g; };
-    // its section in year y: some items moved (124113 and the insurance items
-    // went from section 12 to 13); c.s is the section of its first year
-    c.secAt = y => { const g = c.groupsAt(y); return (g.length && G[g[0]] && G[g[0]][3]) || c.s; };
-    c.ins = []; c.outs = [];
-    c.key = norm(c.text + " " + c.path.map(p => p[1]).join(" "));
-    c.key0 = norm(c.text);
-  }
-  for (const r of DATA.relations) {
-    for (const id of r.to) CH.get(id)?.ins.push(r);
-    for (const id of r.from) CH.get(id)?.outs.push(r);
-  }
-  const byCode = new Map();
-  for (const c of DATA.chains) (byCode.get(c.code) || byCode.set(c.code, []).get(c.code)).push(c);
-  // series: chains joined by one-to-one links (the same item reworded, or recoded)
-  const serOf = new Map(), SER = [];
-  for (const c of DATA.chains) {
-    if (serOf.has(c.id)) continue;
-    const comp = [], todo = [c], seen = new Set([c.id]);
-    while (todo.length) {
-      const x = todo.pop(); comp.push(x);
-      for (const r of [...x.ins, ...x.outs]) {
-        if (!is11(r)) continue;
-        for (const id of [r.from[0], r.to[0]]) {
-          const y = CH.get(id);
-          if (y && !seen.has(y.id)) { seen.add(y.id); todo.push(y); }
-        }
-      }
-    }
-    comp.sort((a, b) => a.first - b.first || a.last - b.last);
-    const s = { id: comp[0].id, chains: comp, years: [...new Set(comp.flatMap(x => x.years))].sort((a, b) => a - b) };
-    s.last = s.years[s.years.length - 1];
-    s.key = comp.map(x => x.key).join(" ");
-    s.at = y => s.chains.find(x => x.years.includes(y));
-    comp.forEach(x => serOf.set(x.id, s));
-    SER.push(s);
-  }
-  const RELS = DATA.relations.slice().sort((a, b) => a.year - b.year);
-  // the wording printed in year y (y null: the latest)
-  const runAt = (runs, y, latest) => { if (!runs || y == null) return latest; let l = runs[0][1]; for (const [y0, v] of runs) if (y0 <= y) l = v; return l; };
-  const groupLabel = (gi, y) => runAt(G[gi] && G[gi][4], y, G[gi] ? G[gi][1] : "");
-  const sectionTitle = (n, y) => runAt((DATA.sectionYears || {})[n], y, DATA.sections[n] || "");
-  /* heading pages: a group joined with the groups it continues as (a
-     "continued" link: the same heading recoded or reworded), and each
-     section; members(y): the chains printed under it in year y */
-  const GIDS = DATA.groupIds || [];
-  const MEM = G.map(() => new Map()), SMEM = new Map();
-  const put = (m, y, id) => (m.get(y) || m.set(y, new Set()).get(y)).add(id);
-  for (const c of DATA.chains) {
-    for (const y of c.years) {
-      for (const gi of c.groupsAt(y)) put(MEM[gi], y, c.id);
-      const sn = c.secAt(y);
-      put(SMEM.get(sn) || SMEM.set(sn, new Map()).get(sn), y, c.id);
-    }
-  }
-  const yearsOf = ms => YEARS.filter(y => ms.some(m => m.get(y)?.size));
-  const union = (ms, y) => { const u = new Set(); for (const m of ms) for (const id of m.get(y) || []) u.add(id); return u; };
-  const GY = MEM.map(m => yearsOf([m]));
-  const up = G.map((_, i) => i), root = i => (up[i] === i ? i : (up[i] = root(up[i])));
-  for (const [a, b, rel] of DATA.groupLinks || []) if (rel === "continued") up[root(b)] = root(a);
-  const byRoot = new Map();
-  G.forEach((_, i) => { const r = root(i); (byRoot.get(r) || byRoot.set(r, []).get(r)).push(i); });
-  const NODES = new Map(), nodeOfG = [];
-  for (const gis of byRoot.values()) {
-    gis.sort((a, b) => (GY[a][0] || 0) - (GY[b][0] || 0));
-    const ms = gis.map(i => MEM[i]), years = yearsOf(ms);
-    if (!years.length) continue;
-    const n = { kind: "g", gis, id: GIDS[gis[0]] || `g${gis[0]}`, years, last: years[years.length - 1], members: y => union(ms, y) };
-    // the group printed in year y (the latest one when it is not printed)
-    n.giAt = y => gis.find(i => MEM[i].get(y)?.size) ?? gis[gis.length - 1];
-    NODES.set(n.id, n);
-    gis.forEach(i => { nodeOfG[i] = n; });
-  }
-  for (const [sn, m] of [...SMEM].sort((a, b) => a[0] - b[0])) {
-    const years = yearsOf([m]);
-    NODES.set(`s${sn}`, { kind: "s", sec: sn, id: `s${sn}`, years, last: years[years.length - 1], members: y => m.get(y) || new Set() });
-  }
-  return { DATA, YEARS, LAST, CH, byCode, SER, serOf, RELS, G, GY, groupLabel, sectionTitle, NODES, nodeOfG, cmp: new Map(), gcmp: new Map() };
-}
-const is11 = r => (r.rel === "same" || r.rel === "recoded") && r.from.length === 1 && r.to.length === 1;
-const linked = c => c.ins.length || c.outs.length;
-
-/* How each year can express the target: the series' item as asked in year R.
-   Every relation says its two sides cover the same ground. Walking away from
-   R, a relation whose whole near side is in the target set swaps it for the
-   far side (exact: add those codes up); one that takes only part of it buries
-   the target inside items that also hold other things (not recoverable).
-   st: "ref" | 0 strictly comparable | 1 scope changed | 2 recoverable by adding
-   codes | 3 not recoverable | null not asked; set: the chains to add up (for 3:
-   the chains it is buried in). */
-const LEVEL = r => is11(r) ? (r.detail === "label_broadened" || r.detail === "label_narrowed" ? 1 : 0) : 2;
-const byCodeOrder = (a, b) => a.code.localeCompare(b.code);
-/* the chains ids (asked in year R) followed to every other year: for each
-   year the set that covers the same ground (set), those asked that year
-   (asked), the worst link crossed (lvl), the links that changed the scope
-   (via) and the first link that took only part of the set (broken) */
-function trace(M, ids, R) {
-  const out = new Map(), start = ids.map(id => M.CH.get(id)).filter(Boolean).sort(byCodeOrder);
-  out.set(R, { set: start, asked: start, lvl: 0, via: [], broken: null });
-  const walk = (years, rels, near, far, applies) => {
-    const S = new Set(ids), via = [];
-    let lvl = 0, broken = null, i = 0;
-    for (const y of years) {
-      while (i < rels.length && applies(rels[i], y)) {
-        const r = rels[i++], hit = r[near].filter(id => S.has(id));
-        if (!hit.length) continue;
-        r[near].forEach(id => S.delete(id));
-        r[far].forEach(id => S.add(id));
-        if (broken) continue;
-        if (hit.length === r[near].length) { lvl = Math.max(lvl, LEVEL(r)); if (LEVEL(r)) via.push(r); }
-        else broken = r;
-      }
-      const set = [...S].map(id => M.CH.get(id)).filter(Boolean).sort(byCodeOrder);
-      out.set(y, { set, asked: set.filter(x => x.years.includes(y)), lvl, via: [...via], broken });
-    }
-  };
-  walk(M.YEARS.filter(y => y > R), M.RELS.filter(r => r.year > R), "from", "to", (r, y) => r.year <= y);
-  walk(M.YEARS.filter(y => y < R).reverse(), M.RELS.filter(r => r.year <= R).reverse(), "to", "from", (r, y) => r.year > y);
-  return out;
-}
-function compare(M, s, R) {
-  const key = `${s.id}|${R}`;
-  if (M.cmp.has(key)) return M.cmp.get(key);
-  const out = new Map(), target = s.at(R);
-  M.cmp.set(key, out);
-  if (!target) return out;
-  for (const [y, e] of trace(M, [target.id], R)) {
-    if (y === R) { out.set(y, { st: "ref", set: [target], via: [] }); continue; }
-    if (!e.asked.length) { out.set(y, { st: null, set: [], via: [] }); continue; }
-    const partial = !e.broken && e.asked.length < e.set.length;
-    out.set(y, { st: e.broken || partial ? 3 : e.lvl, set: partial ? e.set : e.asked, via: e.via, broken: e.broken, partial });
-  }
-  return out;
-}
-
-/* How each year can express a heading (a group or a section) as printed
-   in year R: its items that year are followed through the relations to
-   every other year. Merges and splits inside the heading keep its total;
-   what differs is the items asked that year under other headings (plus,
-   to add), those under it that the reference year has elsewhere (moved)
-   or not at all (gone), both to remove, and those not asked that year
-   (miss). st: "ref" | 0 the same items | 1 scope changed (items not asked,
-   or a label broadened or narrowed) | 2 recoverable by adding or removing
-   codes | 3 not recoverable (an item split across its edge) | null */
-function gcompare(M, n, R) {
-  const key = `${n.id}|${R}`;
-  if (M.gcmp.has(key)) return M.gcmp.get(key);
-  const out = new Map();
-  M.gcmp.set(key, out);
-  const T = [...n.members(R)];
-  if (!T.length) return out;
-  const tr = trace(M, T, R);
-  for (const y of M.YEARS) {
-    const Gy = n.members(y), e = tr.get(y);
-    const mem = [...Gy].map(id => M.CH.get(id)).filter(Boolean).sort(byCodeOrder);
-    if (y === R) { out.set(y, { st: "ref", set: mem, mem, plus: [], moved: [], gone: [], miss: [], via: [] }); continue; }
-    const S = new Set(e.set.map(c => c.id));
-    const plus = e.asked.filter(c => !Gy.has(c.id));
-    const extra = mem.filter(c => !S.has(c.id));
-    const moved = extra.filter(c => M.serOf.get(c.id).years.includes(R)), gone = extra.filter(c => !moved.includes(c));
-    const miss = e.set.filter(c => !c.years.includes(y));
-    const via = e.via.filter(r => is11(r) && LEVEL(r) === 1);
-    if (!mem.length && !e.asked.length) { out.set(y, { st: null, set: [], mem, plus, moved, gone, miss, via }); continue; }
-    const st = e.broken ? 3 : miss.length ? 1 : plus.length || moved.length || gone.length ? 2 : via.length ? 1 : 0;
-    out.set(y, { st, set: e.asked, mem, plus, moved, gone, miss, via, broken: e.broken });
-  }
-  return out;
-}
-
-/* series matching a query: [series, rank, the chain that matched] */
-function search(M, q) {
-  const raw = q.trim();
-  if (!raw) return null;
-  const ascii = raw.replace(/[۰-۹]/g, d => FA_DIGITS.indexOf(d)).replace(/[٠-٩]/g, d => AR_DIGITS.indexOf(d));
-  const m = ascii.match(/^(\d+)(?:-(\d{4}))?$/);
-  const out = [];
-  if (m) {
-    const d = m[1], cands = new Set([d]);
-    if (d.length === 5 || d.length === 3) cands.add("0" + d);
-    for (const s of M.SER) {
-      const hit = [...s.chains].reverse().find(c => [...cands].some(x => c.code.startsWith(x)) && (!m[2] || c.id.endsWith(m[2])));
-      if (hit) out.push([s, cands.has(hit.code) ? 0 : 1, hit]);
-    }
-    return out;
-  }
-  const toks = raw.split(/\s+/).map(norm).filter(Boolean);
-  for (const s of M.SER) {
-    if (!toks.every(t => s.key.includes(t))) continue;
-    const hit = [...s.chains].reverse().find(c => toks.every(t => c.key0.includes(t)))
-      || [...s.chains].reverse().find(c => toks.every(t => c.key.includes(t))) || s.chains[s.chains.length - 1];
-    out.push([s, (toks.every(t => hit.key0.includes(t)) ? 0 : 2) + (hit.key0.startsWith(toks[0]) ? 0 : 1), hit]);
-  }
-  return out;
 }
 
 /* ---------- one mounted component ---------- */
@@ -686,13 +479,8 @@ function mount(root, M) {
       return `<div class="use"><span class="yrs">${ranges(u.ys)}</span><span class="codes gcodes">${t.g.items(num(e.mem.length))}${body}</span>` +
         `<span class="st"><i class="sw s${u.k}"></i>${e.st === "ref" ? t.cm.ref : t.g.st[u.k]}</span></div>`;
     }).join("") + `</div>`;
-    const py = [t.g.pyHead(n.id, R), "# codes to add up in each year (the raw data's Commodity_Code)", "codes = {"];
-    for (const y of M.YEARS) {
-      const e = cmp.get(y);
-      if (e && e.st !== null && e.st !== 3) py.push(`    ${y}: [${e.set.map(x => Number(x.code)).join(", ")}],`);
-    }
-    py.push("}");
-    h += `<div class="note">${t.g.useNote(yr(R))}</div><button type="button" class="copy" data-copy="${esc(py.join("\n"))}">${t.cm.copy}</button>`;
+    const py = codesSnippet(M.YEARS, cmp, t.g.pyHead(n.id, R));
+    h += `<div class="note">${t.g.useNote(yr(R))}</div><button type="button" class="copy" data-copy="${esc(py)}">${t.cm.copy}</button>`;
 
     // what is under it in the reference year: its subgroups, then its items
     const depth = gi !== null ? path.indexOf(gi) + 1 : 0, subs = new Map();
@@ -766,17 +554,11 @@ function mount(root, M) {
       if (last && last.k === k && last.codes === codes && M.YEARS.indexOf(y) === M.YEARS.indexOf(last.ys[last.ys.length - 1]) + 1) last.ys.push(y);
       else use.push({ k, codes, ys: [y], e });
     }
-    const py = [`# HIESIR Codebook, series ${s.id}: the item as asked in ${R}`,
-      "# codes to add up in each year (the raw data's Commodity_Code)", "codes = {"];
-    for (const y of M.YEARS) {
-      const e = cmp.get(y);
-      if (e && e.st !== null && e.st !== 3) py.push(`    ${y}: [${e.set.map(x => Number(x.code)).join(", ")}],`);
-    }
-    py.push("}");
+    const py = codesSnippet(M.YEARS, cmp, `# HIESIR Codebook, series ${s.id}: the item as asked in ${R}`);
     h += `<h3>${t.cm.useTitle}</h3><div class="uses">` + use.map(u => `<div class="use"><span class="yrs">${ranges(u.ys)}</span>` +
       `<span class="codes">${u.k === 3 ? `<span class="muted">${esc(u.e.partial ? t.cm.partial(u.codes) : t.cm.inside(u.e.set.map(x => x.code).join(fa ? "، " : ", ")))}</span>` : u.codes.split(" + ").map(code).join(" + ")}</span>` +
       `<span class="st"><i class="sw s${u.k}"></i>${t.cm.st[u.k]}</span></div>`).join("") + `</div>` +
-      `<div class="note">${t.cm.useNote(yr(R))}</div><button type="button" class="copy" data-copy="${esc(py.join("\n"))}">${t.cm.copy}</button>`;
+      `<div class="note">${t.cm.useNote(yr(R))}</div><button type="button" class="copy" data-copy="${esc(py)}">${t.cm.copy}</button>`;
 
     // wording history: the chains of the series
     if (s.chains.length > 1) {
@@ -887,53 +669,8 @@ function mount(root, M) {
     if (window.innerWidth <= 860) elDetail.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  const isScope = r => r.rel === "same" && r.detail && r.detail !== "minor";
   const prevOf = y => M.YEARS[M.YEARS.indexOf(y) - 1];
-
-  /* ---------- changes by year ----------
-     Every change is one event: its kind, year, section (where its items
-     sit that year) and the number of items it involves: 1 for a new,
-     dropped, recoded or reworded item, the larger side of a merge, split
-     or regrouping (99 merges that took in 261 items count 261), one per
-     link between group headings and one per correction. */
-  const KINDS = ["added", "dropped", "recoded", "merged", "split", "regrouped", "scope", "groups", "corr"];
-  const DEFAULT_KINDS = KINDS.filter(k => k !== "groups" && k !== "corr");
-  let EV = null, lastKind = null, lastKindAt = 0, soloBefore = null;
-  function corrChain(k) {
-    const y = +k.year;
-    for (const cd of [k.value, k.expenditure_code]) {
-      const cs = M.byCode.get(cd) || [];
-      const c = cs.find(x => x.years.includes(y)) || cs[0];
-      if (c) return c;
-    }
-    return null;
-  }
-  function corrSec(k) {
-    if (k.action === "add_section") return +k.description;
-    const c = corrChain(k);
-    if (c) return c.secAt(+k.year);
-    const g = M.G.find(g => g[0] === k.expenditure_code || g[0] === k.value);
-    return g ? g[3] : null;
-  }
-  function events() {
-    if (EV) return EV;
-    EV = [];
-    for (const r of M.DATA.relations) {
-      const kind = r.rel === "same" ? (isScope(r) ? "scope" : null) : r.rel;
-      if (!kind) continue;
-      const tgt = M.CH.get(r.to[0]), src = M.CH.get(r.from[0]);
-      EV.push({ kind, y: r.year, sec: tgt ? tgt.secAt(r.year) : src ? src.secAt(prevOf(r.year)) : null, n: Math.max(r.from.length, r.to.length), r });
-    }
-    for (const c of M.DATA.chains) {
-      const y = c.years[0], last = c.years[c.years.length - 1];
-      if (y !== M.YEARS[0] && !c.ins.some(r => r.year === y)) EV.push({ kind: "added", y, sec: c.secAt(y), n: 1, c });
-      const next = M.YEARS[M.YEARS.indexOf(last) + 1];
-      if (next && !c.outs.some(r => r.year === next)) EV.push({ kind: "dropped", y: next, sec: c.secAt(last), n: 1, c });
-    }
-    for (const g of M.DATA.groupLinks || []) EV.push({ kind: "groups", y: g[3], sec: M.G[g[1]][3], n: 1, g });
-    for (const k of M.DATA.corrections) EV.push({ kind: "corr", y: +k.year, sec: corrSec(k), n: 1, k });
-    return EV;
-  }
+  let lastKind = null, lastKindAt = 0, soloBefore = null;
   // the selection: a cell (section and year), a row (section), a column (year) or nothing
   const ch = { sec: null, y: null, kinds: new Set(DEFAULT_KINDS) };
   const inSel = e => (ch.sec === null || e.sec === ch.sec) && (ch.y === null || e.y === ch.y);
@@ -948,7 +685,7 @@ function mount(root, M) {
   function setChanges() { setHash(changesHash()); renderChanges(); }
 
   function renderChanges() {
-    const ev = events(), secs = Object.keys(M.DATA.sections).map(Number), ys = M.YEARS;
+    const ev = events(M), secs = Object.keys(M.DATA.sections).map(Number), ys = M.YEARS;
     const on = ev.filter(e => ch.kinds.has(e.kind));
     const cnt = new Map(), rowT = new Map(), colT = new Map();
     let max = 1, total = 0;
@@ -1020,7 +757,7 @@ function mount(root, M) {
       if (e.r) return `<div class="yi">${side(e.r.from)}<span class="arrow">${ARROW}</span>${side(e.r.to)}<div class="reason">${tag(e)}${relPills(e.r)}</div></div>`;
       if (e.c) return `<div class="yi single">${chainLink(e.c)}<div>${fat(e.c.text)}</div><div class="reason">${tag(e)}<span class="pill">${ylabel(e.c)}</span></div></div>`;
       if (e.g) return `<div class="yi">${gside(e.g[0], prevOf(e.y))}<span class="arrow">${ARROW}</span>${gside(e.g[1], e.y)}<div class="reason">${tag(e)}<span class="pill info">${t.ch.grel[e.g[2]] || e.g[2]}</span> ${t.ch.moved(num(e.g[4]))}</div></div>`;
-      const k = e.k, c = corrChain(k), y = +k.year, pg = c && c.page.get(y);
+      const k = e.k, c = corrChain(M, k), y = +k.year, pg = c && c.page.get(y);
       return `<div class="yi single">${code(k.expenditure_code || "—")}<div><span class="pill warn">${esc(k.action)}</span> ${fat(k.description)}` +
         `${k.value ? ` ${ARROW} ${/^\d+$/.test(k.value) ? code(k.value) : fat(k.value)}` : ""}` +
         (pdfBase && pg ? ` <a class="doc" href="${pdfUrl(c, y)}" target="_blank" rel="noopener" data-pdf="${esc(c.id)}" data-year="${y}" title="${esc(t.openPdf(yr(y), num(pg)))}"></a>` : "") +

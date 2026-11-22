@@ -773,51 +773,99 @@ const { fa } = $m1;
 const STRINGS = { en, fa };
 return { STRINGS };
 })();
-// ---- explorer.js
+// ---- core/changes.js
 const $m3 = (() => {
-/* HIES explorer: search and browse the questionnaire items across years.
+/* Changes by year: what each questionnaire changed. No DOM.
  *
- * Mounts into every element with class "hx". Attributes on that element:
- *   data-lang  "en" or "fa" (Farsi switches the whole component to right-to-left)
- *   data-root  URL prefix of the published files (3_items/, 2_corrected/)
- *   data-src   URL of data.json; omitted when window.HX_DATA is embedded
- *   data-docs  URL of the methods page (optional)
- *   data-pdf   URL prefix of the questionnaire PDFs (optional); items then link
- *              to the page they are printed on
- * Used both by the standalone page (output/explorer/index.html) and by the
- * MkDocs page (docs/explorer.md), so the two never drift apart. The text it
- * shows is in i18n/. An ES module: hiesir_codebook.explorer bundles it, with
- * what it imports, into one script for the two pages.
+ * Every change is one event: its kind, year, section (where its items sit
+ * that year) and the number of items it involves: 1 for a new, dropped,
+ * recoded or reworded item, the larger side of a merge, split or regrouping
+ * (99 merges that took in 261 items count 261), one per link between group
+ * headings and one per correction.
  */
-const { STRINGS: T } = $m2;
 
-/* ---------- text normalisation for search ---------- */
+const isScope = r => r.rel === "same" && r.detail && r.detail !== "minor";
+const prevOf = (M, y) => M.YEARS[M.YEARS.indexOf(y) - 1];
+
+const KINDS = ["added", "dropped", "recoded", "merged", "split", "regrouped", "scope", "groups", "corr"];
+const DEFAULT_KINDS = KINDS.filter(k => k !== "groups" && k !== "corr");
+
+/* the chain a correction is about, in its year */
+function corrChain(M, k) {
+  const y = +k.year;
+  for (const cd of [k.value, k.expenditure_code]) {
+    const cs = M.byCode.get(cd) || [];
+    const c = cs.find(x => x.years.includes(y)) || cs[0];
+    if (c) return c;
+  }
+  return null;
+}
+/* the section a correction is in */
+function corrSec(M, k) {
+  if (k.action === "add_section") return +k.description;
+  const c = corrChain(M, k);
+  if (c) return c.secAt(+k.year);
+  const g = M.G.find(g => g[0] === k.expenditure_code || g[0] === k.value);
+  return g ? g[3] : null;
+}
+/* every event, computed once per model (kept on M.events) */
+function events(M) {
+  if (M.events) return M.events;
+  const EV = (M.events = []);
+  for (const r of M.DATA.relations) {
+    const kind = r.rel === "same" ? (isScope(r) ? "scope" : null) : r.rel;
+    if (!kind) continue;
+    const tgt = M.CH.get(r.to[0]), src = M.CH.get(r.from[0]);
+    EV.push({ kind, y: r.year, sec: tgt ? tgt.secAt(r.year) : src ? src.secAt(prevOf(M, r.year)) : null, n: Math.max(r.from.length, r.to.length), r });
+  }
+  for (const c of M.DATA.chains) {
+    const y = c.years[0], last = c.years[c.years.length - 1];
+    if (y !== M.YEARS[0] && !c.ins.some(r => r.year === y)) EV.push({ kind: "added", y, sec: c.secAt(y), n: 1, c });
+    const next = M.YEARS[M.YEARS.indexOf(last) + 1];
+    if (next && !c.outs.some(r => r.year === next)) EV.push({ kind: "dropped", y: next, sec: c.secAt(last), n: 1, c });
+  }
+  for (const g of M.DATA.groupLinks || []) EV.push({ kind: "groups", y: g[3], sec: M.G[g[1]][3], n: 1, g });
+  for (const k of M.DATA.corrections) EV.push({ kind: "corr", y: +k.year, sec: corrSec(M, k), n: 1, k });
+  return EV;
+}
+return { KINDS, DEFAULT_KINDS, corrChain, corrSec, events };
+})();
+// ---- core/text.js
+const $m4 = (() => {
+/* Text helpers for search: Persian and Arabic digits, letter forms. No DOM. */
+
 const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹", AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
+
+/* Persian and Arabic digits as 0-9 */
+function latinDigits(s) {
+  return s.replace(/[۰-۹]/g, d => FA_DIGITS.indexOf(d)).replace(/[٠-٩]/g, d => AR_DIGITS.indexOf(d));
+}
+
+/* a search key: digits as 0-9, Arabic letter forms as Persian, without
+   diacritics, tatweel, ZWNJ, spaces or punctuation, lower case */
 function norm(s) {
-  return s.replace(/[۰-۹]/g, d => FA_DIGITS.indexOf(d)).replace(/[٠-٩]/g, d => AR_DIGITS.indexOf(d))
+  return latinDigits(s)
     .replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/[ةۀ]/g, "ه").replace(/[أإٱ]/g, "ا").replace(/ؤ/g, "و")
     .replace(/[ً-ٰٟـ]/g, "")
     .replace(/[‌‍\s.,،؛;:!؟?()«»"'\/\\\-–_]+/g, "").toLowerCase();
 }
-const esc = s => String(s ?? "").replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+return { FA_DIGITS, latinDigits, norm };
+})();
+// ---- core/model.js
+const $m5 = (() => {
+/* The data model: data.json (see data.d.ts) indexed for the views. No DOM.
+ *
+ * model(DATA) adds to each chain its years, pages and boxes by year, its
+ * groups and section by year, its links in and out and its search keys;
+ * joins chains linked one to one into series (an item reworded or recoded)
+ * and groups continued under another code into heading nodes; and returns
+ * the indexes the views use, with caches for compare() and gcompare().
+ */
+const { norm } = $m4;
 
-/* ---------- PDF.js, loaded from the CDN on the first click ---------- */
-const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/";
-let pdfjsLib = null;
-const pdfDocs = new Map();
-async function pdfDoc(url) {
-  if (!pdfjsLib) {
-    pdfjsLib = await import(PDFJS + "pdf.min.mjs");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.mjs";
-  }
-  if (!pdfDocs.has(url)) {
-    const task = pdfjsLib.getDocument({ url, isEvalSupported: false });
-    pdfDocs.set(url, task.promise.catch(err => { pdfDocs.delete(url); throw err; }));
-  }
-  return pdfDocs.get(url);
-}
+/* a one-to-one link: the same item, maybe reworded or recoded */
+const is11 = r => (r.rel === "same" || r.rel === "recoded") && r.from.length === 1 && r.to.length === 1;
 
-/* ---------- data model (shared by every mounted component) ---------- */
 function model(DATA) {
   const YEARS = DATA.years, LAST = YEARS[YEARS.length - 1];
   const CH = new Map(DATA.chains.map(c => [c.id, c])), G = DATA.groups || [];
@@ -904,10 +952,15 @@ function model(DATA) {
     const years = yearsOf([m]);
     NODES.set(`s${sn}`, { kind: "s", sec: sn, id: `s${sn}`, years, last: years[years.length - 1], members: y => m.get(y) || new Set() });
   }
-  return { DATA, YEARS, LAST, CH, byCode, SER, serOf, RELS, G, GY, groupLabel, sectionTitle, NODES, nodeOfG, cmp: new Map(), gcmp: new Map() };
+  return { DATA, YEARS, LAST, CH, byCode, SER, serOf, RELS, G, GY, groupLabel, sectionTitle, NODES, nodeOfG, cmp: new Map(), gcmp: new Map(), events: null };
 }
-const is11 = r => (r.rel === "same" || r.rel === "recoded") && r.from.length === 1 && r.to.length === 1;
-const linked = c => c.ins.length || c.outs.length;
+return { is11, model };
+})();
+// ---- core/compare.js
+const $m6 = (() => {
+/* Comparability across years: how each year can express an item or a
+ * heading as asked in a reference year. No DOM. */
+const { is11 } = $m5;
 
 /* How each year can express the target: the series' item as asked in year R.
    Every relation says its two sides cover the same ground. Walking away from
@@ -995,12 +1048,18 @@ function gcompare(M, n, R) {
   }
   return out;
 }
+return { trace, compare, gcompare };
+})();
+// ---- core/search.js
+const $m7 = (() => {
+/* Search: series matching a code or Persian text. No DOM. */
+const { latinDigits, norm } = $m4;
 
 /* series matching a query: [series, rank, the chain that matched] */
 function search(M, q) {
   const raw = q.trim();
   if (!raw) return null;
-  const ascii = raw.replace(/[۰-۹]/g, d => FA_DIGITS.indexOf(d)).replace(/[٠-٩]/g, d => AR_DIGITS.indexOf(d));
+  const ascii = latinDigits(raw);
   const m = ascii.match(/^(\d+)(?:-(\d{4}))?$/);
   const out = [];
   if (m) {
@@ -1020,6 +1079,66 @@ function search(M, q) {
     out.push([s, (toks.every(t => hit.key0.includes(t)) ? 0 : 2) + (hit.key0.startsWith(toks[0]) ? 0 : 1), hit]);
   }
   return out;
+}
+return { search };
+})();
+// ---- core/snippets.js
+const $m8 = (() => {
+/* Code to copy: the codes to add up in each year, as Python. No DOM. */
+
+/* cmp: a comparison from compare() or gcompare(); the years it cannot
+   express (not asked, or not recoverable) are left out */
+function codesSnippet(years, cmp, header) {
+  const py = [header, "# codes to add up in each year (the raw data's Commodity_Code)", "codes = {"];
+  for (const y of years) {
+    const e = cmp.get(y);
+    if (e && e.st !== null && e.st !== 3) py.push(`    ${y}: [${e.set.map(x => Number(x.code)).join(", ")}],`);
+  }
+  py.push("}");
+  return py.join("\n");
+}
+return { codesSnippet };
+})();
+// ---- explorer.js
+const $m9 = (() => {
+/* HIES explorer: search and browse the questionnaire items across years.
+ *
+ * Mounts into every element with class "hx". Attributes on that element:
+ *   data-lang  "en" or "fa" (Farsi switches the whole component to right-to-left)
+ *   data-root  URL prefix of the published files (3_items/, 2_corrected/)
+ *   data-src   URL of data.json; omitted when window.HX_DATA is embedded
+ *   data-docs  URL of the methods page (optional)
+ *   data-pdf   URL prefix of the questionnaire PDFs (optional); items then link
+ *              to the page they are printed on
+ * Used both by the standalone page (output/explorer/index.html) and by the
+ * MkDocs page (docs/explorer.md), so the two never drift apart. The text it
+ * shows is in i18n/. An ES module: hiesir_codebook.explorer bundles it, with
+ * what it imports, into one script for the two pages.
+ */
+const { STRINGS: T } = $m2;
+const { DEFAULT_KINDS, KINDS, corrChain, events } = $m3;
+const { compare, gcompare } = $m6;
+const { is11, model } = $m5;
+const { search } = $m7;
+const { codesSnippet } = $m8;
+const { FA_DIGITS, norm } = $m4;
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+
+/* ---------- PDF.js, loaded from the CDN on the first click ---------- */
+const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/";
+let pdfjsLib = null;
+const pdfDocs = new Map();
+async function pdfDoc(url) {
+  if (!pdfjsLib) {
+    pdfjsLib = await import(PDFJS + "pdf.min.mjs");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.mjs";
+  }
+  if (!pdfDocs.has(url)) {
+    const task = pdfjsLib.getDocument({ url, isEvalSupported: false });
+    pdfDocs.set(url, task.promise.catch(err => { pdfDocs.delete(url); throw err; }));
+  }
+  return pdfDocs.get(url);
 }
 
 /* ---------- one mounted component ---------- */
@@ -1463,13 +1582,8 @@ function mount(root, M) {
       return `<div class="use"><span class="yrs">${ranges(u.ys)}</span><span class="codes gcodes">${t.g.items(num(e.mem.length))}${body}</span>` +
         `<span class="st"><i class="sw s${u.k}"></i>${e.st === "ref" ? t.cm.ref : t.g.st[u.k]}</span></div>`;
     }).join("") + `</div>`;
-    const py = [t.g.pyHead(n.id, R), "# codes to add up in each year (the raw data's Commodity_Code)", "codes = {"];
-    for (const y of M.YEARS) {
-      const e = cmp.get(y);
-      if (e && e.st !== null && e.st !== 3) py.push(`    ${y}: [${e.set.map(x => Number(x.code)).join(", ")}],`);
-    }
-    py.push("}");
-    h += `<div class="note">${t.g.useNote(yr(R))}</div><button type="button" class="copy" data-copy="${esc(py.join("\n"))}">${t.cm.copy}</button>`;
+    const py = codesSnippet(M.YEARS, cmp, t.g.pyHead(n.id, R));
+    h += `<div class="note">${t.g.useNote(yr(R))}</div><button type="button" class="copy" data-copy="${esc(py)}">${t.cm.copy}</button>`;
 
     // what is under it in the reference year: its subgroups, then its items
     const depth = gi !== null ? path.indexOf(gi) + 1 : 0, subs = new Map();
@@ -1543,17 +1657,11 @@ function mount(root, M) {
       if (last && last.k === k && last.codes === codes && M.YEARS.indexOf(y) === M.YEARS.indexOf(last.ys[last.ys.length - 1]) + 1) last.ys.push(y);
       else use.push({ k, codes, ys: [y], e });
     }
-    const py = [`# HIESIR Codebook, series ${s.id}: the item as asked in ${R}`,
-      "# codes to add up in each year (the raw data's Commodity_Code)", "codes = {"];
-    for (const y of M.YEARS) {
-      const e = cmp.get(y);
-      if (e && e.st !== null && e.st !== 3) py.push(`    ${y}: [${e.set.map(x => Number(x.code)).join(", ")}],`);
-    }
-    py.push("}");
+    const py = codesSnippet(M.YEARS, cmp, `# HIESIR Codebook, series ${s.id}: the item as asked in ${R}`);
     h += `<h3>${t.cm.useTitle}</h3><div class="uses">` + use.map(u => `<div class="use"><span class="yrs">${ranges(u.ys)}</span>` +
       `<span class="codes">${u.k === 3 ? `<span class="muted">${esc(u.e.partial ? t.cm.partial(u.codes) : t.cm.inside(u.e.set.map(x => x.code).join(fa ? "، " : ", ")))}</span>` : u.codes.split(" + ").map(code).join(" + ")}</span>` +
       `<span class="st"><i class="sw s${u.k}"></i>${t.cm.st[u.k]}</span></div>`).join("") + `</div>` +
-      `<div class="note">${t.cm.useNote(yr(R))}</div><button type="button" class="copy" data-copy="${esc(py.join("\n"))}">${t.cm.copy}</button>`;
+      `<div class="note">${t.cm.useNote(yr(R))}</div><button type="button" class="copy" data-copy="${esc(py)}">${t.cm.copy}</button>`;
 
     // wording history: the chains of the series
     if (s.chains.length > 1) {
@@ -1664,53 +1772,8 @@ function mount(root, M) {
     if (window.innerWidth <= 860) elDetail.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  const isScope = r => r.rel === "same" && r.detail && r.detail !== "minor";
   const prevOf = y => M.YEARS[M.YEARS.indexOf(y) - 1];
-
-  /* ---------- changes by year ----------
-     Every change is one event: its kind, year, section (where its items
-     sit that year) and the number of items it involves: 1 for a new,
-     dropped, recoded or reworded item, the larger side of a merge, split
-     or regrouping (99 merges that took in 261 items count 261), one per
-     link between group headings and one per correction. */
-  const KINDS = ["added", "dropped", "recoded", "merged", "split", "regrouped", "scope", "groups", "corr"];
-  const DEFAULT_KINDS = KINDS.filter(k => k !== "groups" && k !== "corr");
-  let EV = null, lastKind = null, lastKindAt = 0, soloBefore = null;
-  function corrChain(k) {
-    const y = +k.year;
-    for (const cd of [k.value, k.expenditure_code]) {
-      const cs = M.byCode.get(cd) || [];
-      const c = cs.find(x => x.years.includes(y)) || cs[0];
-      if (c) return c;
-    }
-    return null;
-  }
-  function corrSec(k) {
-    if (k.action === "add_section") return +k.description;
-    const c = corrChain(k);
-    if (c) return c.secAt(+k.year);
-    const g = M.G.find(g => g[0] === k.expenditure_code || g[0] === k.value);
-    return g ? g[3] : null;
-  }
-  function events() {
-    if (EV) return EV;
-    EV = [];
-    for (const r of M.DATA.relations) {
-      const kind = r.rel === "same" ? (isScope(r) ? "scope" : null) : r.rel;
-      if (!kind) continue;
-      const tgt = M.CH.get(r.to[0]), src = M.CH.get(r.from[0]);
-      EV.push({ kind, y: r.year, sec: tgt ? tgt.secAt(r.year) : src ? src.secAt(prevOf(r.year)) : null, n: Math.max(r.from.length, r.to.length), r });
-    }
-    for (const c of M.DATA.chains) {
-      const y = c.years[0], last = c.years[c.years.length - 1];
-      if (y !== M.YEARS[0] && !c.ins.some(r => r.year === y)) EV.push({ kind: "added", y, sec: c.secAt(y), n: 1, c });
-      const next = M.YEARS[M.YEARS.indexOf(last) + 1];
-      if (next && !c.outs.some(r => r.year === next)) EV.push({ kind: "dropped", y: next, sec: c.secAt(last), n: 1, c });
-    }
-    for (const g of M.DATA.groupLinks || []) EV.push({ kind: "groups", y: g[3], sec: M.G[g[1]][3], n: 1, g });
-    for (const k of M.DATA.corrections) EV.push({ kind: "corr", y: +k.year, sec: corrSec(k), n: 1, k });
-    return EV;
-  }
+  let lastKind = null, lastKindAt = 0, soloBefore = null;
   // the selection: a cell (section and year), a row (section), a column (year) or nothing
   const ch = { sec: null, y: null, kinds: new Set(DEFAULT_KINDS) };
   const inSel = e => (ch.sec === null || e.sec === ch.sec) && (ch.y === null || e.y === ch.y);
@@ -1725,7 +1788,7 @@ function mount(root, M) {
   function setChanges() { setHash(changesHash()); renderChanges(); }
 
   function renderChanges() {
-    const ev = events(), secs = Object.keys(M.DATA.sections).map(Number), ys = M.YEARS;
+    const ev = events(M), secs = Object.keys(M.DATA.sections).map(Number), ys = M.YEARS;
     const on = ev.filter(e => ch.kinds.has(e.kind));
     const cnt = new Map(), rowT = new Map(), colT = new Map();
     let max = 1, total = 0;
@@ -1797,7 +1860,7 @@ function mount(root, M) {
       if (e.r) return `<div class="yi">${side(e.r.from)}<span class="arrow">${ARROW}</span>${side(e.r.to)}<div class="reason">${tag(e)}${relPills(e.r)}</div></div>`;
       if (e.c) return `<div class="yi single">${chainLink(e.c)}<div>${fat(e.c.text)}</div><div class="reason">${tag(e)}<span class="pill">${ylabel(e.c)}</span></div></div>`;
       if (e.g) return `<div class="yi">${gside(e.g[0], prevOf(e.y))}<span class="arrow">${ARROW}</span>${gside(e.g[1], e.y)}<div class="reason">${tag(e)}<span class="pill info">${t.ch.grel[e.g[2]] || e.g[2]}</span> ${t.ch.moved(num(e.g[4]))}</div></div>`;
-      const k = e.k, c = corrChain(k), y = +k.year, pg = c && c.page.get(y);
+      const k = e.k, c = corrChain(M, k), y = +k.year, pg = c && c.page.get(y);
       return `<div class="yi single">${code(k.expenditure_code || "—")}<div><span class="pill warn">${esc(k.action)}</span> ${fat(k.description)}` +
         `${k.value ? ` ${ARROW} ${/^\d+$/.test(k.value) ? code(k.value) : fat(k.value)}` : ""}` +
         (pdfBase && pg ? ` <a class="doc" href="${pdfUrl(c, y)}" target="_blank" rel="noopener" data-pdf="${esc(c.id)}" data-year="${y}" title="${esc(t.openPdf(yr(y), num(pg)))}"></a>` : "") +

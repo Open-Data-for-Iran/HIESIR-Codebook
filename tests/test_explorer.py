@@ -1,3 +1,4 @@
+import json
 import shutil
 import subprocess
 from pathlib import Path
@@ -109,13 +110,67 @@ def test_component_bundles():
     """web/explorer/ bundles into one script holding both languages, and
     (when Node is installed) the script parses."""
     js = explorer.bundle_js()
-    for part in ("i18n/en.js", "i18n/fa.js", "i18n/index.js", "explorer.js"):
+    for part in ("i18n/en.js", "i18n/fa.js", "core/model.js", "core/search.js", "explorer.js"):
         assert f"// ---- {part}\n" in js
     assert js.count("tabs: {") == 2  # an English and a Farsi set of strings
     assert '@import "' not in explorer.bundle_css()
     if shutil.which("node"):
         r = subprocess.run(["node", "--check", "-"], input=js, capture_output=True, encoding="utf-8")
         assert r.returncode == 0, r.stderr
+
+
+CORE_CHECK = """
+import { readFileSync } from "node:fs";
+import { model } from "CORE/model.js";
+import { compare, gcompare } from "CORE/compare.js";
+import { search } from "CORE/search.js";
+import { events, KINDS } from "CORE/changes.js";
+import { codesSnippet } from "CORE/snippets.js";
+import { norm } from "CORE/text.js";
+
+const M = model(JSON.parse(readFileSync(process.argv[2], "utf8")));
+const ids = res => res.map(([s, rank, hit]) => [hit.id, rank]);
+const rice = M.serOf.get("011111-1383");
+const st = cmp => Object.fromEntries([...cmp].map(([y, e]) => [y, e.st]));
+console.log(JSON.stringify({
+  norm: norm("كتاب‌ها ۱۲"),
+  code: ids(search(M, "011111")).slice(0, 1),
+  short: ids(search(M, "11114")).map(([id]) => id.slice(0, 6)),
+  text: search(M, "برنج").length,
+  rice: st(compare(M, rice, 1403)),
+  cereals: st(gcompare(M, M.NODES.get("0111-1383"), 1403))[1403],
+  kinds: [...new Set(events(M).map(e => e.kind))].every(k => KINDS.includes(k)),
+  events: events(M).length,
+  snippet: codesSnippet(M.YEARS, compare(M, rice, 1403), "# rice").split("\\n").slice(0, 4),
+}));
+"""
+
+
+@pytest.mark.skipif(not shutil.which("node"), reason="needs Node")
+def test_core_runs_on_its_own(tmp_path):
+    """web/explorer/src/core/ needs no DOM and no bundling: Node imports it as
+    it is and runs it on the real data."""
+    data = tmp_path / "data.json"
+    data.write_text(explorer.to_json(_collect()), encoding="utf-8")
+    script = tmp_path / "check.mjs"
+    core = (explorer.WEB / "src" / "core").as_uri() + "/"
+    script.write_text(CORE_CHECK.replace("CORE/", core), encoding="utf-8")
+    r = subprocess.run(["node", str(script), str(data)], capture_output=True, encoding="utf-8")
+    assert r.returncode == 0, r.stderr
+    out = json.loads(r.stdout)
+    assert out["norm"] == "کتابها12"  # Arabic letter forms, ZWNJ, Persian digits
+    assert out["code"] == [["011111-1383", 0]]
+    assert "011114" in out["short"]  # the raw data's 5-digit code finds the 6-digit one
+    assert out["text"] > 0
+    assert out["rice"]["1403"] == "ref" and set(out["rice"].values()) == {"ref", 0}
+    assert out["cereals"] == "ref"
+    assert out["kinds"] and out["events"] > 100
+    assert out["snippet"] == [
+        "# rice",
+        "# codes to add up in each year (the raw data's Commodity_Code)",
+        "codes = {",
+        "    1383: [11111],",
+    ]
 
 
 def test_docs_page_and_standalone_share_the_component():
