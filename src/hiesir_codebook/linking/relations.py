@@ -86,7 +86,6 @@ already exists or names unknown chains) is reported as stale.
 from __future__ import annotations
 
 import argparse
-import csv
 import difflib
 import itertools
 from collections import Counter
@@ -94,7 +93,7 @@ from dataclasses import dataclass, field
 from functools import cache
 from pathlib import Path
 
-from .. import CURATED_ITEMS, ITEMS, REPORTS
+from .. import CURATED_ITEMS, ITEMS, REPORTS, csv_io
 from ..occurrence import OCCURRENCE, Occurrence, load_occurrence
 from ..utils import loose_key, words
 from .chains import Chain, read_chains
@@ -464,22 +463,20 @@ def load_decisions(path: Path = DECISIONS, links: bool | None = None) -> list[De
     ``curated/3_items/links.csv`` (guessed from the header when None)."""
     if not path.exists():
         return []
-    with open(path, encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        if links is None:
-            links = "from_chain" in (reader.fieldnames or [])
-        cols = ("from_chain", "to_chain") if links else ("from_chains", "to_chains")
-        out = [
-            Decision(
-                frozenset(r[cols[0]].split()),
-                frozenset(r[cols[1]].split()),
-                r["decision"],
-                r["relation"],
-                r["detail"],
-                r["note"],
-            )
-            for r in reader
-        ]
+    if links is None:
+        links = "from_chain" in csv_io.columns(path)
+    cols = ("from_chain", "to_chain") if links else ("from_chains", "to_chains")
+    out = [
+        Decision(
+            frozenset(r[cols[0]].split()),
+            frozenset(r[cols[1]].split()),
+            r["decision"],
+            r["relation"],
+            r["detail"],
+            r["note"],
+        )
+        for r in csv_io.read(path)
+    ]
     kinds = LINK_KINDS if links else GROUP_KINDS
     other = "relations.csv" if links else "links.csv"
     for d in out:
@@ -688,23 +685,21 @@ def write_relations(relations: list[Relation], path: Path) -> None:
 
 
 def _write(relations: list[Relation], path: Path, head: tuple[str, str, str]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8-sig", newline="") as f:
-        w = csv.writer(f, lineterminator="\n")
-        w.writerow(
-            [
-                *head,
-                "relation",
-                "detail",
-                "year",
-                "score",
-                "decided_by",
-                "verified",
-                "note",
-                "from_text",
-                "to_text",
-            ]
-        )
+    with csv_io.writer(
+        path,
+        [
+            *head,
+            "relation",
+            "detail",
+            "year",
+            "score",
+            "decided_by",
+            "verified",
+            "note",
+            "from_text",
+            "to_text",
+        ],
+    ) as w:
         for r in relations:
             w.writerow(
                 [
@@ -725,10 +720,8 @@ def _write(relations: list[Relation], path: Path, head: tuple[str, str, str]) ->
 
 
 def write_code_reuse(pairs: list[tuple[Chain, Chain, float]], path: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8-sig", newline="") as f:
-        w = csv.writer(f, lineterminator="\n")
-        w.writerow(["expenditure_code", "from_chain", "to_chain", "score", "from_text", "to_text"])
+    header = ["expenditure_code", "from_chain", "to_chain", "score", "from_text", "to_text"]
+    with csv_io.writer(path, header) as w:
         for a, b, score in sorted(pairs, key=lambda p: (p[0].code, p[0].years[0])):
             w.writerow([a.code, a.id, b.id, score, a.text, b.text])
 
@@ -736,28 +729,26 @@ def write_code_reuse(pairs: list[tuple[Chain, Chain, float]], path: Path) -> Non
 def write_evidence(relations: list[Relation], chains: list[Chain], occ: Occurrence, path: Path) -> Counter:
     """One row per relation with its household evidence; return the verdicts
     of the relations still to verify."""
-    path.parent.mkdir(parents=True, exist_ok=True)
     todo: Counter = Counter()
-    with open(path, "w", encoding="utf-8-sig", newline="") as f:
-        w = csv.writer(f, lineterminator="\n")
-        w.writerow(
-            [
-                "id",
-                "relation",
-                "detail",
-                "year",
-                "decided_by",
-                "verified",
-                "before_year",
-                "before",
-                "after",
-                "group",
-                "ratio",
-                "verdict",
-                "from_text",
-                "to_text",
-            ]
-        )
+    with csv_io.writer(
+        path,
+        [
+            "id",
+            "relation",
+            "detail",
+            "year",
+            "decided_by",
+            "verified",
+            "before_year",
+            "before",
+            "after",
+            "group",
+            "ratio",
+            "verdict",
+            "from_text",
+            "to_text",
+        ],
+    ) as w:
         for r in relations:
             e = evidence(r, occ, chains)
             if r.needs_verification:

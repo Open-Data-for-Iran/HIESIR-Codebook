@@ -49,13 +49,12 @@ Output (``output/4_groups/``):
 from __future__ import annotations
 
 import argparse
-import csv
 import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .. import CORRECTED, CURATED_GROUPS, GROUPS, ITEMS
+from .. import CORRECTED, CURATED_GROUPS, GROUPS, ITEMS, csv_io
 from .chains import Chain, read_chains
 from .compare import MAX_GAP, YEARS, compare
 from .relations import DECISION_KINDS, VERIFIED, decided_by, definite
@@ -257,11 +256,10 @@ class Decision:
 def load_decisions(path: Path = DECISIONS) -> list[Decision]:
     if not path.exists():
         return []
-    with open(path, encoding="utf-8-sig") as f:
-        out = [
-            Decision(r["from_group"], r["to_group"], r["decision"], r["relation"], r["note"])
-            for r in csv.DictReader(f)
-        ]
+    out = [
+        Decision(r["from_group"], r["to_group"], r["decision"], r["relation"], r["note"])
+        for r in csv_io.read(path)
+    ]
     for d in out:
         if d.decision not in DECISION_KINDS:
             raise ValueError(f"{path}: unknown decision {d.decision!r} ({d})")
@@ -312,8 +310,7 @@ def build_links(
 
 
 def _read(path: Path) -> list[dict[str, str]]:
-    with open(path, encoding="utf-8-sig") as f:
-        return list(csv.DictReader(f))
+    return csv_io.read(path)
 
 
 def read_links(path: Path) -> list[tuple[str, str]]:
@@ -328,29 +325,22 @@ def read_relations(path: Path) -> list[tuple[list[str], list[str]]]:
     ]
 
 
-def _writer(path: Path):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    f = open(path, "w", encoding="utf-8-sig", newline="")  # noqa: SIM115  (closed by the caller)
-    return f, csv.writer(f, lineterminator="\n")
-
-
 def write_groups(groups: list[Group], path: Path, years: list[int] = YEARS) -> None:
-    f, w = _writer(path)
-    with f:
-        w.writerow(
-            [
-                "group_id",
-                "section",
-                "level",
-                "code",
-                "parent_id",
-                "first_year",
-                "last_year",
-                "missing_years",
-                "items",
-                "label",
-            ]
-        )
+    with csv_io.writer(
+        path,
+        [
+            "group_id",
+            "section",
+            "level",
+            "code",
+            "parent_id",
+            "first_year",
+            "last_year",
+            "missing_years",
+            "items",
+            "label",
+        ],
+    ) as w:
         for g in groups:
             ys = g.years
             missing = " ".join(str(y) for y in years if ys[0] <= y <= ys[-1] and y not in g.labels)
@@ -371,34 +361,31 @@ def write_groups(groups: list[Group], path: Path, years: list[int] = YEARS) -> N
 
 
 def write_members(placement: Placement, path: Path) -> None:
-    f, w = _writer(path)
-    with f:
-        w.writerow(["year", "expenditure_code", *(f"level_{lv}" for lv in LEVELS)])
+    with csv_io.writer(path, ["year", "expenditure_code", *(f"level_{lv}" for lv in LEVELS)]) as w:
         for (year, code), by_level in placement.items():
             w.writerow([year, code, *(by_level.get(lv, "") for lv in LEVELS)])
 
 
 def write_links(links: list[GroupLink], path: Path) -> None:
-    f, w = _writer(path)
-    with f:
-        w.writerow(
-            [
-                "link_id",
-                "from_group",
-                "to_group",
-                "relation",
-                "year",
-                "items",
-                "from_items",
-                "to_items",
-                "decided_by",
-                "verified",
-                "note",
-                "from_label",
-                "to_label",
-                "item_chains",
-            ]
-        )
+    with csv_io.writer(
+        path,
+        [
+            "link_id",
+            "from_group",
+            "to_group",
+            "relation",
+            "year",
+            "items",
+            "from_items",
+            "to_items",
+            "decided_by",
+            "verified",
+            "note",
+            "from_label",
+            "to_label",
+            "item_chains",
+        ],
+    ) as w:
         for lk in links:
             w.writerow(
                 [

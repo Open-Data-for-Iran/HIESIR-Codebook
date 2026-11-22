@@ -12,14 +12,15 @@ never quote an out-of-date figure.
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import re
 from collections import Counter
 from pathlib import Path
 
-from . import CORRECTED, CURATED_CORRECTED, EXTRACTED, GROUPS, ITEMS, OUTPUT, SUPPORTED_YEARS
-from .correction import correct
+from . import CORRECTED, CURATED_CORRECTED, EXTRACTED, GROUPS, ITEMS, OUTPUT, SUPPORTED_YEARS, csv_io
+from .correction import autocorrect, rules
+from .correction import corrections as step1
+from .correction import spelling as step3
 from .linking.chains import read_chains
 from .linking.compare import YEARS
 from .linking.relations import code_reuse
@@ -30,8 +31,7 @@ VERIFIED = ("confirmed", "changed", "rejected", "added")
 
 
 def _read(path: Path) -> list[dict[str, str]]:
-    with open(path, encoding="utf-8-sig", newline="") as f:
-        return list(csv.DictReader(f))
+    return csv_io.read(path)
 
 
 def _span(years: list[int]) -> str:
@@ -53,27 +53,28 @@ def _decisions(rows: list[dict[str, str]], kinds: tuple[str, ...] = ()) -> dict[
     return out
 
 
-def _labels(
-    extracted: Path, corrections: Path, labels: Path, suggestions: Path, decisions: Path
-) -> dict[str, int]:
+def _labels(extracted: Path, corrections: Path, labels: Path, auto: Path) -> dict[str, int]:
     """How many descriptions (items, headers and section titles, all years)
     each step of the correction changes, replayed in the order correct.apply
     runs them."""
-    fixes = correct.load_corrections(corrections)
-    label_fixes = correct.load_label_fixes(labels)
-    sugg_fixes, _ = correct.suggestion_fixes(suggestions, decisions)
+    fixes = step1.load_corrections(corrections)
+    label_fixes = step3.load_label_fixes(labels)
+    letters = [fx for fx in label_fixes if fx.match == "text"]
+    words = [fx for fx in label_fixes if fx.match == "word"]
+    auto_fixes = autocorrect.load_fixes(auto)
     n = Counter()
     for year in SUPPORTED_YEARS:
-        rows = correct.read_rows(extracted / f"questionnaire_{year}.csv")
-        for r in correct.apply(year, rows, fixes, extracted, tidy=False):
+        rows = csv_io.read(extracted / f"questionnaire_{year}.csv")
+        for r in step1.apply_corrections(year, rows, fixes, extracted):
             t0 = r["description"]
-            t1 = correct.house_style(t0)
-            t2 = correct.fix_label(t1, year, label_fixes)
-            t3 = correct.fix_label(t2, year, sugg_fixes)
+            t1 = rules.house_style(t0)
+            tl = step3.fix_label(t1, year, letters)
+            t2 = autocorrect.fix_free(tl, year, auto_fixes, words) if auto_fixes else tl
+            t3 = step3.fix_label(t2, year, words)
             n["rows"] += 1
             n["punctuation"] += t1 != t0
-            n["spelling"] += t2 != t1
-            n["suggestions"] += t3 != t2
+            n["autocorrect"] += t2 != tl
+            n["spelling"] += (tl != t1) or (t3 != t2)
     return dict(n)
 
 
@@ -87,13 +88,11 @@ def compute(
     """Every figure, as plain JSON-able data."""
     corrections = curated / "corrections.csv"
     labels = curated / "spelling.csv"
-    suggestions = corrected / "spelling_suggestions.csv"
-    decisions = curated / "spelling_suggestions.csv"
+    auto = corrected / "autocorrect" / "hazm.csv"
 
-    fixes = correct.load_corrections(corrections)
-    changed = _labels(extracted, corrections, labels, suggestions, decisions)
-    sugg = _read(suggestions)
-    accepted, _ = correct.suggestion_fixes(suggestions, decisions)
+    fixes = step1.load_corrections(corrections)
+    changed = _labels(extracted, corrections, labels, auto)
+    auto_rows = csv_io.read(auto) if auto.exists() else []
 
     item_years = {}
     for y in SUPPORTED_YEARS:
@@ -124,14 +123,12 @@ def compute(
             "total": changed["rows"],
             "punctuation": changed["punctuation"],
             "spelling": changed["spelling"],
-            "suggestions": changed["suggestions"],
+            "autocorrect": changed["autocorrect"],
         },
-        "spelling": {"total": len(correct.load_label_fixes(labels))},
-        "suggestions": {
-            "total": len(sugg),
-            "auto": sum(r["apply"] == "yes" for r in sugg),
-            "decisions": len(correct.load_decisions(decisions)),
-            "applied": len(accepted),
+        "spelling": {"total": len(step3.load_label_fixes(labels))},
+        "autocorrect": {
+            "total": len(auto_rows),
+            **dict(sorted(Counter(r["rule"] for r in auto_rows).items())),
         },
         "chains": {
             "total": len(chains),

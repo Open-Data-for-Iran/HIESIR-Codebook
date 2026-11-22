@@ -27,10 +27,11 @@ GitHub این فایل‌ها را در نمایش تفاوت‌ها جمع می
 uv run hiesir-codebook build                 # regenerate every stage of output/
 uv run hiesir-codebook build --no-extract    # keep 1_extracted/ (no PDFs needed)
 uv run hiesir-codebook pdfs download        # the PDFs from the release, checked against data/pdfs.csv
+uv run hiesir-codebook hazm download        # hazm's word list and data files -> data/hazm/, checked
 uv run hiesir-codebook extract               # just extract: PDFs -> output/1_extracted/ (reports in reports/)
 uv run hiesir-codebook extract 1382 1403     # or just some years
 uv run python -m hiesir_codebook.correction.correct --check   # correct and check against the raw data
-uv run python -m hiesir_codebook.correction.structure         # check the corrected CSVs from the CSVs alone
+uv run python -m hiesir_codebook.correction.corrections         # check the corrected CSVs from the CSVs alone
 uv run python -m hiesir_codebook.explorer    # just the explorer page
 ```
 
@@ -43,7 +44,7 @@ uv run python -m hiesir_codebook.explorer    # just the explorer page
 |---|---|---|
 | `2_corrected/corrections.csv` | تک‌قلم‌ها و سرگروه‌ها در یک سال: کد نادرست، متن نادرست، بخش جاافتاده | `correct` |
 | `2_corrected/spelling.csv` | املاهایی که در سطرها و سال‌ها تکرار می‌شوند: غلط تایپی، واژه‌های چسبیده، نیم‌فاصله | `correct` |
-| `2_corrected/spelling_suggestions.csv` | تصمیم درباره پیشنهادهای املایی hazm (`find`): تأیید، رد، تغییر | `correct` |
+| `2_corrected/words.csv` | واژه‌های درستی که در فهرست hazm نیستند، تا اصلاح خودکار به آن‌ها دست نزند | `autocorrect` |
 | `3_items/links.csv` | تصمیم درباره پیوند یک‌به‌یک میان زنجیره‌ها (`from_chain` ← `to_chain`، همان قلم یا تغییر کد): تأیید، رد، تغییر، افزودن | `relations` |
 | `3_items/relations.csv` | تصمیم درباره ادغام، تفکیک و بازگروه‌بندی میان مجموعه زنجیره‌ها (`from_chains` ← `to_chains`): تأیید، رد، تغییر، افزودن | `relations` |
 | `4_groups/links.csv` | تصمیم درباره پیوند میان سرگروه‌ها (`from_group` ← `to_group`: ادامه، تفکیک، ادغام، بازگروه‌بندی، جابه‌جایی): تأیید، رد، تغییر، افزودن | `groups` |
@@ -52,16 +53,6 @@ uv run python -m hiesir_codebook.explorer    # just the explorer page
 و [تصمیم‌های پیوند](methods.md#matching-items-across-years). پس از ویرایش،
 `uv run hiesir-codebook build --no-extract` را اجرا کنید و تفاوت‌ها را در
 `output/` بازبینی کنید.
-
-پس از تغییر اصلاحات یا `spelling.csv`، پیشنهادهای املایی را از واژه‌نامه hazm
-دوباره بسازید (hazm به پایتون ۳.۱۲ یا ۳.۱۳ نیاز دارد)، سطرهای `apply` برابر `no`
-را بازبینی کنید و هر پیشنهادی را در `curated/2_corrected/spelling_suggestions.csv`
-بازنویسی کنید:
-
-```bash
-uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.spelling   # -> output/2_corrected/spelling_suggestions.csv
-uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.check      # -> reports/label_check.csv (to review)
-```
 
 ## آزمون‌ها {#tests}
 
@@ -79,7 +70,7 @@ uv run ruff check . && uv run ruff format --check .
 کد، `uv run hiesir-codebook build --no-extract` را اجرا و تفاوت‌ها را بازبینی
 کنید. آزمون‌هایی که به PDFها نیاز دارند، وقتی `data/pdf/` نباشد رد می‌شوند؛ در
 GitHub گردش‌کار آن‌ها را از انتشار دانلود می‌کند و جدول‌های تعداد خانوار در git
-هستند، پس همه آزمون‌ها آنجا اجرا می‌شوند. `python -m hiesir_codebook.correction.structure`
+هستند، پس همه آزمون‌ها آنجا اجرا می‌شوند. `python -m hiesir_codebook.correction.corrections`
 ساختار CSVهای اصلاح‌شده را فقط از خود CSVها بررسی می‌کند (کد تکراری، ترتیب
 زیرکد و بخش، شرح خالی، قلم بیرون از سرگروهش؛ یک آزمون هم آن را اجرا می‌کند).
 
@@ -144,6 +135,18 @@ gh release upload questionnaires data/pdf/questionnaire_1404.pdf --clobber
 سپس `data/pdfs.csv` را commit کنید. ساخت محلی سایت از `data/pdf/` یا پوشه
 `$HIESIR_PDF_DIR` استفاده می‌کند. نسخه‌ای با نام‌های قدیمی (`Questionnaire 1386.pdf`)
 با `hiesir-codebook pdfs rename` تغییر نام می‌یابد.
+
+### فهرست واژه‌های hazm {#hazm-word-list}
+
+[hazm](https://github.com/roshan-research/hazm) (مجوز MIT) فهرستی از واژه‌های
+فارسی با بسامدشان در پیکره و نقش دستوری‌شان، بن‌های فعل، واژه‌های پرکاربرد و
+کوته‌نوشت‌ها را به‌صورت فایل متنی ساده دارد. `hiesir-codebook hazm download` آن‌ها را از
+مخزن hazm در نسخه‌ای ثابت (v0.12.1) در `data/hazm/` (بیرون از git) دانلود و هر یک را
+با حجم و SHA-256 فهرست‌شده در `hazm_data.py` مقایسه می‌کند؛ `hazm verify` نسخه
+موجود را بررسی می‌کند و `hazm list` نشان می‌دهد هر فایل چه دارد.
+`hazm_data.words_list()`، `word_frequencies()`، `stopwords_list()` و `verbs_list()`
+آن‌ها را می‌خوانند، پس به خود hazm (که پایتون ۳.۱۲ یا ۳.۱۳ می‌خواهد) نیازی نیست.
+اصلاح خودکار (`correction/autocorrect.py`) از آن‌ها استفاده می‌کند.
 
 ## مجوز {#license}
 

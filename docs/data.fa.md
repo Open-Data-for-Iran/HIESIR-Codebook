@@ -31,7 +31,7 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 | فایل | هر سطر یعنی | جزئیات |
 |---|---|---|
 | `2_corrected/questionnaire_<year>.csv` | یک بخش، سرگروه یا قلمِ پرسشنامه آن سال | [ستون‌ها](#csv-columns) |
-| `2_corrected/spelling_suggestions.csv` | یک پیشنهاد املایی از واژه‌نامه hazm، همراه با این‌که برنامه اعمالش می‌کند یا نه | [اصلاحات](methods.md#corrections) |
+| `2_corrected/autocorrect/hazm.csv` | واژه‌ای که با فهرست واژه‌های hazm به‌طور خودکار اصلاح شده، با قاعده و شاهد آن | [اصلاحات](methods.md#corrections) |
 | `3_items/chains.csv` | یک قلم (زنجیره): یک کد با یک عبارت، تا زمانی که هر دو ثابت بمانند | [مرحله ۱](methods.md#matching-items-across-years) |
 | `3_items/links.csv` | یک پیوند یک‌به‌یک که قلمی را ادامه می‌دهد: همان قلم، تغییر کد | [مرحله ۲](methods.md#matching-items-across-years) |
 | `3_items/relations.csv` | یک رابطه میان مجموعه‌ای از اقلام: ادغام، تفکیک، بازگروه‌بندی | [مرحله ۲](methods.md#matching-items-across-years) |
@@ -46,7 +46,7 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 | `data/` | ورودی‌های بیرونی: فایل‌های PDF و جدول‌های تعداد خانوارهای گزارش‌دهنده هر کد | جدول‌های تعداد خانوار و `pdfs.csv` (PDFها در یک انتشار GitHub‌اند) | هیچ‌کس (فقط جایگزین می‌شود) |
 | `curated/` | تصمیم‌های دستی: `2_corrected/` (`corrections.csv`: اصلاح اقلام و سرگروه‌ها؛ `spelling.csv`)، `3_items/` (`links.csv`، `relations.csv`) و `4_groups/` (`links.csv`): تصمیم‌های پوشه هم‌نام در `output/` | بله | افراد |
 | `output/` | خروجی همه مراحل: `1_extracted/`، `2_corrected/`، `3_items/`، `4_groups/`، صفحه `explorer/` و `metrics.json` (اعداد ساخت، که همین صفحه‌ها نقل می‌کنند) | بله | فقط برنامه |
-| `reports/` | کمک‌های بازبینی: `relation_evidence.csv` (تعداد خانوارهای پشت هر پیوند و رابطه) و `code_reuse.csv` (کدهایی که برای قلم دیگری به کار رفته‌اند) و `label_check.csv` (واژه‌هایی که ممکن است هنوز نادرست نوشته شده باشند) | خیر | فقط برنامه |
+| `reports/` | کمک‌های بازبینی: `relation_evidence.csv` (تعداد خانوارهای پشت هر پیوند و رابطه) و `code_reuse.csv` (کدهایی که برای قلم دیگری به کار رفته‌اند) | خیر | فقط برنامه |
 
 ## ستون‌های CSV {#csv-columns}
 

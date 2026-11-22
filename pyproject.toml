@@ -14,12 +14,6 @@ dependencies = [
     "pymupdf>=2.1",
 ]
 
-[project.optional-dependencies]
-# only to regenerate output/2_corrected/spelling_suggestions.csv
-# (uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.spelling; hazm 0.12 needs
-# Python 3.12 or 3.13); the build only reads that file
-hazm = ["hazm>=0.12.1,<0.13; python_version >= '3.12' and python_version < '3.14'"]
-
 [project.urls]
 Homepage = "https://open-data-for-iran.github.io/HIESIR-Codebook/"
 Repository = "https://github.com/Open-Data-for-Iran/HIESIR-Codebook"

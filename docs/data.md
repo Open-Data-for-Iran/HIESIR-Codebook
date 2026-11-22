@@ -31,7 +31,7 @@ The same files can be downloaded from this site:
 | File | One row per | Details |
 |---|---|---|
 | `2_corrected/questionnaire_<year>.csv` | section, group header or item of that year | [CSV columns](#csv-columns) |
-| `2_corrected/spelling_suggestions.csv` | spelling suggestion from hazm's dictionary, with whether the build applies it | [Corrections](methods.md#corrections) |
+| `2_corrected/autocorrect/hazm.csv` | word fixed automatically with hazm's word list, with the rule and the evidence | [Corrections](methods.md#corrections) |
 | `3_items/chains.csv` | item: one code with one label, followed while both stay the same | [Stage 1](methods.md#matching-items-across-years) |
 | `3_items/links.csv` | 1 → 1 link that continues an item: same, recoded | [Stage 2](methods.md#matching-items-across-years) |
 | `3_items/relations.csv` | relation between sets of items: merged, split, regrouped | [Stage 2](methods.md#matching-items-across-years) |
@@ -46,7 +46,7 @@ The same files can be downloaded from this site:
 | `data/` | external inputs: the PDFs, the household occurrence tables | the occurrence tables and `pdfs.csv` (the PDFs are in a GitHub release) | nobody (only replaced) |
 | `curated/` | hand-kept decisions: `2_corrected/` (`corrections.csv`: item and header fixes; `spelling.csv`), `3_items/` (`links.csv`, `relations.csv`) and `4_groups/` (`links.csv`): the decisions for the `output/` folder of the same name | yes | people |
 | `output/` | every stage's result: `1_extracted/`, `2_corrected/`, `3_items/`, `4_groups/`, the `explorer/` page, and `metrics.json` (the figures of the build, which these pages quote) | yes | the pipeline only |
-| `reports/` | review aids: `relation_evidence.csv` (household counts behind each link and relation) and `code_reuse.csv` (codes reused for another item) and `label_check.csv` (words that may still be misspelled) | no | the pipeline only |
+| `reports/` | review aids: `relation_evidence.csv` (household counts behind each link and relation) and `code_reuse.csv` (codes reused for another item) | no | the pipeline only |
 
 ## CSV columns
 

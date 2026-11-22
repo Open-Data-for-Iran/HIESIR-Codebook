@@ -161,19 +161,18 @@ def test_every_printed_item_has_its_position():
     """Items carry their box on the page (top, bottom, left, right; 1382 is A3,
     the rest A4); only items that
     curated/2_corrected/corrections.csv copies into a year (no page) lack one."""
-    import csv
+    from hiesir_codebook import csv_io
 
     for f in sorted((ROOT / "output" / "2_corrected").glob("questionnaire_*.csv")):
-        with open(f, encoding="utf-8-sig") as fh:
-            for r in csv.DictReader(fh):
-                if r["kind"] != "item":
-                    continue
-                assert bool(r["page"]) == bool(r["top"]) == bool(r["bottom"]), (f.name, r["expenditure_code"])
-                if r["left"]:
-                    assert 0 <= float(r["left"]) < float(r["right"]) < 850, (f.name, r["expenditure_code"])
-                if r["top"]:
-                    assert 0 < float(r["top"]) < float(r["bottom"]) < 1200, (f.name, r["expenditure_code"])
-                    assert float(r["bottom"]) - float(r["top"]) < 120, (f.name, r["expenditure_code"])
+        for r in csv_io.read(f):
+            if r["kind"] != "item":
+                continue
+            assert bool(r["page"]) == bool(r["top"]) == bool(r["bottom"]), (f.name, r["expenditure_code"])
+            if r["left"]:
+                assert 0 <= float(r["left"]) < float(r["right"]) < 850, (f.name, r["expenditure_code"])
+            if r["top"]:
+                assert 0 < float(r["top"]) < float(r["bottom"]) < 1200, (f.name, r["expenditure_code"])
+                assert float(r["bottom"]) - float(r["top"]) < 120, (f.name, r["expenditure_code"])
 
 
 def test_pdf_path_is_the_release_name(tmp_path):

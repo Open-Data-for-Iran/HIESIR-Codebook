@@ -12,13 +12,12 @@ offline and on any static host (no server, no build step).
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import math
 import re
 from pathlib import Path
 
-from . import CORRECTED, CURATED_CORRECTED, GROUPS, ITEMS, OUTPUT
+from . import CORRECTED, CURATED_CORRECTED, GROUPS, ITEMS, OUTPUT, csv_io
 from .linking.compare import YEARS
 
 # The component lives in web/explorer/ (website code, not Python; see its README).
@@ -34,8 +33,7 @@ PLACEHOLDER = "/*__DATA__*/null"
 
 
 def _read(path: Path) -> list[dict[str, str]]:
-    with open(path, encoding="utf-8-sig", newline="") as f:
-        return list(csv.DictReader(f))
+    return csv_io.read(path)
 
 
 def _questionnaire(

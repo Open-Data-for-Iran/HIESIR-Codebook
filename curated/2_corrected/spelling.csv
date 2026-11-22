@@ -1,9 +1,12 @@
 ﻿find,replace,match,years,reason
+راپید و گراف,راپیدوگراف,word,,"term: rapidograph, a technical pen; one word, not راپید و گراف"
+فایبر گلاس,فایبرگلاس,word,,term: fiberglass
+می باشد,می‌باشد,word,,term: verb (is)
+کاغذ بر,کاغذبر,word,,"term: paper cutter; one word, not کاغذ بر"
 بجز,به جز,word,,"one spelling for ""except"" (به جز is the standard form)"
 دیبرستان,دبیرستان,word,,"typo (دبیرستان, high school)"
 رایو,رادیو,word,,"typo (رادیو, radio); 1384 has the right spelling"
 آّ,آ,text,,stray shadda on alef madda (آّبرنگ)
-نوارقلب.نوارمغز,نوار قلب، نوار مغز,word,,"a full stop used as a separator, and joined words"
 جابجایی,جابه‌جایی,word,,standard spelling of X-به-X compounds (جابه‌جا); the form the questionnaires use from 1386
 جا به جایی,جابه‌جایی,word,,standard spelling of X-به-X compounds (جابه‌جا); the form the questionnaires use from 1386
 قرمه,قورمه,word,,typo (گوشت قورمه)
@@ -38,9 +41,8 @@
 مشاوره ائی,مشاوره‌ای,word,,standard spelling (ه + ای)
 مشاوره ایی,مشاوره‌ای,word,,standard spelling (ه + ای)
 مسابقه ایی,مسابقه‌ای,word,,standard spelling (ه + ای)
-ووسائل,و وسایل,word,,"standard spelling (وسایل), glued و"
-وسائل,وسایل,word,,standard spelling (وسایل)
-ونظائر,و نظایر,word,,"standard spelling (نظایر), glued و"
+وسائل,وسایل,word,,"standard spelling (وسایل), glued و (its glued و split by step 3)"
+نظائر,نظایر,word,,"standard spelling (نظایر), glued و (its glued و split by step 3)"
 ذغال,زغال,word,,standard spelling (زغال)
 پرورشی‌ورودخانه‌ای,پرورشی و رودخانه‌ای,word,,spaces lost (glued words)
 اور ژانس‌و,اورژانس و,word,,"spaces lost (glued words), split word"
@@ -51,118 +53,48 @@
 خانوارمستقیما,خانوار مستقیماً,word,,spaces lost (glued words)
 اعضاخانوارکسرشده,اعضای خانوار کسر شده,word,,spaces lost (glued words)
 چراغخوراکپزینفتی,چراغ خوراک‌پزی نفتی,word,,spaces lost (glued words)
-کبابپز,کباب‌پز,word,,spaces lost (glued words)
 گازپیک نیک,گاز پیک‌نیک,word,,spaces lost (glued words)
 حق‌بیمه‌استعلاجی‌وبهداشتی‌مربوطبه‌خدماتدرمانی‌که‌بوسیله‌دولت‌پرداخت شدهباشد,حق بیمه استعلاجی و بهداشتی مربوط به خدمات درمانی که بوسیله دولت پرداخت شده باشد,word,,spaces lost (glued words)
 مستقردرکارخانه هاوادارات,مستقر در کارخانه‌ها، ادارات,word,,spaces lost (glued words)
 باشد تعداد افراد بیمه شده,باشد,word,1385,the cell label تعداد افراد بیمه شده was read as part of the description
-آسیا و ...) تعداد افرادبیمه شده,آسیا و ...),word,,the cell label تعداد افراد بیمه شده was read as part of the description
-هزینه های,هزینه‌های,word,,"plural suffix attached (hazm advisor, 109 labels)"
-کلاس های,کلاس‌های,word,,"plural suffix attached (hazm advisor, 9 labels)"
+آسیا و ...) تعداد افراد بیمه شده,آسیا و ...),word,,"the cell label تعداد افراد بیمه شده read as part of the description, as the automatic fixes leave it"
 وسایرهزینه های,وسایرهزینه‌های,word,,"plural suffix attached (hazm advisor, 3 labels)"
-چربی ها,چربی‌ها,word,,"plural suffix attached (hazm advisor, 2 labels)"
 بالن های,بالن‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-تمیزکننده های,تمیزکننده‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-دارالترجمه ها,دارالترجمه‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
 شوفاژوسایرهزینه های,شوفاژوسایرهزینه‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
 مستقردرکارخانه ها,مستقردرکارخانه‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
 منزل‌وسایرهزینه های,منزل‌وسایرهزینه‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
 میکروسکوپ ها,میکروسکوپ‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-وسنگ های,وسنگ‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
 پولیش ها,پولیش‌ها,word,,"plural suffix attached (hazm advisor, 1 labels)"
-پیست های,پیست‌های,word,,"plural suffix attached (hazm advisor, 1 labels)"
-اردوگاههاو,اردوگاه‌ها و,word,,words glued together in extraction
 لوله کشی,لوله‌کشی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-آب میوه,آب‌میوه,word,,"compound written joined in the questionnaires (2 years), hazm advisor"
-قلم مو,قلم‌مو,word,,"compound written joined in the questionnaires (14 years), hazm advisor"
 ماشین تحریر,ماشین‌تحریر,word,,"compound written joined in the questionnaires (2 years), hazm advisor"
-تخم مرغ,تخم‌مرغ,word,,"compound written joined in the questionnaires (12 years), hazm advisor"
-لکه گیری,لکه‌گیری,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 کباب پز,کباب‌پز,word,,"compound written joined in the questionnaires (2 years), hazm advisor"
-سیم کشی,سیم‌کشی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-شکسته بند,شکسته‌بند,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-پیش بند,پیش‌بند,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 پینگ پونگ,پینگ‌پنگ,word,,one spelling: پینگ‌پنگ
-گریپ فروت,گریپ‌فروت,word,,"compound written joined in the questionnaires (14 years), hazm advisor"
 اندازه گیری می شوند,اندازه‌گیری می‌شوند,word,,"ZWNJ required (می), hazm advisor, 2 labels"
-بین المللی,بین‌المللی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-زینت آلات,زینت‌آلات,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-شکم بند,شکم‌بند,word,,"compound written joined in the questionnaires (12 years), hazm advisor"
-مجسمه سازی,مجسمه‌سازی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-نمونه برداری,نمونه‌برداری,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 ننوپارچه ای,ننوپارچه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 2 labels"
-وحرفه ای,وحرفه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 2 labels"
-پارچه نویسی,پارچه‌نویسی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 پیک نیکی,پیک‌نیکی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-گل کلم,گل‌کلم,word,,"compound written joined in the questionnaires (14 years), hazm advisor"
-بستنی ساز,بستنی‌ساز,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-قیمت گذاری,قیمت‌گذاری,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
-لنت کوبی,لنت‌کوبی,word,,"compound written joined in the questionnaires (18 years), hazm advisor"
 میشود,می‌شود,word,,"ZWNJ required (می), hazm advisor, 1 labels"
-ورایانه ای,ورایانه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 1 labels"
-وپارچه ای,وپارچه‌ای,word,,"ZWNJ required (ه + ای), hazm advisor, 1 labels"
-کوله پشتی,کوله‌پشتی,word,,"compound written joined in the questionnaires (17 years), hazm advisor"
 پینگ‌پونگ,پینگ‌پنگ,word,,one spelling: پینگ‌پنگ
 تزئین,تزیین,text,,one spelling: ی preferred over ئ (تزیینی، تزیینات)
 آئینه,آینه,text,,one spelling: ی preferred over ئ (آینه)
 ویدئو,ویدیو,text,,one spelling: ی preferred over ئ (ویدیو)
-وبدن سازی,و بدن‌سازی,word,,glued و; compound with ZWNJ (printed both glued and spaced)
 بدنسازی,بدن‌سازی,word,,compound with ZWNJ (printed both glued and spaced)
-بدن سازی,بدن‌سازی,word,,compound with ZWNJ (printed both glued and spaced)
-نرمافزار,نرم‌افزار,text,,compound with ZWNJ (printed both glued and spaced) (also نرم‌افزارهای)
 نرم افزار,نرم‌افزار,text,,compound with ZWNJ (printed both glued and spaced) (also نرم‌افزارهای، نرم‌افزاری)
-وواژه پرداز,و واژه‌پرداز,word,,glued و; compound with ZWNJ (printed both glued and spaced)
-واژهپرداز,واژه‌پرداز,text,,compound with ZWNJ (printed both glued and spaced)
-پیغامگیر,پیغام‌گیر,text,,compound with ZWNJ (printed both glued and spaced)
 پیغام گیر,پیغام‌گیر,text,,compound with ZWNJ (printed both glued and spaced)
-ونرم‌افزاری,و نرم‌افزاری,word,,glued و
-وسایر,و سایر,word,,glued و
-ولباس,و لباس,word,,glued و
-وپارچه‌ای,و پارچه‌ای,word,,glued و
-وکمربند,و کمربند,word,,glued و
-وجلیقه,و جلیقه,word,,glued و
-ونگهداری,و نگهداری,word,,glued و
-وهزینه,و هزینه,word,,glued و
-وکیسه,و کیسه,word,,glued و
 ولوله,و لوله,word,,glued و
-ونصب,و نصب,word,,glued و
-وسرگرمی,و سرگرمی,word,,glued و
-وگوبلن,و گوبلن,word,,glued و
-وآرایشی,و آرایشی,word,,glued و
-وفروش,و فروش,word,,glued و
-وسیم,و سیم,word,,glued و
 وکمربندایمنی,و کمربندایمنی,word,,glued و
-وخارجی,و خارجی,word,,glued و
-وخانه,و خانه,word,,glued و
-وبرگ,و برگ,word,,glued و
-وطبی,و طبی,word,,glued و
-وسنگ‌های,و سنگ‌های,word,,glued و
-ورایانه‌ای,و رایانه‌ای,word,,glued و
 ماهیتابه,ماهی‌تابه,word,,glued words (reviewed)
 تختخواب,تخت‌خواب,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 چرخداربچه,چرخدار بچه,word,,glued words (reviewed)
-آمادهسازی,آماده‌سازی,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 پاککردن,پاک کردن,word,,glued words (questionnaires write them apart)
-برفروب,برف‌روب,word,,glued words (reviewed)
-خاکانداز,خاک‌انداز,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-پاککن,پاک‌کن,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-قهوهساز,قهوه‌ساز,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-مخلوطکن,مخلوط‌کن,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
-شمارهگذاری,شماره‌گذاری,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 برگمو,برگ مو,word,,glued words (questionnaires write them apart)
 برگگل,برگ گل,word,,glued words (questionnaires write them apart)
-آبغوره,آب‌غوره,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 آبنارنج,آب نارنج,word,,glued words (questionnaires write them apart)
-آبمیوه,آب‌میوه,word,,compound or plural missing its ZWNJ (questionnaires write it separated)
 لباسزیر,لباس زیر,word,,glued words (questionnaires write them apart)
-اندازه گیری,اندازه‌گیری,word,,compound written with ZWNJ (also printed spaced)
 بسته بندی,بسته‌بندی,word,,compound written with ZWNJ (also printed spaced)
 کم دوام,کم‌دوام,word,,compound written with ZWNJ (also printed spaced)
-بازکن ها,بازکن‌ها,word,,compound written with ZWNJ (also printed spaced)
 تخت خواب,تخت‌خواب,word,,compound written with ZWNJ (also printed spaced)
 پاکت نامه,پاکت‌نامه,word,,compound written with ZWNJ (also printed spaced)
 گوبلن بافی,گوبلن‌بافی,word,,compound written with ZWNJ (also printed spaced)
-ثابت کننده,ثابت‌کننده,word,,compound written with ZWNJ (also printed spaced)
 کیف‌دستی,کیف دستی,word,,ZWNJ where a space belongs
 پشت بند,پشت‌بند,word,,compound written with ZWNJ (also printed spaced)
 ماشین‌ظرفشویی,ماشین ظرفشویی,word,,ZWNJ where a space belongs
@@ -182,49 +114,23 @@
 رنگ‌روغن,رنگ روغن,word,,ZWNJ where a space belongs
 روغن‌نباتی,روغن نباتی,word,,ZWNJ where a space belongs
 ترخیص‌خارج,ترخیص خارج,word,,ZWNJ where a space belongs
-وسایرانواع,و سایر انواع,word,,glued و
-ونظایر,و نظایر,word,,glued و
 ونظایرآن,و نظایر آن,word,,glued و
 وتعمیرونگهداری,و تعمیر و نگهداری,word,,glued و
-وگلهای,و گل‌های,word,,glued و
-وکوهستانی,و کوهستانی,word,,glued و
-ومتکا,و متکا,word,,glued و
-وآجیل,و آجیل,word,,glued و
-وگمج,و گمج,word,,glued و
 وسایرهزینه‌های,و سایر هزینه‌های,word,,glued و
-واطو,و اطو,word,,glued و
 وارده,و ارده,word,,glued و
-واسلاید,و اسلاید,word,,glued و
-وپروژکتور,و پروژکتور,word,,glued و
-وثبت,و ثبت,word,,glued و
-وآشامیدنی,و آشامیدنی,word,,glued و
-وروان,و روان,word,,glued و
-وحرفه‌ای,و حرفه‌ای,word,,glued و
-وگرددندان,و گرد دندان,word,,glued و
-وتونر,و تونر,word,,glued و
+گرددندان,گرد دندان,word,,glued و (its glued و split by step 3)
 وپودربچه,و پودر بچه,word,,glued و
-وفلاش,و فلاش,word,,glued و
-وستادهای,و ستادهای,word,,glued و
-وگل‌ها,و گل‌ها,word,,glued و
-وبهای,و بهای,word,,glued و
 زیر پیراهن,زیرپیراهن,word,,one spelling: زیرپیراهن
 کشباف,کش‌باف,word,,compound with ZWNJ (also printed کش‌باف)
-لوازمالتحریر,لوازم‌التحریر,word,,compound missing its ZWNJ
 آماده سازی,آماده‌سازی,word,,compound with ZWNJ (the questionnaires also write it joined)
-خاک انداز,خاک‌انداز,word,,compound with ZWNJ (the questionnaires also write it joined)
 پاک کن,پاک‌کن,word,,compound with ZWNJ (the questionnaires also write it joined)
-خانه سازی,خانه‌سازی,word,,compound with ZWNJ (the questionnaires also write it joined)
 قهوه ساز,قهوه‌ساز,word,,compound with ZWNJ (the questionnaires also write it joined)
-مخلوط کن,مخلوط‌کن,word,,compound with ZWNJ (the questionnaires also write it joined)
-شماره گذاری,شماره‌گذاری,word,,compound with ZWNJ (the questionnaires also write it joined)
-آجیل خوری,آجیل‌خوری,word,,compound with ZWNJ (also printed joined)
-لوازم التحریر,لوازم‌التحریر,word,,compound with ZWNJ (also printed joined)
 هزنیه,هزینه,text,,typo (found through relations): هزینه
 سبزی خردک,سبزی خردکن,word,,typo (found through relations): truncated خردکن
 قفس کتاب,قفسه کتاب,word,,"typo (found through relations): قفسه (shelf), as from 1387"
 ماهوت پاک کردن,ماهوت پاک‌کن,word,,"typo (found through relations): ماهوت پاک‌کن (clothes brush), as in other years"
 شیرپاک کن,شیرپاک‌کن,word,,one spelling: شیرپاک‌کن
-وپیشبند,و پیش‌بند,word,,glued words (found through relations)
+پیشبند,پیش‌بند,word,,glued words (found through relations) (its glued و split by step 3)
 ننوپارچه‌ای,ننو پارچه‌ای,word,,glued words (found through relations)
 خودخانوار,خود خانوار,word,,glued words (found through relations)
 غیراز,غیر از,word,,glued words (found through relations)
@@ -232,14 +138,11 @@
 لیمووگردغوره,لیمو و گردغوره,word,,glued words (found through relations)
 اعضاءخانوار,اعضای خانوار,word,,glued words (found through relations)
 کولرآبی,کولر آبی,word,,glued words (found through relations)
-گرددندان,گرد دندان,word,,glued words (found through relations)
 واشرسرسیلندر,واشر سرسیلندر,word,,glued words (found through relations)
 واستخرشنای باد,و استخر شنای بادی,word,,"typo: بادی, as from 1384; glued words"
 سازونظایر,ساز و نظایر,word,,glued words
 براورد,برآورد,text,,"one spelling: برآورد (standard), as in 1383-1385"
-خدمات مشاورهای,خدمات مشاوره‌ای,text,,"ZWNJ required (ه + ای, consulting services)"
 مشاورهای سرمایه,مشاوره‌های سرمایه,text,,"plural suffix attached (investment consultancies), as printed in 1383-1385"
-وفرزندخواندگی,و فرزندخواندگی,word,,glued و
 نبا تی,نباتی,word,,word broken by a space (نباتی)
 اردوگاه هاو,اردوگاه‌ها و,word,,spaces lost (glued words)
 دوساله,دو ساله,word,,spaces lost (glued words)
@@ -247,5 +150,149 @@
 درجای,در جای,word,,spaces lost (glued words)
 مسافرهای دستجمعی,مسافرتهای دستجمعی,word,,typo (مسافرتهای); other years have the right spelling
 غذا خوری,غذاخوری,text,,"one word (غذاخوری, dining hall / dish), printed spaced in most years"
-اندازهگیری,اندازه‌گیری,word,,compound written with ZWNJ (also printed joined)
 سمعی- بصری,سمعی-بصری,text,,no space after the hyphen (1393 prints سمعی-بصری)
+سایرانواع‌روغن‌نباتی,سایرانواع روغن نباتی,word,,"glued: hazm: سایرانواع 0 + روغن 1,630,450 + نباتی 0; سایرانواع‌روغن‌نباتی not a word; the questionnaires write it so elsewhere"
+شوفاژوسایرهزینه‌های,شوفاژ و سایر هزینه‌های,word,,"glued: hazm: شوفاژ 361,009 + و 225,474,548 + سایر 6,593,387 + هزینه 77,803,496 + های 0; شوفاژوسایرهزینه‌های not a word"
+منزل‌وسایرهزینه‌های,منزل و سایر هزینه‌های,word,,"glued: hazm: منزل 5,990,840 + و 225,474,548 + سایر 6,593,387 + هزینه 77,803,496 + های 0; منزل‌وسایرهزینه‌های not a word; the questionnaires write it so elsewhere"
+طبقه‌بندی‌نشده‌در,طبقه‌بندی نشده در,word,,"glued: hazm: طبقه 3,090,910 + بندی 0 + نشده 0 + در 216,317,006; طبقه‌بندی‌نشده‌در not a word; the questionnaires write it so elsewhere"
+مستقردرکارخانه‌ها,مستقر در کارخانه‌ها,word,,"glued: hazm: مستقر 1,020,631 + در 216,317,006 + کارخانه 2,041,184 + ها 0; مستقردرکارخانه‌ها not a word; the questionnaires write it so elsewhere; the labels write مستقر در کارخانه‌ها 19; مستقردرکارخانه‌ها 1"
+خانواردرساختمان,خانوار در ساختمان,word,,"glued: hazm: خانوار 483,445 + در 216,317,006 + ساختمان 3,992,118; خانواردرساختمان not a word; the questionnaires write it so elsewhere; the labels write خانوار در ساختمان 59; خانواردرساختمان 4"
+آنهاوهزینه های,آن‌ها و هزینه‌های,word,,"glued: hazm: آن 253,674,963 + ها 0 + و 225,474,548 + هزینه 77,803,496; آنهاوهزینه not a word"
+حصیروسایرانواع,حصیر و سایر انواع,word,,"glued: hazm: حصیر 822,015 + و 225,474,548 + سایر 6,593,387 + انواع 15,201,749; حصیروسایرانواع not a word"
+گردگیرونظایرآن,گردگیر و نظایر آن,word,,"glued: hazm: گردگیر 40,000 + و 225,474,548 + نظایر 79,362 + آن 253,674,963; گردگیرونظایرآن not a word"
+وسایربازی های,و سایر بازی‌های,word,,"glued: hazm: و 225,474,548 + سایر 6,593,387 + بازی 430,003,596; وسایربازی not a word"
+تعمیرونگهداری,تعمیر و نگهداری,word,,"glued: hazm: تعمیر 2,450,234 + و 225,474,548 + نگهداری 3,240,774; تعمیرونگهداری not a word; the questionnaires write it so elsewhere"
+سایرمسافرتهای,سایر مسافرت‌های,word,,"glued: hazm: سایر 6,593,387 + مسافرت 927,233 + های 0; سایرمسافرتهای not a word; the questionnaires write it so elsewhere"
+قابل‌حمل‌ب‌چه,قابل حمل بچه,word,,تخت قابل حمل بچه: the PDF prints ب apart at the edge of the cell
+موردنیازوسایل,مورد نیاز وسایل,word,,"glued: hazm: مورد 21,917,993 + نیاز 6,005,523 + وسایل 1,440,997; موردنیازوسایل not a word"
+پزبرقی‌وبخاری,پزبرقی وبخاری,word,,glued: hazm: پزبرقی 0 + وبخاری 0; پزبرقی‌وبخاری not a word
+پشتی‌ونظایرآن,پشتی و نظایر آن,word,,"glued: hazm: پشتی 0 + و 225,474,548 + نظایر 79,362 + آن 253,674,963; پشتی‌ونظایرآن not a word"
+آب میوه‌گیری,آب‌میوه‌گیری,word,,"compound: hazm: آب‌میوه‌گیری 881,002"
+آب‌میوه گیری,آب‌میوه‌گیری,word,,"compound: hazm: آب‌میوه‌گیری 881,002"
+پاروونظایرآن,پارو و نظایر آن,word,,"glued: hazm: پارو 138,010 + و 225,474,548 + نظایر 79,362 + آن 253,674,963; پاروونظایرآن not a word"
+کاغذ دیواری,کاغذدیواری,word,,"compound: hazm: کاغذدیواری 625,005; the questionnaires print it joined"
+موتور سیکلت,موتورسیکلت,word,,"compound: hazm: موتورسیکلت 319,082; the questionnaires print it joined"
+بیکینگ پودر,بیکینگ‌پودر,word,,"compound: hazm: بیکینگ‌پودر 56,282"
+سودونظایرآن,سود و نظایر آن,word,,"glued: hazm: سود 2,591,374 + و 225,474,548 + نظایر 79,362 + آن 253,674,963; سودونظایرآن not a word"
+کمربندایمنی,کمربند ایمنی,word,,"glued: hazm: کمربند 534,103 + ایمنی 0; کمربندایمنی not a word; the questionnaires write it so elsewhere"
+سندونظایرآن,سند و نظایر آن,word,,"glued: hazm: سند 2,730,802 + و 225,474,548 + نظایر 79,362 + آن 253,674,963; سندونظایرآن not a word"
+ابزارونظایر,ابزار و نظایر,word,,"glued: hazm: ابزار 4,411,124 + و 225,474,548 + نظایر 79,362; ابزارونظایر not a word"
+موردنیازجهت,مورد نیاز جهت,word,,"glued: hazm: مورد 21,917,993 + نیاز 6,005,523 + جهت 12,005,754; موردنیازجهت not a word; the questionnaires write it so elsewhere"
+صیدونظایرآن,صید و نظایر آن,word,,"glued: hazm: صید 275,229 + و 225,474,548 + نظایر 79,362 + آن 253,674,963; صیدونظایرآن not a word; the questionnaires write it so elsewhere"
+عصاونظایرآن,عصا و نظایر آن,word,,"glued: hazm: عصا 132,064 + و 225,474,548 + نظایر 79,362 + آن 253,674,963; عصاونظایرآن not a word"
+فنرونظایرآن,فنر و نظایر آن,word,,"glued: hazm: فنر 218,029 + و 225,474,548 + نظایر 79,362 + آن 253,674,963; فنرونظایرآن not a word"
+اجاره بهای,اجاره‌بهای,word,,"compound: hazm: اجاره‌بها 40,109; the questionnaires print it joined"
+ماشین حساب,ماشین‌حساب,word,,"compound: hazm: ماشین‌حساب 5,910,024; the questionnaires print it joined"
+جعبه ابزار,جعبه‌ابزار,word,,"compound: hazm: جعبه‌ابزار 306,002"
+شیر کاکائو,شیرکاکائو,word,,"compound: hazm: شیرکاکائو 29,101; the questionnaires print it joined"
+غیر مستقیم,غیرمستقیم,word,,"compound: hazm: غیرمستقیم 239,311; the questionnaires print it joined"
+لیمو شیرین,لیموشیرین,word,,"compound: hazm: لیموشیرین 34,901; the questionnaires print it joined"
+خریدیافروش,خرید یا فروش,word,,"glued: hazm: خرید 1,581 + یا 18,520,621 + فروش 12,302,012; خریدیافروش not a word; the questionnaires write it so elsewhere; the labels write خرید یا فروش 252; خریدیافروش 32"
+تمبرواقلام,تمبر واقلام,word,,"glued: hazm: تمبر 178,100 + واقلام 0; تمبرواقلام not a word; the questionnaires write it so elsewhere"
+تنهاوجلیقه,تنها و جلیقه,word,,"glued: hazm: تنها 11,404,821 + و 225,474,548 + جلیقه 16; تنهاوجلیقه not a word; the questionnaires write it so elsewhere"
+حصیرسایبان,حصیر سایبان,word,,"glued: hazm: حصیر 822,015 + سایبان 320,012; حصیرسایبان not a word"
+طورجداگانه,طور جداگانه,word,,به طور جداگانه (separately): two words
+وآلبالوخشک,و آلبالو خشک,word,,"glued: hazm: و 225,474,548 + آلبالو 129,018 + خشک 2,660,593; وآلبالوخشک not a word; the questionnaires write it so elsewhere"
+مسافرتهای,مسافرت‌های,word,,"plural: hazm: مسافرت 927,233; مسافرتهای not a word"
+سرگرمی ها,سرگرمی‌ها,word,,plural: hazm: سرگرمی 0
+سیستم های,سیستم‌های,word,,plural: hazm: سیستم 0
+جارو برقی,جاروبرقی,word,,"compound: hazm: جاروبرقی 197,010; the questionnaires print it joined"
+زغال اخته,زغال‌اخته,word,,"compound: hazm: زغال‌اخته 142,002"
+پیچ گوشتی,پیچ‌گوشتی,word,,"compound: hazm: پیچ‌گوشتی 503,003"
+لوبیا پلو,لوبیاپلو,word,,"compound: hazm: لوبیاپلو 157,000; the questionnaires print it joined"
+مایه خمیر,مایه‌خمیر,word,,"compound: hazm: مایه‌خمیر 31,200"
+مایه پنیر,مایه‌پنیر,word,,"compound: hazm: مایه‌پنیر 34,500"
+جوش شیرین,جوش‌شیرین,word,,"compound: hazm: جوش‌شیرین 77,806; the questionnaires print it joined"
+غیر دولتی,غیردولتی,word,,"compound: hazm: غیردولتی 273,632; the questionnaires print it joined"
+مداد تراش,مدادتراش,word,,"compound: hazm: مدادتراش 10,303; the questionnaires print it joined"
+زیر انداز,زیرانداز,word,,"compound: hazm: زیرانداز 75,311; the questionnaires print it joined"
+طالع بینی,طالع‌بینی,word,,"compound: hazm: طالع‌بین 16,401; the questionnaires print it joined"
+مربا خوری,مرباخوری,word,,"compound: hazm: مرباخوری 32,908; the questionnaires print it joined"
+سایرانواع,سایر انواع,word,,"glued: hazm: سایر 6,593,387 + انواع 15,201,749; سایرانواع not a word; the questionnaires write it so elsewhere"
+شیرپاک‌کن,شیر پاک‌کن,word,,"glued: hazm: شیر 3,040,889 + پاک 1,910,683 + کن 19,640,797; شیرپاک‌کن not a word"
+شلوارتنها,شلوار تنها,word,,"glued: hazm: شلوار 740,092 + تنها 11,404,821; شلوارتنها not a word; the questionnaires write it so elsewhere"
+بندونظایر,بند و نظایر,word,,"glued: hazm: بند 39,900,928 + و 225,474,548 + نظایر 79,362; بندونظایر not a word"
+وسرگرمیها,و سرگرمی‌ها,word,,"glued: hazm: و 225,474,548 + سرگرمی 0 + ها 0; وسرگرمیها not a word"
+تعمیرونصب,تعمیر و نصب,word,,"glued: hazm: تعمیر 2,450,234 + و 225,474,548 + نصب 7,000,862; تعمیرونصب not a word; the questionnaires write it so elsewhere"
+خریدوفروش,خرید و فروش,word,,"glued: hazm: خرید 1,581 + و 225,474,548 + فروش 12,302,012; خریدوفروش not a word; the questionnaires write it so elsewhere"
+درصورتیکه,در صورتی که,word,,"در صورتی که (in case), not در صور تیکه"
+سایراجاره,سایر اجاره,word,,"glued: hazm: سایر 6,593,387 + اجاره 2,620,252; سایراجاره not a word; the questionnaires write it so elsewhere"
+نوارماشین,نوار ماشین,word,,"glued: hazm: نوار 1,310,539 + ماشین 4,340,717; نوارماشین not a word; the questionnaires write it so elsewhere"
+دیسک های,دیسک‌های,word,,"glued: hazm: و 225,474,548 + دیسک 0; ودیسک not a word (its glued و split by step 3)"
+پلوپزبرقی,پلوپز برقی,word,,"glued: hazm: پلوپز 42,602 + برقی 0; پلوپزبرقی not a word; the questionnaires write it so elsewhere"
+کپسولهای,کپسول‌های,word,,plural: hazm: کپسول 0; کپسولهای not a word
+سیستمهای,سیستم‌های,word,,plural: hazm: سیستم 0; سیستمهای not a word
+پارک های,پارک‌های,word,,plural: hazm: پارک 0
+ماهی های,ماهی‌های,word,,plural: hazm: ماهی 0
+کلوخه ای,کلوخه‌ای,word,,he_ye: ه + ای takes a ZWNJ
+چرخ گوشت,چرخ‌گوشت,word,,"compound: hazm: چرخ‌گوشت 154,102"
+زغال سنگ,زغال‌سنگ,word,,"compound: hazm: زغال‌سنگ 293,449"
+سرخ کرده,سرخ‌کرده,word,,"compound: hazm: سرخ‌کرده 56,208"
+فشار خون,فشارخون,word,,"compound: hazm: فشارخون 503,016; the questionnaires print it joined"
+جا کلیدی,جاکلیدی,word,,"compound: hazm: جاکلیدی 49,702; the questionnaires print it joined"
+لوله کشی,لوله‌کشی,word,,"compound: hazm: لوله‌کشی 381,105; the questionnaires print it joined"
+جمع آوری,جمع‌آوری,word,,"compound: hazm: جمع‌آوری 1,159,694; the questionnaires print it joined"
+زرد چوبه,زردچوبه,word,,"compound: hazm: زردچوبه 1,350,010; the questionnaires print it joined"
+شهر بازی,شهربازی,word,,"compound: hazm: شهربازی 101,011; the questionnaires print it joined"
+ضد عفونی,ضدعفونی,word,,"compound: hazm: ضدعفونی 109,036"
+گاو زبان,گاوزبان,word,,"compound: hazm: گاوزبان 21,509; the questionnaires print it joined"
+گردن بند,گردنبند,word,,"compound: hazm: گردنبند 658,023; the questionnaires print it joined"
+دروپنجره,در و پنجره,word,,"glued: hazm: در 216,317,006 + و 225,474,548 + پنجره 2,200,338; دروپنجره not a word; the questionnaires write it so elsewhere; the labels write در و پنجره 40; دروپنجره 3"
+انجیرخشک,انجیر خشک,word,,"glued: hazm: انجیر 90,342 + خشک 2,660,593; انجیرخشک not a word; the questionnaires write it so elsewhere"
+باقلاخشک,باقلا خشک,word,,"glued: hazm: باقلا 50,017 + خشک 2,660,593; باقلاخشک not a word"
+جاروواطو,جارو و اطو,word,,"glued: hazm: جارو 482,050 + و 225,474,548 + اطو 22,011; جاروواطو not a word"
+کنگروبرگ,کنگر و برگ,word,,"glued: hazm: کنگر 103,007 + و 225,474,548 + برگ 1,400,669; کنگروبرگ not a word"
+برس های,برس‌های,word,,plural: hazm: برس 0
+دیسکهای,دیسک‌های,word,,plural: hazm: دیسک 0; دیسکهای not a word
+ماهیهای,ماهی‌های,word,,plural: hazm: ماهی 0; ماهیهای not a word
+کمک فنر,کمک‌فنر,word,,"compound: hazm: کمک‌فنر 66,702"
+خشکشویی,خشک‌شویی,word,,"compound: hazm: خشک‌شویی 61,604; خشکشویی not listed; the questionnaires write it apart"
+بید مشک,بیدمشک,word,,"compound: hazm: بیدمشک 67,404; the questionnaires print it joined"
+پشه بند,پشه‌بند,word,,"compound: hazm: پشه‌بند 61,492"
+شیر خشت,شیرخشت,word,,"compound: hazm: شیرخشت 21,103; the questionnaires print it joined"
+زرد آلو,زردآلو,word,,"compound: hazm: زردآلو 4,300,032; the questionnaires print it joined"
+سه چرخه,سه‌چرخه,word,,"compound: hazm: سه‌چرخه 19,083; the questionnaires print it joined"
+سر گرمی,سرگرمی,word,,"compound: hazm: سرگرم 668,252; the questionnaires print it joined"
+گاز دار,گازدار,word,,"compound: hazm: گازدار 63,926; the questionnaires print it joined"
+دو چرخه,دوچرخه,word,,"compound: hazm: دوچرخه 763,117; the questionnaires print it joined"
+شتر مرغ,شترمرغ,word,,"compound: hazm: شترمرغ 365,005; the questionnaires print it joined"
+خردکردن,خرد کردن,word,,"glued: hazm: خرد 15,400,405 + کردن 14,006,286; خردکردن not a word; the questionnaires write it so elsewhere"
+پودربچه,پودر بچه,word,,"glued: hazm: پودر 24,000,151 + بچه 8,861,432; پودربچه not a word; the questionnaires write it so elsewhere"
+غیررویی,غیر رویی,word,,"glued: hazm: غیر 14,301,619 + رویی 0; غیررویی not a word; the questionnaires write it so elsewhere"
+خمیرنان,خمیر نان,word,,"glued: hazm: خمیر 266,053 + نان 1,430,399; خمیرنان not a word; the questionnaires write it so elsewhere"
+می شود,می‌شود,word,,prefix: می + verb takes a ZWNJ
+سر شیر,سرشیر,word,,"compound: hazm: سرشیر 51,503; the questionnaires print it joined"
+خرد کن,خردکن,word,,"compound: hazm: خردکن 109,001; the questionnaires print it joined"
+آب رنگ,آب‌رنگ,word,,"compound: hazm: آب‌رنگ 93,615; the questionnaires print it joined"
+ا نواع,انواع,word,,"broken: hazm: انواع 15,201,749; ا not a word + نواع not a word"
+واقلام,و اقلام,word,,"glued: hazm: اقلام 731,377; واقلام 0"
+وبخاری,و بخاری,word,,"glued: hazm: و 225,474,548 + بخاری 56; وبخاری not a word"
+یاباطل,یا باطل,word,,"glued: hazm: یا 18,520,621 + باطل 1,060,313; یاباطل not a word"
+تحریرو,تحریر و,word,,"glued: hazm: تحریر 1,310,128 + و 225,474,548; تحریرو not a word"
+سیرخشک,سیر خشک,word,,"glued: hazm: سیر 3,821,673 + خشک 2,660,593; سیرخشک not a word; the questionnaires write it so elsewhere"
+پروکرک,پر و کرک,word,,"پشم، پنبه، پر و کرک (feathers and down), not پرو کرک"
+یک جا,یک‌جا,word,,"compound: hazm: یک‌جا 4,610,092; the questionnaires print it joined"
+گو شت,گوشت,word,,"compound: hazm: گوشت 1,150,568; the questionnaires print it joined"
+کاهگل,کاه‌گل,word,,compound: hazm: کاه‌گل 9; کاهگل not listed; the questionnaires write it apart
+میو ه,میوه,word,,"broken: hazm: میوه 64,500,524; میو 0 + ه not a word"
+دربیمارستان‌های,در بیمارستان‌های,word,,years: the labels write در بیمارستان‌های 28; دربیمارستان‌های 16
+دیگرطبقه بندی,دیگر طبقه‌بندی,word,,years: the labels write دیگر طبقه‌بندی 17; دیگرطبقه بندی 4
+چرخ داربچه,چرخدار بچه,word,,years: the labels write چرخ داربچه 11; چرخدار بچه 9
+واستخرشنای,و استخر شنای,word,,years: the labels write واستخرشنای 2; و استخر شنای 1
+پانتو گراف,پانتوگراف,word,,years: the labels write پانتوگراف 20; پانتو گراف 1
+مرغ‌وخروس,مرغ و خروس,word,,years: the labels write مرغ‌وخروس 16; مرغ و خروس 12
+قسمت‌ها ی,قسمت‌های,word,,years: the labels write قسمت‌های 18; قسمت‌ها ی 3
+دیسکت ها,دیسکت‌ها,word,,years: the labels write و دیسکت‌ها 17; ودیسکتها 5; ودیسکت ها 1 (its glued و split by step 3)
+چربی‌ها ی,چربی‌های,word,,years: the labels write چربی‌های 17; چربیها ی 2; چربی‌ها ی 1
+ودیسکتها,و دیسکت‌ها,word,,years: the labels write و دیسکت‌ها 17; ودیسکتها 5; ودیسکت ها 1
+خانوارکه,خانوار که,word,,years: the labels write خانوار که 17; خانوارکه 4
+اطوپرسی,اطو پرسی,word,,years: the labels write اطوپرسی 17; اطو پرسی 3
+تانکرآب,تانکر آب,word,,years: the labels write تانکر آب 34; تانکرآب 8
+پرکردن,پر کردن,word,,years: the labels write پرکردن 14; پر کردن 12
+سایرحق,سایر حق,word,,years: the labels write سایر حق 17; سایرحق 4
+خریدآب,خرید آب,word,,years: the labels write خرید آب 17; خریدآب 3
+سبدگل,سبد گل,word,,years: the labels write سبد گل 24; سبدگل 17
+جوو,جو و,word,,years: the labels write جو و 18; جوو 3
+وبهای,و بهای,word,,"glued و; the automatic fixes leave it, as وب + های and بها + ی tie"
+وتویی,و تویی,word,,"glued و (لاستیک رویی و تویی); the automatic fixes leave it, as وتو + یی and تو + یی tie"
+نشیمن گاه‌ها,نشیمن‌گاه‌ها,word,,"compound, as the labels write نشیمن‌گاه; the plural is joined by the automatic fixes"

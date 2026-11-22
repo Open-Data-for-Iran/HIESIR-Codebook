@@ -233,8 +233,7 @@ def test_item_continued_on_the_next_page_is_joined():
 
 
 def test_report_groups_repeated_notes(tmp_path):
-    import csv
-
+    from hiesir_codebook import csv_io
     from hiesir_codebook.extraction import Note, write_report
 
     notes = [
@@ -249,8 +248,7 @@ def test_report_groups_repeated_notes(tmp_path):
     ]
     path = tmp_path / "report.csv"
     write_report(notes, path)
-    with open(path, encoding="utf-8-sig") as f:
-        rows = list(csv.DictReader(f))
+    rows = csv_io.read(path)
     assert [(r["page"], r["y"], r["text"], r["count"], r["pages"]) for r in rows] == [
         ("6", "98.9", "کد", "3", "6-8"),  # 1-based, first met, one row for the heading on every page
         ("10", "", "ا", "42", "10-11"),

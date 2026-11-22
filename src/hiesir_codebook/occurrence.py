@@ -9,11 +9,10 @@ and for links between items (``relations``).
 
 from __future__ import annotations
 
-import csv
 from collections.abc import Iterable
 from pathlib import Path
 
-from . import DATA_DIR
+from . import DATA_DIR, csv_io
 
 Occurrence = dict[int, dict[int, int]]  # {year: {code: households}}
 
@@ -29,10 +28,9 @@ def load_occurrence(paths: Path | Iterable[Path] = OCCURRENCE) -> Occurrence:
     """{year: {code: households}} from one table or several (later ones win)."""
     out: Occurrence = {}
     for path in [paths] if isinstance(paths, Path) else paths:
-        with open(path, encoding="utf-8-sig") as f:
-            for r in csv.DictReader(f):
-                code = int(r["Commodity_Code"])
-                for k, v in r.items():
-                    if k != "Commodity_Code" and v:
-                        out.setdefault(int(k), {})[code] = int(float(v))
+        for r in csv_io.read(path):
+            code = int(r["Commodity_Code"])
+            for k, v in r.items():
+                if k != "Commodity_Code" and v:
+                    out.setdefault(int(k), {})[code] = int(float(v))
     return out

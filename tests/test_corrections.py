@@ -3,8 +3,13 @@ from pathlib import Path
 import pytest
 
 from hiesir_codebook import SUPPORTED_YEARS
-from hiesir_codebook.correction.correct import load_corrections
-from hiesir_codebook.correction.structure import HeaderException, check, check_rows, load_header_exceptions
+from hiesir_codebook.correction.corrections import (
+    HeaderException,
+    check_rows,
+    check_structure,
+    load_corrections,
+    load_header_exceptions,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -74,7 +79,7 @@ def test_corrected_questionnaires_are_sound():
     header exception is still needed."""
     exceptions = load_header_exceptions()
     used = set()
-    assert check(SUPPORTED_YEARS, ROOT / "output" / "2_corrected", exceptions, used) == []
+    assert check_structure(SUPPORTED_YEARS, ROOT / "output" / "2_corrected", exceptions, used) == []
     assert [e for e in exceptions if e not in used] == []
 
 
@@ -82,7 +87,7 @@ def test_extracted_findings_are_corrected():
     """What the check finds in output/1_extracted/ are print errors that
     curated/2_corrected/corrections.csv fixes."""
     fixed = {(c.year, c.expenditure_code) for c in load_corrections()}
-    findings = check(SUPPORTED_YEARS, ROOT / "output" / "1_extracted")
+    findings = check_structure(SUPPORTED_YEARS, ROOT / "output" / "1_extracted")
     assert findings, "the 1386 print errors are expected here"
     unfixed = [
         f

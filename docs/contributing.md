@@ -27,10 +27,11 @@ of date; GitHub folds these files in diffs (`.gitattributes`).
 uv run hiesir-codebook build                 # regenerate every stage of output/
 uv run hiesir-codebook build --no-extract    # keep 1_extracted/ (no PDFs needed)
 uv run hiesir-codebook pdfs download        # the PDFs from the release, checked against data/pdfs.csv
+uv run hiesir-codebook hazm download        # hazm's word list and data files -> data/hazm/, checked
 uv run hiesir-codebook extract               # just extract: PDFs -> output/1_extracted/ (reports in reports/)
 uv run hiesir-codebook extract 1382 1403     # or just some years
 uv run python -m hiesir_codebook.correction.correct --check   # correct and check against the raw data
-uv run python -m hiesir_codebook.correction.structure         # check the corrected CSVs from the CSVs alone
+uv run python -m hiesir_codebook.correction.corrections         # check the corrected CSVs from the CSVs alone
 uv run python -m hiesir_codebook.explorer    # just the explorer page
 ```
 
@@ -43,7 +44,7 @@ each with its reason:
 |---|---|---|
 | `2_corrected/corrections.csv` | single items and group headers in a single year: wrong codes, wrong texts, missing sections | `correct` |
 | `2_corrected/spelling.csv` | spellings that recur across rows and years: typos, glued words, ZWNJs | `correct` |
-| `2_corrected/spelling_suggestions.csv` | decisions on hazm's spelling suggestions (`find`): confirm, reject, change | `correct` |
+| `2_corrected/words.csv` | correct words that hazm's word list lacks, so the automatic fixes leave them alone | `autocorrect` |
 | `3_items/links.csv` | decisions on 1 → 1 links between chains (`from_chain` → `to_chain`, same or recoded): confirm, reject, change, add | `relations` |
 | `3_items/relations.csv` | decisions on merges, splits and regroupings between chain sets (`from_chains` → `to_chains`): confirm, reject, change, add | `relations` |
 | `4_groups/links.csv` | decisions on links between group headers (`from_group` → `to_group`: continued, split, merged, regrouped, moved): confirm, reject, change, add | `groups` |
@@ -51,16 +52,6 @@ each with its reason:
 The columns of each are described in [Methods](methods.md): [corrections](methods.md#corrections)
 and [matching decisions](methods.md#matching-items-across-years). After editing,
 run `uv run hiesir-codebook build --no-extract` and review the diff in `output/`.
-
-After changing the corrections or `spelling.csv`, regenerate the spelling
-suggestions from hazm's dictionary (hazm needs Python 3.12 or 3.13), review the
-`apply` `no` rows and overrule any suggestion in
-`curated/2_corrected/spelling_suggestions.csv`:
-
-```bash
-uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.spelling   # -> output/2_corrected/spelling_suggestions.csv
-uv run --python 3.13 --extra hazm python -m hiesir_codebook.correction.check      # -> reports/label_check.csv (to review)
-```
 
 ## Tests
 
@@ -78,7 +69,7 @@ Fast tests also check that `output/2_corrected/`, `output/3_items/`,
 `uv run hiesir-codebook build --no-extract` and review the diff. Tests that
 need the PDFs are skipped when `data/pdf/` is missing; on GitHub the workflow
 downloads them from the release, and the occurrence tables are in git, so
-every test runs there. `python -m hiesir_codebook.correction.structure`
+every test runs there. `python -m hiesir_codebook.correction.corrections`
 checks the corrected CSVs from the CSVs alone (duplicate codes, sub-code and
 section order, empty texts, items outside their header; a test runs it too).
 
@@ -144,6 +135,18 @@ gh release upload questionnaires data/pdf/questionnaire_1404.pdf --clobber
 then commit `data/pdfs.csv`. A local site build uses `data/pdf/`, or the
 folder in `$HIESIR_PDF_DIR`. A copy with the old names (`Questionnaire 1386.pdf`)
 is renamed with `hiesir-codebook pdfs rename`.
+
+### hazm's word list
+
+[hazm](https://github.com/roshan-research/hazm) (MIT licence) ships a Persian
+word list with corpus frequencies and parts of speech, verb stems, stopwords
+and abbreviations as plain text files. `hiesir-codebook hazm download` fetches
+them from hazm's repository at a fixed release (v0.12.1) into `data/hazm/`,
+outside git, and checks each against the size and SHA-256 listed in
+`hazm_data.py`; `hazm verify` checks a copy, `hazm list` shows what each file
+holds. `hazm_data.words_list()`, `word_frequencies()`, `stopwords_list()` and
+`verbs_list()` read them, so hazm itself (which needs Python 3.12 or 3.13) is
+not needed. The automatic fixes (`correction/autocorrect.py`) use them.
 
 ## License
 

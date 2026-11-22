@@ -27,12 +27,12 @@ for different providers as ``different``: دولتی matches G and خصوصی NG
 
 from __future__ import annotations
 
-import csv
 import difflib
 import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from .. import csv_io
 from ..utils import loose_key, words
 
 # questionnaires with COICOP-based codes (the 1401 PDF is not a questionnaire)
@@ -219,9 +219,8 @@ class Item:
 
 
 def load_year(year: int, source: Path) -> list[Item]:
-    with open(source / f"questionnaire_{year}.csv", encoding="utf-8-sig") as f:
-        return [
-            Item(year, int(r["section"]), r["expenditure_code"], r["description"])
-            for r in csv.DictReader(f)
-            if r["kind"] == "item" and r["expenditure_code"]
-        ]
+    return [
+        Item(year, int(r["section"]), r["expenditure_code"], r["description"])
+        for r in csv_io.read(source / f"questionnaire_{year}.csv")
+        if r["kind"] == "item" and r["expenditure_code"]
+    ]

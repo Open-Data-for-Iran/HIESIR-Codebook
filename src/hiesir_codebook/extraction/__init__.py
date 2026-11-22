@@ -12,10 +12,9 @@ repaired, for review; both are tracked, so a change shows in the diff.
 
 from __future__ import annotations
 
-import csv
 from pathlib import Path
 
-from .. import DATA_DIR, EXTRACTED
+from .. import DATA_DIR, EXTRACTED, csv_io
 from .parse import Row, extract, extract_year
 from .pdf_text import Note, Notes
 
@@ -53,10 +52,7 @@ def write_csv(rows: list[Row], path: Path) -> None:
     The section rows carry the full PDF title in ``description``; ``page``
     is the 1-based PDF page.  UTF-8 with BOM so Excel shows Persian text.
     """
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8-sig", newline="") as f:
-        w = csv.writer(f, lineterminator="\n")  # LF: tracked data diffs cleanly on every OS
-        w.writerow(CSV_COLUMNS)
+    with csv_io.writer(path, CSV_COLUMNS) as w:
         for r in rows:
             w.writerow(
                 [
@@ -99,10 +95,7 @@ def write_report(notes: list[Note], path: Path) -> None:
     groups: dict[tuple[str, str], list[Note]] = {}
     for n in notes:
         groups.setdefault((n.reason, n.text), []).append(n)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8-sig", newline="") as f:
-        w = csv.writer(f, lineterminator="\n")
-        w.writerow(REPORT_COLUMNS)
+    with csv_io.writer(path, REPORT_COLUMNS) as w:
         for (reason, text), ds in groups.items():
             first = ds[0]
             w.writerow(

@@ -21,7 +21,6 @@ questionnaires data/pdf/<name> --clobber``) and commit ``data/pdfs.csv``.
 from __future__ import annotations
 
 import argparse
-import csv
 import hashlib
 import re
 import time
@@ -29,7 +28,7 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
-from .. import DATA_DIR, SUPPORTED_YEARS
+from .. import DATA_DIR, SUPPORTED_YEARS, csv_io
 
 REPO = "Open-Data-for-Iran/HIESIR-Codebook"
 RELEASE_TAG = "questionnaires"
@@ -105,11 +104,9 @@ def sha256(path: Path) -> str:
 
 
 def load_manifest(path: Path = MANIFEST) -> list[Entry]:
-    with open(path, encoding="utf-8", newline="") as f:
-        return [
-            Entry(r["name"], int(r["year"]), r["area"], int(r["bytes"]), r["sha256"])
-            for r in csv.DictReader(f)
-        ]
+    return [
+        Entry(r["name"], int(r["year"]), r["area"], int(r["bytes"]), r["sha256"]) for r in csv_io.read(path)
+    ]
 
 
 def write_manifest(folder: Path = PDF_DIR, path: Path = MANIFEST) -> list[Entry]:
@@ -119,10 +116,7 @@ def write_manifest(folder: Path = PDF_DIR, path: Path = MANIFEST) -> list[Entry]
         if f.path.name != f.name:
             raise PdfError(f"{f.path.name}: not a release name (run `pdfs rename`)")
         entries.append(Entry(f.name, f.year, f.area, f.path.stat().st_size, sha256(f.path)))
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8", newline="") as fh:
-        w = csv.writer(fh, lineterminator="\n")
-        w.writerow(MANIFEST_COLUMNS)
+    with csv_io.writer(path, MANIFEST_COLUMNS, bom=False) as w:
         for e in entries:
             w.writerow([e.name, e.year, e.area, e.kind, e.bytes, e.sha256])
     return entries

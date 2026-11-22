@@ -32,7 +32,7 @@ def test_metrics_add_up():
     assert m["links"]["same"] + m["links"]["recoded"] == m["links"]["kept"]
     assert sum(m["relations"][k] for k in ("merged", "split", "regrouped")) == m["relations"]["kept"]
     assert sum(m["questionnaires"]["items_by_year"].values()) == m["questionnaires"]["items"]
-    assert m["suggestions"]["applied"] <= m["suggestions"]["total"]
+    assert m["labels"]["spelling"] <= m["labels"]["total"]
 
 
 def test_every_figure_in_the_docs_exists():

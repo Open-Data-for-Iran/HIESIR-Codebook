@@ -20,11 +20,10 @@ Output: ``chains.csv``, one row per chain.
 from __future__ import annotations
 
 import argparse
-import csv
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .. import CORRECTED, ITEMS
+from .. import CORRECTED, ITEMS, csv_io
 from .compare import MAX_GAP, YEARS, Item, load_year, relate
 
 
@@ -72,12 +71,8 @@ def missing_years(c: Chain, years: list[int]) -> list[int]:
 
 
 def write_chains(chains: list[Chain], path: Path, years: list[int]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8-sig", newline="") as f:
-        w = csv.writer(f, lineterminator="\n")
-        w.writerow(
-            ["chain_id", "section", "expenditure_code", "first_year", "last_year", "missing_years", "text"]
-        )
+    header = ["chain_id", "section", "expenditure_code", "first_year", "last_year", "missing_years", "text"]
+    with csv_io.writer(path, header) as w:
         for c in sorted(chains, key=lambda c: (c.section, c.code, c.years[0])):
             missing = " ".join(map(str, missing_years(c, years)))
             w.writerow([c.id, c.section, c.code, c.years[0], c.years[-1], missing, c.text])
@@ -87,12 +82,11 @@ def read_chains(path: Path, years: list[int] = YEARS) -> list[Chain]:
     """Chains back from ``chains.csv`` (years rebuilt from the span and the
     missing years)."""
     out = []
-    with open(path, encoding="utf-8-sig") as f:
-        for r in csv.DictReader(f):
-            first, last = int(r["first_year"]), int(r["last_year"])
-            missing = {int(y) for y in r["missing_years"].split()}
-            ys = [y for y in years if first <= y <= last and y not in missing]
-            out.append(Chain(r["chain_id"], int(r["section"]), r["expenditure_code"], r["text"], ys))
+    for r in csv_io.read(path):
+        first, last = int(r["first_year"]), int(r["last_year"])
+        missing = {int(y) for y in r["missing_years"].split()}
+        ys = [y for y in years if first <= y <= last and y not in missing]
+        out.append(Chain(r["chain_id"], int(r["section"]), r["expenditure_code"], r["text"], ys))
     return out
 
 

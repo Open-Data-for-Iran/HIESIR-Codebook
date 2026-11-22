@@ -3,14 +3,9 @@ from pathlib import Path
 import pytest
 
 from hiesir_codebook import SUPPORTED_YEARS
-from hiesir_codebook.correction.correct import (
-    Correction,
-    LabelFix,
-    apply,
-    correct,
-    fix_label,
-    write_rows,
-)
+from hiesir_codebook.correction.correct import apply, correct, write_rows
+from hiesir_codebook.correction.corrections import Correction
+from hiesir_codebook.correction.spelling import LabelFix, fix_label
 from hiesir_codebook.utils import parse_years
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -92,9 +87,6 @@ def test_corrected_is_up_to_date(tmp_path):
         tmp_path,
         ROOT / "curated" / "2_corrected" / "corrections.csv",
         ROOT / "curated" / "2_corrected" / "spelling.csv",
-        None,
-        ROOT / "output" / "2_corrected" / "spelling_suggestions.csv",
-        ROOT / "curated" / "2_corrected" / "spelling_suggestions.csv",
     )
     for year in SUPPORTED_YEARS:
         name = f"questionnaire_{year}.csv"
@@ -153,7 +145,7 @@ def test_corrected_codes_agree_with_the_raw_data(capsys):
     """Every code households report (5 or more) is printed, none twice, and
     the raw data supports every code-level correction.  Needs the occurrence
     table (data/, downloaded in CI)."""
-    from hiesir_codebook.correction.correct import check, load_corrections, verify
+    from hiesir_codebook.correction.corrections import check_occurrence, load_corrections, verify
     from hiesir_codebook.occurrence import occurrence_files
 
     path = occurrence_files(ROOT / "data")
@@ -165,7 +157,7 @@ def test_corrected_codes_agree_with_the_raw_data(capsys):
         ROOT / "output" / "1_extracted",
         path,
     )
-    failed = check(years, ROOT / "output" / "2_corrected", path)
+    failed = check_occurrence(years, ROOT / "output" / "2_corrected", path)
     out = capsys.readouterr().out
     assert (contradicted, failed) == (0, 0), "\n".join(
         ln for ln in out.splitlines() if "<--" in ln or "not printed:" in ln or "twice" in ln
