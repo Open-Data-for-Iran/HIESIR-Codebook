@@ -44,23 +44,6 @@ def test_every_chain_and_kept_relation_is_embedded():
     assert data["sectionYears"][10][0][0] == 1383
 
 
-def test_render_escapes_closing_tags(tmp_path):
-    template = tmp_path / "t.html"
-    template.write_text(
-        "<style>/*__CSS__*/</style>"
-        f"<script>const DATA = {explorer.PLACEHOLDER};</script>"
-        "<script>/*__JS__*/</script>",
-        encoding="utf-8",
-    )
-    js, css = tmp_path / "x.js", tmp_path / "x.css"
-    js.write_text('const s = "</script>";', encoding="utf-8")
-    css.write_text(".a { color: red }", encoding="utf-8")
-    html = explorer.render({"x": "</script><b>"}, template, js=js, css=css)
-    assert html.count("</script>") == 2  # only the template's own closing tags
-    assert '"<\\/script><b>"' in html
-    assert ".a { color: red }" in html
-
-
 def test_bundle_follows_imports(tmp_path):
     (tmp_path / "lib").mkdir()
     (tmp_path / "lib" / "a.js").write_text(
@@ -190,25 +173,15 @@ def test_core_runs_on_its_own(tmp_path):
     assert out["ranges"] == "۱۳۸۳–۱۳۸۵، ۱۳۹۰"  # i18n/format.js, in Persian digits
 
 
-def test_docs_page_and_standalone_share_the_component():
+def test_docs_page_loads_the_component():
     """docs/explorer.md is drawn by overrides/explorer.html, which loads the
-    bundled explorer.js and explorer.css that the standalone page inlines
-    (scripts/mkdocs_hooks.py publishes them)."""
+    bundled explorer.js and explorer.css (scripts/mkdocs_hooks.py publishes
+    them, with the data made from the CSVs)."""
     template = (ROOT / "overrides" / "explorer.html").read_text(encoding="utf-8")
     for name in ("explorer.js", "explorer.css"):
         assert f"assets/explorer/{name}" in template
-    # both pages embed it as the <hies-explorer> element
-    for host in (template, explorer.TEMPLATE.read_text(encoding="utf-8")):
-        assert '<hies-explorer class="hx ' in host and "</hies-explorer>" in host
+    assert '<hies-explorer class="hx ' in template and "</hies-explorer>" in template
     hooks = (ROOT / "scripts" / "mkdocs_hooks.py").read_text(encoding="utf-8")
-    assert "bundle_js()" in hooks and "bundle_css()" in hooks
+    assert "bundle_js()" in hooks and "bundle_css()" in hooks and "collect()" in hooks
     for page in ("explorer.md", "explorer.fa.md"):
         assert "template: explorer.html" in (ROOT / "docs" / page).read_text(encoding="utf-8")
-
-
-def test_explorer_is_up_to_date(tmp_path):
-    """output/explorer/index.html must match the data and the template;
-    if this fails, run `uv run hiesir-codebook build --no-extract`."""
-    out = tmp_path / "index.html"
-    out.write_text(explorer.render(_collect()), encoding="utf-8", newline="\n")
-    assert out.read_bytes() == (ROOT / "output" / "explorer" / "index.html").read_bytes()

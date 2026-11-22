@@ -10,7 +10,6 @@ flowchart LR
   ext -->|correct| cor["2_corrected/<br>as intended"]
   cor -->|match| items["3_items/<br>chains, links, relations"]
   items -->|group| groups["4_groups/<br>groups, members, links"]
-  groups --> exp["explorer/"]
   c2["curated/2_corrected/"] -.-> cor
   c3["curated/3_items/"] -.-> items
   c4["curated/4_groups/"] -.-> groups
@@ -32,7 +31,6 @@ uv run hiesir-codebook extract               # just extract: PDFs -> output/1_ex
 uv run hiesir-codebook extract 1383 1403     # or just some years
 uv run python -m hiesir_codebook.correction.correct --check   # correct and check against the raw data
 uv run python -m hiesir_codebook.correction.corrections         # check the corrected CSVs from the CSVs alone
-uv run python -m hiesir_codebook.explorer    # just the explorer page
 ```
 
 ## Fixing the data
@@ -65,7 +63,7 @@ The regression tests re-extract every year and compare byte-for-byte with
 `output/1_extracted/`. When an extractor change is intended, regenerate with
 `uv run hiesir-codebook extract` and review the CSV diff before committing.
 Fast tests also check that `output/2_corrected/`, `output/3_items/`,
-`output/4_groups/` and `output/explorer/` are up to date; after changing `curated/` or the code, run
+and `output/4_groups/` are up to date; after changing `curated/` or the code, run
 `uv run hiesir-codebook build --no-extract` and review the diff. Tests that
 need the PDFs are skipped when `data/pdf/` is missing; on GitHub the workflow
 downloads them from the release, and the occurrence tables are in git, so
@@ -76,8 +74,9 @@ section order, empty texts, items outside their header; a test runs it too).
 ## Documentation
 
 This site is built with [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/)
-from `docs/` and `mkdocs.yml`. The explorer and the CSVs are copied in from
-`output/` at build time (`scripts/mkdocs_hooks.py`), so they are never duplicated in git.
+from `docs/` and `mkdocs.yml`. The CSVs are copied in from `output/` at build
+time, and the explorer's data (`explorer/data.json`) is made from them then
+(`scripts/mkdocs_hooks.py`), so neither is duplicated in git.
 
 The explorer is one component in `web/explorer/`, apart from the Python code
 (its `README.md` describes the parts): the `<hies-explorer>` element, written
@@ -86,9 +85,7 @@ as ES modules in `src/` (the data logic in `src/core/`, the interface text in
 `styles/`. The build bundles
 them, without Node, into one script and one stylesheet. The docs page
 `docs/explorer.md` (and `explorer.fa.md`) loads those inside the site through
-`overrides/explorer.html`, taking the site's colours, fonts and dark mode; the
-offline file `output/explorer/index.html` inlines them (`hosts/standalone.html`).
-Change the component once and both follow.
+`overrides/explorer.html`, taking the site's colours, fonts and dark mode.
 
 Diagrams are written in [Mermaid](https://mermaid.js.org/) as a ` ```mermaid `
 code block, so they stay text and take the site's light or dark theme. In the

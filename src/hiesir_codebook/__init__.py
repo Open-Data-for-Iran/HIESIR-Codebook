@@ -41,10 +41,11 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
 
     extract (PDFs -> 1_extracted, skipped when the PDFs are not available)
     -> correct (+ curated/2_corrected -> 2_corrected) -> chains and relations
-    (-> 3_items) -> the groups (-> 4_groups) -> the explorer page -> the
-    figures of it all (-> metrics.json).
+    (-> 3_items) -> the groups (-> 4_groups) -> the figures of it all
+    (-> metrics.json). The explorer is not in output/: the site build makes its
+    data from these CSVs (scripts/mkdocs_hooks.py).
     """
-    from . import explorer, metrics
+    from . import metrics
     from .correction import correct, corrections
     from .linking import chains, groups, relations
 
@@ -62,7 +63,6 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
     chains.main([])
     relations.main([])
     groups.main([])
-    explorer.main([])
     metrics.main([])
 
 

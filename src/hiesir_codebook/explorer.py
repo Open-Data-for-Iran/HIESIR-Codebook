@@ -1,35 +1,30 @@
-"""Build the explorer: one static HTML page to search and browse the matched items.
+"""The explorer's data and component, for the documentation site.
 
-Reads ``output/2_corrected/``, ``output/3_items/chains.csv``,
+:func:`collect` reads ``output/2_corrected/``, ``output/3_items/chains.csv``,
 ``links.csv``, ``relations.csv``, ``output/4_groups/groups.csv``, ``members.csv``
-and ``curated/2_corrected/corrections.csv``, and writes
-``output/explorer/index.html`` with the data embedded, so the page works
-offline and on any static host (no server, no build step).
-
-    uv run python -m hiesir_codebook.explorer
+and ``curated/2_corrected/corrections.csv``; :func:`bundle_js` and
+:func:`bundle_css` join the component of ``web/explorer/`` into one script and
+one stylesheet. Nothing is written to ``output/``: ``scripts/mkdocs_hooks.py``
+calls these when the site is built and publishes ``explorer/data.json`` and
+``assets/explorer/``.
 """
 
 from __future__ import annotations
 
-import argparse
 import json
 import math
 import re
 from pathlib import Path
 
-from . import CORRECTED, CURATED_CORRECTED, GROUPS, ITEMS, OUTPUT, csv_io
+from . import CORRECTED, CURATED_CORRECTED, GROUPS, ITEMS, csv_io
 from .linking.compare import YEARS
 
-# The component lives in web/explorer/ (website code, not Python; see its README).
-# It is shared by the standalone page written here and by the documentation site
-# (docs/explorer.md, overrides/explorer.html, scripts/mkdocs_hooks.py), so the two
-# cannot drift. Like output/ and curated/, it is read from the repository.
+# The component lives in web/explorer/ (website code, not Python; see its README);
+# the documentation site loads it (docs/explorer.md, overrides/explorer.html,
+# scripts/mkdocs_hooks.py). Like output/ and curated/, it is read from the repository.
 WEB = Path(__file__).resolve().parents[2] / "web" / "explorer"
 JS = WEB / "src" / "explorer.js"  # the entry module; bundle_js() follows its imports
 CSS = WEB / "styles" / "explorer.css"  # @imports the partials; bundle_css() inlines them
-TEMPLATE = WEB / "hosts" / "standalone.html"
-OUT = OUTPUT / "explorer" / "index.html"
-PLACEHOLDER = "/*__DATA__*/null"
 
 
 def _read(path: Path) -> list[dict[str, str]]:
@@ -296,37 +291,3 @@ def bundle_css(entry: Path = CSS, _seen: frozenset[Path] = frozenset()) -> str:
         return bundle_css(entry.parent / m.group(1), _seen | {entry})
 
     return _CSS_IMPORT.sub(inline, entry.read_text(encoding="utf-8"))
-
-
-def render(data: dict, template: Path = TEMPLATE, js: Path = JS, css: Path = CSS) -> str:
-    """The standalone page: template + component + data in one file."""
-    html = template.read_text(encoding="utf-8")
-    parts = {
-        PLACEHOLDER: to_json(data),
-        "/*__JS__*/": bundle_js(js).replace("</script", "<\\/script"),
-        "/*__CSS__*/": bundle_css(css),
-    }
-    for key, value in parts.items():
-        if key not in html:
-            raise ValueError(f"{template} has no {key} placeholder")
-        html = html.replace(key, value, 1)
-    return html
-
-
-def build(out: Path = OUT, **kwargs) -> Path:
-    out.parent.mkdir(parents=True, exist_ok=True)
-    with open(out, "w", encoding="utf-8", newline="\n") as f:
-        f.write(render(collect(**kwargs)))
-    return out
-
-
-def main(argv: list[str] | None = None) -> None:
-    ap = argparse.ArgumentParser(prog="python -m hiesir_codebook.explorer", description=__doc__)
-    ap.add_argument("--out", type=Path, default=OUT)
-    args = ap.parse_args(argv)
-    out = build(args.out)
-    print(f"explorer -> {out.as_posix()} ({out.stat().st_size // 1024} KB)")
-
-
-if __name__ == "__main__":
-    main()

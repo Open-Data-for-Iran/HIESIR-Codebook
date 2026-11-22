@@ -5,17 +5,13 @@ years, as a reusable web component: `<hies-explorer>`. It is website code,
 kept apart from the Python package, in plain ES modules and CSS with no
 dependencies, so another site can take all of it or only the parts it needs.
 
-It is drawn in two places from the same files:
+The documentation site draws it: `docs/explorer.md` → `overrides/explorer.html`,
+which loads the files that `scripts/mkdocs_hooks.py` publishes under
+`assets/explorer/` and fetches `explorer/data.json`.
 
-- the documentation site: `docs/explorer.md` → `overrides/explorer.html`, which
-  loads the files that `scripts/mkdocs_hooks.py` publishes under `assets/explorer/`
-  and fetches `explorer/data.json`;
-- the offline page `output/explorer/index.html`, written by
-  `python -m hiesir_codebook.explorer` from `hosts/standalone.html` with the
-  script, styles and data inlined.
-
-The data (`data.json`, or `window.HX_DATA`) is built by
-`hiesir_codebook.explorer.collect()` from `output/`; its shape is
+The data (`data.json`, or `window.HX_DATA` when a page embeds it) is made
+when the site is built, by `hiesir_codebook.explorer.collect()` from the CSVs
+of `output/`; nothing of the explorer is kept in `output/`. Its shape is
 [`src/core/data.d.ts`](src/core/data.d.ts).
 
 ## The parts
@@ -54,7 +50,6 @@ styles/explorer.css    the entry stylesheet: @imports the partials in cascade or
 styles/*.css           tokens (colours, the comparability colours), theme-mkdocs,
                        base, list, card, timeline, history, changes, about,
                        viewer, states, responsive; all scoped under .hx
-hosts/standalone.html  the offline page's shell (header, language, theme)
 package.json           "type": "module", so Node and bundlers read src/ as ES modules
 ```
 
@@ -118,7 +113,7 @@ installed).
 ## Building
 
 A site with its own build (Vite, Astro, …) can import `src/` and
-`styles/explorer.css` as they are. For the two pages here,
+`styles/explorer.css` as they are. For the site here,
 `hiesir_codebook.explorer` bundles them without Node:
 
 - `bundle_js()` follows the imports from `src/explorer.js` and joins the
@@ -129,8 +124,6 @@ The bundler reads only `import { a, b as c } from "./x.js";` and
 `export function|const|let|class` / `export { … }`, and stops with the file
 and line on anything else (a default export, a bare specifier, a bare
 `import "./x.js"`), so keep to those forms.
-
-    uv run python -m hiesir_codebook.explorer   # writes output/explorer/index.html
 
 No UI kit, CSS framework or charting library: the views are specific to this
 data, and the colours come from `tokens.css`, which each host maps to its own

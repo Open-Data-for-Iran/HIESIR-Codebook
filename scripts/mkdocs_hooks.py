@@ -75,7 +75,7 @@ def on_files(files: Files, config) -> Files:
     cache = Path(tempfile.mkdtemp(prefix="hiesir-explorer-")) / "data.json"
     cache.write_text(data, encoding="utf-8")
     files.append(File.generated(config, "explorer/data.json", abs_src_path=str(cache)))
-    # the component, bundled as for the standalone page: one script, one stylesheet
+    # the component, bundled: one script, one stylesheet
     for name, text in (("explorer.js", explorer.bundle_js()), ("explorer.css", explorer.bundle_css())):
         (cache.parent / name).write_text(text, encoding="utf-8", newline="\n")
         files.append(File.generated(config, f"assets/explorer/{name}", abs_src_path=str(cache.parent / name)))

@@ -6,8 +6,8 @@ matched across years, so that the same item can be followed as its code and
 wording change. (The 1382 form has a text layer too, but its older 3+2 digit
 code scheme is not covered, so it is left out.)
 
-- **Look up an item:** open the explorer, [`output/explorer/index.html`](output/explorer/index.html)
-  (a single file, works offline). Search a code or Persian text to see the
+- **Look up an item:** open the [explorer](https://open-data-for-iran.github.io/HIESIR-Codebook/explorer/)
+  on the documentation site. Search a code or Persian text to see the
   years it was asked, its code and label changes, what it was merged or split
   into, and whether it is comparable across years.
 - **Read the documentation:** <https://open-data-for-iran.github.io/HIESIR-Codebook/>
@@ -16,7 +16,7 @@ code scheme is not covered, so it is left out.)
   [contributing](docs/contributing.md).
 
 ```
-data/pdf ─extract─▶ 1_extracted ─correct─▶ 2_corrected ─match─▶ 3_items ─group─▶ 4_groups ─▶ explorer
+data/pdf ─extract─▶ 1_extracted ─correct─▶ 2_corrected ─match─▶ 3_items ─group─▶ 4_groups
                     as printed             as intended
                                      ▲                     ▲                ▲
                            curated/2_corrected/    curated/3_items/ curated/4_groups/

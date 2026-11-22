@@ -1,4 +1,4 @@
-# Test, build the documentation site (docs/ + the explorer and CSVs from output/)
+# Test, build the documentation site (docs/ + the CSVs of output/ and the explorer's data made from them)
 # and publish it to GitHub Pages.
 # One-time setup on GitHub: Settings -> Pages -> Source: GitHub Actions.
 name: Docs
@@ -36,7 +36,7 @@ jobs:
               exit 1
             fi
           fi
-      - name: Tests (output/ and the explorer must be up to date; with the PDFs, 1_extracted/ too)
+      - name: Tests (output/ must be up to date; with the PDFs, 1_extracted/ too)
         run: uv run --group docs pytest
       - name: Lint
         run: uv run ruff check . && uv run ruff format --check .

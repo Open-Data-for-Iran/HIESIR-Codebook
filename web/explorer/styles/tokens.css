@@ -1,5 +1,5 @@
-/* HIES explorer. Everything is scoped under .hx so the same styles work in the
-   standalone page (.hx-standalone) and inside the MkDocs Material site (.hx-docs),
+/* HIES explorer. Everything is scoped under .hx so the same styles work on a
+   page of its own (.hx-standalone) and inside the MkDocs Material site (.hx-docs),
    where the colours and fonts come from the theme. Logical properties
    (inline-start/end) make the layout mirror itself for Farsi (dir="rtl"). */
 

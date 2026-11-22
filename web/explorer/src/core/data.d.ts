@@ -1,5 +1,5 @@
-/* The data the explorer reads: explorer/data.json on the docs site, or
- * window.HX_DATA in the offline page. Written by
+/* The data the explorer reads: explorer/data.json on the docs site (or
+ * window.HX_DATA, when a page embeds it). Made, when the site is built, by
  * hiesir_codebook.explorer.collect() from output/; this file is its
  * contract, for editors and for any other site or service that reads it.
  *

@@ -10,7 +10,6 @@ flowchart RL
   ext -->|اصلاح| cor["2_corrected/<br>متن درست"]
   cor -->|پیوند| items["3_items/<br>زنجیره‌ها، پیوندها، روابط"]
   items -->|گروه‌بندی| groups["4_groups/<br>گروه‌ها، عضویت‌ها، پیوندها"]
-  groups --> exp["explorer/"]
   c2["curated/2_corrected/"] -.-> cor
   c3["curated/3_items/"] -.-> items
   c4["curated/4_groups/"] -.-> groups
@@ -32,7 +31,6 @@ uv run hiesir-codebook extract               # just extract: PDFs -> output/1_ex
 uv run hiesir-codebook extract 1383 1403     # or just some years
 uv run python -m hiesir_codebook.correction.correct --check   # correct and check against the raw data
 uv run python -m hiesir_codebook.correction.corrections         # check the corrected CSVs from the CSVs alone
-uv run python -m hiesir_codebook.explorer    # just the explorer page
 ```
 
 ## اصلاح داده‌ها {#fixing-the-data}
@@ -66,7 +64,7 @@ uv run ruff check . && uv run ruff format --check .
 `output/1_extracted/` مقایسه می‌کنند. وقتی تغییری در استخراج‌گر عمدی است، با
 `uv run hiesir-codebook extract` دوباره بسازید و پیش از commit تفاوت‌های CSV را
 بازبینی کنید. آزمون‌های سریع هم بررسی می‌کنند که `output/2_corrected/`،
-`output/3_items/`، `output/4_groups/` و `output/explorer/` به‌روز باشند؛ پس از تغییر `curated/` یا
+`output/3_items/` و `output/4_groups/` به‌روز باشند؛ پس از تغییر `curated/` یا
 کد، `uv run hiesir-codebook build --no-extract` را اجرا و تفاوت‌ها را بازبینی
 کنید. آزمون‌هایی که به PDFها نیاز دارند، وقتی `data/pdf/` نباشد رد می‌شوند؛ در
 GitHub گردش‌کار آن‌ها را از انتشار دانلود می‌کند و جدول‌های تعداد خانوار در git
@@ -77,9 +75,9 @@ GitHub گردش‌کار آن‌ها را از انتشار دانلود می‌
 ## مستندات {#documentation}
 
 این سایت با [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) از
-`docs/` و `mkdocs.yml` ساخته می‌شود. جست‌وجوی اقلام و فایل‌های CSV هنگام ساخت از
-`output/` افزوده می‌شوند (`scripts/mkdocs_hooks.py`)، پس هرگز در git تکرار
-نمی‌شوند.
+`docs/` و `mkdocs.yml` ساخته می‌شود. فایل‌های CSV هنگام ساخت از `output/` افزوده
+می‌شوند و داده‌های جست‌وجوی اقلام (`explorer/data.json`) همان‌جا از آن‌ها ساخته
+می‌شود (`scripts/mkdocs_hooks.py`)، پس هیچ‌کدام در git تکرار نمی‌شوند.
 
 جست‌وجوی اقلام یک جزء واحد در `web/explorer/` است، جدا از کد پایتون (اجزای آن
 در `README.md` همان پوشه آمده است): عنصر `<hies-explorer>`، نوشته‌شده به
@@ -87,9 +85,7 @@ GitHub گردش‌کار آن‌ها را از انتشار دانلود می‌
 `src/i18n/`، انگلیسی و فارسی، نماها در `src/ui/`) و سبک‌ها در `styles/`. ساخت پروژه، بدون Node،
 آن‌ها را در یک اسکریپت و یک فایل سبک بسته‌بندی می‌کند. صفحه
 `docs/explorer.md` (و `explorer.fa.md`) آن‌ها را از طریق `overrides/explorer.html`
-درون سایت بار می‌کند و رنگ، قلم و حالت تیره سایت را می‌گیرد؛ فایل آفلاین
-`output/explorer/index.html` آن‌ها را درون خود دارد (`hosts/standalone.html`).
-جزء را یک بار تغییر دهید تا هر دو به‌روز شوند.
+درون سایت بار می‌کند و رنگ، قلم و حالت تیره سایت را می‌گیرد.
 
 نمودارها با [Mermaid](https://mermaid.js.org/) در یک بلوک کد ` ```mermaid `
 نوشته می‌شوند تا متنی بمانند و حالت روشن یا تیره سایت را بگیرند. در صفحه فارسی
