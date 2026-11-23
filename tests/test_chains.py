@@ -65,6 +65,7 @@ def test_matched_is_up_to_date(tmp_path):
         load_decisions,
         write_links,
         write_relations,
+        write_suggested,
     )
 
     root = Path(__file__).resolve().parents[1]
@@ -79,5 +80,12 @@ def test_matched_is_up_to_date(tmp_path):
     assert not conflicts(relations), conflicts(relations)
     write_links(relations, tmp_path / "links.csv")
     write_relations(relations, tmp_path / "relations.csv")
-    for name in ("chains.csv", "links.csv", "relations.csv"):
+    write_suggested(relations, tmp_path / "suggested")
+    for name in (
+        "chains.csv",
+        "links.csv",
+        "relations.csv",
+        "suggested/links.csv",
+        "suggested/relations.csv",
+    ):
         assert (tmp_path / name).read_bytes() == (matched / name).read_bytes(), name

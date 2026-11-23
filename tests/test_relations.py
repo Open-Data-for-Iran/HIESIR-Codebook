@@ -267,6 +267,46 @@ def test_decisions_go_in_their_own_file(tmp_path):
         load_decisions(rels)
 
 
+def test_suggestions_apart_from_results(tmp_path):
+    from hiesir_codebook import csv_io
+    from hiesir_codebook.linking.chains import Chain
+    from hiesir_codebook.linking.relations import (
+        Decision,
+        build_relations,
+        write_links,
+        write_suggested,
+    )
+
+    chains = [
+        Chain("011-1", 1, "011", "برنج طارم", [1]),
+        Chain("011-2", 1, "011", "برنج طارم و هاشمی", [2]),
+        Chain("012-1", 1, "012", "نان لواش", [1]),
+        Chain("012-2", 1, "012", "نان لواش و تافتون", [2]),
+        Chain("013-1", 1, "013", "پنیر", [1]),
+        Chain("013-2", 1, "013", "پنیر محلی و پاستوریزه", [2]),
+    ]
+    pick = {"011": "change", "012": "reject"}  # 013 stays open
+    decisions = [
+        Decision(frozenset({f"{c}-1"}), frozenset({f"{c}-2"}), d, "same" if d == "change" else "", "", "why")
+        for c, d in pick.items()
+    ]
+    relations, stale = build_relations(chains, decisions, [1, 2])
+    assert not stale
+    write_links(relations, tmp_path / "links.csv")
+    write_suggested(relations, tmp_path / "suggested")
+    final = csv_io.read(tmp_path / "links.csv")
+    found = csv_io.read(tmp_path / "suggested" / "links.csv")
+    # the results: only what was decided and not rejected, with the decision's detail
+    assert [(r["from_chain"], r["verified"], r["detail"]) for r in final] == [("011-1", "changed", "")]
+    # the suggestions: everything the code found, as found, and how it was decided
+    assert [(r["from_chain"], r["decided_by"], r["verified"]) for r in found] == [
+        ("011-1", "curated", "changed"),
+        ("012-1", "curated", "rejected"),
+        ("013-1", "open", ""),
+    ]
+    assert found[0]["detail"] == "label_broadened" and "note" not in found[0]
+
+
 def test_conflicts_between_links_and_relations():
     from hiesir_codebook.linking.chains import Chain
     from hiesir_codebook.linking.relations import Relation, conflicts

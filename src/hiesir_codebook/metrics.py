@@ -39,12 +39,23 @@ def _span(years: list[int]) -> str:
     return f"{min(years)}–{max(years)}" if len(set(years)) > 1 else str(years[0])
 
 
-def _decisions(rows: list[dict[str, str]], kinds: tuple[str, ...] = ()) -> dict[str, int]:
-    """How many rows, how many are kept (not rejected), who decided them and
-    how; with ``kinds``, the kept rows of each relation."""
+def _all(folder: Path, name: str) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """The final rows of ``folder/name``, and every row: the final ones and
+    the suggestions that are not (rejected or still open, in ``suggested/``)."""
+    final = _read(folder / name)
+    ids = {next(iter(r.values())) for r in final}
+    rest = [r for r in _read(folder / "suggested" / name) if next(iter(r.values())) not in ids]
+    return final, final + rest
+
+
+def _decisions(
+    final: list[dict[str, str]], rows: list[dict[str, str]], kinds: tuple[str, ...] = ()
+) -> dict[str, int]:
+    """How many rows (suggested or added), how many are kept (final), who
+    decided them and how; with ``kinds``, the kept rows of each relation."""
     by = Counter(r["decided_by"] for r in rows)
     how = Counter(r["verified"] for r in rows)
-    kept = [r for r in rows if r["verified"] != "rejected"]
+    kept = final
     out = {"total": len(rows), "kept": len(kept)}
     out |= {k: by[k] for k in DECIDED_BY}
     out |= {k: how[k] for k in VERIFIED}
@@ -98,8 +109,8 @@ def compute(
         item_years[str(y)] = sum(r["kind"] == "item" for r in rows)
 
     chains = read_chains(items / "chains.csv")
-    link_rows = _read(items / "links.csv")
-    relation_rows = _read(items / "relations.csv")
+    link_final, link_rows = _all(items, "links.csv")
+    relation_final, relation_rows = _all(items, "relations.csv")
     # as relations.main: a pair already related in any way is no reuse
     linked = {(r["from_chain"], r["to_chain"]) for r in link_rows} | {
         (a, b) for r in relation_rows for a in r["from_chains"].split() for b in r["to_chains"].split()
@@ -134,13 +145,13 @@ def compute(
             "total": len(chains),
             "asked_last_year": sum(c.years[-1] == YEARS[-1] for c in chains),
         },
-        "links": _decisions(link_rows, ("same", "recoded")),
-        "relations": _decisions(relation_rows, ("merged", "split", "regrouped")),
+        "links": _decisions(link_final, link_rows, ("same", "recoded")),
+        "relations": _decisions(relation_final, relation_rows, ("merged", "split", "regrouped")),
         "code_reuse": len(reused),
         "groups": {
             "total": len(_read(groups / "groups.csv")),
             "links": _decisions(
-                _read(groups / "links.csv"), ("continued", "split", "merged", "regrouped", "moved")
+                *_all(groups, "links.csv"), ("continued", "split", "merged", "regrouped", "moved")
             ),
         },
     }

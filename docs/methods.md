@@ -325,6 +325,17 @@ column:
 | `curated` | a row in `curated/` decided it; `verified` says how (`confirmed`, `changed`, `added`, `rejected`) |
 | `open` | the code found it but is not sure, and nobody has decided yet |
 
+**Suggestions and results.** The code's suggestions and the results are
+kept in separate files. `output/3_items/suggested/` (`links.csv`,
+`relations.csv`) and `output/4_groups/suggested/links.csv` list everything
+the code found, as it found it (its relation and detail, before any
+`change`), with `decided_by` and `verified`; the rows with `open` are the
+ones still to review. `output/3_items/links.csv`, `relations.csv` and
+`output/4_groups/links.csv` hold only the results: decided by the code or
+in `curated/`, not rejected, with the decision's `note`. A suggestion and
+its result share an id (`L0001`, `R0001`, `G0001`); an added one is only in
+the results, a rejected one only in the suggestions.
+
 A 1 → 1 relation is *definite* (`decided_by` `code`) when both labels carry the same content words, so only punctuation,
 the conjunction (`،` / `و`), word order, spacing, generic words (`انواع`)
 or "etc." markers (`و نظایر آن` / `و ...`) differ: `جگر، دل، قلوه` →
@@ -434,11 +445,11 @@ Each file only takes its own kind: a `change` or `add` with `merged` in
 error. To change the chains of a relation, reject it and add the right one;
 when a merge replaces a link (the "outside the home" items), reject the link.
 `links.csv` and `relations.csv` record each decision in `verified` (`confirmed`,
-`rejected`, `changed`, `added`) and the `note`; rejected relations stay in
-the file but later stages ignore them. A decision whose relation is not
+`rejected`, `changed`, `added`) and the `note`; rejected relations are
+left out of them and stay visible in `suggested/`. A decision whose relation is not
 found (for example after a label correction merged two chains) is reported
 as stale, and the tests fail until it is updated. The rows still to check
-are those with `decided_by` `open`.
+are those with `decided_by` `open` in `suggested/`.
 
 **How labels are compared** (`compare.py`, used by both stages). Two
 descriptions are compared with spacing, ZWNJ, punctuation, hamza and digit

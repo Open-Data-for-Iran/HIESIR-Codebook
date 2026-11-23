@@ -43,14 +43,17 @@ Output (``output/4_groups/``):
 * ``groups.csv``: one row per group;
 * ``members.csv``: for every year and item, its group at each level,
   the crosswalk for summing items into groups;
-* ``links.csv``: the group links, with their relation and decision.
+* ``links.csv``: the final group links (decided by the code or in
+  ``curated/4_groups/links.csv``, and not rejected), with their relation;
+* ``suggested/links.csv``: every group link the code found, with the
+  relation it found, and who decided it and how (``open``: not yet).
 """
 
 from __future__ import annotations
 
 import re
 from collections import Counter, defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 from .. import CORRECTED, CURATED_GROUPS, GROUPS, ITEMS, csv_io
@@ -177,6 +180,7 @@ class GroupLink:
     verified: str = ""
     note: str = ""
     id: str = ""
+    found: GroupLink | None = None  # as the code found it, before any decision (None: added)
 
     @property
     def key(self) -> tuple[str, str]:
@@ -199,6 +203,11 @@ class GroupLink:
     @property
     def decided_by(self) -> str:
         return decided_by(self.needs_verification, self.verified)
+
+    @property
+    def final(self) -> bool:
+        """In the results: decided (by the code or in ``curated/``) and not rejected."""
+        return self.verified != "rejected" and self.decided_by != "open"
 
 
 def find_links(groups: list[Group], placement: Placement, steps: list[Step]) -> list[GroupLink]:
@@ -272,7 +281,10 @@ def load_decisions(path: Path = DECISIONS) -> list[Decision]:
 def apply_decisions(
     links: list[GroupLink], decisions: list[Decision], groups: list[Group]
 ) -> tuple[list[GroupLink], list[Decision]]:
-    """Apply the curated decisions; return the links and the stale decisions."""
+    """Apply the curated decisions; return the links and the stale decisions.
+    Each link the code found keeps a copy of itself as found in ``found``."""
+    for lk in links:
+        lk.found = replace(lk)
     by_key = {lk.key: lk for lk in links}
     by_id = {g.id: g for g in groups}
     stale = []
@@ -313,15 +325,13 @@ def _read(path: Path) -> list[dict[str, str]]:
 
 
 def read_links(path: Path) -> list[tuple[str, str]]:
-    """The links of ``links.csv`` that are not rejected."""
-    return [(r["from_chain"], r["to_chain"]) for r in _read(path) if r["verified"] != "rejected"]
+    """The final item links of ``links.csv``."""
+    return [(r["from_chain"], r["to_chain"]) for r in _read(path)]
 
 
 def read_relations(path: Path) -> list[tuple[list[str], list[str]]]:
-    """The merges, splits and regroupings of ``relations.csv`` that are not rejected."""
-    return [
-        (r["from_chains"].split(), r["to_chains"].split()) for r in _read(path) if r["verified"] != "rejected"
-    ]
+    """The final merges, splits and regroupings of ``relations.csv``."""
+    return [(r["from_chains"].split(), r["to_chains"].split()) for r in _read(path)]
 
 
 def write_groups(groups: list[Group], path: Path, years: list[int] = YEARS) -> None:
@@ -365,7 +375,10 @@ def write_members(placement: Placement, path: Path) -> None:
             w.writerow([year, code, *(by_level.get(lv, "") for lv in LEVELS)])
 
 
-def write_links(links: list[GroupLink], path: Path) -> None:
+def write_links(links: list[GroupLink], path: Path, suggested: bool = False) -> None:
+    """The final group links; with ``suggested``, every link the code found,
+    with its relation as found and no note (the note is a decision's)."""
+    note = [] if suggested else ["note"]
     with csv_io.writer(
         path,
         [
@@ -379,26 +392,28 @@ def write_links(links: list[GroupLink], path: Path) -> None:
             "to_items",
             "decided_by",
             "verified",
-            "note",
+            *note,
             "from_label",
             "to_label",
             "item_chains",
         ],
     ) as w:
         for lk in links:
+            if not (lk.found is not None if suggested else lk.final):
+                continue
             w.writerow(
                 [
                     lk.id,
                     lk.source.id,
                     lk.target.id,
-                    lk.relation,
+                    lk.found.relation if suggested else lk.relation,
                     lk.year,
                     len(lk.items),
                     len(lk.source.items.get(lk.before, ())) if lk.before else "",
                     len(lk.target.items.get(lk.year, ())),
                     lk.decided_by,
                     lk.verified,
-                    lk.note,
+                    *([] if suggested else [lk.note]),
                     lk.from_label,
                     lk.to_label,
                     " ".join(sorted(lk.items)),
@@ -423,7 +438,8 @@ def main(
     items
         The folder with chains.csv, links.csv and relations.csv.
     out
-        Where groups.csv, members.csv and links.csv go.
+        Where groups.csv, members.csv and links.csv go (the code's
+        suggestions, before the decisions, in suggested/links.csv).
     decisions
         The curated group decisions.
     max_gap
@@ -440,6 +456,7 @@ def main(
     write_groups(groups, out / "groups.csv")
     write_members(placement, out / "members.csv")
     write_links(links, out / "links.csv")
+    write_links(links, out / "suggested" / "links.csv", suggested=True)
     kinds = Counter(lk.relation for lk in links)
     verified = Counter(lk.verified for lk in links if lk.verified)
     print(
@@ -449,6 +466,8 @@ def main(
         + f"in {decisions.as_posix()}: "
         + (", ".join(f"{k} {v}" for k, v in verified.items()) or "0")
         + f", open: {sum(lk.decided_by == 'open' for lk in links)}"
+        + f"; final {sum(lk.final for lk in links)}"
     )
+    print(f"the code's suggestions, before the decisions -> {(out / 'suggested').as_posix()}/")
     for d in stale:
         print(f"stale group decision: {d}")

@@ -77,7 +77,7 @@ def _groups(path: Path) -> tuple[list[list], dict[tuple[int, str], list[int]], l
     """The groups as [code, label, level, section] (a fifth entry, the
     wordings by year, is added by collect() when the label changed); for
     every (year, expenditure code) the indexes of its groups, outermost first
-    (level 2, 3, 4 when printed); and the group links that are not rejected,
+    (level 2, 3, 4 when printed); and the final group links,
     as [from index, to index, relation, year, items]; and the group ids."""
     rows = _read(path / "groups.csv")
     index = {r["group_id"]: i for i, r in enumerate(rows)}
@@ -91,7 +91,6 @@ def _groups(path: Path) -> tuple[list[list], dict[tuple[int, str], list[int]], l
     links = [
         [index[r["from_group"]], index[r["to_group"]], r["relation"], int(r["year"]), int(r["items"] or 0)]
         for r in _read(path / "links.csv")
-        if r["verified"] != "rejected"
     ]
     return groups, members, links, [r["group_id"] for r in rows]
 
@@ -172,7 +171,6 @@ def collect(
             ("relations.csv", ("relation_id", "from_chains", "to_chains")),
         )
         for r in _read(items / name)
-        if r["verified"] != "rejected"
     ]
     corrections = [
         {k: r[k] for k in ("year", "action", "expenditure_code", "description", "value", "reason")}

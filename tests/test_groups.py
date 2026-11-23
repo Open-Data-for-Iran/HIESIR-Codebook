@@ -176,5 +176,5 @@ def test_groups_are_up_to_date(tmp_path):
         out=tmp_path,
         decisions=root / "curated" / "4_groups" / "links.csv",
     )
-    for name in ("groups.csv", "members.csv", "links.csv"):
+    for name in ("groups.csv", "members.csv", "links.csv", "suggested/links.csv"):
         assert (tmp_path / name).read_bytes() == (root / "output" / "4_groups" / name).read_bytes(), name

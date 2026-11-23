@@ -28,7 +28,7 @@ def test_metrics_add_up():
     for name in ("links", "relations"):
         d = m[name]
         assert d["code"] + d["curated"] + d["open"] == d["total"]
-        assert d["total"] - d["rejected"] == d["kept"]
+        assert d["total"] - d["rejected"] - d["open"] == d["kept"]
     assert m["links"]["same"] + m["links"]["recoded"] == m["links"]["kept"]
     assert sum(m["relations"][k] for k in ("merged", "split", "regrouped")) == m["relations"]["kept"]
     assert sum(m["questionnaires"]["items_by_year"].values()) == m["questionnaires"]["items"]

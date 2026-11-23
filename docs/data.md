@@ -17,7 +17,6 @@ items = q[q.kind == "item"]
 chains = pd.read_csv("output/3_items/chains.csv", dtype={"expenditure_code": str})
 links = pd.read_csv("output/3_items/links.csv")
 relations = pd.read_csv("output/3_items/relations.csv")
-relations = relations[relations.verified != "rejected"]
 
 # join with the raw data, which stores codes as numbers
 items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
@@ -36,9 +35,15 @@ The same files can be downloaded from this site:
 | `3_items/chains.csv` | item: one code with one label, followed while both stay the same | [Stage 1](methods.md#matching-items-across-years) |
 | `3_items/links.csv` | 1 → 1 link that continues an item: same, recoded | [Stage 2](methods.md#matching-items-across-years) |
 | `3_items/relations.csv` | relation between sets of items: merged, split, regrouped | [Stage 2](methods.md#matching-items-across-years) |
+| `3_items/suggested/links.csv`, `relations.csv` | link or relation the code found, as it found it, with who decided it and how; rejected and open ones are only here | [Who decides](methods.md#matching-items-across-years) |
 | `4_groups/groups.csv` | group header: one printed code, followed while it is printed | [Groups](methods.md#groups-across-years) |
 | `4_groups/members.csv` | item and year: its group at levels 2, 3 and 4 | [Groups](methods.md#groups-across-years) |
 | `4_groups/links.csv` | pair of groups that items moved between: continued, split, merged, regrouped, moved | [Groups](methods.md#groups-across-years) |
+| `4_groups/suggested/links.csv` | group link the code found, as it found it, with who decided it and how | [Groups](methods.md#groups-across-years) |
+
+`links.csv` and `relations.csv` are the results: every row in them was
+decided, by the code or in `curated/`, and none is rejected. What the code
+suggested before any decision is in `suggested/`, with the same ids.
 
 ## Folders
 

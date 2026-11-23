@@ -26,6 +26,13 @@ The two families do different jobs and are kept apart:
   others.  Written to ``output/3_items/relations.csv``, decided in
   ``curated/3_items/relations.csv``.
 
+Suggestions and results are kept apart.  ``output/3_items/suggested/``
+(``links.csv``, ``relations.csv``) holds every link and relation the code
+found, as it found it, with who decided it and how (``open``: not yet);
+``output/3_items/links.csv`` and ``relations.csv`` hold only the final
+ones: decided by the code or in ``curated/``, and not rejected.  The two
+share ids (``L0001``, ``R0001``).
+
 They are found together, since a merge is found by extending a link.  A
 chain continues through at most one link each way, and a chain that goes
 into a merge, split or regrouping (without also continuing on its other
@@ -78,8 +85,8 @@ note         why
 To change the chains of a relation, reject it and add the right one.  The
 output records each decision in ``verified`` (``confirmed``, ``rejected``,
 ``changed``, ``added``); a decided relation no longer needs verification.
-Rejected relations stay in the file so the decision is visible; later stages
-ignore them.  A decision whose relation was not found (or, for ``add``,
+Rejected and open relations are only in ``suggested/``, where the decision
+on each suggestion stays visible.  A decision whose relation was not found (or, for ``add``,
 already exists or names unknown chains) is reported as stale.
 """
 
@@ -88,7 +95,7 @@ from __future__ import annotations
 import difflib
 import itertools
 from collections import Counter
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from functools import cache
 from pathlib import Path
 
@@ -155,6 +162,7 @@ class Relation:
     note: str = ""
     id: str = ""
     at: int | None = None  # the year of the change, when not the targets' first year
+    found: Relation | None = None  # as the code found it, before any decision (None: added)
 
     @property
     def key(self) -> tuple[frozenset[str], frozenset[str]]:
@@ -180,6 +188,11 @@ class Relation:
     @property
     def decided_by(self) -> str:
         return decided_by(self.needs_verification, self.verified)
+
+    @property
+    def final(self) -> bool:
+        """In the results: decided (by the code or in ``curated/``) and not rejected."""
+        return not self.rejected and self.decided_by != "open"
 
     def reshape(self) -> None:
         """Name the relation after its shape once chains were added to it."""
@@ -533,7 +546,10 @@ def conflicts(relations: list[Relation]) -> list[str]:
 def apply_decisions(
     relations: list[Relation], decisions: list[Decision], chains: list[Chain]
 ) -> tuple[list[Relation], list[Decision]]:
-    """Apply the curated decisions; return the relations and the stale decisions."""
+    """Apply the curated decisions; return the relations and the stale decisions.
+    Each relation the code found keeps a copy of itself as found in ``found``."""
+    for r in relations:
+        r.found = replace(r)
     by_key = {r.key: r for r in relations}
     by_id = {c.id: c for c in chains}
     stale = []
@@ -673,45 +689,47 @@ def evidence(
 # --- output -------------------------------------------------------------------
 
 
+LINK_HEAD = ("link_id", "from_chain", "to_chain")
+RELATION_HEAD = ("relation_id", "from_chains", "to_chains")
+
+
 def write_links(relations: list[Relation], path: Path) -> None:
-    """The links (1 -> 1 continuations) among ``relations``."""
-    _write([r for r in relations if r.is_link], path, ("link_id", "from_chain", "to_chain"))
+    """The final links (1 -> 1 continuations) among ``relations``."""
+    _write([r for r in relations if r.is_link and r.final], path, LINK_HEAD)
 
 
 def write_relations(relations: list[Relation], path: Path) -> None:
-    """The merges, splits and regroupings among ``relations``."""
-    _write([r for r in relations if not r.is_link], path, ("relation_id", "from_chains", "to_chains"))
+    """The final merges, splits and regroupings among ``relations``."""
+    _write([r for r in relations if not r.is_link and r.final], path, RELATION_HEAD)
 
 
-def _write(relations: list[Relation], path: Path, head: tuple[str, str, str]) -> None:
-    with csv_io.writer(
-        path,
-        [
-            *head,
-            "relation",
-            "detail",
-            "year",
-            "score",
-            "decided_by",
-            "verified",
-            "note",
-            "from_text",
-            "to_text",
-        ],
-    ) as w:
-        for r in relations:
+def write_suggested(relations: list[Relation], folder: Path) -> None:
+    """What the code found, as it found it, in ``folder``: ``links.csv`` and
+    ``relations.csv``, with who decided each and how (``open``: not yet)."""
+    found = [r for r in relations if r.found is not None]
+    _write([r for r in found if r.found.is_link], folder / "links.csv", LINK_HEAD, suggested=True)
+    _write([r for r in found if not r.found.is_link], folder / "relations.csv", RELATION_HEAD, suggested=True)
+
+
+def _write(rows: list[Relation], path: Path, head: tuple[str, str, str], suggested: bool = False) -> None:
+    """``rows``; with ``suggested``, the relation, detail and score as the
+    code found them, and no note (the note is a decision's)."""
+    middle = ["relation", "detail", "year", "score", "decided_by", "verified"]
+    with csv_io.writer(path, [*head, *middle, *([] if suggested else ["note"]), "from_text", "to_text"]) as w:
+        for r in rows:
+            f = r.found if suggested and r.found is not None else r
             w.writerow(
                 [
                     r.id,
                     " ".join(c.id for c in r.sources),
                     " ".join(c.id for c in r.targets),
-                    r.relation,
-                    r.detail,
+                    f.relation,
+                    f.detail,
                     r.year,
-                    "" if r.score is None else r.score,
+                    "" if f.score is None else f.score,
                     r.decided_by,
                     r.verified,
-                    r.note,
+                    *([] if suggested else [r.note]),
                     " | ".join(c.text for c in r.sources),
                     " | ".join(c.text for c in r.targets),
                 ]
@@ -769,6 +787,7 @@ def main(
     chains: Path = ITEMS / "chains.csv",
     out: Path = ITEMS / "relations.csv",
     links_out: Path = ITEMS / "links.csv",
+    suggested: Path = ITEMS / "suggested",
     decisions: Path = DECISIONS,
     link_decisions: Path = LINK_DECISIONS,
     reuse_report: Path = REPORTS / "code_reuse.csv",
@@ -786,6 +805,8 @@ def main(
         Where the relations go.
     links_out
         Where the links go.
+    suggested
+        Where the code's suggestions go, before the decisions.
     decisions
         The curated relation decisions.
     link_decisions
@@ -804,6 +825,7 @@ def main(
     relations, stale = build_relations(chain_list, curated, YEARS, max_gap)
     write_links(relations, links_out)
     write_relations(relations, out)
+    write_suggested(relations, suggested)
     linked = {(a.id, b.id) for r in relations for a in r.sources for b in r.targets}
     reused = [p for p in code_reuse(chain_list, YEARS, max_gap) if (p[0].id, p[1].id) not in linked]
     write_code_reuse(reused, reuse_report)
@@ -820,7 +842,9 @@ def main(
             + f"in {path.as_posix()}: "
             + (", ".join(f"{k} {v}" for k, v in verified.items()) or "0")
             + f", open: {sum(r.decided_by == 'open' for r in rs)}"
+            + f"; final {sum(r.final for r in rs)}"
         )
+    print(f"the code's suggestions, before the decisions -> {suggested.as_posix()}/")
     print(f"code reused for an unrelated item (no relation): {len(reused)} -> {reuse_report.as_posix()}")
     if occurrence.exists():
         todo_ev = write_evidence(relations, chain_list, load_occurrence(occurrence), evidence_report)

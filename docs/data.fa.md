@@ -17,7 +17,6 @@ items = q[q.kind == "item"]
 chains = pd.read_csv("output/3_items/chains.csv", dtype={"expenditure_code": str})
 links = pd.read_csv("output/3_items/links.csv")
 relations = pd.read_csv("output/3_items/relations.csv")
-relations = relations[relations.verified != "rejected"]
 
 # join with the raw data, which stores codes as numbers
 items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
@@ -36,9 +35,15 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 | `3_items/chains.csv` | یک قلم (زنجیره): یک کد با یک عبارت، تا زمانی که هر دو ثابت بمانند | [مرحله ۱](methods.md#matching-items-across-years) |
 | `3_items/links.csv` | یک پیوند یک‌به‌یک که قلمی را ادامه می‌دهد: همان قلم، تغییر کد | [مرحله ۲](methods.md#matching-items-across-years) |
 | `3_items/relations.csv` | یک رابطه میان مجموعه‌ای از اقلام: ادغام، تفکیک، بازگروه‌بندی | [مرحله ۲](methods.md#matching-items-across-years) |
+| `3_items/suggested/links.csv`، `relations.csv` | پیوند یا رابطه‌ای که برنامه پیدا کرده، همان‌گونه که پیدا کرده، با این‌که چه کسی و چگونه درباره‌اش تصمیم گرفته؛ ردشده‌ها و تصمیم‌نگرفته‌ها فقط این‌جا هستند | [مرحله ۲](methods.md#matching-items-across-years) |
 | `4_groups/groups.csv` | یک سرگروه: یک کد چاپی، تا زمانی که چاپ می‌شود | [سرگروه‌ها](methods.md#groups-across-years) |
 | `4_groups/members.csv` | یک قلم در یک سال: گروه آن در سطح ۲، ۳ و ۴ | [سرگروه‌ها](methods.md#groups-across-years) |
 | `4_groups/links.csv` | دو گروهی که اقلامی میانشان جابه‌جا شده: ادامه، تفکیک، ادغام، بازگروه‌بندی، جابه‌جایی | [سرگروه‌ها](methods.md#groups-across-years) |
+| `4_groups/suggested/links.csv` | پیوند گروهی که برنامه پیدا کرده، همان‌گونه که پیدا کرده، با این‌که چه کسی و چگونه درباره‌اش تصمیم گرفته | [سرگروه‌ها](methods.md#groups-across-years) |
+
+`links.csv` و `relations.csv` نتیجه‌اند: درباره هر سطرشان، برنامه یا `curated/`
+تصمیم گرفته و هیچ‌کدام رد نشده. پیشنهادهای برنامه پیش از هر تصمیم در `suggested/`
+هستند، با همان شناسه‌ها.
 
 ## پوشه‌ها {#folders}
 
