@@ -55,6 +55,25 @@ def test_same_labels():
     assert not same_labels("خدمات فرهنگی و تفریحی", "خدمات تفریحی")
 
 
+def test_a_reused_header_starts_a_new_group():
+    """The same header printed for something else: its label changes and
+    none of its items goes on under it."""
+    rows = {
+        1: _q(("s", 6, "x"), ("h", 6, 3, "0631 A", "خدمات پزشکی"), ("i", 6, "063117")),
+        2: _q(("s", 6, "x"), ("h", 6, 3, "0631 A", "خدمات بیمارستانی"), ("i", 6, "063141")),
+    }
+    groups, _ = build_groups(rows)
+    assert [g.id for g in groups] == ["0631A-1", "0631A-2"]
+    # an item that goes on under it, here through a relation, keeps one group
+    steps = item_steps([_chain("063117", 1), _chain("063141", 2)], [], [(["063117-1"], ["063141-2"], 2)])
+    groups, _ = build_groups(rows, steps=steps)
+    assert [g.id for g in groups] == ["0631A-1"]
+    # and so does a label that changes while the items stay
+    rows[2] = _q(("s", 6, "x"), ("h", 6, 3, "0631 A", "خدمات بیمارستانی"), ("i", 6, "063117"))
+    groups, _ = build_groups(rows)
+    assert [g.id for g in groups] == ["0631A-1"]
+
+
 def test_groups_and_members():
     rows = {
         1: _q(

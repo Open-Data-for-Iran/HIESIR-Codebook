@@ -494,7 +494,11 @@ way the chains follow items:
 - A **group** is one header, its section and its code as printed (`0111`,
   `01121, 01122`, `0314 M`), for as long as it is printed, skipping at most
   two questionnaires. A changed label keeps the group; `groups.csv` shows
-  the latest. A group is identified by its code and first year:
+  the latest. Only a header printed again for something else starts a new
+  group: its label changes beyond a minor, broader or narrower wording, and
+  none of its items goes on under it, by code or through an item link or
+  relation (none does so today; 0631 A, «خدمات پزشکی» → «خدمات بیمارستانی» in
+  1395, keeps its group because its surgery items go on through a regrouping). A group is identified by its code and first year:
   `0111-1383`, `01121+01122-1383`, `0314M-1389`.
 - Every item of every year sits under one group per level.
   `4_groups/members.csv` (`year`, `expenditure_code`, `level_2`, `level_3`,

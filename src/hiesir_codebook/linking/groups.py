@@ -4,7 +4,8 @@ A *group* is one printed group header, its section and its code as printed
 (``0111``, ``01121, 01122``, ``0314 M``), followed through
 ``output/2_corrected/`` for as long as it is printed, skipping at most
 ``MAX_GAP`` questionnaires, like an item chain.  Its label may change; the
-latest one is shown.  Every item of every year sits under the groups whose
+latest one is shown.  Only a header printed again for something else
+starts a new group (:func:`reused`).  Every item of every year sits under the groups whose
 headers are above it, one per level (2-4).
 
 Where the items go tells how the groups relate.  When an item continues
@@ -107,16 +108,54 @@ def same_labels(a: str, b: str) -> bool:
     return a == b or compare(a, b).kind == "same" or definite(a, b)
 
 
+def _items_below(rows: list[dict[str, str]]) -> dict[int, set[str]]:
+    """For each header row (by index), the codes of the items printed under
+    it, at any depth, until the next header at its level or above."""
+    out: dict[int, set[str]] = {}
+    open_: dict[int, int] = {}  # level -> index of its header row
+    for i, r in enumerate(rows):
+        if r["kind"] == "section":
+            open_ = {}
+        elif r["kind"] == "header":
+            level = int(r["level"])
+            open_ = {k: v for k, v in open_.items() if k < level}
+            open_[level] = i
+            out[i] = set()
+        elif r["kind"] == "item" and r["expenditure_code"]:
+            for i_header in open_.values():
+                out[i_header].add(r["expenditure_code"])
+    return out
+
+
+def reused(g: Group, year: int, label: str, items: set[str], onward: dict[tuple[int, str], set[str]]) -> bool:
+    """Is the header of ``g`` printed again in ``year`` for something else?
+    Its label changes beyond a minor, broadened or narrowed wording, and none
+    of the items it had the last time goes on under it: by its code, or
+    through an item link or relation (``onward``: (year, code) -> the codes it
+    continues as in ``year``).  0631 A, «خدمات پزشکی» to 1394 and
+    «خدمات بیمارستانی» from 1395, is *not* reused: its surgery items go on
+    in the hospital services through a regrouping."""
+    last = g.years[-1]
+    if compare(g.labels[last], label).kind in ("same", "minor", "broadened", "narrowed"):
+        return False
+    before = g.items.get(last, set())
+    return not any(({c} | onward.get((last, c), set())) & items for c in before)
+
+
 def _slug(code: str) -> str:
     """'01121, 01122' -> '01121+01122'; '0314 M' -> '0314M'."""
     return "+".join(c.replace(" ", "") for c in code.split(", "))
 
 
 def build_groups(
-    rows_by_year: dict[int, list[dict[str, str]]], max_gap: int = MAX_GAP
+    rows_by_year: dict[int, list[dict[str, str]]], max_gap: int = MAX_GAP, steps: list[Step] = ()
 ) -> tuple[list[Group], Placement]:
     """The groups of the questionnaires (rows as in ``output/2_corrected/``)
-    and the group of every item at each level."""
+    and the group of every item at each level.  ``steps`` (from
+    :func:`item_steps`) tell which items go on, for :func:`reused`."""
+    onward: dict[tuple[int, str], set[str]] = defaultdict(set)
+    for _, before, after in steps:
+        onward[before].add(after[1])
     years = sorted(rows_by_year)
     groups: list[Group] = []
     ids: set[str] = set()
@@ -125,13 +164,18 @@ def build_groups(
     for yi, year in enumerate(years):
         window = set(years[max(0, yi - max_gap - 1) : yi + 1])
         stack: dict[int, Group] = {}
-        for r in rows_by_year[year]:
+        below = _items_below(rows_by_year[year])
+        for i, r in enumerate(rows_by_year[year]):
             if r["kind"] == "section":
                 stack = {}
             elif r["kind"] == "header":
                 key, level = (int(r["section"]), r["code"]), int(r["level"])
                 g = current.get(key)
-                if g is None or g.years[-1] not in window:
+                if (
+                    g is None
+                    or g.years[-1] not in window
+                    or (year not in g.labels and reused(g, year, r["description"], below[i], onward))
+                ):
                     gid, n = f"{_slug(r['code'])}-{year}", 2
                     while gid in ids:  # the same code in another section
                         gid, n = f"{_slug(r['code'])}-{year}-{n}", n + 1
@@ -457,12 +501,12 @@ def main(
         Questionnaires a group may skip.
     """
     rows = {y: _read(source / f"questionnaire_{y}.csv") for y in YEARS}
-    groups, placement = build_groups(rows, max_gap)
     steps = item_steps(
         read_chains(items / "chains.csv"),
         read_links(items / "links.csv"),
         read_relations(items / "relations.csv"),
     )
+    groups, placement = build_groups(rows, max_gap, steps)
     links, stale = build_links(groups, placement, steps, load_decisions(decisions))
     write_groups(groups, out / "groups.csv")
     write_members(placement, out / "members.csv")
