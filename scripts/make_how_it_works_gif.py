@@ -1,10 +1,11 @@
 """Render a ~14 s motion graphic of the HIESIR Codebook pipeline as a GIF."""
-import math
+
 import sys
+
 from PIL import Image, ImageDraw, ImageFont
 
 OUT = sys.argv[1]
-W, H, S = 800, 450, 2          # logical size, supersample factor
+W, H, S = 800, 450, 2  # logical size, supersample factor
 FPS = 20
 DUR = 14.4
 FONTS = "C:/Windows/Fonts/"
@@ -26,8 +27,7 @@ _fc = {}
 def font(name, size):
     key = (name, size)
     if key not in _fc:
-        _fc[key] = ImageFont.truetype(FONTS + name, int(size * S),
-                                      layout_engine=ImageFont.Layout.RAQM)
+        _fc[key] = ImageFont.truetype(FONTS + name, int(size * S), layout_engine=ImageFont.Layout.RAQM)
     return _fc[key]
 
 
@@ -41,7 +41,7 @@ def prog(t, a, b):
 
 def ease(x):
     x = clamp(x)
-    return 4 * x ** 3 if x < 0.5 else 1 - (-2 * x + 2) ** 3 / 2
+    return 4 * x**3 if x < 0.5 else 1 - (-2 * x + 2) ** 3 / 2
 
 
 def back(x):  # ease-out with a little overshoot
@@ -52,7 +52,7 @@ def back(x):  # ease-out with a little overshoot
 
 def mix(c, a, under=BG):
     a = clamp(a)
-    return tuple(int(u + (v - u) * a) for v, u in zip(c, under))
+    return tuple(int(u + (v - u) * a) for v, u in zip(c, under, strict=True))
 
 
 def lerp(a, b, x):
@@ -65,8 +65,13 @@ class Canvas:
         self.d = ImageDraw.Draw(self.im)
 
     def rect(self, x, y, w, h, fill=None, outline=None, r=6, width=1):
-        self.d.rounded_rectangle([x * S, y * S, (x + w) * S, (y + h) * S], radius=r * S,
-                                 fill=fill, outline=outline, width=int(width * S))
+        self.d.rounded_rectangle(
+            [x * S, y * S, (x + w) * S, (y + h) * S],
+            radius=r * S,
+            fill=fill,
+            outline=outline,
+            width=int(width * S),
+        )
 
     def line(self, pts, fill, width=2):
         self.d.line([(x * S, y * S) for x, y in pts], fill=fill, width=int(width * S), joint="curve")
@@ -78,7 +83,7 @@ class Canvas:
         kw = {}
         if fa:
             f = "tahoma.ttf"
-            kw = dict(direction="rtl", language="fa")
+            kw = {"direction": "rtl", "language": "fa"}
         self.d.text((x * S, y * S), s, font=font(f, size), fill=fill, anchor=anchor, **kw)
 
     def textw(self, s, size, f="segoeui.ttf", fa=False):
@@ -103,7 +108,7 @@ def stepper(c, t, active, alpha):
     total = sum(widths) + gap * (len(STEPS) - 1)
     x = (W - total) / 2
     y = 18
-    for i, (s, w) in enumerate(zip(STEPS, widths)):
+    for i, (s, w) in enumerate(zip(STEPS, widths, strict=True)):
         on = i == active
         done = i < active
         col = STEP_COL[i]
@@ -116,7 +121,11 @@ def stepper(c, t, active, alpha):
         if i < len(STEPS) - 1:
             ax = x + w + 5
             c.line([(ax, y + 12), (ax + gap - 10, y + 12)], mix(LINE, alpha), 1.5)
-            c.line([(ax + gap - 14, y + 8), (ax + gap - 10, y + 12), (ax + gap - 14, y + 16)], mix(LINE, alpha), 1.5)
+            c.line(
+                [(ax + gap - 14, y + 8), (ax + gap - 10, y + 12), (ax + gap - 14, y + 16)],
+                mix(LINE, alpha),
+                1.5,
+            )
         x += w + gap
 
 
@@ -126,13 +135,23 @@ def caption(c, s, a, col=MUTED):
 
 # ---------------------------------------------------------------- scenes
 
+
 def s_title(c, t):
     a = scene_alpha(t, 0, 1.8, 0.35)
     p = ease(prog(t, 0.05, 0.8))
     c.text(W / 2, 175 + 20 * (1 - p), "HIESIR Codebook", 46, mix(TXT, a * p), "segoeuib.ttf", "mm")
     p2 = ease(prog(t, 0.35, 1.0))
-    c.text(W / 2, 228 + 12 * (1 - p2), "Iran's household expenditure questionnaires", 18, mix(MUTED, a * p2), anchor="mm")
-    c.text(W / 2, 254 + 12 * (1 - p2), "1383 – 1403, followed item by item", 18, mix(MUTED, a * p2), anchor="mm")
+    c.text(
+        W / 2,
+        228 + 12 * (1 - p2),
+        "Iran's household expenditure questionnaires",
+        18,
+        mix(MUTED, a * p2),
+        anchor="mm",
+    )
+    c.text(
+        W / 2, 254 + 12 * (1 - p2), "1383 – 1403, followed item by item", 18, mix(MUTED, a * p2), anchor="mm"
+    )
     # a little row of colour dots, one per stage
     for i, col in enumerate(STEP_COL):
         pi = back(prog(t, 0.6 + i * 0.08, 1.0 + i * 0.08))
@@ -210,14 +229,25 @@ def s_correct(c, t, a0, b0):
         p = back(prog(lt, delay, delay + 0.4))
         cw = 260
         c.rect(cx - 170 - cw / 2, y - 28 + 10 * (1 - p), cw, 56, fill=mix(PANEL, a * clamp(p)), r=8)
-        c.rect(cx + 170 - cw / 2, y - 28, cw, 56,
-               outline=mix(AMBER, a * prog(lt, delay + 0.7, delay + 1.0)), r=8, width=1.5)
+        c.rect(
+            cx + 170 - cw / 2,
+            y - 28,
+            cw,
+            56,
+            outline=mix(AMBER, a * prog(lt, delay + 0.7, delay + 1.0)),
+            r=8,
+            width=1.5,
+        )
         c.text(cx - 170, y, left, 22, mix(TXT, a * clamp(p), PANEL), f_left, "mm", fa=fa)
         # strike-through
         sp = ease(prog(lt, delay + 0.45, delay + 0.75))
         if sp > 0:
             lw = c.textw(left, 22, f_left, fa=fa)
-            c.line([(cx - 170 - lw / 2 - 4, y + 1), (cx - 170 - lw / 2 - 4 + (lw + 8) * sp, y + 1)], mix(ROSE, a), 2.5)
+            c.line(
+                [(cx - 170 - lw / 2 - 4, y + 1), (cx - 170 - lw / 2 - 4 + (lw + 8) * sp, y + 1)],
+                mix(ROSE, a),
+                2.5,
+            )
         # arrow
         ap = ease(prog(lt, delay + 0.55, delay + 0.85))
         if ap > 0:
@@ -229,14 +259,22 @@ def s_correct(c, t, a0, b0):
 
     card(165, "دیبرستان", "دبیرستان", None, None, True, 0.15)
     card(250, "1022 16", "103116", "consola.ttf", "consola.ttf", False, 0.55)
-    c.text(cx + 170, 290, "pre-university item, group 1031", 11, mix(MUTED, a * prog(lt, 1.6, 1.9)), anchor="mm")
+    c.text(
+        cx + 170, 290, "pre-university item, group 1031", 11, mix(MUTED, a * prog(lt, 1.6, 1.9)), anchor="mm"
+    )
     c.text(cx - 170, 206, "typo", 11, mix(MUTED, a * prog(lt, 1.2, 1.5)), anchor="mm")
 
     p = ease(prog(lt, 1.5, 1.9))
     c.rect(cx - 190, 335 + 8 * (1 - p), 380, 34, fill=mix(PANEL, a * p), r=17)
     c.circle(cx - 170, 352 + 8 * (1 - p), 4, mix(AMBER, a * p))
-    c.text(cx + 6, 352 + 8 * (1 - p), "curated/  —  each fix is one row, with its reason", 13,
-           mix(TXT, a * p, PANEL), anchor="mm")
+    c.text(
+        cx + 6,
+        352 + 8 * (1 - p),
+        "curated/  —  each fix is one row, with its reason",
+        13,
+        mix(TXT, a * p, PANEL),
+        anchor="mm",
+    )
 
 
 YEARS = [y for y in range(1383, 1404) if y != 1401]
@@ -309,15 +347,16 @@ def s_group(c, t, a0, b0):
     cx = W / 2
     p1 = ease(prog(lt, 0.0, 0.4))
     p2 = ease(prog(lt, 0.25, 0.65))
-    p3 = ease(prog(lt, 0.5, 0.9))
     # level 2
     w1, h1 = lerp(200, 620, p1), lerp(60, 270, p1)
     c.rect(cx - w1 / 2, 85, w1, h1, outline=mix(VIOLET, a * p1), r=12, width=1.5)
     c.text(cx - w1 / 2 + 16, 104, "011", 13, mix(VIOLET, a * p1), "consolab.ttf", "lm")
     c.text(cx + w1 / 2 - 16, 104, "مواد خوراکی", 14, mix(TXT, a * p1), anchor="rm", fa=True)
     # level 3 boxes
-    subs = [("0111", "غلات، نان، آرد", ["011111", "011112", "011113", "011114"]),
-            ("0112", "گوشت", ["011211", "011241", "011244"])]
+    subs = [
+        ("0111", "غلات، نان، آرد", ["011111", "011112", "011113", "011114"]),
+        ("0112", "گوشت", ["011211", "011241", "011244"]),
+    ]
     for k, (code, lab, items) in enumerate(subs):
         bx = cx - 290 + k * 300
         bw, bh = 280 * p2, 190 * p2
@@ -332,7 +371,15 @@ def s_group(c, t, a0, b0):
                 continue
             ix = bx + 14 + (j % 3) * 86
             iy = 178 + (j // 3) * 42 + 30 * (1 - ip)
-            c.rect(ix, iy, 76, 28, fill=mix(TEAL, a * clamp(ip) * 0.18, PANEL), outline=mix(TEAL, a * clamp(ip), PANEL), r=6)
+            c.rect(
+                ix,
+                iy,
+                76,
+                28,
+                fill=mix(TEAL, a * clamp(ip) * 0.18, PANEL),
+                outline=mix(TEAL, a * clamp(ip), PANEL),
+                r=6,
+            )
             c.text(ix + 38, iy + 14, it, 12, mix(TEAL, a * clamp(ip), PANEL), "consola.ttf", "mm")
     caption(c, "items roll up into the questionnaire's groups, tracked year by year", a * prog(lt, 0.3, 0.6))
 
@@ -359,10 +406,24 @@ def s_explore(c, t, a0, b0):
         c.text(x + 20, y + 85, l1, 13, mix(MUTED, aa, PANEL), anchor="lm")
         c.text(x + 20, y + 106, l2, 13, mix(MUTED, aa, PANEL), anchor="lm")
     tp = ease(prog(lt, 0.8, 1.2))
-    c.text(W / 2, 330 + 10 * (1 - tp), "one item, followed across 20 years of forms", 20,
-           mix(TXT, a * tp), "segoeuib.ttf", "mm")
-    c.text(W / 2, 362 + 10 * (1 - tp), "open-data-for-iran.github.io/HIESIR-Codebook", 13,
-           mix(MUTED, a * tp), "consola.ttf", "mm")
+    c.text(
+        W / 2,
+        330 + 10 * (1 - tp),
+        "one item, followed across 20 years of forms",
+        20,
+        mix(TXT, a * tp),
+        "segoeuib.ttf",
+        "mm",
+    )
+    c.text(
+        W / 2,
+        362 + 10 * (1 - tp),
+        "open-data-for-iran.github.io/HIESIR-Codebook",
+        13,
+        mix(MUTED, a * tp),
+        "consola.ttf",
+        "mm",
+    )
 
 
 SCENES = [  # (start, end, stepper index or None, fn)
@@ -396,8 +457,9 @@ def main():
         strip.paste(s, (0, H * i))
     pal = strip.quantize(colors=128, method=Image.Quantize.MEDIANCUT)
     q = [f.quantize(palette=pal, dither=Image.Dither.NONE) for f in frames]
-    q[0].save(OUT, save_all=True, append_images=q[1:], duration=int(1000 / FPS),
-              loop=0, optimize=True, disposal=1)
+    q[0].save(
+        OUT, save_all=True, append_images=q[1:], duration=int(1000 / FPS), loop=0, optimize=True, disposal=1
+    )
     for s in (1.0, 3.5, 6.2, 9.0, 11.5, 13.5):
         frames[int(s * FPS)].save(OUT.replace(".gif", f"_t{s}.png"))
     print("frames", n)
