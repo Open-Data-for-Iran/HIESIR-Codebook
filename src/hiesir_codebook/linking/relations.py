@@ -42,7 +42,8 @@ How relations are found, year by year
 -------------------------------------
 1. consecutive chains of the same code whose labels are related: ``same``;
 2. a chain that ends and a chain that starts the next year, in the same
-   section and with similar labels, is ``recoded`` (best matches first);
+   section and with similar labels, or in another section with the same
+   label, is ``recoded`` (best matches first);
 3. an item for all providers that is now asked as a public / private pair
    (دولتی / خصوصی, G / NG) is ``split`` into the pair;
 4. a chain that ends while its label is contained in a chain that continues
@@ -80,6 +81,7 @@ decision     ``confirm``: the relation is right as found
 relation     for ``change`` and ``add``
 detail       for ``change`` and ``add`` (may be empty)
 note         why
+agent        who decided (the person or the AI model and its effort)
 ============ ================================================================
 
 To change the chains of a relation, reject it and add the right one.  The
@@ -366,7 +368,10 @@ def _recodes(y: _Year) -> list[Relation]:
     keys = {c.id: loose_key(c.text) for c in y.ending + y.starting}
     for e in y.ending:
         for s in y.starting:
-            if e.section != s.section or e.code == s.code:
+            if e.code == s.code:
+                continue
+            # another section only with the same label (رفتگر: 056215 in 5 -> 044418 in 4)
+            if e.section != s.section and keys[e.id] != keys[s.id]:
                 continue
             # cheap upper bound on the similarity before the full comparison
             if difflib.SequenceMatcher(None, keys[e.id], keys[s.id]).quick_ratio() < 0.5:
@@ -564,6 +569,16 @@ def apply_decisions(
                 [by_id[i] for i in sorted(d.from_chains)], [by_id[i] for i in sorted(d.to_chains)], d.relation
             )
             r.detail = d.detail
+            # a chain on both sides goes on: the change is when the new chains
+            # start, or else the year after the others end
+            starting = [c for c in r.targets if c not in r.sources]
+            ending = [c for c in r.sources if c not in r.targets] or r.sources
+            last = max(c.years[-1] for c in ending)
+            after = [y for c in r.targets for y in c.years if y > last]
+            if starting:
+                r.at = min(c.years[0] for c in starting)
+            elif after:
+                r.at = min(after)
             relations.append(r)
             by_key[key] = r
         elif r is None:

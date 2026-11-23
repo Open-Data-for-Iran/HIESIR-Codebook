@@ -305,7 +305,9 @@ onward from it (or into it), unless it appears on both sides. The build
 reports any breach, and a test fails on it.
 
 The code finds the 1 → 1 relations within a code, recodings (a chain that
-ends and a similar one that starts the next year under a new code), merges
+ends and a similar one that starts the next year under a new code, in the same
+section, or in another section with the same label: رفتگر 056215 → 044418 in
+1384), merges
 (an ending chain whose label lives on in another; a "سایر X" item that
 becomes "X" while the rest of its group vanishes), and splits (a new chain
 whose label was part of an older one; an item asked for all providers that
@@ -355,6 +357,7 @@ link or relation, named by its chains:
 | `decision` | `confirm` (right as found), `reject` (not related this way), `change` (right chains, use `relation`/`detail` instead), or `add` (a relation the code missed, e.g. a regrouping) |
 | `relation`, `detail` | for `change` and `add` |
 | `note` | why |
+| `agent` | who decided: the person, or the AI model and its effort |
 
 The 1 → 1 decisions were checked against the household occurrence table
 (`data/commodity_code_occurrence_1383-1403.csv`). The note gives the
@@ -521,7 +524,7 @@ way item links must: identical, or differing only in spacing, ZWNJ,
 punctuation, the conjunction (`،` / `و`), word order, generic words or
 "etc." markers (`روغن‌ها و چربی‌ها و کره` → `روغن‌ها، چربی‌ها و کره`). The
 others are `open` until a row in `curated/4_groups/links.csv` decides
-them (`from_group`, `to_group`, `decision`, `relation`, `note`; the
+them (`from_group`, `to_group`, `decision`, `relation`, `note`, `agent`; the
 decisions of `links.csv`). The 1384 split of `هزینه آموزش` into
 `هزینه آموزش ابتدایی و پیش دبستانی` and the other levels is one of them:
 the codes are related but the labels narrowed. All {{ groups.links.curated }} such links are

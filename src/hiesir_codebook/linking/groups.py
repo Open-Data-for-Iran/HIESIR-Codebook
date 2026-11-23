@@ -36,7 +36,7 @@ punctuation, the conjunction (``،`` / ``و``), word order, generic words or
 row in ``curated/4_groups/links.csv`` decides it (``curated``), with the
 columns and decisions of ``curated/3_items/links.csv``: ``from_group``,
 ``to_group``, ``decision`` (confirm, reject, change, add), ``relation`` (for
-change and add) and ``note`` (why).
+change and add), ``note`` (why) and ``agent`` (who decided).
 
 Output (``output/4_groups/``):
 
@@ -153,19 +153,29 @@ def build_groups(
 
 
 def item_steps(
-    chains: list[Chain], links: list[tuple[str, str]], relations: list[tuple[list[str], list[str]]]
+    chains: list[Chain],
+    links: list[tuple[str, str]],
+    relations: list[tuple[list[str], list[str]] | tuple[list[str], list[str], int]],
 ) -> list[Step]:
     """Every step from one year to the next where an item continues: inside
     its chain, through a link, or from each chain a relation ends to each it
-    starts."""
+    starts.  A relation may give the year of its change: a chain on both
+    sides goes on, so its own first or last year is not the change."""
     by_id = {c.id: c for c in chains}
     steps: list[Step] = []
     for c in chains:
         steps += [(c.id, (a, c.code), (b, c.code)) for a, b in zip(c.years, c.years[1:], strict=False)]
-    pairs = [*links, *((a, b) for srcs, dsts in relations for a in srcs for b in dsts if a != b)]
-    for a, b in pairs:
+    pairs = [(a, b, None) for a, b in links]
+    for srcs, dsts, *year in relations:
+        pairs += [(a, b, year[0] if year else None) for a in srcs for b in dsts if a != b]
+    for a, b, year in pairs:
         ca, cb = by_id[a], by_id[b]
-        steps.append((a, (ca.years[-1], ca.code), (cb.years[0], cb.code)))
+        if year is None:
+            before, after = ca.years[-1], cb.years[0]
+        else:
+            before = max((y for y in ca.years if y < year), default=ca.years[-1])
+            after = min((y for y in cb.years if y >= year), default=cb.years[0])
+        steps.append((a, (before, ca.code), (after, cb.code)))
     return steps
 
 
@@ -329,9 +339,10 @@ def read_links(path: Path) -> list[tuple[str, str]]:
     return [(r["from_chain"], r["to_chain"]) for r in _read(path)]
 
 
-def read_relations(path: Path) -> list[tuple[list[str], list[str]]]:
-    """The final merges, splits and regroupings of ``relations.csv``."""
-    return [(r["from_chains"].split(), r["to_chains"].split()) for r in _read(path)]
+def read_relations(path: Path) -> list[tuple[list[str], list[str], int]]:
+    """The final merges, splits and regroupings of ``relations.csv``, with the
+    year of each change."""
+    return [(r["from_chains"].split(), r["to_chains"].split(), int(r["year"])) for r in _read(path)]
 
 
 def write_groups(groups: list[Group], path: Path, years: list[int] = YEARS) -> None:
