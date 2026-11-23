@@ -22,7 +22,8 @@ output/metrics.json (see hiesir_codebook.metrics), with thousands separators,
 in Persian digits on the Farsi pages. An unknown name stops the build.
 
 The home page's heatmap of changes by section and year (see heatmap()) goes
-in place of the marker <!-- changes-heatmap -->.
+in place of the marker <!-- changes-heatmap -->, and each diagram in place of
+its marker <!-- diagram: <name> --> (see scripts/diagrams.py).
 
 The explorer page itself is docs/explorer.md (and its translations), drawn by
 overrides/explorer.html.
@@ -38,6 +39,7 @@ uses its own links.
 from __future__ import annotations
 
 import html
+import importlib.util
 import json
 import logging
 import os
@@ -57,6 +59,12 @@ MARKER = "<!-- questionnaire-pdfs -->"
 HEAT_MARKER = "<!-- changes-heatmap -->"
 HREFLANG = re.compile(r'[ \t]*<link rel="alternate" href="[^"]*" hreflang="[^"]*">\n?')
 log = logging.getLogger("mkdocs.hooks.hiesir")
+
+# scripts/diagrams.py, loaded by path: MkDocs loads this file by path too, so
+# scripts/ is not importable
+_spec = importlib.util.spec_from_file_location("hiesir_diagrams", Path(__file__).with_name("diagrams.py"))
+diagrams = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(diagrams)
 
 _found: list[pdfs.Pdf] = []
 _heat: dict = {}
@@ -309,6 +317,7 @@ def on_page_markdown(markdown: str, page, config, files) -> str:
         markdown = metrics.fill(markdown, figures, lang, page.file.src_uri)
     if HEAT_MARKER in markdown:
         markdown = markdown.replace(HEAT_MARKER, heatmap(_heat, lang))
+    markdown = diagrams.fill(markdown, lang)
     if MARKER not in markdown:
         return markdown
     return markdown.replace(MARKER, pdf_table(_found, lang))

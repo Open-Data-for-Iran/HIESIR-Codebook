@@ -1,4 +1,4 @@
-"""Rebuild data/glyph_db.json from PDFs whose text extracts correctly."""
+"""Rebuild extraction/data/glyph_db.json from PDFs whose text extracts correctly."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from .parse import pdf_path
 
 
 def main(years: list[int] | None = None, *, data: Path = Path("data")) -> None:
-    """Rebuild data/glyph_db.json from PDFs whose text extracts correctly.
+    """Rebuild extraction/data/glyph_db.json from PDFs whose text extracts correctly.
 
     Parameters
     ----------

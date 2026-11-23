@@ -110,8 +110,10 @@ typos, truncated words, words glued together and text the PDF reading mangled
 (`دیبرستان` → `دبیرستان`, `رایو` → `رادیو`, `کارت کدملی` → `کارت ملی`,
 `روبدوشامبروبیژاما` → `روبدوشامبر و پیژاما`, `قابل‌حمل‌ب‌چه` → `قابل حمل بچه`).
 
-`--check` lists how many descriptions each row changed, and the run warns
-about rows that match nothing.
+`correct --check` lists how many descriptions each row changed, and every
+run lists the rows that change no description themselves (such a row may
+still work through the automatic fixes: it can decide the wording of a group
+of `canonical.csv` or teach a `learned` word fix).
 
 **One wording per label.** Before the house style, the automatic fixes and
 `spelling.csv`, `output/2_corrected/autocorrect/canonical.csv` gives every label
@@ -208,7 +210,8 @@ the first did, and a test checks both are up to date where the data is there:
 uv run hiesir-codebook autocorrect
 ```
 
-`--check` tests both against the household occurrence table:
+`hiesir-codebook correct --check` tests the corrections and the corrected
+questionnaires against the household occurrence table:
 
 - each correction: a recoded item's new code must be reported by households
   that year, a deleted item's code must not be, and every item copied into a
@@ -268,31 +271,7 @@ chains to a *set* of later chains; the shape gives the kind:
 
 One example of each shape (codes and labels as printed):
 
-```mermaid
-flowchart TB
-  subgraph rec["recoded: 1 → 1 (1386)"]
-    direction LR
-    r1["011837<br>انواع شیرینی خشک"] --> r2["011174<br>انواع شیرینی خشک"]
-  end
-  subgraph mer["merged: n → 1 (1390)"]
-    direction LR
-    m1["022111<br>انواع سیگار ایرانی به جز بهمن"] --> m3["022111<br>انواع سیگار ایرانی"]
-    m2["022112<br>سیگار بهمن"] --> m3
-  end
-  subgraph spl["split: 1 → n (1385)"]
-    direction LR
-    p1["073216<br>کرایه تاکسی و سواری داخل شهری"] --> p2["073216<br>کرایه تاکسی داخل شهری"]
-    p1 --> p3["073224<br>کرایه سواری داخل شهری (مسافرکش شخصی)"]
-  end
-  subgraph reg["regrouped: n → m (1395)"]
-    direction LR
-    g1["062313<br>رادیولوژی، سونوگرافی ... (outpatient)"] --> g3["062334<br>خدمات رادیولوژی ... G"]
-    g1 --> g4["062335<br>خدمات رادیولوژی ... NG"]
-    g2["063313<br>رادیولوژی، سونوگرافی ... (hospital)"] --> g3
-    g2 --> g4
-  end
-  rec ~~~ mer ~~~ spl ~~~ reg
-```
+<!-- diagram: relation-shapes -->
 
 The two families do different jobs, so they are kept in separate files:
 
@@ -317,21 +296,7 @@ label takes them in: a merge (`R0003`) ends three series and starts one.
 From 1389 the hamburger alone has no match in 1388; the sum of the three
 does.
 
-```mermaid
-flowchart LR
-  subgraph series["one series"]
-    direction LR
-    a["011241-1383<br>همبرگر آماده برای طبخ<br>1383"] -->|"link: same, broadened<br>1384"| b["011241-1384<br>همبرگر و کباب لقمه آماده برای طبخ<br>1384–1388"]
-  end
-  c["011242-1383<br>کتلت آماده برای طبخ<br>1383–1388"]
-  d["011243-1383<br>استیک آماده برای طبخ<br>1383–1388"]
-  r(("merged<br>1389"))
-  m["011241-1389<br>همبرگر، کباب لقمه، کتلت و استیک آماده برای طبخ<br>1389–1403"]
-  b --> r
-  c --> r
-  d --> r
-  r --> m
-```
+<!-- diagram: hamburger -->
 
 Both are found in one pass, because a merge is found by extending a link.
 They must agree: a chain has at most one link onward and one link into it,
@@ -507,16 +472,7 @@ pair is a split (e.g. خدمات آمبولانس in 1395).
 The questionnaire prints up to three levels of headers between a section and
 its items. In 1403, the hamburger item sits under its section and three headers:
 
-```mermaid
-flowchart TB
-  s["section 1<br>هزینه‌های خوراکی خانوار در ماه گذشته"] --> l2["level 2 · 011<br>مواد خوراکی"]
-  l2 --> l3["level 3 · 0112, 0113<br>گوشت"]
-  l3 --> l4a["level 4 · 01121, 01122<br>گوشت دام"]
-  l3 --> l4b["level 4 · 01123<br>گوشت پرندگان"]
-  l3 --> l4c["level 4 · 01124<br>گوشت‌های آماده برای طبخ"]
-  l3 --> l4d["level 4 · 01131, 01132<br>ماهی و میگو و فراورده‌های آن"]
-  l4c --> i["item · 011241<br>همبرگر، کباب لقمه، کتلت و استیک آماده برای طبخ"]
-```
+<!-- diagram: header-levels -->
 
 `groups.py` follows the group headers (levels 2–4, above the items) the
 way the chains follow items:
@@ -545,12 +501,7 @@ way the chains follow items:
 For example, in 1389 the semi-durable clothing group `0313` is printed in two
 parts, and the items say which went where (see the `M` and `A` suffixes below):
 
-```mermaid
-flowchart LR
-  o["0313-1383 · section 3<br>سایر انواع پوشاک و لوازم پوشاکی (کم‌دوام)<br>1383–1388, 12 items"]
-  o -->|"split 1389<br>11 items"| m["0313M-1389 · section 3<br>1389–1403"]
-  o -->|"split 1389<br>1 item"| a["0313A-1389 · section 13<br>1389–1403"]
-```
+<!-- diagram: clothing-split -->
 
 The code decides a group link (`decided_by` `code`) when three things hold:
 it is not `moved`; the codes are related (one shares a code with the other,
@@ -658,9 +609,13 @@ across years, to `output/3_items/` and `output/4_groups/`).
 - `words.py` (`hiesir-codebook autocorrect`) writes the two files of fixes
   the build applies (`output/2_corrected/autocorrect/`): `canonical.csv`
   (`canonical.py`) and `words.csv`, from a chain of finders (learned and folded
-  in `canonical.py`, hazm's rules in `hazm_rules.py`), with hazm's word list
+  in `canonical.py`, variant in `variants.py`, hazm's rules in `hazm_rules.py`),
+  with hazm's word list
   (`lexicon.py`: hazm's words, the forms of its verbs and
-  `curated/2_corrected/words.csv`, as one polars table).
+  `curated/2_corrected/words.csv`, as one polars table). `text.py` holds what
+  all the steps mean by a word and the folds that make two spellings one key
+  (`letters`, `word_key`, `label_key`), each usable on a string and on a polars
+  column alike.
 - `compare.py` compares two descriptions (`same`, `minor`, `broadened`, ...)
   and handles provider qualifiers; shared by the matching stages.
 - `chains.py` builds the chains (matching stage 1), `relations.py` links them
@@ -670,6 +625,9 @@ across years, to `output/3_items/` and `output/4_groups/`).
   SHA-256), downloads them from the release and checks a copy against it.
 - `occurrence.py` reads the household occurrence tables
   (`data/commodity_code_occurrence_*.csv`) for `correct.py` and `relations.py`.
+- `csv_io.py` reads and writes every CSV the same way: UTF-8 with a BOM (so
+  Excel shows the Persian text), LF line endings, every field a string (so a
+  code keeps its leading zero).
 - `utils.py` holds the Persian text normalisation helpers, usable on their own:
   `normalize_persian` (letters, digits, tatweel, spacing), `to_ascii_digits` /
   `to_persian_digits`, `canonical` (presentation forms → base letters),

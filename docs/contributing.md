@@ -4,16 +4,7 @@ Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 
 ## The pipeline
 
-```mermaid
-flowchart LR
-  pdf["data/pdf/"] -->|extract| ext["1_extracted/<br>as printed"]
-  ext -->|correct| cor["2_corrected/<br>as intended"]
-  cor -->|match| items["3_items/<br>chains, links, relations"]
-  items -->|group| groups["4_groups/<br>groups, members, links"]
-  c2["curated/2_corrected/"] -.-> cor
-  c3["curated/3_items/"] -.-> items
-  c4["curated/4_groups/"] -.-> groups
-```
+<!-- diagram: pipeline -->
 
 `output/1_extracted/` reproduces each PDF exactly, typos included, so it
 shows what changes when the extractor changes or a PDF is replaced. Every
@@ -42,8 +33,9 @@ each with its reason:
 | File | What it fixes | Applied by |
 |---|---|---|
 | `2_corrected/corrections.csv` | single items and group headers in a single year: wrong codes, wrong texts, missing sections | `correct` |
-| `2_corrected/spelling.csv` | spellings that recur across rows and years: typos, glued words, ZWNJs | `correct` |
+| `2_corrected/spelling.csv` | the misspellings no rule settles: typos, truncated words, glued words, text the PDF reading mangled | `correct` |
 | `2_corrected/words.csv` | correct words that hazm's word list lacks, so the automatic fixes leave them alone | `autocorrect` |
+| `2_corrected/header_exceptions.csv` | items printed under a header whose code does not cover them, accepted as printed (a check, it changes nothing) | `check-structure` |
 | `3_items/links.csv` | decisions on 1 → 1 links between chains (`from_chain` → `to_chain`, same or recoded): confirm, reject, change, add | `relations` |
 | `3_items/relations.csv` | decisions on merges, splits and regroupings between chain sets (`from_chains` → `to_chains`): confirm, reject, change, add | `relations` |
 | `4_groups/links.csv` | decisions on links between group headers (`from_group` → `to_group`: continued, split, merged, regrouped, moved): confirm, reject, change, add | `groups` |
@@ -88,9 +80,15 @@ them, without Node, into one script and one stylesheet. The docs page
 `docs/explorer.md` (and `explorer.fa.md`) loads those inside the site through
 `overrides/explorer.html`, taking the site's colours, fonts and dark mode.
 
-Diagrams are written in [Mermaid](https://mermaid.js.org/) as a ` ```mermaid `
-code block, so they stay text and take the site's light or dark theme. In the
-Farsi page, use `flowchart RL` so that the flow reads right to left.
+Diagrams are drawn as inline SVG by `scripts/diagrams.py`, one function per
+diagram, after the editorial rules of
+[diagram-design](https://github.com/cathrynlavery/diagram-design): every node a
+distinct idea, connectors at right angles, labels on a mask clear of their
+line, at most one element in the accent colour. A page places one with the
+marker `<!-- diagram: name -->` on a line of its own; the Farsi page gets the
+same layout mirrored, with its own text. Colours and fonts come from classes
+styled in `docs/assets/extra.css` with the theme's colours, so a diagram takes
+the site's light or dark scheme. An unknown name stops the site build.
 
 Counts are never typed into a page: write the name of a figure in
 `output/metrics.json` between double curly braces, such as `links.confirmed`,

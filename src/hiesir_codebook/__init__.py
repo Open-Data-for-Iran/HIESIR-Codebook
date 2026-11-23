@@ -1,4 +1,5 @@
-"""Extract HIES (Household Income and Expenditure Survey of Iran) questionnaires from the PDF forms."""
+"""The HIES (Household Income and Expenditure Survey of Iran) questionnaires as a codebook:
+extracted from the PDF forms, corrected, and matched across years."""
 
 from __future__ import annotations
 

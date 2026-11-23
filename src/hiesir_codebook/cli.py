@@ -88,7 +88,7 @@ LAZY = [
     ("autocorrect", "correction.words:main", WORDS, "Write canonical.csv and words.csv with hazm's words."),
     ("pdfs", "extraction.pdfs:cli", DATA, "Download, verify or list the questionnaire PDFs."),
     ("hazm", "hazm_data:cli", DATA, "Download, verify or list hazm's word list and data."),
-    ("glyph-db", "extraction.build_glyph_db:main", DATA, "Rebuild data/glyph_db.json from good PDFs."),
+    ("glyph-db", "extraction.build_glyph_db:main", DATA, "Rebuild the glyph database from good PDFs."),
 ]
 for i, (name, path, group, short) in enumerate(LAZY, start=1):
     app.command(f"hiesir_codebook.{path}", name=name, group=group, help=short, sort_key=i)

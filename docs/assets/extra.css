@@ -186,6 +186,55 @@ body {
   unicode-bidi: isolate;
 }
 
-/* Mermaid diagrams: keep Latin paths (1_extracted/, curated/...) in order on the
-   right-to-left Farsi pages; Persian labels still read right to left */
-[dir="rtl"] .mermaid { direction: ltr; }
+/* Diagrams (scripts/diagrams.py): inline SVG at their own size, scrolling sideways
+   on a narrow screen rather than shrinking the text. Every colour is the theme's,
+   so they follow the light and dark schemes: ink for names, the light foreground
+   for lines and secondary text, the accent for the one focal element. */
+.md-typeset .diagram {
+  --dg-ink: var(--md-default-fg-color);
+  --dg-muted: var(--md-default-fg-color--light);
+  --dg-rule: var(--md-default-fg-color--lighter);
+  --dg-paper: var(--md-default-bg-color);
+  --dg-accent: var(--md-accent-fg-color);
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.md-typeset .diagram svg {
+  display: block;
+  margin: 0 auto;
+  max-width: none;
+  direction: ltr;
+}
+.diagram .dg-node { fill: var(--dg-paper); stroke: var(--dg-muted); stroke-width: 1; }
+.diagram .dg-node.muted { stroke: var(--dg-rule); }
+.diagram .dg-node.accent {
+  stroke: var(--dg-accent);
+  stroke-width: 1.4;
+  fill: color-mix(in srgb, var(--dg-accent) 7%, var(--dg-paper));
+}
+.diagram .dg-zone { fill: none; stroke: var(--dg-rule); stroke-dasharray: 4 4; }
+.diagram .dg-edge { fill: none; stroke: var(--dg-muted); stroke-width: 1.2; }
+.diagram .dg-edge.accent { stroke: var(--dg-accent); stroke-width: 1.4; }
+.diagram .dg-edge.dashed { stroke-dasharray: 5 4; }
+.diagram .dg-edge.dg-bus { stroke-width: 2.4; }
+.diagram .dg-head { fill: var(--dg-muted); }
+.diagram .dg-head.accent { fill: var(--dg-accent); }
+.diagram .dg-mask { fill: var(--dg-paper); }
+.diagram text { font-family: var(--md-text-font-family); }
+.diagram .dg-name { fill: var(--dg-ink); font-size: 13px; font-weight: 500; }
+.diagram .dg-code { fill: var(--dg-muted); font: 11px var(--md-code-font-family); }
+.diagram .dg-meta,
+.diagram .dg-label,
+.diagram .dg-eyebrow { fill: var(--dg-muted); font: 10px var(--md-code-font-family); letter-spacing: 0.06em; }
+.diagram .dg-label,
+.diagram .dg-eyebrow { text-transform: uppercase; }
+.diagram .dg-eyebrow { font-weight: 500; letter-spacing: 0.12em; }
+.diagram .dg-name.muted { fill: var(--dg-muted); }
+/* Persian has no capitals and no monospace face: its small labels switch to the
+   text font, larger and untracked */
+.diagram text.dg-meta[direction="rtl"],
+.diagram text.dg-label[direction="rtl"],
+.diagram text.dg-eyebrow[direction="rtl"] {
+  font: 500 12px var(--md-text-font-family);
+  letter-spacing: 0;
+}

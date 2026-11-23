@@ -10,7 +10,7 @@ uv run hiesir-codebook build --no-extract   # keep 1_extracted/, rebuild the res
 | Folder | Written by | From |
 |---|---|---|
 | `1_extracted/` | `hiesir-codebook extract` | the PDFs in `data/pdf/`, exactly as printed |
-| `2_corrected/` | `hiesir-codebook correct`; `autocorrect/` by `hiesir-codebook canonical` and `autocorrect` | `1_extracted/` + `curated/2_corrected/` |
+| `2_corrected/` | `hiesir-codebook correct`; `autocorrect/` (canonical.csv, words.csv) by `hiesir-codebook autocorrect` | `1_extracted/` + `curated/2_corrected/` |
 | `3_items/` | `hiesir-codebook chains` (chains.csv), `relations` (links.csv, relations.csv) | `2_corrected/` + `curated/3_items/` |
 | `4_groups/` | `hiesir-codebook groups` (groups.csv, members.csv, links.csv) | `2_corrected/`, `3_items/` + `curated/4_groups/` |
 | `metrics.json` | `hiesir-codebook metrics` | every folder above: the figures the documentation quotes |

@@ -63,17 +63,7 @@ wording change.
 
 ## How it is made
 
-```mermaid
-flowchart LR
-  pdf[Questionnaire PDFs] -->|extract| ext[As printed]
-  ext -->|correct| cor[As intended]
-  cor -->|match| items[Chains, links,<br>relations]
-  items -->|group| groups[Groups, members,<br>group links]
-  groups --> exp[Explorer]
-  c2["curated/2_corrected/"] -.-> cor
-  c3["curated/3_items/"] -.-> items
-  c4["curated/4_groups/"] -.-> groups
-```
+<!-- diagram: pipeline -->
 
 Every deviation from the print, and every matching decision a person made, is
 one row in `curated/` with its reason (the dashed inputs above); everything
