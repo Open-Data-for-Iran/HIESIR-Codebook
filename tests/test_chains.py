@@ -1,3 +1,5 @@
+import pytest
+
 from hiesir_codebook.linking.chains import build_chains, read_chains, write_chains
 from hiesir_codebook.linking.compare import Item
 
@@ -27,6 +29,13 @@ def test_one_code_and_one_label_per_chain():
     # missing from three questionnaires: more than the gap allows
     assert chains["014-1"].years == [1]
     assert chains["014-5"].years == [5]
+
+
+def test_code_printed_twice_is_refused():
+    # the structure check of output/2_corrected/ rules it out; chains do not guess
+    data = {**DATA, 3: _items(3, ("012", "کولرگازی"), ("012", "کولر آبی"))}
+    with pytest.raises(ValueError, match="printed twice"):
+        build_chains(data)
 
 
 def test_every_item_in_one_chain():

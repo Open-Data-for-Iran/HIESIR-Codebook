@@ -10,6 +10,8 @@ A chain ends when its code disappears for more than ``MAX_GAP``
 questionnaires in a row, or when its label changes in any other way; the
 changed label starts a new chain.  So every chain has exactly one code and
 one text, and every item of every year belongs to exactly one chain.
+That needs each code printed once a year, which the structure check of
+``output/2_corrected/`` guarantees; a code printed twice is an error.
 
 How chains relate to each other (a reworded label, a new code, a merge) is
 the job of the next stage, :mod:`hiesir_codebook.linking.relations`.
@@ -36,32 +38,26 @@ class Chain:
 
 
 def build_chains(items_by_year: dict[int, list[Item]], max_gap: int = MAX_GAP) -> list[Chain]:
+    """Chains of the items of every year.  Each code is printed once a year:
+    the structure check of ``output/2_corrected/`` guarantees it (``duplicate``)."""
     years = sorted(items_by_year)
     chains: list[Chain] = []
-    ids: set[str] = set()
     current: dict[str, Chain] = {}  # code -> its latest chain
 
     for yi, year in enumerate(years):
         window = set(years[max(0, yi - max_gap - 1) : yi])
-        seen: set[str] = set()
+        codes = [it.code for it in items_by_year[year]]
+        if len(set(codes)) != len(codes):
+            twice = sorted({c for c in codes if codes.count(c) > 1})
+            raise ValueError(f"{year}: codes printed twice {twice}; fix them in curated/2_corrected/")
         for it in items_by_year[year]:
             c = current.get(it.code)
-            if (
-                it.code not in seen
-                and c is not None
-                and c.years[-1] in window
-                and relate(c.text, it.text).kind == "same"
-            ):
+            if c is not None and c.years[-1] in window and relate(c.text, it.text).kind == "same":
                 c.years.append(year)
                 c.text = it.text
             else:
-                cid, n = f"{it.code}-{year}", 2
-                while cid in ids:  # same code printed twice in one year
-                    cid, n = f"{it.code}-{year}-{n}", n + 1
-                ids.add(cid)
-                current[it.code] = Chain(cid, it.section, it.code, it.text, [year])
+                current[it.code] = Chain(f"{it.code}-{year}", it.section, it.code, it.text, [year])
                 chains.append(current[it.code])
-            seen.add(it.code)
     return chains
 
 
