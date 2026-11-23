@@ -1,4 +1,4 @@
-"""MkDocs hooks: publish the explorer's data and component, the CSVs and the PDFs.
+"""MkDocs hooks: publish the explorer's data and component, the CSVs, the Excel workbooks and the PDFs.
 
 They are added to the site at build time instead of being copied into docs/,
 so git holds one copy and the site always shows what output/ holds:
@@ -9,13 +9,15 @@ so git holds one copy and the site always shows what output/ holds:
     output/2_corrected/*.csv                 -> 2_corrected/*.csv
     output/3_items/*.csv                     -> 3_items/*.csv
     output/4_groups/*.csv                    -> 4_groups/*.csv
+    output/2_corrected/ (hiesir_codebook.excel) -> excel/questionnaire_<year>.xlsx
     the questionnaire PDFs                   -> pdf/questionnaire_<year>[_<area>].pdf
 
 The PDFs are not in git. They come from $HIESIR_PDF_DIR, else data/pdf/
 (`hiesir-codebook pdfs download` fetches the release "questionnaires" there,
-as the GitHub workflow does); without any, the site is built without them. The list on the questionnaires
-page (docs/questionnaires.md and its translation) is filled in from what is
-found, in place of the marker <!-- questionnaire-pdfs -->.
+as the GitHub workflow does); without any, the site is built without them. The download table on the
+questionnaires page (docs/questionnaires.md and its translation) is filled in
+from what is found, a PDF and, for the extracted years, an Excel workbook,
+in place of the marker <!-- questionnaire-pdfs -->.
 
 Figures in the pages are written as {{ links.confirmed }}: each is read from
 output/metrics.json (see hiesir_codebook.metrics), with thousands separators,
@@ -49,7 +51,7 @@ from pathlib import Path
 
 from mkdocs.structure.files import File, Files
 
-from hiesir_codebook import explorer, metrics
+from hiesir_codebook import SUPPORTED_YEARS, excel, explorer, metrics
 from hiesir_codebook.extraction import pdfs
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -67,6 +69,7 @@ diagrams = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(diagrams)
 
 _found: list[pdfs.Pdf] = []
+_books: dict[int, Path] = {}  # the Excel workbook of each extracted year
 _heat: dict = {}
 
 
@@ -103,6 +106,13 @@ def on_files(files: Files, config) -> Files:
         for p in paths:
             files.append(File.generated(config, p.relative_to(OUTPUT).as_posix(), abs_src_path=str(p)))
 
+    # the workbooks, made from output/ like the CSVs, so they always match it
+    _books.clear()
+    for year in SUPPORTED_YEARS:
+        book = excel.write_workbook(year, OUTPUT / "2_corrected", cache.parent / "excel")
+        _books[year] = book
+        files.append(File.generated(config, f"excel/{book.name}", abs_src_path=str(book)))
+
     folder = _pdf_dir()
     _found[:] = pdfs.find(folder) if folder else []
     if not _found:
@@ -114,7 +124,7 @@ def on_files(files: Files, config) -> Files:
 
 TABLE = {
     "en": {
-        "head": "| Year | Form | Status | Size | PDF |\n|---|---|---|---:|---|",
+        "head": "| Year | Form | Status | PDF | Excel |\n|---|---|---|---|---|",
         "area": {"urban": "urban", "rural": "rural", "": "urban and rural"},
         "kind": {
             "extracted": "extracted: see the explorer",
@@ -124,10 +134,12 @@ TABLE = {
         },
         "missing": "!!! note\n    The PDFs were not available when this copy of the site was built.",
         "mb": "MB",
+        "kb": "KB",
+        "download": "Download {name}, {size}",
         "year": str,
     },
     "fa": {
-        "head": "| سال | فرم | وضعیت | حجم | PDF |\n|---|---|---|---:|---|",
+        "head": "| سال | فرم | وضعیت | PDF | Excel |\n|---|---|---|---|---|",
         "area": {"urban": "شهری", "rural": "روستایی", "": "شهری و روستایی"},
         "kind": {
             "extracted": "استخراج‌شده: در جست‌وجوی اقلام",
@@ -137,24 +149,51 @@ TABLE = {
         },
         "missing": "!!! note\n    فایل‌های PDF هنگام ساختن این نسخه از سایت در دسترس نبودند.",
         "mb": "مگابایت",
+        "kb": "کیلوبایت",
+        "download": "دریافت {name}، {size}",
         "year": lambda y: str(y).translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")),
     },
 }
+# the icon of the application that opens each kind of file
+ICONS = {"pdf": "material-file-pdf-box", "excel": "material-microsoft-excel"}
 
 
-def pdf_table(found: list[pdfs.Pdf], lang: str) -> str:
+def _size(path: Path, t: dict, lang: str) -> str:
+    n = path.stat().st_size
+    size = f"{n / 2**20:.1f} {t['mb']}" if n >= 2**20 else f"{n / 2**10:.0f} {t['kb']}"
+    return t["year"](size).replace(".", "٫") if lang == "fa" else size
+
+
+def _download(kind: str, path: Path, href: str, t: dict, lang: str) -> str:
+    """A download link: the application's icon and the file's size; the
+    file's name is its label for screen readers and its tooltip."""
+    size = _size(path, t, lang)
+    label = t["download"].format(name=path.name, size=size)
+    return (
+        f"[:{ICONS[kind]}: {size}]({href})"
+        f'{{ .download .download-{kind} download="{path.name}" title="{path.name}" aria-label="{label}" }}'
+    )
+
+
+def pdf_table(found: list[pdfs.Pdf], lang: str, books: dict[int, Path] | None = None) -> str:
+    """The download table: a PDF for each form, and an Excel workbook for each
+    extracted year.  Without the PDFs, a note and the workbooks alone."""
     t = TABLE.get(lang, TABLE["en"])
-    if not found:
-        return t["missing"]
+    books = _books if books is None else books
+
+    def book(year: int) -> str:
+        return _download("excel", books[year], f"excel/{books[year].name}", t, lang) if year in books else ""
+
     rows = [t["head"]]
     for f in found:
-        size = f"{f.path.stat().st_size / 2**20:.1f} {t['mb']}"
-        if lang == "fa":
-            size = t["year"](size).replace(".", "٫")
+        excel_cell = book(f.year) if f.kind == "extracted" else ""
         rows.append(
-            f"| {t['year'](f.year)} | {t['area'][f.area]} | {t['kind'][f.kind]} | {size} "
-            f"| [{f.name}](pdf/{f.name}) |"
+            f"| {t['year'](f.year)} | {t['area'][f.area]} | {t['kind'][f.kind]} "
+            f"| {_download('pdf', f.path, f'pdf/{f.name}', t, lang)} | {excel_cell} |"
         )
+    if not found:
+        rows += [f"| {t['year'](y)} | | {t['kind']['extracted']} | | {book(y)} |" for y in sorted(books)]
+        return t["missing"] + "\n\n" + "\n".join(rows)
     return "\n".join(rows)
 
 

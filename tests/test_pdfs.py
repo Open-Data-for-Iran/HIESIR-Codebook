@@ -117,15 +117,21 @@ def _hooks():
 def test_questionnaire_table(tmp_path):
     (tmp_path / "Questionnaire 1386.pdf").write_bytes(b"%PDF" * 1000)
     hooks = _hooks()
+    book = tmp_path / "questionnaire_1386.xlsx"
+    book.write_bytes(b"x" * 150 * 1024)
+    books = {1386: book}
     found = pdfs.find(tmp_path)
-    en = hooks.pdf_table(found, "en")
-    assert (
-        "| 1386 | urban and rural | extracted" in en
-        and "[questionnaire_1386.pdf](pdf/questionnaire_1386.pdf)" in en
-    )
-    fa = hooks.pdf_table(found, "fa")
-    assert "| ۱۳۸۶ | شهری و روستایی |" in fa
-    assert "!!! note" in hooks.pdf_table([], "en")
+    en = hooks.pdf_table(found, "en", books)
+    # each file a link with the icon of its application and its size
+    assert "| 1386 | urban and rural | extracted" in en
+    assert "[:material-file-pdf-box: 4 KB](pdf/questionnaire_1386.pdf)" in en
+    assert "[:material-microsoft-excel: 150 KB](excel/questionnaire_1386.xlsx)" in en
+    assert 'aria-label="Download questionnaire_1386.xlsx, 150 KB"' in en
+    fa = hooks.pdf_table(found, "fa", books)
+    assert "| ۱۳۸۶ | شهری و روستایی |" in fa and "۱۵۰ کیلوبایت" in fa
+    # without the PDFs, a note and the workbooks still
+    alone = hooks.pdf_table([], "en", books)
+    assert "!!! note" in alone and "excel/questionnaire_1386.xlsx" in alone
 
 
 def test_hreflang_links_are_dropped():

@@ -9,8 +9,15 @@
 فرم‌های قدیمی‌تر تصویر اسکن‌شده‌اند و تا خوانده شدن با OCR برای مراجعه این‌جا
 نگه داشته می‌شوند.
 
+برای هر سال استخراج‌شده یک فایل Excel از اقلام هزینه اصلاح‌شده هم هست: بخش‌ها،
+سرگروه‌ها و اقلام به ترتیب فرم، برگه‌ای از اقلام به‌تنهایی با سرگروه‌هایی که هر
+قلم زیر آن‌ها چاپ شده، و توضیح همه ستون‌ها. این فایل از همان
+[CSV](data.md#csv-columns) ساخته می‌شود و کدها را به صورت متن و با صفر ابتدایی‌شان
+نگه می‌دارد.
+
 <!-- questionnaire-pdfs -->
 
-این فایل‌ها به
+فایل‌های PDF به
 [انتشار `questionnaires`](https://github.com/Open-Data-for-Iran/HIESIR-Codebook/releases/tag/questionnaires)
-مخزن هم پیوست شده‌اند.
+مخزن هم پیوست شده‌اند و فایل‌های Excel به
+[انتشارهای Excel codebook](https://github.com/Open-Data-for-Iran/HIESIR-Codebook/releases?q=excel_codebook).

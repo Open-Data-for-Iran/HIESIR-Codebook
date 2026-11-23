@@ -9,7 +9,15 @@ opens the page it is printed on, with the row highlighted. The
 earlier forms are scanned images, kept here for reference until they are read
 with OCR.
 
+For each extracted year there is also an Excel workbook of the corrected
+expenditure items: the form's sections, group headers and items in order, a
+sheet of the items alone with the groups each is printed under, and what
+every column means. It is made from the same
+[CSV](data.md#csv-columns) and keeps the codes as text, with their leading zero.
+
 <!-- questionnaire-pdfs -->
 
-The files are also attached to the repository's
-[`questionnaires` release](https://github.com/Open-Data-for-Iran/HIESIR-Codebook/releases/tag/questionnaires).
+The PDFs are also attached to the repository's
+[`questionnaires` release](https://github.com/Open-Data-for-Iran/HIESIR-Codebook/releases/tag/questionnaires),
+and the workbooks to its
+[Excel codebook releases](https://github.com/Open-Data-for-Iran/HIESIR-Codebook/releases?q=excel_codebook).

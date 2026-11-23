@@ -238,3 +238,20 @@ body {
   font: 500 12px var(--md-text-font-family);
   letter-spacing: 0;
 }
+
+/* download links (the questionnaires page): the icon of the application that
+   opens the file, in its colour, then the file's size */
+.md-typeset a.download {
+  white-space: nowrap;
+  --download-color: currentColor;
+}
+.md-typeset a.download .twemoji {
+  height: 1.4em;
+  vertical-align: -.35em;
+  margin-inline-end: .15em;
+  color: var(--download-color);
+}
+.md-typeset a.download-pdf { --download-color: #c62828; }
+.md-typeset a.download-excel { --download-color: #107c41; }
+[data-md-color-scheme="slate"] .md-typeset a.download-pdf { --download-color: #ff7b72; }
+[data-md-color-scheme="slate"] .md-typeset a.download-excel { --download-color: #3fbf7f; }
