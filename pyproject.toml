@@ -14,6 +14,7 @@ dependencies = [
     "fonttools>=4.68.0",
     "polars>=2.1.0",
     "pymupdf>=2.1",
+    "xlsxwriter>=3.3.4",
 ]
 
 [project.urls]
@@ -30,6 +31,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "marimo>=0.25.2",  # notebooks for drafts (*_draft.py); not needed by the package
+    "openpyxl>=3.1.5",
     "pytest>=9.2.0",
     "ruff>=0.17.5",
 ]

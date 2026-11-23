@@ -34,7 +34,8 @@ app = App(
 BUILD = Group("Build", sort_key=0)
 STAGES = Group("Stages, in the order build runs them", sort_key=1)
 WORDS = Group("Automatic fixes (need hazm's data; build reads what they write)", sort_key=2)
-DATA = Group("Data", sort_key=3)
+RELEASE = Group("Release files (made from output/, not tracked)", sort_key=3)
+DATA = Group("Data", sort_key=4)
 
 
 @app.command(group=BUILD)
@@ -86,6 +87,7 @@ LAZY = [
     ("groups", "linking.groups:main", STAGES, "Group headers across years -> output/4_groups/."),
     ("metrics", "metrics:main", STAGES, "The figures of the build -> output/metrics.json."),
     ("autocorrect", "correction.words:main", WORDS, "Write canonical.csv and words.csv with hazm's words."),
+    ("excel", "excel:main", RELEASE, "The corrected questionnaires as Excel workbooks -> dist/excel/."),
     ("pdfs", "extraction.pdfs:cli", DATA, "Download, verify or list the questionnaire PDFs."),
     ("hazm", "hazm_data:cli", DATA, "Download, verify or list hazm's word list and data."),
     ("glyph-db", "extraction.build_glyph_db:main", DATA, "Rebuild the glyph database from good PDFs."),
