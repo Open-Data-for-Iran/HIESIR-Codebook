@@ -77,9 +77,14 @@ and Literature that need no word list (`rules.standard_spelling`):
 
 - the suffix ی after a vowel is written یی, not ئی: `دمپائی` → `دمپایی`,
   `روستائیان` → `روستاییان`, `هوائی` → `هوایی`; only at the end of a word or
-  before ان / ها, so loanwords keep theirs (`گازوئیل`, `موزائیک`).
+  before ان / ها, so loanwords keep theirs (`گازوئیل`, `موزائیک`);
+- ای after ه is joined with a ZWNJ however it is misprinted: `پارچه ائی`,
+  `مسابقه ایی`, `پارچه‌ایی` → `پارچه‌ای`, `مسابقه‌ای` (`کالاهایی` stays);
+- the prefix می / نمی takes a ZWNJ: `می شود` → `می‌شود`;
+- no harakat (fatha, damma, kasra, shadda, sukun), which the labels never
+  need: `آّبرنگ` → `آبرنگ`; tanwin stays (`قبلاً`).
 
-A rule replaces a list of words: this one made 15 rows of `spelling.csv`
+A rule replaces a list of words: the first made 15 rows of `spelling.csv`
 unnecessary.
 
 Then `curated/2_corrected/spelling.csv` fixes spellings that recur across rows and
@@ -94,90 +99,110 @@ for a misspelling no other step settles:
 | `years` | empty for all years, or years and ranges: `1386`, `1383-1385 1390` |
 | `reason` | why |
 
-It runs after the automatic fixes from hazm (below), so it holds only what
-hazm cannot settle. Its {{ spelling.total }} rows change {{ labels.spelling }}
-descriptions. Its rows cover:
+Its word rows run after the automatic fixes (below), so it holds only the
+errors no rule settles: a row goes as soon as a rule or a finder does its
+work, and it is kept small by checking that the output stays the same without
+each row. Where the questionnaires print a word in two acceptable ways, the
+rules decide (one form per word, below), not a row of this file; where no
+rule decides, the label keeps the form it is printed with. Its
+{{ spelling.total }} rows change {{ labels.spelling }} descriptions. They fix
+typos, truncated words, words glued together and text the PDF reading mangled
+(`دیبرستان` → `دبیرستان`, `رایو` → `رادیو`, `کارت کدملی` → `کارت ملی`,
+`روبدوشامبروبیژاما` → `روبدوشامبر و پیژاما`, `قابل‌حمل‌ب‌چه` → `قابل حمل بچه`).
 
-- typos (`دیبرستان` → `دبیرستان`, `رایو` → `رادیو`, `کارت کدملی` → `کارت ملی`),
-  one spelling per word (`بجز` → `به جز`, `جابجایی` → `جابه‌جایی`, `پینگ‌پنگ`,
-  ی preferred over ئ where both are in use: `ویدیو`, `آینه`, `تزیینی`);
-- a و glued to the next word (`وپلاستیکی` → `و پلاستیکی`), words glued
-  together or joined by a stray ZWNJ (`لباسزیر` → `لباس زیر`,
-  `پزشک‌متخصص` → `پزشک متخصص`), following how the questionnaires
-  themselves usually write the pair;
-- ZWNJs that standard spelling requires: plural `ها`/`های`, `ه` + `ای`, `می`;
-- compounds written with a ZWNJ where the questionnaires write them joined
-  (`ثبت‌نام`, `سیب‌زمینی`, `پاک‌کن`); compounds they always write spaced stay
-  spaced (`سی دی`, `پرداخت شده`). `--check` lists how many descriptions each row
-changed, and the run warns about rows that match nothing.
+`--check` lists how many descriptions each row changed, and the run warns
+about rows that match nothing.
 
 **One wording per label.** Before the house style, the automatic fixes and
 `spelling.csv`, `output/2_corrected/autocorrect/canonical.csv` gives every label
 printed in several ways one wording. `canonical.py` reads the labels as the
-corrections leave them and groups those that differ only in spaces, ZWNJs, the
-Arabic forms of ی and ک, hamza and the length of an ellipsis
-(`تختخواب و میزتوالت` / `تختخواب و میز توالت`). It judges what the steps make of
+corrections leave them and groups those whose finished forms (what the steps
+make of them, so a glued word or a respelling the steps settle counts for
+nothing) differ only in spaces, ZWNJs, the Arabic forms of ی and ک, hamza, the
+length of an ellipsis, how the items of a list are joined (`،` or `و`) and
+whether the list ends in "and so on" (`و ...`, `غیره`): `تختخواب و میزتوالت` /
+`تختخواب و میز توالت`, `لوله‌کشی آب ونصب کنتور` / `لوله‌کشی آب، نصب کنتور`. It judges what the steps make of
 each variant by how many words hazm does not know, then by how often the variant
-is printed, then by the latest year, and gives the whole group that finished
-form. The later steps meet each group already fixed and work only on labels
-printed one way. It holds {{ canonical.total }} variants, which change
-{{ labels.canonical }} descriptions. Regenerate it, then the automatic fixes,
-with hazm's data downloaded; a second run finds what the first did:
+is printed, then by the latest year, and gives the whole group the best label
+as printed; the later steps then fix it like any label, so every variant comes
+out the same, and the file holds no word fix of its own. The automatic fixes
+are made again, each time from the last, until they stop changing, and come
+out the same from nothing. It holds {{ canonical.total }} variants, which change
+{{ labels.canonical }} descriptions.
 
-```bash
-uv run hiesir-codebook canonical
-uv run hiesir-codebook autocorrect
-```
-
-Then the words: `output/2_corrected/autocorrect/canonical_words.csv` applies to
-every label what the groups teach, so a label printed only once gains from the
-others. Each loser of a group is lined up with its winner letter by letter,
-spaces and ZWNJs aside, and cut where both end a word; every stretch the loser
-writes otherwise becomes a fix (`ترانسفورماتورو` → `ترانسفورماتور و`, `وسائل` →
-`وسایل`, `میزتوالت` → `میز توالت`), kept when two thirds of the uses behind it
-agree. A word written with other forms of ی, ک or hamza gets the house's
-spelling (ی over ئ, no hamza after a final ا: `اعضاء` → `اعضا`), then hazm's,
-then the majority, never one a row of `spelling.csv` rewrites.
-
-**Automatic fixes from hazm.** Before `spelling.csv`,
-`output/2_corrected/autocorrect/hazm.csv` applies the fixes found automatically
-with the word list of [hazm](https://github.com/roshan-research/hazm).
-`autocorrect.py` reads every label once, straight from the extracted file with
-only the corrections and the house style applied, so it meets the print's own
-errors; it tries its rules on each word and saves
-what they find, one row per word (`find`, `replace`, `rule`, `uses`, `years`,
+**Automatic word fixes.** After the house style and the letter fixes of
+`spelling.csv` (its `text` rows: `تزئین` → `تزیین`, `هزنیه` → `هزینه`), and before
+its word rows, `output/2_corrected/autocorrect/words.csv` applies every word fix
+found automatically, one row per fix (`find`, `replace`, `kind`, `uses`, `years`,
 `evidence`, `example`); the build applies the file as whole-word fixes, so it
-runs without hazm's data. hazm's list mixes words met in its corpus, words with
+runs without hazm's data. Its fixes come from a chain of finders, each reading
+the labels as the steps up to the letter fixes and the finders before it leave
+them, so it meets the print's own errors and each finder works on what the
+others leave:
+
+1. `learned`: what the groups of `canonical.csv` teach, so a label printed
+   only once gains from the others. Each loser of a group is lined up with its
+   winner letter by letter, spaces and ZWNJs aside, and cut where both end a
+   word; every stretch the loser writes otherwise becomes a fix
+   (`ترانسفورماتورو` → `ترانسفورماتور و`, `وسائل` → `وسایل`, `میزتوالت` →
+   `میز توالت`), kept when two thirds of the uses behind it agree.
+2. `folded`: a word written with other forms of ی, ک or hamza gets the house's
+   spelling (ی over ئ, no hamza after a final ا: `اعضاء` → `اعضا`), then hazm's,
+   then the majority, never one a row of `spelling.csv` rewrites.
+3. `variant`: one form for a word the same item prints two ways in
+   consecutive years (`variants.py`), so an item reads alike across the years
+   and its chain holds. The two forms differ only in spaces and ZWNJs
+   (`جا به جایی` / `جابه‌جایی`), or by one letter changed anywhere but at the
+   end (`ذغال` / `زغال`, `برآورد` / `براورد`) or one `ه`, `و` or `ئ` added inside
+   the word (`بجز` / `به جز`, `آینه` / `آئینه`), or only in how hamza is written
+   (`تأتر` / `تئاتر`); by an `ا` added inside only when hazm does not know both
+   forms as common words, which would be a singular and its broken plural (`کتاب`
+   / `کتب`; but `کروات` / `کراوات`); never where a `و` stands alone beside the
+   word. Of forms of other letters, hazm's wins when its corpus writes
+   it at least ten times as often (`درآمد` over `درامد`); of forms that differ in
+   spacing, the one hazm lists as one word; otherwise the form most rows write.
+4. hazm's rules, with the word list of
+   [hazm](https://github.com/roshan-research/hazm) (`hazm_rules.py`).
+
+A find an earlier finder writes otherwise is left to it. The chain runs again
+on the labels as the first pass leaves them, until a pass adds nothing that
+changes a label, and the build applies the file until the label stops changing,
+so a word one fix makes meets every fix that applies to it (`بجزروانی` →
+`بجز روانی` → `به جز روانی`). The file lists the fixes in the order the build
+applies them (by pass, finder and kind, then the longest find first), and its
+`uses`, `years` and `example` come from applying the whole file to the labels,
+as the build does: `uses` counts the descriptions a fix changes, and a fix that
+changes nothing is dropped.
+
+hazm's list mixes words met in its corpus, words with
 a part of speech but no frequency, and some 158,000 bare headwords, mostly rare
 words but also glued junk (`ویخ`, `وکم`); a word is *known* when hazm vouches
 for it (a frequency or a part of speech), *known with a suffix* when it is such
 a word plus a suffix hazm does not list it with (the plural ها / های, ی, ای, یی,
 ان, ات, تر, ترین: `کالاهای` = `کالا` + های), and *listed* when it is there at all.
 `curated/2_corrected/words.csv` (`word`, `reason`) adds correct words hazm
-lacks. The rules:
+lacks. The rules, each a `kind` of `words.csv`:
 
-| `rule` | What it fixes | Example |
+| `kind` | What it fixes | Example |
 |---|---|---|
 | `glued_vav` | a word that starts with `و` and ranks higher without it (known > a known word with a suffix > listed > not listed; a tie keeps the word): the conjunction glued to the next word | `ویخ` → `و یخ`, `وسنگی` → `و سنگی`, `وپلاستیکی` → `و پلاستیکی` (پلاستیک + ی); `ورنی`, `ویفر` stay, and `ورودی` too (ورود + ی against رود + ی) |
 | `glued_words` | words written as one, or joined by a stray ZWNJ, cut into words: only a token hazm does not list; each part common or used often in the labels; scored by how common the parts are and how few, a cut the labels write elsewhere gaining a bonus, kept only when it clearly leads the next; a token printed every year is cut only around a joining word (و, در, سایر …); a verb's present stem (کش, دار, بند, کن …) stays joined to the word before it, so compounds stay whole | `پودرپیاز` → `پودر پیاز`, `ونظایرآن` → `و نظایر آن`; `اطوکشی`, `ترکبند`, `عزاداری` stay |
 | `joined_plural` | a known word with the plural (ها, های, هایی) joined to it without its ZWNJ, on the labels as `glued_vav` leaves them; left alone after `ا د ذ ر ز ژ و`, when hazm vouches for the word as written, and when it may also be a glued `و` | `سالنهای` → `سالن‌های`, `آنها` → `آن‌ها`; `کالاها`, `تنها`, `وبهای` stay |
-| `compound` | two words hazm lists as one compound with a ZWNJ, joined even where the questionnaires always print them apart; never with a function word, a verb phrase (`پرداخت شده`) or a head the house style writes apart (`قابل`, `غیر`) | `تخم مرغ` → `تخم‌مرغ`, `لوله کشی` → `لوله‌کشی`, `نمک سود` → `نمک‌سود`, `زرشک پلو` → `زرشک‌پلو` |
+| `compound` | two words hazm lists as one compound with a ZWNJ, joined even where the questionnaires always print them apart, or as one written joined, where the questionnaires print it joined too (`صورت حساب`, never printed joined, stays); never with a function word, a verb phrase (`پرداخت شده`) or a head the house style writes apart (`قابل`, `غیر`) | `تخم مرغ` → `تخم‌مرغ`, `لوله کشی` → `لوله‌کشی`, `نمک سود` → `نمک‌سود`, `زرشک پلو` → `زرشک‌پلو`, `زرد آلو` → `زردآلو`, `جارو برقی` → `جاروبرقی` |
 | `spaced_suffix` | a known word and a suffix written apart (ها, های, هایی, ترین, and ای after ه), on the labels as `glued_vav` leaves them: joined with a ZWNJ, or with nothing after `ا د ذ ر ز ژ و`; left alone when the two together are a word of their own | `نمایش های` → `نمایش‌های`, `پارچه ای` → `پارچه‌ای`, `پودر های` → `پودرهای`; `تن ها` stays (`تنها`) |
 
 Where a word row of `spelling.csv` matches a label, the automatic fixes leave
 that stretch of the label to it, both when they are found and when the build
 applies them, so a hand decision always wins (only `spaced_suffix`, which
-changes no word, may cross it). The letter fixes of `spelling.csv` (its `text`
-rows: `تزئین` → `تزیین`, `هزنیه` → `هزینه`) run before the automatic fixes, with
-the house style. hazm's list is read with the hamza forms folded (`تامین` finds
-`تأمین`), with the forms of its verbs (`verbs.dat`: `شده`, `می‌شود`, `کننده`), and
-with `curated/2_corrected/words.csv`.
+changes no word, may cross it). hazm's list is read with the hamza forms folded
+(`تامین` finds `تأمین`), with the forms of its verbs (`verbs.dat`: `شده`,
+`می‌شود`, `کننده`), and with `curated/2_corrected/words.csv`.
 
 It holds {{ autocorrect.total }} fixes, which change {{ labels.autocorrect }}
-descriptions. Regenerate it after changing the corrections, the house style or
-the rules, with hazm's data
-downloaded (`uv run hiesir-codebook hazm download`); a test checks it is up to
-date where the data is there:
+descriptions. One command regenerates both files, after changing the
+corrections, the house style, `spelling.csv` or the finders, with hazm's data
+downloaded (`uv run hiesir-codebook hazm download`); a second run finds what
+the first did, and a test checks both are up to date where the data is there:
 
 ```bash
 uv run hiesir-codebook autocorrect
@@ -453,7 +478,10 @@ are those with `decided_by` `open`.
 **How labels are compared** (`compare.py`, used by both stages). Two
 descriptions are compared with spacing, ZWNJ, punctuation, hamza and digit
 style ignored, then by character similarity (typos, joined words) and by
-overlap of content words (scope changes). The result is one of `same`,
+overlap of content words (scope changes); two words one description writes
+as one in the other count as found, however short (`ظرف شویی` / `ظرفشویی`),
+while a short word alone is never found inside a longer one (`شیر` is not in
+`شیرینی`). The result is one of `same`,
 `minor`, `broadened`, `narrowed`, `reworded` or `different`. A `reworded`
 pair must still share its head noun, so آبگرمکن گازی → کولرگازی counts as
 `different`.
@@ -615,19 +643,24 @@ across years, to `output/3_items/` and `output/4_groups/`).
   page) are not read: glyph boxes are read unrotated, so their text would fall
   apart into letters. In every year they are the landscape income tables after
   the expenditure part.
-- `correct.py` runs each questionnaire of `output/1_extracted/` through the
-  five correction steps, in this order, and with `--check` tests the result
-  against the household occurrence table (each distinct label once, with polars):
-  1. `corrections.py` applies `curated/2_corrected/corrections.csv` (codes,
-     rows, sections) and holds the structure check, with
-     `curated/2_corrected/header_exceptions.csv` (see [Corrections](#corrections));
-  2. `canonical.py` gives each group of labels printed in several ways one
-     wording (`output/2_corrected/autocorrect/canonical.csv`);
-  3. `rules.py` gives every description the house style (punctuation spacing,
-     the Academy's spelling rules);
-  4. `autocorrect.py` finds fixes with hazm's word list and writes
-     `output/2_corrected/autocorrect/hazm.csv`, which `correct.py` applies;
-  5. `spelling.py` applies `curated/2_corrected/spelling.csv`.
+- `correct.py` reads every questionnaire of `output/1_extracted/` into one
+  polars table and, with `--check`, tests the result against the household
+  occurrence table. `corrections.py` first applies
+  `curated/2_corrected/corrections.csv` (codes, rows, sections) and holds the
+  structure check, with `curated/2_corrected/header_exceptions.csv` (see
+  [Corrections](#corrections)). Then each description goes through the label
+  steps, each adding a column to the table (each distinct label once):
+  `canonical` (`canonical.csv`), `house_style`
+  (`rules.py`: punctuation spacing, the Academy's spelling rules), `letters`
+  (the `text` rows of `spelling.csv`), `words` (`words.csv`) and
+  `spelling` (the `word` rows of `spelling.csv`). `fixes.py` reads every file of
+  fixes; `metrics.py` counts what each column changes.
+- `words.py` (`hiesir-codebook autocorrect`) writes the two files of fixes
+  the build applies (`output/2_corrected/autocorrect/`): `canonical.csv`
+  (`canonical.py`) and `words.csv`, from a chain of finders (learned and folded
+  in `canonical.py`, hazm's rules in `hazm_rules.py`), with hazm's word list
+  (`lexicon.py`: hazm's words, the forms of its verbs and
+  `curated/2_corrected/words.csv`, as one polars table).
 - `compare.py` compares two descriptions (`same`, `minor`, `broadened`, ...)
   and handles provider qualifiers; shared by the matching stages.
 - `chains.py` builds the chains (matching stage 1), `relations.py` links them

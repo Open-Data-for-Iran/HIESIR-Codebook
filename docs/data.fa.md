@@ -32,8 +32,7 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 |---|---|---|
 | `2_corrected/questionnaire_<year>.csv` | یک بخش، سرگروه یا قلمِ پرسشنامه آن سال | [ستون‌ها](#csv-columns) |
 | `2_corrected/autocorrect/canonical.csv` | عبارتی که به چند شکل چاپ شده، با نوشتاری که گروهش می‌گیرد و دلیل آن | [اصلاحات](methods.md#corrections) |
-| `2_corrected/autocorrect/canonical_words.csv` | اصلاح واژه‌ای که از گروه‌های عبارت‌ها آموخته یا یکی شده (ی، ک، همزه) و روی همه عبارت‌ها اعمال می‌شود | [اصلاحات](methods.md#corrections) |
-| `2_corrected/autocorrect/hazm.csv` | واژه‌ای که با فهرست واژه‌های hazm به‌طور خودکار اصلاح شده، با قاعده و شاهد آن | [اصلاحات](methods.md#corrections) |
+| `2_corrected/autocorrect/words.csv` | واژه‌ای که به‌طور خودکار اصلاح شده: آموخته از گروه‌های عبارت‌ها، یکی‌شده (ی، ک، همزه)، یک شکل برای واژه‌ای که یک قلم به دو شکل چاپ کرده، یا یافته با فهرست واژه‌های hazm، با نوع، شمار کاربرد و شاهد آن | [اصلاحات](methods.md#corrections) |
 | `3_items/chains.csv` | یک قلم (زنجیره): یک کد با یک عبارت، تا زمانی که هر دو ثابت بمانند | [مرحله ۱](methods.md#matching-items-across-years) |
 | `3_items/links.csv` | یک پیوند یک‌به‌یک که قلمی را ادامه می‌دهد: همان قلم، تغییر کد | [مرحله ۲](methods.md#matching-items-across-years) |
 | `3_items/relations.csv` | یک رابطه میان مجموعه‌ای از اقلام: ادغام، تفکیک، بازگروه‌بندی | [مرحله ۲](methods.md#matching-items-across-years) |

@@ -54,18 +54,19 @@ def test_check_reports_why(source, tmp_path):
 
 
 def test_readers(source):
-    assert hazm_data.words_list(source) == [
-        ("آب", 549005877, ("N", "AJ")),
-        ("آبادان", 2911082, ("N",)),
-        ("آب", 12, ("N",)),
-    ]
-    assert hazm_data.word_frequencies(source) == {"آب": 549005877, "آبادان": 2911082}
-    assert hazm_data.stopwords_list(source) == ["در", "و"]
+    assert hazm_data.words(source).rows() == [
+        ("آب", 549005877, "N,AJ"),
+        ("آبادان", 2911082, "N"),
+        ("آب", 12, "N"),
+    ]  # a line without parts of speech is left out
+    assert hazm_data.stopwords(source).to_list() == ["در", "و"]
+    (source / "verbs.dat").write_text("آموخت#آموز\n#هست\nزیست# زیو\n", encoding="utf-8", newline="\n")
+    assert hazm_data.verbs(source).rows() == [("آموخت", "آموز"), ("", "هست"), ("زیست", "زیو")]
 
 
 def test_missing_file_says_how_to_get_it(tmp_path):
     with pytest.raises(HazmDataError, match="hazm download"):
-        hazm_data.words_list(tmp_path)
+        hazm_data.words(tmp_path)
 
 
 def test_real_files():
@@ -73,6 +74,6 @@ def test_real_files():
     if not (hazm_data.HAZM_DIR / "words.dat").exists():
         pytest.skip("hazm data not downloaded (uv run hiesir-codebook hazm download)")
     assert verify() == []
-    words = hazm_data.words_list()
-    assert len(words) > 190_000
-    assert ("آب", 549005877, ("N", "AJ")) in words
+    words = hazm_data.words()
+    assert words.height > 190_000
+    assert ("آب", 549005877, "N,AJ") in words.rows()

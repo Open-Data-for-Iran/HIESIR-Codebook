@@ -1,19 +1,34 @@
 """The correction stage: ``output/1_extracted/`` -> ``output/2_corrected/``.
 
-Each questionnaire goes through five steps, in this order:
+Every questionnaire is read into one polars table (a ``year`` column added),
+step 1 (:mod:`.corrections`: ``curated/2_corrected/corrections.csv``) fixes
+its codes, rows and sections, and :func:`trace` then takes each description
+through the label steps, adding one column per step:
 
-1. :mod:`.corrections`: ``curated/2_corrected/corrections.csv`` fixes codes,
-   rows and sections; the structure check, with
-   ``curated/2_corrected/header_exceptions.csv``, says what must then hold
-2. :mod:`.canonical`: ``output/2_corrected/autocorrect/canonical.csv`` gives
-   labels that differ only in spaces, ZWNJs and letter forms one wording
-3. :mod:`.rules`: the house style every description gets, with no word list
-   (punctuation spacing, the Academy's spelling rules), and the letter fixes
-   of spelling.csv
-4. :mod:`.autocorrect`: ``output/2_corrected/autocorrect/hazm.csv``, the
-   fixes found automatically with hazm's word list in the extracted labels
-5. :mod:`.spelling`: ``curated/2_corrected/spelling.csv`` fixes the spellings
-   hazm cannot settle
+=============== ======================================================== ==========
+column          what the step does                                       per year
+=============== ======================================================== ==========
+``canonical``   a label printed in several ways gets its group's wording no
+                (``canonical.csv``)
+``house_style`` punctuation spacing and the Academy's spelling rules     no
+                (:mod:`.rules`)
+``letters``     the ``text`` rows of ``spelling.csv``: letters inside    yes
+                words (تزئین -> تزیین)
+``words``       the automatic word fixes (``words.csv``): learned from   no
+                the groups, folded letter forms, variants, hazm's
+                rules; applied until the label stops changing
+``spelling``    the ``word`` rows of ``spelling.csv``: the hand          yes
+                decisions, the corrected description
+=============== ======================================================== ==========
+
+(the files are described in :mod:`.fixes`).  A step runs once per distinct
+text (and year, for a step whose rows may be bound to some years): 27,000
+rows hold about 3,500 distinct labels.  The ``words`` step leaves the
+stretches a ``word`` row of ``spelling.csv`` matches to that row, so a hand
+decision always wins.
+
+The ``autocorrect`` command (:mod:`.words`) writes ``canonical.csv`` and
+``words.csv`` from this same table; ``metrics`` counts what each column changes.
 
 ``--check`` adds the household occurrence tables
 (``data/commodity_code_occurrence_*.csv``, 1383-1403): the evidence for each
@@ -23,166 +38,92 @@ questionnaire, or printed but never reported.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from dataclasses import dataclass, field
+from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, NamedTuple
 
 import polars as pl
 from cyclopts import Parameter
 
 from .. import CORRECTED, CSV_COLUMNS, EXTRACTED, SUPPORTED_YEARS, csv_io
 from ..occurrence import occurrence_files
-from ..utils import ZWNJ
-from .autocorrect import HAZM_FIXES, fix_free, load_fixes
-from .canonical import CANONICAL, CANONICAL_WORDS, load_variants, load_word_fixes
-from .corrections import (
-    CORRECTIONS,
-    Correction,
-    apply_corrections,
-    check_occurrence,
-    load_corrections,
-    verify,
-)
+from .corrections import CORRECTIONS, check_occurrence, corrected_questionnaires, load_corrections, verify
+from .fixes import CANONICAL, SPELLING, WORDS, Fix, Fixes, read_spelling
 from .rules import house_style
-from .spelling import LABELS, LabelFix, fix_label, load_label_fixes
 
 
-def read_rows(path: Path) -> list[dict[str, str]]:
-    return csv_io.read(path)
+class Step(NamedTuple):
+    name: str
+    run: Callable[[str, int, list[Fix]], str]  # (text, year, hits) -> text
+    per_year: bool  # does the year matter (rows bound to some years)?
 
 
-def write_rows(rows: Iterable[dict[str, str]], path: Path) -> None:
-    csv_io.write(path, CSV_COLUMNS, rows)
-
-
-@dataclass
-class Steps:
-    """Steps 2-5 for one description, from what step 1 leaves: the canonical
-    wording of its group, the house style with the letter fixes of
-    spelling.csv (its ``text`` rows), the automatic fixes, then the word fixes
-    of spelling.csv; where a word row matches, the automatic fixes leave that
-    stretch to it."""
-
-    labels: list[LabelFix] = field(default_factory=list)
-    auto: list[LabelFix] = field(default_factory=list)
-    canonical: dict[str, str] = field(default_factory=dict)
-    upto: int = 5  # the last step to run (3: what autocorrect reads)
-    words: list[LabelFix] = field(default_factory=list)  # canonical_words.csv
-
-    def __post_init__(self) -> None:
-        self.letters = [fx for fx in self.labels if fx.match == "text"]
-        self.decided = [fx for fx in self.labels if fx.match == "word"]
-        # the finds of the rows bound to some years: a description holding one
-        # of them is run once per year, every other once for all years
-        self._dated = [fx.find.replace(ZWNJ, "") for fx in [*self.labels, *self.auto] if fx.years is not None]
-
-    def dated(self, text: str) -> bool:
-        bare = text.replace(ZWNJ, "")
-        return any(f in bare for f in self._dated)
-
-    def __call__(self, text: str, year: int, hits: dict | None = None, auto_hits: dict | None = None) -> str:
-        text = self.canonical.get(text, text)
-        # where a word row of spelling.csv matches, the word fixes leave that stretch to it
-        text = fix_free(text, year, self.words, self.decided) if self.words else text
-        if self.upto < 3:
-            return text
-        text = fix_label(house_style(text), year, self.letters, hits)
-        if self.upto < 4:
-            return text
-        text = fix_free(text, year, self.auto, self.decided, auto_hits) if self.auto else text
-        if self.upto < 5:
-            return text
-        return fix_label(text, year, self.decided, hits)
-
-
-def run_steps(
-    pairs: list[tuple[int, str]],
-    steps: Steps,
-    hits: dict[str, int] | None = None,
-    auto_hits: dict[str, int] | None = None,
-) -> list[str]:
-    """``steps`` on every ``(year, description)``, once per distinct description
-    (and year, for a description a dated row may touch): 27,000 rows hold
-    about 3,500 distinct labels.  ``hits`` count rows, as if run row by row."""
-    if not pairs:
-        return []
-    df = pl.DataFrame({"year": [y for y, _ in pairs], "text": [t for _, t in pairs]}, orient="col")
-    texts = df.get_column("text").unique().to_list()
-    dated = {t for t in texts if steps.dated(t)}
-    df = df.with_columns(
-        pl.when(pl.col("text").is_in(list(dated))).then(pl.col("year")).otherwise(0).alias("key")
-    )
-    unique = df.group_by(["text", "key"]).agg(pl.len().alias("n"))
-    done: dict[tuple[str, int], str] = {}
-    for text, key, n in unique.iter_rows():
-        h: dict[str, int] = {}
-        a: dict[str, int] = {}
-        done[text, key] = steps(text, key, h, a)
-        for into, got in ((hits, h), (auto_hits, a)):
-            if into is not None:
-                for k, v in got.items():
-                    into[k] = into.get(k, 0) + v * n
-    return [done[t, k] for t, k in df.select("text", "key").iter_rows()]
-
-
-def apply(
-    year: int,
-    rows: list[dict[str, str]],
-    corrections: list[Correction],
-    extracted: Path,
-    labels: list[LabelFix] = (),
-    hits: dict[str, int] | None = None,
-    auto: list[LabelFix] = (),
-    auto_hits: dict[str, int] | None = None,
-    canonical: dict[str, str] | None = None,
-    words: list[LabelFix] = (),
-) -> list[dict[str, str]]:
-    """One questionnaire through the five steps (see :class:`Steps`)."""
-    rows = apply_corrections(year, rows, corrections, extracted)
-    steps = Steps(list(labels), list(auto), canonical or {}, words=list(words))
-    for r, new in zip(
-        rows, run_steps([(year, r["description"]) for r in rows], steps, hits, auto_hits), strict=True
-    ):
-        r["description"] = new
-    return rows
-
-
-def _after_step1(years: Iterable[int], extracted: Path, corrections: Path) -> dict[int, list[dict[str, str]]]:
-    fixes = load_corrections(corrections)
-    return {
-        y: apply_corrections(y, read_rows(extracted / f"questionnaire_{y}.csv"), fixes, extracted)
-        for y in years
-    }
-
-
-def labels_after_corrections(
-    years: Iterable[int] = SUPPORTED_YEARS, extracted: Path = EXTRACTED, corrections: Path = CORRECTIONS
-) -> list[tuple[int, str]]:
-    """``(year, description)`` of every row as step 1 leaves it: what
-    :mod:`.canonical` reads."""
+def steps(fixes: Fixes) -> list[Step]:
+    """The label steps, in order, with the fixes each applies."""
     return [
-        (y, r["description"]) for y, rows in _after_step1(years, extracted, corrections).items() for r in rows
+        Step("canonical", lambda text, year, hits: fixes.variants.get(text, text), False),
+        Step("house_style", lambda text, year, hits: house_style(text), False),
+        Step("letters", fixes.letters.apply, True),
+        Step("words", lambda text, year, hits: fixes.words.settle(text, year, hits, fixes.spelling), False),
+        Step("spelling", fixes.spelling.apply, True),
     ]
 
 
-def labels_for_autocorrect(
+STEPS = [s.name for s in steps(Fixes())]
+
+
+def trace(labels: pl.DataFrame, fixes: Fixes, upto: str = STEPS[-1]) -> pl.DataFrame:
+    """``labels`` (``year``, ``description``) with a column for each label step
+    up to ``upto``: the text as that step leaves it, and ``<step>_hits``, the
+    finds of the fixes that matched it."""
+    df, text = labels, "description"
+    for step in steps(fixes)[: STEPS.index(upto) + 1]:
+        keys = [text, "year"] if step.per_year else [text]
+        todo = df.select(keys).unique(maintain_order=True)
+        done, hits = [], []
+        for row in todo.iter_rows():
+            h: list[Fix] = []
+            done.append(step.run(row[0], row[1] if step.per_year else 0, h))
+            hits.append([fx.find for fx in h])
+        todo = todo.with_columns(
+            pl.Series(step.name, done, dtype=pl.String),
+            pl.Series(f"{step.name}_hits", hits, dtype=pl.List(pl.String)),
+        )
+        df = df.join(todo, on=keys, how="left", maintain_order="left")
+        text = step.name
+    return df
+
+
+# --- the stage ------------------------------------------------------------------
+
+
+def corrected(
     years: Iterable[int] = SUPPORTED_YEARS,
     extracted: Path = EXTRACTED,
     corrections: Path = CORRECTIONS,
-    labels: Path = LABELS,
-    canonical: Path = CANONICAL,
-    canonical_words: Path = CANONICAL_WORDS,
-) -> list[tuple[int, str]]:
-    """``(year, description)`` of every row through steps 1-3 (the structural
-    corrections, the canonical wording and words, the house style and the
-    letter fixes of spelling.csv): what :mod:`.autocorrect` reads, so it meets
-    the print's own errors, not what the word fixes of spelling.csv leave."""
-    pairs = labels_after_corrections(years, extracted, corrections)
-    steps = Steps(
-        load_label_fixes(labels), [], load_variants(canonical), upto=3, words=load_word_fixes(canonical_words)
+    fixes: Fixes | None = None,
+    upto: str = STEPS[-1],
+) -> pl.DataFrame:
+    """Every row of every year after step 1, traced through the label steps
+    up to ``upto`` (see :func:`trace`)."""
+    rows = corrected_questionnaires(years, extracted, load_corrections(corrections))
+    traced = trace(rows.select("year", "description"), fixes or Fixes.load(), upto)
+    return pl.concat([rows.drop("description"), traced.drop("year")], how="horizontal")
+
+
+def labels(
+    years: Iterable[int] = SUPPORTED_YEARS, extracted: Path = EXTRACTED, corrections: Path = CORRECTIONS
+) -> pl.DataFrame:
+    """``year``, ``key`` (the item: its expenditure code; for a header or a
+    section title, its kind, section and code) and ``description`` of every row
+    as step 1 leaves it, before the label steps."""
+    rows = corrected_questionnaires(years, extracted, load_corrections(corrections))
+    key = (
+        pl.when(pl.col("kind") == "item")
+        .then(pl.col("expenditure_code"))
+        .otherwise(pl.concat_str("kind", "section", "code", separator=" "))
     )
-    return list(zip([y for y, _ in pairs], run_steps(pairs, steps), strict=True))
+    return rows.select("year", key.alias("key"), "description")
 
 
 def correct(
@@ -190,35 +131,32 @@ def correct(
     extracted: Path = EXTRACTED,
     out: Path = CORRECTED,
     corrections: Path = CORRECTIONS,
-    labels: Path = LABELS,
-    hits: dict[str, int] | None = None,
-    autocorrect: Path = HAZM_FIXES,
-    auto_hits: dict[str, int] | None = None,
+    spelling: Path = SPELLING,
+    words: Path = WORDS,
     canonical: Path = CANONICAL,
-    canonical_words: Path = CANONICAL_WORDS,
-) -> dict[int, int]:
-    """Write ``out/questionnaire_<year>.csv`` for every year; return the
-    number of row corrections applied per year.  ``hits`` collects how many
-    descriptions each label fix changed, ``auto_hits`` each automatic fix."""
+) -> pl.DataFrame:
+    """Write ``out/questionnaire_<year>.csv`` for every year; return the traced
+    table (see :func:`corrected`)."""
     years = list(years)
-    fixes = load_corrections(corrections)
-    unknown = {c.year for c in fixes} - set(years)
+    unknown = {c.year for c in load_corrections(corrections)} - set(years)
     if unknown:
         raise ValueError(f"corrections for years not processed: {sorted(unknown)}")
-    by_year = _after_step1(years, extracted, corrections)
-    steps = Steps(
-        load_label_fixes(labels),
-        load_fixes(autocorrect),
-        load_variants(canonical),
-        words=load_word_fixes(canonical_words),
-    )
-    pairs = [(y, r["description"]) for y, rows in by_year.items() for r in rows]
-    new = iter(run_steps(pairs, steps, hits, auto_hits))
-    for y, rows in by_year.items():
-        for r in rows:
-            r["description"] = next(new)
-        write_rows(rows, out / f"questionnaire_{y}.csv")
-    return {y: sum(c.year == y for c in fixes) for y in years}
+    fixes = Fixes.load(spelling, words, canonical)
+    df = corrected(years, extracted, corrections, fixes)
+    for (year,), rows in df.group_by("year", maintain_order=True):
+        columns = [c for c in CSV_COLUMNS if c in rows.columns]
+        csv_io.write_frame(
+            rows.with_columns(pl.col("spelling").alias("description")).select(columns),
+            out / f"questionnaire_{year}.csv",
+        )
+    return df
+
+
+def spelling_hits(df: pl.DataFrame) -> dict[str, int]:
+    """How many descriptions each row of spelling.csv matched, from a traced table."""
+    hits = pl.concat([df.select(h=c).explode("h") for c in ("letters_hits", "spelling_hits")]).drop_nulls()
+    counts = hits.group_by("h").len()
+    return dict(zip(counts["h"], counts["len"], strict=True))
 
 
 def main(
@@ -226,7 +164,7 @@ def main(
     extracted: Path = EXTRACTED,
     out: Path = CORRECTED,
     corrections: Path = CORRECTIONS,
-    labels: Path = LABELS,
+    spelling: Path = SPELLING,
     check: bool = False,
     occurrence: Annotated[list[Path] | None, Parameter(consume_multiple=True)] = None,
 ) -> int:
@@ -240,8 +178,8 @@ def main(
         Where the corrected questionnaires go.
     corrections
         The row corrections.
-    labels
-        The label fixes.
+    spelling
+        The spelling fixes.
     check
         Also compare with the household occurrence tables; fails when the raw data
         contradicts a correction or a corrected questionnaire.
@@ -249,24 +187,28 @@ def main(
         The household occurrence tables (default: data/commodity_code_occurrence_*.csv).
     """
     occurrence = occurrence or occurrence_files()
-    hits: dict[str, int] = {}
-    counts = correct(SUPPORTED_YEARS, extracted, out, corrections, labels, hits)
+    df = correct(SUPPORTED_YEARS, extracted, out, corrections, spelling)
+    fixes = load_corrections(corrections)
+    by_year = {y: sum(c.year == y for c in fixes) for y in SUPPORTED_YEARS}
     print(
-        f"{sum(counts.values())} row corrections applied: "
-        + ", ".join(f"{y}: {n}" for y, n in counts.items() if n)
+        f"{sum(by_year.values())} row corrections applied: "
+        + ", ".join(f"{y}: {n}" for y, n in by_year.items() if n)
     )
-    label_fixes = load_label_fixes(labels)
-    print(f"{len(label_fixes)} label fixes changed {sum(hits.values())} descriptions")
-    unused = [fx.find for fx in label_fixes if fx.find not in hits]
+    hits = spelling_hits(df)
+    rows = read_spelling(spelling)
+    print(f"{len(rows)} label fixes changed {sum(hits.values())} descriptions")
     if check:
-        for fx in label_fixes:
+        for fx in rows:
             print(f"    {hits.get(fx.find, 0):4}  {fx.find} -> {fx.replace}")
+    unused = [fx.find for fx in rows if fx.find not in hits]
     if unused:
-        print("label fixes that matched nothing: " + ", ".join(unused))
+        # such a row may still work through the automatic fixes: it decides the
+        # wording of a canonical group, or teaches a learned word fix
+        print("label fixes that change no description themselves: " + ", ".join(unused))
     if not check:
         return 0
     print("\nEvidence for each correction (households reporting the code):")
-    contradicted = verify(load_corrections(corrections), extracted, occurrence)
+    contradicted = verify(fixes, extracted, occurrence)
     print("\nCorrected questionnaires against the raw data:")
     failed = check_occurrence(SUPPORTED_YEARS, out, occurrence)
     return 1 if contradicted or failed else 0

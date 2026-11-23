@@ -26,6 +26,13 @@ def test_short_words_do_not_match_inside_longer_ones():
     assert compare("سایر انواع شیر", "شکر پنیر و سایر انواع شیرینی").old_kept < 0.8
 
 
+def test_two_words_written_as_one_are_found():
+    """ظرف + شویی = ظرفشویی, however short ظرف is: the source of a merge is
+    found in a label that writes the compound joined."""
+    rel = compare("ماشین ظرف‌شویی", "انواع ماشین لباسشویی، ماشین خشک‌کن و ماشین‌ظرفشویی")
+    assert rel.old_kept == 1.0
+
+
 @pytest.mark.parametrize(
     ("text", "expected"),
     [

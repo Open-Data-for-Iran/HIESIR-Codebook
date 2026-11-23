@@ -1,8 +1,7 @@
-"""Correction step 3: the house style every description gets, with no
-word list.  :func:`house_style` runs the rules in order, after the
-structure (:mod:`.corrections`, step 1) and the canonical wording
-(:mod:`.canonical`, step 2), and before the automatic and spelling fixes
-(:mod:`.autocorrect`, :mod:`.spelling`, steps 4 and 5):
+"""The house style every description gets, with no word list: the
+``house_style`` step of :mod:`.correct`, after the canonical wording and
+before the letter, automatic and spelling fixes.  :func:`house_style` runs
+the rules in order:
 
 - :func:`tidy_punctuation`: the same punctuation spacing everywhere
 - :func:`standard_spelling`: the Academy's spelling rules that need no word list
@@ -52,6 +51,8 @@ def tidy_punctuation(s: str) -> str:
       "در12ماه" -> "در 12 ماه", "پژو405" -> "پژو 405" (Latin "MP3" stays)
     - a slash between words has a space on each side:
       "دبیرستان/ متوسطه" -> "دبیرستان / متوسطه" (not between digits: 1/2)
+    - a hyphen between words spaced on one side only loses the space:
+      "سمعی- بصری" -> "سمعی-بصری" (spaced on both sides it stays: a dash)
     - runs of spaces collapse to one
 
     A colon or comma between digits ("10:30", "1,000") is left alone.
@@ -69,6 +70,9 @@ def tidy_punctuation(s: str) -> str:
     s = re.sub(rf"(?<=[^\s{_OPENING}])\.\.\.", " ...", s)
     s = re.sub(rf"(?<=[{_PERSIAN_LETTER}])(?=\d)|(?<=\d)(?=[{_PERSIAN_LETTER}])", " ", s)
     s = re.sub(r"\s*(?<!\d)/(?!\d)\s*", " / ", s)
+    # a hyphen spaced on one side only joins the words: "سمعی- بصری" -> "سمعی-بصری"
+    s = re.sub(rf"(?<=[{_PERSIAN_LETTER}])-\s+(?=[{_PERSIAN_LETTER}])", "-", s)
+    s = re.sub(rf"(?<=[{_PERSIAN_LETTER}])\s+-(?=[{_PERSIAN_LETTER}])", "-", s)
     s = re.sub(rf"\s*((?<!\d)[{_MARKS}]|[{_MARKS}](?!\d))\s*", r"\1 ", s)
     s = re.sub(rf"([{_OPENING}])\s+", r"\1", s)
     s = re.sub(rf"\s+([{_CLOSING}])", r"\1", s)
@@ -80,9 +84,15 @@ def tidy_punctuation(s: str) -> str:
 
 # the suffix ی after ا / و, at the end of a word or before ان / ها (but not in
 # a loanword such as گازوئیل, موزائیک, where more letters follow)
-_SUFFIX_YE = re.compile(
-    rf"(?<=[{_PERSIAN_LETTER}][اآو])ئی(?=(?:ان|ها|های|هایی)?(?![{_PERSIAN_LETTER}]))"
-)  # a lone "ائی" is ه + ای misprinted (پارچه ائی), left to the spelling fixes
+_SUFFIX_YE = re.compile(rf"(?<=[{_PERSIAN_LETTER}][اآو])ئی(?=(?:ان|ها|های|هایی)?(?![{_PERSIAN_LETTER}]))")
+# ای after ه, misprinted ائی or ایی and set apart (پارچه ائی, مسابقه ایی)
+_SUFFIX_HE_YE = re.compile(rf"(?<=[{_PERSIAN_LETTER}]ه)[ {ZWNJ}](?:ائی|ایی)(?![{_PERSIAN_LETTER}])")
+# the prefix می / نمی set apart from its verb
+_PREFIX_MI = re.compile(rf"(?<![{_PERSIAN_LETTER}{ZWNJ}])(ن?می) (?=[{_PERSIAN_LETTER}])")
+
+
+# harakat: fatha, damma, kasra, shadda, sukun (tanwin, ً, stays: قبلاً)
+_HARAKAT = re.compile("[\u064e-\u0652]")
 
 
 def standard_spelling(s: str) -> str:
@@ -91,5 +101,13 @@ def standard_spelling(s: str) -> str:
 
     - the suffix ی after a vowel is written یی, not ئی: "دمپائی" -> "دمپایی",
       "روستائیان" -> "روستاییان", "هوائی" -> "هوایی" (گازوئیل, ارائه stay)
+    - ای after ه is joined with a ZWNJ, however it is misprinted: "پارچه ائی",
+      "مسابقه ایی", "پارچه‌ایی" -> "پارچه‌ای", "مسابقه‌ای" (کالاهایی stays)
+    - the prefix می / نمی takes a ZWNJ: "می شود" -> "می‌شود"
+    - no harakat (fatha, damma, kasra, shadda, sukun), which the labels never
+      need: "آّبرنگ" -> "آبرنگ"; tanwin stays ("قبلاً")
     """
+    s = _HARAKAT.sub("", s)
+    s = _SUFFIX_HE_YE.sub(f"{ZWNJ}ای", s)
+    s = _PREFIX_MI.sub(rf"\1{ZWNJ}", s)
     return _SUFFIX_YE.sub("یی", s)

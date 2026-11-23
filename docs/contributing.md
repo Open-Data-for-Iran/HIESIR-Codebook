@@ -142,9 +142,9 @@ and abbreviations as plain text files. `hiesir-codebook hazm download` fetches
 them from hazm's repository at a fixed release (v0.12.1) into `data/hazm/`,
 outside git, and checks each against the size and SHA-256 listed in
 `hazm_data.py`; `hazm verify` checks a copy, `hazm list` shows what each file
-holds. `hazm_data.words_list()`, `word_frequencies()`, `stopwords_list()` and
-`verbs_list()` read them, so hazm itself (which needs Python 3.12 or 3.13) is
-not needed. The automatic fixes (`correction/autocorrect.py`) use them.
+holds. `hazm_data.words()`, `verbs()` and `stopwords()` read them as polars
+tables, so hazm itself (which needs Python 3.12 or 3.13) is not needed. The
+correction's lexicon (`correction/lexicon.py`) is built from them.
 
 ## License
 

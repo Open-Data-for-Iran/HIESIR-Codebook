@@ -141,9 +141,9 @@ gh release upload questionnaires data/pdf/questionnaire_1404.pdf --clobber
 مخزن hazm در نسخه‌ای ثابت (v0.12.1) در `data/hazm/` (بیرون از git) دانلود و هر یک را
 با حجم و SHA-256 فهرست‌شده در `hazm_data.py` مقایسه می‌کند؛ `hazm verify` نسخه
 موجود را بررسی می‌کند و `hazm list` نشان می‌دهد هر فایل چه دارد.
-`hazm_data.words_list()`، `word_frequencies()`، `stopwords_list()` و `verbs_list()`
-آن‌ها را می‌خوانند، پس به خود hazm (که پایتون ۳.۱۲ یا ۳.۱۳ می‌خواهد) نیازی نیست.
-اصلاح خودکار (`correction/autocorrect.py`) از آن‌ها استفاده می‌کند.
+`hazm_data.words()`، `verbs()` و `stopwords()` آن‌ها را به‌صورت جدول polars
+می‌خوانند، پس به خود hazm (که پایتون ۳.۱۲ یا ۳.۱۳ می‌خواهد) نیازی نیست.
+واژه‌نامه اصلاح (`correction/lexicon.py`) از آن‌ها ساخته می‌شود.
 
 ## مجوز {#license}
 

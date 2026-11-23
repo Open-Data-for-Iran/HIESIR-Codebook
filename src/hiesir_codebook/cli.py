@@ -33,7 +33,7 @@ app = App(
 
 BUILD = Group("Build", sort_key=0)
 STAGES = Group("Stages, in the order build runs them", sort_key=1)
-WORDS = Group("Word fixes (need hazm's data; build reads what they write)", sort_key=2)
+WORDS = Group("Automatic fixes (need hazm's data; build reads what they write)", sort_key=2)
 DATA = Group("Data", sort_key=3)
 
 
@@ -85,8 +85,7 @@ LAZY = [
     ("relations", "linking.relations:main", STAGES, "Matching stage 2: links and relations between chains."),
     ("groups", "linking.groups:main", STAGES, "Group headers across years -> output/4_groups/."),
     ("metrics", "metrics:main", STAGES, "The figures of the build -> output/metrics.json."),
-    ("canonical", "correction.canonical:main", WORDS, "Step 2: one wording per label, and the word fixes."),
-    ("autocorrect", "correction.autocorrect:main", WORDS, "Step 4: automatic fixes from hazm's word list."),
+    ("autocorrect", "correction.words:main", WORDS, "Write canonical.csv and words.csv with hazm's words."),
     ("pdfs", "extraction.pdfs:cli", DATA, "Download, verify or list the questionnaire PDFs."),
     ("hazm", "hazm_data:cli", DATA, "Download, verify or list hazm's word list and data."),
     ("glyph-db", "extraction.build_glyph_db:main", DATA, "Rebuild data/glyph_db.json from good PDFs."),

@@ -33,6 +33,9 @@ from hiesir_codebook.utils import ZWNJ
         ("کاکائو. و ترکیبات", "کاکائو و ترکیبات"),
         ("طبقه‌بندی نشده است.", "طبقه‌بندی نشده است"),
         ("نسخه 2.5 و Ver.2", "نسخه 2.5 و Ver.2"),
+        ("تجهیزات سمعی- بصری", "تجهیزات سمعی-بصری"),
+        ("سمعی -بصری", "سمعی-بصری"),
+        ("الف - ب", "الف - ب"),  # a dash, spaced on both sides
     ],
 )
 def test_tidy_punctuation(raw, tidy):
@@ -55,11 +58,23 @@ def test_conjunction_after_zwnj_becomes_a_word():
         ("موزائیک", "موزائیک"),
         ("ارائه", "ارائه"),
         ("جزئی", "جزئی"),  # not after a vowel
-        ("پارچه ائی", "پارچه ائی"),  # ه + ای misprinted, left to the spelling fixes
+        ("پارچه ائی", f"پارچه{ZWNJ}ای"),  # ه + ای, misprinted
+        ("مسابقه ایی ورزشی", f"مسابقه{ZWNJ}ای ورزشی"),
+        (f"پارچه{ZWNJ}ایی", f"پارچه{ZWNJ}ای"),
+        ("کالاهایی", "کالاهایی"),  # the plural + یی
+        (f"نوشیدنی{ZWNJ}هایی", f"نوشیدنی{ZWNJ}هایی"),
+        ("پرداخت می شود", f"پرداخت می{ZWNJ}شود"),
+        ("نمی شوند", f"نمی{ZWNJ}شوند"),
+        ("سیمی شود", "سیمی شود"),  # not a prefix
     ],
 )
 def test_standard_spelling(raw, standard):
     assert standard_spelling(raw) == standard
+
+
+def test_harakat_go_tanwin_stays():
+    assert standard_spelling("وسایل نقاشی، آّبرنگ") == "وسایل نقاشی، آبرنگ"
+    assert standard_spelling("خرید قبلاً") == "خرید قبلاً"
 
 
 def test_house_style_runs_both():

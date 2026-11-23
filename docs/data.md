@@ -32,8 +32,7 @@ The same files can be downloaded from this site:
 |---|---|---|
 | `2_corrected/questionnaire_<year>.csv` | section, group header or item of that year | [CSV columns](#csv-columns) |
 | `2_corrected/autocorrect/canonical.csv` | label printed in several ways, with the one wording its group gets and why | [Corrections](methods.md#corrections) |
-| `2_corrected/autocorrect/canonical_words.csv` | word fix learned from the groups of labels or folded (ی, ک, hamza), applied to every label | [Corrections](methods.md#corrections) |
-| `2_corrected/autocorrect/hazm.csv` | word fixed automatically with hazm's word list, with the rule and the evidence | [Corrections](methods.md#corrections) |
+| `2_corrected/autocorrect/words.csv` | word fixed automatically: learned from the groups of labels, folded (ی, ک, hamza), one form of a word an item prints two ways, or found with hazm's word list, with its kind, uses and evidence | [Corrections](methods.md#corrections) |
 | `3_items/chains.csv` | item: one code with one label, followed while both stay the same | [Stage 1](methods.md#matching-items-across-years) |
 | `3_items/links.csv` | 1 → 1 link that continues an item: same, recoded | [Stage 2](methods.md#matching-items-across-years) |
 | `3_items/relations.csv` | relation between sets of items: merged, split, regrouped | [Stage 2](methods.md#matching-items-across-years) |

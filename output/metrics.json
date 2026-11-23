@@ -37,40 +37,43 @@
   },
   "labels": {
     "total": 26961,
-    "canonical": 6330,
-    "punctuation": 861,
-    "spelling": 1145,
-    "autocorrect": 797
+    "canonical": 3179,
+    "punctuation": 2874,
+    "spelling": 255,
+    "autocorrect": 3979
   },
   "spelling": {
-    "total": 139
+    "total": 53
   },
   "canonical": {
-    "total": 1296
+    "total": 1246
   },
   "autocorrect": {
-    "total": 194,
-    "compound": 48,
-    "glued_vav": 65,
-    "glued_words": 43,
-    "joined_plural": 8,
-    "spaced_suffix": 30
+    "total": 448,
+    "compound": 58,
+    "folded": 5,
+    "glued_vav": 69,
+    "glued_words": 38,
+    "joined_plural": 7,
+    "learned": 197,
+    "spaced_suffix": 18,
+    "variant": 56
   },
   "chains": {
-    "total": 1908,
+    "total": 1798,
     "asked_last_year": 1042
   },
   "links": {
-    "total": 441,
-    "kept": 411,
-    "code": 160,
-    "curated": 281,
+    "total": 332,
+    "kept": 301,
+    "code": 59,
+    "curated": 273,
     "open": 0,
-    "confirmed": 187,
-    "changed": 60,
-    "rejected": 30,
+    "confirmed": 179,
+    "changed": 59,
+    "rejected": 31,
     "added": 4,
-    "same": 401,
+    "same": 291,
     "recoded": 10
   },
   "relations": {

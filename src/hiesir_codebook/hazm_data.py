@@ -155,7 +155,7 @@ def download(
     return fetched
 
 
-# --- reading them --------------------------------------------------------------
+# --- reading them, as polars tables ---------------------------------------------
 
 
 def _path(name: str, folder: Path) -> Path:
@@ -165,52 +165,44 @@ def _path(name: str, folder: Path) -> Path:
     return path
 
 
-def _lines(name: str, folder: Path) -> list[str]:
-    with open(_path(name, folder), encoding="utf-8") as f:
-        return [s for line in f if (s := line.strip())]
-
-
-def words_frame(folder: Path = HAZM_DIR) -> pl.DataFrame:
-    """``words.dat`` as a polars table: ``word``, ``freq`` (its frequency in
-    hazm's corpus) and ``pos`` (its parts of speech, comma-separated, ``0``
-    for none), every line that has all three."""
+def _read(name: str, folder: Path, columns: list[str], separator: str) -> pl.DataFrame:
+    """A data file as text columns, each stripped, blank lines left out."""
     return (
         pl.read_csv(
-            _path("words.dat", folder),
-            separator="\t",
+            _path(name, folder),
+            separator=separator,
             has_header=False,
-            new_columns=["word", "freq", "pos"],
+            new_columns=columns,
             quote_char=None,  # a word may hold a quote
             truncate_ragged_lines=True,
-            schema_overrides={"word": pl.String, "freq": pl.String, "pos": pl.String},
+            infer_schema=False,
+            empty_string_is_null=False,
         )
-        .with_columns(pl.col(c).str.strip_chars() for c in ("word", "freq", "pos"))
-        .filter(pl.col("word").is_not_null() & (pl.col("word") != "") & pl.col("pos").is_not_null())
+        .with_columns(pl.col(c).fill_null("").str.strip_chars() for c in columns)
+        .filter(pl.any_horizontal(pl.col(c) != "" for c in columns))
+    )
+
+
+def words(folder: Path = HAZM_DIR) -> pl.DataFrame:
+    """``words.dat``: ``word``, ``freq`` (its frequency in hazm's corpus) and
+    ``pos`` (its parts of speech, comma-separated, ``0`` for none), every line
+    that has all three."""
+    return (
+        _read("words.dat", folder, ["word", "freq", "pos"], "\t")
+        .filter((pl.col("word") != "") & (pl.col("pos") != ""))
         .with_columns(pl.col("freq").cast(pl.Int64))
     )
 
 
-def words_list(folder: Path = HAZM_DIR) -> list[tuple[str, int, tuple[str, ...]]]:
-    """``(word, frequency, parts of speech)`` for every word, as
-    ``hazm.words_list()`` gives them: ``("آب", 549005877, ("N", "AJ"))``."""
-    df = words_frame(folder)
-    return [(w, n, tuple(p.split(","))) for w, n, p in df.iter_rows()]
+def verbs(folder: Path = HAZM_DIR) -> pl.DataFrame:
+    """``verbs.dat``: ``past`` and ``present`` stem of each verb (``آموخت``,
+    ``آموز``); ``""`` where hazm gives none (``#هست``)."""
+    return _read("verbs.dat", folder, ["past", "present"], "#")
 
 
-def word_frequencies(folder: Path = HAZM_DIR) -> dict[str, int]:
-    """Word -> frequency; a word listed twice keeps its higher count."""
-    df = words_frame(folder).group_by("word").agg(pl.col("freq").max())
-    return dict(zip(df["word"], df["freq"], strict=True))
-
-
-def stopwords_list(folder: Path = HAZM_DIR) -> list[str]:
-    """The function words, sorted (as ``hazm.stopwords_list()``)."""
-    return sorted(set(_lines("stopwords.dat", folder)))
-
-
-def verbs_list(folder: Path = HAZM_DIR) -> list[str]:
-    """The verb stems, ``past#present`` (``آموخت#آموز``)."""
-    return _lines("verbs.dat", folder)
+def stopwords(folder: Path = HAZM_DIR) -> pl.Series:
+    """``stopwords.dat``: the function words, sorted."""
+    return _read("stopwords.dat", folder, ["word"], "\t")["word"].unique().sort()
 
 
 cli = App(name="hazm", help="Download, verify or list hazm's word list and data.")

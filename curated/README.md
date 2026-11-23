@@ -6,7 +6,7 @@ holds the decisions applied to the `output/` folder of the same name.
 | File | What it fixes | Applied by |
 |---|---|---|
 | `2_corrected/corrections.csv` | single items and group headers in a single year: wrong codes, wrong texts, missing sections | `correct` |
-| `2_corrected/spelling.csv` | spellings that recur across rows and years: typos, glued words, ZWNJs, compounds | `correct` |
+| `2_corrected/spelling.csv` | the errors no rule settles: typos, truncated words, glued words, text the PDF reading mangled | `correct` |
 | `2_corrected/words.csv` | correct words that hazm's word list lacks (`word`, `reason`), so the automatic fixes leave them alone (`والک`, a plant, is not و + الک) | `autocorrect` |
 | `2_corrected/header_exceptions.csv` | items printed under a header whose code does not cover them, accepted as printed | `corrections` (a check, it changes nothing) |
 | `3_items/links.csv` | decisions on 1 → 1 links between chains (`from_chain` → `to_chain`, same or recoded): confirm, reject, change, add | `relations` |

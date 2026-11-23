@@ -36,11 +36,16 @@ def test_every_chain_and_kept_relation_is_embedded():
     assert [data["groupIds"][i] for i in path] == ["011-1383", "0111-1383", "01111+01112-1383"]
     for c in data["chains"]:
         assert [y for y, _ in c["gp"]] == sorted({y for y, _ in c["gp"]}), c["id"]
-    # a group's wording by year, for the list under a picked year: 0111 spelled
-    # فرآورده‌های until 1385, فراورده‌های from 1386
+    # a group's wording by year, for the list under a picked year, the latest last
+    # (a fifth entry, only for a group whose label changed)
+    reworded = next(g for g in data["groups"] if len(g) > 4)
+    assert len(reworded[4]) > 1
+    assert [y for y, _ in reworded[4]] == sorted({y for y, _ in reworded[4]})
+    assert reworded[4][-1][1] == reworded[1]
+    # 0111 is printed فرآورده‌های until 1385 and فراورده‌های from 1386: one word
+    # written two ways, which the corrected labels write one way
     cereals = next(g for g in data["groups"] if g[0] == "0111")
-    assert cereals[4][0] == [1383, "غلات، نان، آرد، رشته و فرآورده‌های آن"]
-    assert cereals[4][-1][1] == cereals[1]
+    assert cereals[1] == "غلات، نان، آرد، رشته و فراورده‌های آن" and len(cereals) == 4
     assert data["sectionYears"][10][0][0] == 1383
 
 

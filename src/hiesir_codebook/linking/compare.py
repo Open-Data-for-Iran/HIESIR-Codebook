@@ -92,15 +92,24 @@ def _found(w: str, b: list[str], b_joined: str) -> int | None:
 
 
 def _overlap(a: list[str], b: list[str], b_joined: str) -> int:
-    """Number of words of ``a`` found in ``b`` (each word of ``b`` used once)."""
+    """Number of words of ``a`` found in ``b`` (each word of ``b`` used once).
+    Two words of ``a`` that ``b`` writes as one count as two found ("ظرف شویی"
+    / "ظرفشویی"), however short."""
     left = list(b)
     n = 0
-    for w in a:
-        i = _found(w, left, b_joined)
+    k = 0
+    while k < len(a):
+        if k + 1 < len(a) and a[k] + a[k + 1] in left:
+            left.remove(a[k] + a[k + 1])
+            n += 2
+            k += 2
+            continue
+        i = _found(a[k], left, b_joined)
         if i is not None:
             n += 1
             if i >= 0:
                 left.pop(i)
+        k += 1
     return n
 
 

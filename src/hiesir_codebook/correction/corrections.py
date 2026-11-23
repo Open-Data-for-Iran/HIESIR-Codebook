@@ -3,10 +3,8 @@
 ``output/1_extracted/`` holds each questionnaire exactly as printed, typos
 included.  ``curated/2_corrected/corrections.csv`` lists every deviation from
 the print in codes, rows and sections, one row each, with the reason;
-:func:`apply_corrections` applies them.  The descriptions then get one
-wording per group of variants (:mod:`.canonical`, step 2), the house style
-(:mod:`.rules`, step 3), fixes from hazm's word list (:mod:`.autocorrect`,
-step 4) and the spelling fixes (:mod:`.spelling`, step 5).
+:func:`apply_corrections` applies them to a questionnaire read as a polars
+table.  The descriptions then go through the label steps of :mod:`.correct`.
 
 Columns of ``corrections.csv``:
 
@@ -60,12 +58,11 @@ questionnaire lacks, or the reverse (``correct --check``).
 
 from __future__ import annotations
 
-import re
-from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass
-from itertools import pairwise
 from pathlib import Path
+
+import polars as pl
 
 from .. import CORRECTED, CURATED_CORRECTED, SUPPORTED_YEARS, csv_io
 from ..extraction.parse import LAST_OLD_SCHEME_YEAR, header_level
@@ -75,12 +72,33 @@ from ..utils import collapse_whitespace, parse_years
 CORRECTIONS = CURATED_CORRECTED / "corrections.csv"
 HEADER_EXCEPTIONS = CURATED_CORRECTED / "header_exceptions.csv"
 ACTIONS = ("recode", "retext", "delete", "add_section", "recode_header", "retext_header")
+# where a row sits on its page: a section copied from another year has none
+_BOX = ("page", "top", "bottom", "left", "right")
+
+
+def read_questionnaire(folder: Path, year: int) -> pl.DataFrame:
+    return csv_io.read_frame(folder / f"questionnaire_{year}.csv")
+
+
+def _collapsed(column: str) -> pl.Expr:
+    """:func:`collapse_whitespace` on a column."""
+    return pl.col(column).str.replace_all(r"\s+", " ").str.strip_chars()
+
+
+def _digits(column: str | pl.Expr) -> pl.Expr:
+    col = pl.col(column) if isinstance(column, str) else column
+    return col.str.replace_all(r"\D", "")
+
+
+def _header_codes(column: str = "code") -> pl.Expr:
+    """The codes a header covers, as digits: ``"01192, 01193"`` -> ``["01192", "01193"]``."""
+    return pl.col(column).str.split(",").list.eval(_digits(pl.element()))
 
 
 # --- corrections.csv -----------------------------------------------------------
 
 
-@dataclass
+@dataclass(frozen=True)
 class Correction:
     year: int
     action: str
@@ -91,89 +109,104 @@ class Correction:
 
 
 def load_corrections(path: Path = CORRECTIONS) -> list[Correction]:
-    out = [
-        Correction(
-            int(r["year"]),
-            r["action"],
-            r["expenditure_code"],
-            r["description"],
-            r["value"],
-            r["reason"],
-        )
-        for r in csv_io.read(path)
-    ]
+    df = csv_io.read_frame(path)
+    bad = df.filter(~pl.col("action").is_in(ACTIONS))
+    if bad.height:
+        raise ValueError(f"unknown action {bad['action'][0]!r} in {path}")
+    out = [Correction(**{**r, "year": int(r["year"])}) for r in df.iter_rows(named=True)]
     for c in out:
-        if c.action not in ACTIONS:
-            raise ValueError(f"unknown action {c.action!r} in {path}")
         if not c.reason.strip():
             raise ValueError(f"correction without a reason: {c}")
     return out
 
 
-def _find(rows: list[dict[str, str]], c: Correction) -> dict[str, str]:
+def _target(rows: pl.DataFrame, c: Correction) -> pl.Series:
+    """The one row ``c`` is about, as a mask: an item (a header for the
+    ``_header`` actions) with its code, and its description when ``c`` gives one."""
     header = c.action.endswith("_header")
-    hits = [
-        r
-        for r in rows
-        if r["kind"] == ("header" if header else "item")
-        and r["code" if header else "expenditure_code"] == c.expenditure_code
-        and (not c.description or collapse_whitespace(r["description"]) == collapse_whitespace(c.description))
-    ]
-    if len(hits) != 1:
-        raise ValueError(f"{c.year} {c.action} {c.expenditure_code}: {len(hits)} matching rows, expected 1")
-    return hits[0]
-
-
-def _header_codes(r: dict[str, str]) -> list[str]:
-    return [re.sub(r"\D", "", c) for c in r["code"].split(",")]
-
-
-def _orphan_header(r: dict[str, str], gone: dict[str, str], rows: list[dict[str, str]]) -> bool:
-    """A group header that covered the deleted item and now covers none."""
-    if r["kind"] != "header" or r["section"] != gone["section"]:
-        return False
-    codes = _header_codes(r)
-    if not any(gone["expenditure_code"].startswith(c) for c in codes):
-        return False
-    return not any(
-        x["kind"] == "item" and x["section"] == r["section"] and x["expenditure_code"].startswith(c)
-        for x in rows
-        for c in codes
+    match = (pl.col("kind") == ("header" if header else "item")) & (
+        pl.col("code" if header else "expenditure_code") == c.expenditure_code
     )
+    if c.description:
+        match &= _collapsed("description") == collapse_whitespace(c.description)
+    mask = rows.select(match.alias("hit")).to_series()
+    if mask.sum() != 1:
+        raise ValueError(f"{c.year} {c.action} {c.expenditure_code}: {mask.sum()} matching rows, expected 1")
+    return mask
+
+
+def _set(rows: pl.DataFrame, mask: pl.Series, **values: str) -> pl.DataFrame:
+    return rows.with_columns(pl.when(mask).then(pl.lit(v)).otherwise(k).alias(k) for k, v in values.items())
+
+
+def _delete(rows: pl.DataFrame, mask: pl.Series) -> pl.DataFrame:
+    """``rows`` without the masked item, and without the group headers that
+    covered it and now cover no item of its section."""
+    gone = rows.filter(mask).row(0, named=True)
+    rows = rows.filter(~mask)
+    section = gone["section"]
+    left = rows.filter((pl.col("kind") == "item") & (pl.col("section") == section))["expenditure_code"]
+    # a header covers an item when the item's code starts with one of its codes
+    prefixes = pl.Series([code[:k] for code in left for k in range(len(code) + 1)], dtype=pl.String)
+    orphan = (
+        (pl.col("kind") == "header")
+        & (pl.col("section") == section)
+        & _header_codes().list.eval(pl.lit(gone["expenditure_code"]).str.starts_with(pl.element())).list.any()
+        & ~_header_codes().list.eval(pl.element().is_in(prefixes.implode())).list.any()
+    )
+    return rows.filter(~orphan)
+
+
+def _add_section(rows: pl.DataFrame, c: Correction, extracted: Path) -> pl.DataFrame:
+    """``rows`` with section ``c.description`` copied from the year ``c.value``
+    (as printed), before the first section after it; the copy has no page."""
+    section = c.description
+    if (rows["section"] == section).any():
+        raise ValueError(f"{c.year}: section {section} already present")
+    added = (
+        read_questionnaire(extracted, int(c.value))
+        .filter(pl.col("section") == section)
+        .with_columns(pl.lit("").alias(k) for k in _BOX)
+    )
+    after = rows["section"].cast(pl.Int64) > int(section)
+    at = after.arg_true()[0] if after.any() else rows.height
+    return pl.concat([rows[:at], added, rows[at:]], how="diagonal").fill_null("")
 
 
 def apply_corrections(
-    year: int, rows: list[dict[str, str]], corrections: list[Correction], extracted: Path
-) -> list[dict[str, str]]:
-    """The rows of one questionnaire with that year's corrections applied
-    (a copy: ``rows`` stay as they are)."""
-    rows = [dict(r) for r in rows]
+    year: int, rows: pl.DataFrame, corrections: list[Correction], extracted: Path
+) -> pl.DataFrame:
+    """One questionnaire with that year's corrections applied, in order."""
     for c in corrections:
         if c.year != year:
             continue
+        if c.action == "add_section":
+            rows = _add_section(rows, c, extracted)
+            continue
+        mask = _target(rows, c)
         if c.action == "recode":
-            r = _find(rows, c)
-            r["expenditure_code"], r["code"], r["sub"] = c.value, c.value[:-2], c.value[-2:]
+            rows = _set(rows, mask, expenditure_code=c.value, code=c.value[:-2], sub=c.value[-2:])
         elif c.action in ("retext", "retext_header"):
-            _find(rows, c)["description"] = c.value
+            rows = _set(rows, mask, description=c.value)
         elif c.action == "recode_header":
-            r = _find(rows, c)
-            r["code"], r["level"] = c.value, str(header_level(c.value, year <= LAST_OLD_SCHEME_YEAR))
+            level = header_level(c.value, year <= LAST_OLD_SCHEME_YEAR)
+            rows = _set(rows, mask, code=c.value, level=str(level))
         elif c.action == "delete":
-            gone = _find(rows, c)
-            rows = [r for r in rows if r is not gone]
-            rows = [r for r in rows if not _orphan_header(r, gone, rows)]
-        elif c.action == "add_section":
-            section = c.description
-            if any(r["section"] == section for r in rows):
-                raise ValueError(f"{year}: section {section} already present")
-            src = [
-                r for r in csv_io.read(extracted / f"questionnaire_{c.value}.csv") if r["section"] == section
-            ]
-            added = [{**r, "page": "", "top": "", "bottom": "", "left": "", "right": ""} for r in src]
-            at = next((i for i, r in enumerate(rows) if int(r["section"]) > int(section)), len(rows))
-            rows[at:at] = added
+            rows = _delete(rows, mask)
     return rows
+
+
+def corrected_questionnaires(
+    years: Iterable[int], extracted: Path, corrections: list[Correction]
+) -> pl.DataFrame:
+    """Every year's questionnaire with its corrections, in one table with a
+    ``year`` column, in year and row order."""
+    return pl.concat(
+        apply_corrections(y, read_questionnaire(extracted, y), corrections, extracted).with_columns(
+            pl.lit(y).alias("year")
+        )
+        for y in years
+    )
 
 
 # --- the structure check and header_exceptions.csv ----------------------------
@@ -198,79 +231,111 @@ class HeaderException:
 def load_header_exceptions(path: Path = HEADER_EXCEPTIONS) -> list[HeaderException]:
     if not path.exists():
         return []
+    df = csv_io.read_frame(path).with_columns(pl.col("header", "item_code").str.strip_chars())
     return [
-        HeaderException(r["header"].strip(), r["item_code"].strip(), parse_years(r["years"]), r["reason"])
-        for r in csv_io.read(path)
+        HeaderException(r["header"], r["item_code"], parse_years(r["years"]), r["reason"])
+        for r in df.iter_rows(named=True)
     ]
-
-
-def _digits(code: str) -> str:
-    return re.sub(r"\D", "", code)
 
 
 def check_rows(
     year: int,
-    rows: list[dict[str, str]],
+    rows: pl.DataFrame,
     exceptions: list[HeaderException],
     used: set[HeaderException] | None = None,
 ) -> list[Finding]:
-    """The structure findings of one questionnaire (rows as read from its CSV).
-    The header exceptions that accepted something are added to ``used``."""
+    """The structure findings of one questionnaire.  The header exceptions
+    that accepted something are added to ``used``."""
+    rows = rows.with_columns(pl.col("section").cast(pl.Int64).alias("n_section"))
+    items = rows.filter(pl.col("kind") == "item")
     out: list[Finding] = []
-    items = [r for r in rows if r["kind"] == "item"]
 
-    for code, n in Counter(r["expenditure_code"] for r in items).items():
-        if n > 1:
-            out.append(Finding(year, "duplicate", code, f"printed {n} times"))
+    def found(kind: str, df: pl.DataFrame, code: pl.Expr, detail: pl.Expr) -> None:
+        out.extend(Finding(year, kind, c, d) for c, d in df.select(code, detail).iter_rows())
 
-    for a, b in pairwise(items):
-        same = (a["section"], a["code"]) == (b["section"], b["code"])
-        if same and b["sub"].isdigit() and a["sub"].isdigit() and int(b["sub"]) <= int(a["sub"]):
-            out.append(Finding(year, "sub_order", b["expenditure_code"], f"after {a['expenditure_code']}"))
+    dup = items.group_by("expenditure_code", maintain_order=True).len().filter(pl.col("len") > 1)
+    found("duplicate", dup, pl.col("expenditure_code"), pl.format("printed {} times", "len"))
 
-    headings = [int(r["section"]) for r in rows if r["kind"] == "section"]
+    number = r"^\d+$"
+    prev = items.with_columns(pl.all().shift(1).name.suffix("_prev"))
+    found(
+        "sub_order",
+        prev.filter(
+            (pl.col("section") == pl.col("section_prev"))
+            & (pl.col("code") == pl.col("code_prev"))
+            & pl.col("sub").str.contains(number)
+            & pl.col("sub_prev").str.contains(number)
+            & (pl.col("sub").cast(pl.Int64, strict=False) <= pl.col("sub_prev").cast(pl.Int64, strict=False))
+        ),
+        pl.col("expenditure_code"),
+        pl.format("after {}", "expenditure_code_prev"),
+    )
+
+    headings = rows.filter(pl.col("kind") == "section")["n_section"].to_list()
     if headings != sorted(set(headings)):
         out.append(Finding(year, "section_order", "", f"section headings {headings}"))
-    for a, b in pairwise(rows):
-        if int(b["section"]) < int(a["section"]):
-            out.append(
-                Finding(year, "section_order", b["expenditure_code"] or b["code"], "below the row before")
-            )
+    either = pl.when(pl.col("expenditure_code") != "").then("expenditure_code").otherwise("code")
+    found(
+        "section_order",
+        rows.filter(pl.col("n_section") < pl.col("n_section").shift(1)),
+        either,
+        pl.lit("below the row before"),
+    )
 
-    for r in rows:
-        if r["kind"] != "section" and not r["description"].strip():
-            out.append(
-                Finding(year, "empty", r["expenditure_code"] or r["code"], f"{r['kind']} with no text")
-            )
+    found(
+        "empty",
+        rows.filter((pl.col("kind") != "section") & (pl.col("description").str.strip_chars() == "")),
+        either,
+        pl.format("{} with no text", "kind"),
+    )
 
-    for r in items:
-        if not re.fullmatch(r"\d{2}", r["sub"]) or r["expenditure_code"] != _digits(r["code"]) + r["sub"]:
-            out.append(
-                Finding(year, "bad_code", r["expenditure_code"], f"code {r['code']!r} sub {r['sub']!r}")
-            )
+    found(
+        "bad_code",
+        items.filter(
+            ~pl.col("sub").str.contains(r"^\d{2}$")
+            | (pl.col("expenditure_code") != pl.concat_str(_digits("code"), "sub"))
+        ),
+        pl.col("expenditure_code"),
+        pl.format("code '{}' sub '{}'", "code", "sub"),
+    )
 
-    def accepted(header: str, item_code: str) -> bool:
-        for e in exceptions:
-            if e.header == header and e.item_code == item_code and (e.years is None or year in e.years):
-                if used is not None:
-                    used.add(e)
-                return True
-        return False
-
-    header: dict[str, str] | None = None
-    for r in rows:
-        if r["kind"] == "section":
-            header = None
-        elif r["kind"] == "header":
-            header = r
-        elif header is not None:
-            covers = [_digits(c) for c in header["code"].split(",")]
-            if not any(r["expenditure_code"].startswith(c) for c in covers) and not accepted(
-                header["code"], r["code"]
-            ):
-                out.append(
-                    Finding(year, "outside_header", r["expenditure_code"], f"under header {header['code']}")
-                )
+    # each item with the header above it in its section: covered when its
+    # code starts with one of the header's codes
+    uncovered = (
+        rows.with_row_index("i")
+        .with_columns(
+            pl.when(pl.col("kind") == "header")
+            .then("code")
+            .when(pl.col("kind") == "section")
+            .then(pl.lit(""))
+            .forward_fill()
+            .alias("header")
+        )
+        .filter((pl.col("kind") == "item") & (pl.col("header").fill_null("") != ""))
+        .with_columns(_header_codes("header").alias("covers"))
+        .explode("covers")
+        .group_by("i", maintain_order=True)
+        .agg(
+            pl.col("expenditure_code", "code", "header").first(),
+            pl.col("expenditure_code").str.starts_with(pl.col("covers")).any().alias("covered"),
+        )
+        .filter(~pl.col("covered"))
+    )
+    for r in uncovered.iter_rows(named=True):
+        accepted = next(
+            (
+                e
+                for e in exceptions
+                if e.header == r["header"]
+                and e.item_code == r["code"]
+                and (e.years is None or year in e.years)
+            ),
+            None,
+        )
+        if accepted is None:
+            out.append(Finding(year, "outside_header", r["expenditure_code"], f"under header {r['header']}"))
+        elif used is not None:
+            used.add(accepted)
     return out
 
 
@@ -282,9 +347,7 @@ def check_structure(
 ) -> list[Finding]:
     """The findings of every year's ``questionnaire_<year>.csv`` in ``folder``."""
     exc = load_header_exceptions() if exceptions is None else exceptions
-    return [
-        f for y in years for f in check_rows(y, csv_io.read(folder / f"questionnaire_{y}.csv"), exc, used)
-    ]
+    return [f for y in years for f in check_rows(y, read_questionnaire(folder, y), exc, used)]
 
 
 # --- against the raw data --------------------------------------------------------
@@ -301,17 +364,18 @@ def check_occurrence(
     for year in years:
         if year not in occ:
             continue
-        items = [r for r in csv_io.read(corrected / f"questionnaire_{year}.csv") if r["kind"] == "item"]
-        codes = [int(r["expenditure_code"]) for r in items]
-        dup = sorted({c for c in codes if codes.count(c) > 1})
+        items = read_questionnaire(corrected, year).filter(pl.col("kind") == "item")
+        codes = items["expenditure_code"].cast(pl.Int64)
+        printed = set(codes)
+        dup = sorted(codes.filter(codes.is_duplicated()).unique())
         # codes shorter than the 5-6 digit item codes are noise in the raw data
         invalid = sorted((c, n) for c, n in occ[year].items() if c < 10000)
         missing = sorted(
-            (c, n) for c, n in occ[year].items() if c >= 10000 and c not in codes and n >= min_households
+            (c, n) for c, n in occ[year].items() if c >= 10000 and c not in printed and n >= min_households
         )
-        unused = sorted(c for c in set(codes) if c not in occ[year])
+        unused = sorted(c for c in printed if c not in occ[year])
         print(
-            f"{year}: {len(items)} items, {len(missing)} codes in the data but not printed, "
+            f"{year}: {items.height} items, {len(missing)} codes in the data but not printed, "
             f"{len(unused)} printed but not reported, {len(dup)} duplicated"
         )
         for c, n in missing:
@@ -351,10 +415,11 @@ def verify(corrections: list[Correction], extracted: Path, occurrence: Path | li
                 + ("" if ok else "  <-- reported")
             )
         elif c.action == "add_section":
-            src = csv_io.read(extracted / f"questionnaire_{c.value}.csv")
-            codes = [
-                r["expenditure_code"] for r in src if r["section"] == c.description and r["kind"] == "item"
-            ]
+            codes = (
+                read_questionnaire(extracted, int(c.value))
+                .filter((pl.col("section") == c.description) & (pl.col("kind") == "item"))["expenditure_code"]
+                .to_list()
+            )
             deleted = {d.expenditure_code for d in corrections if d.year == c.year and d.action == "delete"}
             unreported = [x for x in codes if n(c.year, x) == 0 and x not in deleted]
             ok = not unreported

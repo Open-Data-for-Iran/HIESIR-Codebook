@@ -16,10 +16,11 @@ import re
 from collections import Counter
 from pathlib import Path
 
+import polars as pl
+
 from . import CORRECTED, CURATED_CORRECTED, EXTRACTED, GROUPS, ITEMS, OUTPUT, SUPPORTED_YEARS, csv_io
-from .correction import autocorrect, rules
 from .correction import corrections as step1
-from .correction import spelling as step3
+from .correction.fixes import Fixes, read_spelling
 from .linking.chains import read_chains
 from .linking.compare import YEARS
 from .linking.relations import code_reuse
@@ -52,31 +53,23 @@ def _decisions(rows: list[dict[str, str]], kinds: tuple[str, ...] = ()) -> dict[
     return out
 
 
-def _labels(extracted: Path, corrections: Path, labels: Path, auto: Path, canonical: Path) -> dict[str, int]:
+def _labels(extracted: Path, corrections: Path, fixes: Fixes) -> dict[str, int]:
     """How many descriptions (items, headers and section titles, all years)
-    each step of the correction changes, replayed in the order correct.apply
-    runs them (each distinct description once)."""
-    from .correction.canonical import load_variants, load_word_fixes
-    from .correction.correct import Steps, labels_after_corrections, run_steps
+    each label step of the correction changes: the columns of the traced table
+    compared one with the next."""
+    from .correction.correct import corrected
 
-    label_fixes = step3.load_label_fixes(labels)
-    variants = load_variants(canonical)
-    words = load_word_fixes(canonical.with_name("canonical_words.csv"))
-    pairs = labels_after_corrections(SUPPORTED_YEARS, extracted, corrections)
-    t0 = [t for _, t in pairs]
-    # the canonical wording and words
-    t1 = run_steps(pairs, Steps(label_fixes, [], variants, upto=2, words=words))
-    style = {t: rules.house_style(t) for t in set(t1)}
-    t2 = [style[t] for t in t1]  # the house style alone
-    t3 = run_steps(pairs, Steps(label_fixes, [], variants, upto=3, words=words))  # + the letter fixes
-    t4 = run_steps(pairs, Steps(label_fixes, autocorrect.load_fixes(auto), variants, upto=4, words=words))
-    t5 = run_steps(pairs, Steps(label_fixes, autocorrect.load_fixes(auto), variants, upto=5, words=words))
+    df = corrected(SUPPORTED_YEARS, extracted, corrections, fixes)
+
+    def changed(*pairs: tuple[str, str]) -> int:
+        return df.select(pl.any_horizontal(pl.col(a) != pl.col(b) for a, b in pairs).sum()).item()
+
     return {
-        "rows": len(pairs),
-        "canonical": sum(a != b for a, b in zip(t0, t1, strict=True)),
-        "punctuation": sum(a != b for a, b in zip(t1, t2, strict=True)),
-        "autocorrect": sum(a != b for a, b in zip(t3, t4, strict=True)),
-        "spelling": sum((a != b) or (c != d) for a, b, c, d in zip(t2, t3, t4, t5, strict=True)),
+        "rows": df.height,
+        "canonical": changed(("description", "canonical")),
+        "punctuation": changed(("canonical", "house_style")),
+        "autocorrect": changed(("letters", "words")),
+        "spelling": changed(("house_style", "letters"), ("words", "spelling")),
     }
 
 
@@ -90,11 +83,12 @@ def compute(
     """Every figure, as plain JSON-able data."""
     corrections = curated / "corrections.csv"
     labels = curated / "spelling.csv"
-    auto = corrected / "autocorrect" / "hazm.csv"
+    auto = corrected / "autocorrect" / "words.csv"
     canonical = corrected / "autocorrect" / "canonical.csv"
 
     fixes = step1.load_corrections(corrections)
-    changed = _labels(extracted, corrections, labels, auto, canonical)
+    label_fixes = Fixes.load(labels, auto, canonical)
+    changed = _labels(extracted, corrections, label_fixes)
     auto_rows = csv_io.read(auto) if auto.exists() else []
     canonical_rows = csv_io.read(canonical) if canonical.exists() else []
 
@@ -130,11 +124,11 @@ def compute(
             "spelling": changed["spelling"],
             "autocorrect": changed["autocorrect"],
         },
-        "spelling": {"total": len(step3.load_label_fixes(labels))},
+        "spelling": {"total": len(read_spelling(labels))},
         "canonical": {"total": len(canonical_rows)},
         "autocorrect": {
             "total": len(auto_rows),
-            **dict(sorted(Counter(r["rule"] for r in auto_rows).items())),
+            **dict(sorted(Counter(r["kind"] for r in auto_rows).items())),
         },
         "chains": {
             "total": len(chains),

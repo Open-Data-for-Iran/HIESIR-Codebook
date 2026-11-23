@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import polars as pl
 import pytest
 
 from hiesir_codebook import SUPPORTED_YEARS
@@ -39,8 +40,12 @@ GOOD = [
 ]
 
 
+def _frame(rows) -> pl.DataFrame:
+    return pl.DataFrame(rows, schema=dict.fromkeys(rows[0], pl.String))
+
+
 def _kinds(rows, exceptions=()):
-    return sorted(f.kind for f in check_rows(1400, rows, list(exceptions)))
+    return sorted(f.kind for f in check_rows(1400, _frame(rows), list(exceptions)))
 
 
 def test_clean_questionnaire():
@@ -68,7 +73,7 @@ def test_header_exception():
     rows = [*GOOD[:4], _row(1, "item", "0113", "11"), *GOOD[4:]]
     exc = HeaderException("0111", "0113", frozenset({1400}), "as printed")
     used = set()
-    assert check_rows(1400, rows, [exc], used) == []
+    assert check_rows(1400, _frame(rows), [exc], used) == []
     assert used == {exc}
     other_year = HeaderException("0111", "0113", frozenset({1399}), "as printed")
     assert _kinds(rows, [other_year]) == ["outside_header"]
