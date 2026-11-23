@@ -1,0 +1,7 @@
+Vazirmatn 33.003, Regular (400) and SemiBold (600), cut down to the Arabic-script
+characters (U+0600–06FF, U+0750–077F, U+08A0–08FF, U+FB50–FDFF, U+FE70–FEFF, ZWNJ/ZWJ
+and the direction marks) with `pyftsubset --flavor=woff2`, so Latin text keeps the
+theme's font. Used by `docs/assets/extra.css`.
+
+Copyright 2015 The Vazirmatn Project Authors (https://github.com/rastikerdar/vazirmatn).
+Licensed under the SIL Open Font License, Version 1.1 (https://openfontlicense.org).

@@ -12,6 +12,8 @@
   --shadow: none;
   --sticky-top: 3.4rem;
   --font: var(--md-text-font-family, system-ui), Vazirmatn, sans-serif;
+  /* the site's Persian font (docs/assets/extra.css), else an installed Vazirmatn */
+  --font-fa: var(--md-fa-font-family, Vazirmatn, Tahoma, sans-serif);
   --font-mono: var(--md-code-font-family, monospace);
   font-size: .7rem;
 }

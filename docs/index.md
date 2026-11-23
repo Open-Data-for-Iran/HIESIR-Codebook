@@ -5,8 +5,9 @@ questionnaires, 1383–1403, extracted from the PDF forms, corrected, and
 matched across years, so that the same item can be followed as its code and
 wording change.
 
+<!-- changes-heatmap -->
+
 [Open the explorer :material-magnify:](explorer.md){ .md-button .md-button--primary }
-[Download the data :material-download:](data.md#quick-start){ .md-button }
 
 ## What do you want to do?
 

@@ -1,24 +1,183 @@
-/* Persian text in tables and code examples: a font that has the glyphs */
-@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600&display=swap");
+/* Persian script: Vazirmatn, served from this site and cut down to the Arabic-script
+   characters (assets/fonts/vazirmatn.txt), so it can be listed before the theme's
+   Latin font: Persian letters come from Vazirmatn, Latin ones still from Roboto.
+   Listed after Roboto, the browser would take Persian from Arial or the system
+   font instead.
 
-.md-typeset {
-  font-family: var(--md-text-font-family), Vazirmatn, Tahoma, sans-serif;
+   Two names for the same files: on English pages Persian sits next to Latin
+   and reads small at the same size, so "Vazirmatn FA" is drawn 10% larger; the
+   Farsi pages, Persian throughout, use "Vazirmatn FA text" at its own size. */
+@font-face {
+  font-family: "Vazirmatn FA";
+  src: url("fonts/vazirmatn-arabic-400.woff2") format("woff2");
+  font-weight: 100 500;
+  font-display: swap;
+  size-adjust: 110%;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
 }
-.md-typeset code {
-  font-family: var(--md-code-font-family), Vazirmatn, monospace;
+@font-face {
+  font-family: "Vazirmatn FA";
+  src: url("fonts/vazirmatn-arabic-600.woff2") format("woff2");
+  font-weight: 600 900;
+  font-display: swap;
+  size-adjust: 110%;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
 }
+@font-face {
+  font-family: "Vazirmatn FA text";
+  src: url("fonts/vazirmatn-arabic-400.woff2") format("woff2");
+  font-weight: 100 500;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
+}
+@font-face {
+  font-family: "Vazirmatn FA text";
+  src: url("fonts/vazirmatn-arabic-600.woff2") format("woff2");
+  font-weight: 600 900;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
+}
+
+/* the theme's font stacks with Persian first; the explorer reads the same
+   variables (--md-fa-font-family for its Persian labels) */
+body {
+  --md-fa-font-family: "Vazirmatn FA", Tahoma, sans-serif;
+  --md-text-font-family: "Vazirmatn FA", var(--md-text-font, _), -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+  --md-code-font-family: "Vazirmatn FA", var(--md-code-font, _), SFMono-Regular, Consolas, Menlo, monospace;
+}
+[dir="rtl"] body {
+  --md-fa-font-family: "Vazirmatn FA text", Tahoma, sans-serif;
+  --md-text-font-family: "Vazirmatn FA text", var(--md-text-font, _), -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+  --md-code-font-family: "Vazirmatn FA text", var(--md-code-font, _), SFMono-Regular, Consolas, Menlo, monospace;
+}
+
+/* headings: a clear step from the body text instead of the theme's light weight */
+.md-typeset h1,
+.md-typeset h2 {
+  font-weight: 700;
+  color: var(--md-default-fg-color);
+}
+.md-typeset h1 { letter-spacing: -.02em; }
+.md-typeset h2 { letter-spacing: -.01em; }
+
+/* prose at about 80 characters a line; tables, code, cards and diagrams keep
+   the full width */
+.md-typeset > p,
+.md-typeset > ul,
+.md-typeset > ol,
+.md-typeset > dl,
+.md-typeset > blockquote,
+.md-typeset > .admonition,
+.md-typeset > details {
+  max-width: 38em;
+}
+
 .md-typeset table:not([class]) {
-  font-size: .72rem;
+  font-size: .78rem;
+}
+/* a table written with an empty header (| | |, a list of name and value)
+   shows no blank header row */
+.md-typeset table:not([class]) thead:not(:has(th:not(:empty))) {
+  display: none;
+}
+.md-typeset table:not([class]):has(thead:not(:has(th:not(:empty)))) tbody tr:first-child td {
+  border-top: 0;
+}
+.md-typeset table:not([class]):has(thead:not(:has(th:not(:empty)))) tbody td:first-child {
+  font-weight: 600;
 }
 
-/* Farsi pages (dir="rtl"): Vazirmatn first, code stays left-to-right */
-[dir="rtl"] body,
-[dir="rtl"] .md-typeset,
-[dir="rtl"] .md-nav,
-[dir="rtl"] .md-header,
-[dir="rtl"] .md-tabs {
-  font-family: Vazirmatn, Tahoma, sans-serif;
+/* the home page's heatmap (scripts/mkdocs_hooks.py, heatmap()): items changed
+   by section and year; shade --a from the count, as in the explorer */
+.md-typeset .heatmap {
+  margin: 1.2em 0 1.6em;
 }
+.md-typeset .heatmap-scroll {
+  overflow-x: auto;
+}
+.md-typeset .heatmap-table {
+  width: 100%;
+  min-width: 18rem;
+  white-space: nowrap;
+  border-collapse: separate;
+  border-spacing: 2px;
+  table-layout: fixed;
+  font-size: .62rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.md-typeset .heatmap-table th {
+  padding: 0 0 .3em;
+  font-weight: 400;
+  color: var(--md-default-fg-color--light);
+  text-align: center;
+}
+.md-typeset .heatmap-table .corner { width: 3.4em; text-align: start; }
+.md-typeset .heatmap-table th[scope="row"] {
+  padding: 0 .4em 0 0;
+  text-align: end;
+}
+[dir="rtl"] .md-typeset .heatmap-table th[scope="row"] { padding: 0 0 0 .4em; }
+.md-typeset .heatmap-table td {
+  height: 1.15em;
+  padding: 0;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--md-default-fg-color) 5%, transparent);
+}
+.md-typeset .heatmap-table td[style] {
+  background: color-mix(in srgb, var(--md-typeset-a-color) calc(var(--a) * 100%), var(--md-default-bg-color));
+}
+.md-typeset .heatmap-table td a {
+  display: block;
+  height: 100%;
+}
+.md-typeset .heatmap-table td a:hover,
+.md-typeset .heatmap-table td a:focus-visible {
+  outline: 2px solid var(--md-default-fg-color);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+/* the count is for screen readers and the tooltip; the shade shows it */
+.md-typeset .heatmap-table td span {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.md-typeset .heatmap-table tr.total th,
+.md-typeset .heatmap-table tr.total td {
+  padding-top: .45em;
+  background: none;
+  font-weight: 700;
+  color: var(--md-default-fg-color);
+  text-align: center;
+}
+.md-typeset .heatmap-table tr.total th { text-align: end; }
+.md-typeset .heatmap-table tr.total a { color: inherit; }
+.md-typeset .heatmap figcaption {
+  max-width: 38em;
+  margin: .6em 0 0;
+  font-size: .68rem;
+  font-style: normal;
+  color: var(--md-default-fg-color--light);
+  text-align: start;
+}
+/* phones: 20 years in the width of the screen; smaller labels, and no totals
+   (three digits a column do not fit; the shade and the explorer have them) */
+@media screen and (max-width: 37.5em) {
+  .md-typeset .heatmap-table { min-width: 0; border-spacing: 1px; }
+  .md-typeset .heatmap-table th {
+    font-size: .48rem;
+    letter-spacing: -.04em;
+  }
+  .md-typeset .heatmap-table .corner { width: 2.2rem; }
+  .md-typeset .heatmap-table tr.total { display: none; }
+  /* every other year's label (84, 86, ...), so they do not run together */
+  .md-typeset .heatmap-table tr:first-child th:nth-child(even) { color: transparent; }
+}
+
+/* Farsi pages (dir="rtl"): more line height for Persian, code stays left-to-right */
 [dir="rtl"] .md-typeset {
   line-height: 1.9;
 }

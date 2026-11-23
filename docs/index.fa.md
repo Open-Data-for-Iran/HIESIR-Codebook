@@ -4,8 +4,9 @@
 سال‌های ۱۳۸۳ تا ۱۴۰۳: از فایل‌های PDF استخراج، اصلاح و در طول سال‌ها به هم
 پیوند داده شده‌اند تا بتوان یک قلم را با وجود تغییر کد یا عبارتش دنبال کرد.
 
+<!-- changes-heatmap -->
+
 [باز کردن جست‌وجوی اقلام :material-magnify:](explorer.md){ .md-button .md-button--primary }
-[دریافت داده‌ها :material-download:](data.md#quick-start){ .md-button }
 
 ## دنبال چه هستید؟
 
