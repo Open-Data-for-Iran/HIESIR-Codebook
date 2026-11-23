@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
-import sys
 from pathlib import Path
 
 __all__ = ["CSV_COLUMNS", "Row", "build", "extract", "extract_year", "main", "write_csv"]
@@ -58,46 +56,16 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
         print(f"no {data / 'pdf'}: keeping {EXTRACTED} as it is")
     else:
         print(f"keeping {EXTRACTED} as it is")
-    correct.main([])
-    corrections.main([])
-    chains.main([])
-    relations.main([])
-    groups.main([])
-    metrics.main([])
+    correct.main()
+    corrections.main()
+    chains.main()
+    relations.main()
+    groups.main()
+    metrics.main()
 
 
 def main(argv: list[str] | None = None) -> int:
-    # the reports name Persian words: a Windows console's code page cannot show them
-    for stream in (sys.stdout, sys.stderr):
-        if hasattr(stream, "reconfigure"):
-            stream.reconfigure(encoding="utf-8", errors="replace")
-    ap = argparse.ArgumentParser(prog="hiesir-codebook", description=__doc__)
-    sub = ap.add_subparsers(dest="command", required=True)
-    b = sub.add_parser("build", help="regenerate every stage of output/")
-    b.add_argument("--no-extract", action="store_true", help="keep output/1_extracted/, do not read the PDFs")
-    b.add_argument("--data", type=Path, default=DATA_DIR, help="folder with pdf/ (default: data/)")
-    e = sub.add_parser("extract", help="just extract: the PDFs -> output/1_extracted/")
-    e.add_argument("years", nargs="*", type=int, help="survey years (default: all supported)")
-    e.add_argument("--data", type=Path, default=DATA_DIR, help="folder with pdf/ (default: data/)")
-    e.add_argument("--csv-dir", type=Path, default=EXTRACTED, help=f"default: {EXTRACTED.as_posix()}/")
-    sub.add_parser("pdfs", help="download, verify or list the PDFs (pdfs -h)", add_help=False)
-    sub.add_parser(
-        "hazm", help="download, verify or list hazm's word list and data (hazm -h)", add_help=False
-    )
-    args, rest = ap.parse_known_args(argv)
-    if args.command == "pdfs":
-        from .extraction import pdfs
+    """The ``hiesir-codebook`` command (hiesir_codebook.cli)."""
+    from .cli import main as cli_main
 
-        return pdfs.main(rest)
-    if args.command == "hazm":
-        from . import hazm_data
-
-        return hazm_data.main(rest)
-    if rest:
-        ap.error(f"unrecognized arguments: {' '.join(rest)}")
-    if args.command == "build":
-        build_all(args.data, extract_pdfs=not args.no_extract)
-        return 0
-    for y in args.years or SUPPORTED_YEARS:
-        print(build(y, args.data, args.csv_dir), flush=True)
-    return 0
+    return cli_main(argv)

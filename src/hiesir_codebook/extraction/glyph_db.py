@@ -14,7 +14,7 @@ letter from the database is an isolated glyph, which the ZWNJ recovery needs
 
 Build (or rebuild) the database with::
 
-    uv run python -m hiesir_codebook.extraction.build_glyph_db
+    uv run hiesir-codebook glyph-db
 """
 
 from __future__ import annotations
@@ -155,7 +155,7 @@ class GlyphDBError(RuntimeError):
     """The glyph database is missing or does not match the PDFs' glyphs."""
 
 
-_REBUILD = "uv run python -m hiesir_codebook.extraction.build_glyph_db"
+_REBUILD = "uv run hiesir-codebook glyph-db"
 
 
 @lru_cache(maxsize=1)

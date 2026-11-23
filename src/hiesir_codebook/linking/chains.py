@@ -19,7 +19,6 @@ Output: ``chains.csv``, one row per chain.
 
 from __future__ import annotations
 
-import argparse
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -90,20 +89,18 @@ def read_chains(path: Path, years: list[int] = YEARS) -> list[Chain]:
     return out
 
 
-def main(argv: list[str] | None = None) -> None:
-    ap = argparse.ArgumentParser(
-        prog="python -m hiesir_codebook.linking.chains", description="Matching stage 1: chains."
-    )
-    ap.add_argument(
-        "--source", type=Path, default=CORRECTED, help="yearly CSVs (default: output/2_corrected/)"
-    )
-    ap.add_argument("--out", type=Path, default=ITEMS / "chains.csv")
-    ap.add_argument("--max-gap", type=int, default=MAX_GAP, help="questionnaires a chain may skip")
-    args = ap.parse_args(argv)
-    chains = build_chains({y: load_year(y, args.source) for y in YEARS}, args.max_gap)
-    write_chains(chains, args.out, YEARS)
+def main(*, source: Path = CORRECTED, out: Path = ITEMS / "chains.csv", max_gap: int = MAX_GAP) -> None:
+    """Matching stage 1: chains, output/2_corrected/ -> output/3_items/chains.csv.
+
+    Parameters
+    ----------
+    source
+        The yearly CSVs.
+    out
+        Where the chains go.
+    max_gap
+        Questionnaires a chain may skip.
+    """
+    chains = build_chains({y: load_year(y, source) for y in YEARS}, max_gap)
+    write_chains(chains, out, YEARS)
     print(f"{len(chains)} chains, {sum(c.years[-1] == YEARS[-1] for c in chains)} still asked in {YEARS[-1]}")
-
-
-if __name__ == "__main__":
-    main()

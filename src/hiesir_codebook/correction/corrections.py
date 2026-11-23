@@ -60,7 +60,6 @@ questionnaire lacks, or the reverse (``correct --check``).
 
 from __future__ import annotations
 
-import argparse
 import re
 from collections import Counter
 from collections.abc import Iterable
@@ -370,31 +369,26 @@ def verify(corrections: list[Correction], extracted: Path, occurrence: Path | li
     return bad
 
 
-def main(argv: list[str] | None = None) -> int:
-    """The structure check of a folder of questionnaire CSVs."""
-    ap = argparse.ArgumentParser(
-        prog="python -m hiesir_codebook.correction.corrections",
-        description="Structure check: what must hold in every questionnaire CSV, from the CSV alone.",
-    )
-    ap.add_argument(
-        "folder", nargs="?", type=Path, default=CORRECTED, help=f"default: {CORRECTED.as_posix()}/"
-    )
-    ap.add_argument("--exceptions", type=Path, default=HEADER_EXCEPTIONS)
-    args = ap.parse_args(argv)
-    exceptions = load_header_exceptions(args.exceptions)
+def main(folder: Path = CORRECTED, *, exceptions: Path = HEADER_EXCEPTIONS) -> int:
+    """Structure check: what must hold in every questionnaire CSV, from the CSV alone.
+
+    Parameters
+    ----------
+    folder
+        A folder of questionnaire CSVs.
+    exceptions
+        The accepted header exceptions.
+    """
+    accepted = load_header_exceptions(exceptions)
     used: set[HeaderException] = set()
-    findings = check_structure(SUPPORTED_YEARS, args.folder, exceptions, used)
+    findings = check_structure(SUPPORTED_YEARS, folder, accepted, used)
     for f in findings:
         print(f"    {f.year} {f.kind:14} {f.code:8} {f.detail}")
-    stale = [e for e in exceptions if e not in used]
+    stale = [e for e in accepted if e not in used]
     for e in stale:
         print(f"    header exception that accepts nothing: {e.header} / {e.item_code}")
     print(
-        f"structure check of {args.folder.as_posix()}: {len(findings)} findings"
-        f" ({len(exceptions)} accepted header exceptions, {len(stale)} stale)"
+        f"structure check of {folder.as_posix()}: {len(findings)} findings"
+        f" ({len(accepted)} accepted header exceptions, {len(stale)} stale)"
     )
     return 1 if findings or stale else 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())

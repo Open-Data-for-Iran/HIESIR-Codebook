@@ -10,7 +10,7 @@ whole word at a time, before ``spelling.csv`` (:mod:`.spelling`, step 5), so it
 runs without hazm's data.  Regenerate it after changing steps 1-3 or the rules,
 with hazm's data downloaded (``uv run hiesir-codebook hazm download``):
 
-    uv run python -m hiesir_codebook.correction.autocorrect
+    uv run hiesir-codebook autocorrect
 
 hazm's list mixes three kinds of entries: about 27,000 words met in its
 corpus (with their frequency), 8,500 with a part of speech but frequency 0,
@@ -75,7 +75,6 @@ the labels write it),
 
 from __future__ import annotations
 
-import argparse
 import functools
 import itertools
 import math
@@ -784,25 +783,25 @@ def protected_finds(path: Path | None = None) -> list[str]:
     return [fx.find for fx in load_label_fixes(path or LABELS) if fx.match == "word"]
 
 
-def main(argv: list[str] | None = None) -> None:
+def main(*, out: Path = HAZM_FIXES) -> None:
+    """Correction step 4: automatic fixes from hazm's word list.
+
+    Needs hazm's data (``hiesir-codebook hazm download``).
+
+    Parameters
+    ----------
+    out
+        Where the fixes go.
+    """
     from .correct import labels_for_autocorrect
 
-    ap = argparse.ArgumentParser(
-        prog="python -m hiesir_codebook.correction.autocorrect", description=__doc__.split("\n")[0]
-    )
-    ap.add_argument("--out", type=Path, default=HAZM_FIXES)
-    args = ap.parse_args(argv)
     found = find_fixes(labels_for_autocorrect(), hazm_lexicon(), protected_finds())
-    write_fixes(found, args.out)
+    write_fixes(found, out)
     by_rule = Counter(f.fix.rule for f in found)
     uses = defaultdict(int)
     for f in found:
         uses[f.fix.rule] += f.uses
     print(
-        f"{len(found)} automatic fixes -> {args.out.as_posix()}: "
+        f"{len(found)} automatic fixes -> {out.as_posix()}: "
         + ", ".join(f"{r} {by_rule[r]} words ({uses[r]} uses)" for r in RULES)
     )
-
-
-if __name__ == "__main__":
-    main()

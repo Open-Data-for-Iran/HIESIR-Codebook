@@ -18,8 +18,8 @@ fixes (:mod:`.autocorrect`, step 4) and ``spelling.csv`` (:mod:`.spelling`,
 step 5), so it runs without hazm's data.  Regenerate it, then the automatic
 fixes, with hazm's data downloaded:
 
-    uv run python -m hiesir_codebook.correction.canonical
-    uv run python -m hiesir_codebook.correction.autocorrect
+    uv run hiesir-codebook canonical
+    uv run hiesir-codebook autocorrect
 
 The file is a record as well: it holds the finished forms the rows of
 ``spelling.csv`` and the automatic fixes once made, after those rows go.
@@ -47,7 +47,6 @@ both).
 
 from __future__ import annotations
 
-import argparse
 import functools
 import re
 from collections import Counter
@@ -366,30 +365,33 @@ def load_variants(path: Path = CANONICAL) -> dict[str, str]:
     return {r["find"]: r["replace"] for r in csv_io.read(path)}
 
 
-def main(argv: list[str] | None = None) -> None:
+def main(*, out: Path = CANONICAL, words_out: Path = CANONICAL_WORDS) -> None:
+    """Correction step 2: one wording for labels that differ only in how they are written.
+
+    Needs hazm's data (``hiesir-codebook hazm download``).
+
+    Parameters
+    ----------
+    out
+        The label variants and the wording each takes.
+    words_out
+        The word fixes learned from them, and the folded forms of each word.
+    """
     from .autocorrect import load_fixes
     from .correct import Steps, labels_after_corrections
     from .rules import house_style
     from .spelling import load_label_fixes
 
-    ap = argparse.ArgumentParser(
-        prog="python -m hiesir_codebook.correction.canonical", description=__doc__.split("\n")[0]
-    )
-    ap.add_argument("--out", type=Path, default=CANONICAL)
-    ap.add_argument("--words-out", type=Path, default=CANONICAL_WORDS)
-    args = ap.parse_args(argv)
     lex = hazm_lexicon()
     labels = labels_after_corrections()
     # each variant judged by what the steps make of it today, this one included,
     # so a second run finds what the first one did (the steps are stable)
-    steps = Steps(
-        load_label_fixes(), load_fixes(), load_variants(args.out), words=load_word_fixes(args.words_out)
-    )
+    steps = Steps(load_label_fixes(), load_fixes(), load_variants(out), words=load_word_fixes(words_out))
     finish = functools.cache(lambda t: steps(t, 0))
     rows = find_variants(labels, lex, finish)
-    csv_io.write(args.out, COLUMNS, rows)
+    csv_io.write(out, COLUMNS, rows)
     print(
-        f"{len(rows)} labels written otherwise in their group -> {args.out.as_posix()} "
+        f"{len(rows)} labels written otherwise in their group -> {out.as_posix()} "
         f"({sum(int(r['uses']) for r in rows)} rows)"
     )
     # the words: what the losers of the groups teach, then the forms of each word
@@ -403,19 +405,15 @@ def main(argv: list[str] | None = None) -> None:
     unfolded = Steps(
         spelling,
         load_fixes(),
-        load_variants(args.out),
+        load_variants(out),
         upto=3,  # before the automatic fixes and the word rows of spelling.csv, which settle these words
-        words=[fx for fx in load_word_fixes(args.words_out) if fx.reason == "learned"],
+        words=[fx for fx in load_word_fixes(words_out) if fx.reason == "learned"],
     )
     words = learned + folded_fixes((unfolded(t, 0) for _, t in set(labels)), lex, settle)
     words.sort(key=lambda r: (r["kind"], r["find"]))
-    csv_io.write(args.words_out, WORD_COLUMNS, words)
+    csv_io.write(words_out, WORD_COLUMNS, words)
     print(
-        f"{len(words)} word fixes -> {args.words_out.as_posix()} "
+        f"{len(words)} word fixes -> {words_out.as_posix()} "
         f"({sum(r['kind'] == 'learned' for r in words)} learned from the groups, "
         f"{sum(r['kind'] == 'folded' for r in words)} folded)"
     )
-
-
-if __name__ == "__main__":
-    main()

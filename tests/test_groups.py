@@ -171,16 +171,10 @@ def test_groups_are_up_to_date(tmp_path):
 
     root = Path(__file__).resolve().parents[1]
     groups.main(
-        [
-            "--source",
-            str(root / "output" / "2_corrected"),
-            "--items",
-            str(root / "output" / "3_items"),
-            "--out",
-            str(tmp_path),
-            "--decisions",
-            str(root / "curated" / "4_groups" / "links.csv"),
-        ]
+        source=root / "output" / "2_corrected",
+        items=root / "output" / "3_items",
+        out=tmp_path,
+        decisions=root / "curated" / "4_groups" / "links.csv",
     )
     for name in ("groups.csv", "members.csv", "links.csv"):
         assert (tmp_path / name).read_bytes() == (root / "output" / "4_groups" / name).read_bytes(), name

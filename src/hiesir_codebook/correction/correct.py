@@ -23,12 +23,13 @@ questionnaire, or printed but never reported.
 
 from __future__ import annotations
 
-import argparse
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Annotated
 
 import polars as pl
+from cyclopts import Parameter
 
 from .. import CORRECTED, CSV_COLUMNS, EXTRACTED, SUPPORTED_YEARS, csv_io
 from ..occurrence import occurrence_files
@@ -220,45 +221,52 @@ def correct(
     return {y: sum(c.year == y for c in fixes) for y in years}
 
 
-def main(argv: list[str] | None = None) -> None:
-    ap = argparse.ArgumentParser(
-        description="Apply curated/2_corrected/ to output/1_extracted/ -> output/2_corrected/."
-    )
-    ap.add_argument("--extracted", type=Path, default=EXTRACTED)
-    ap.add_argument("--out", type=Path, default=CORRECTED)
-    ap.add_argument("--corrections", type=Path, default=CORRECTIONS)
-    ap.add_argument("--check", action="store_true", help="compare with the household occurrence table")
-    ap.add_argument("--labels", type=Path, default=LABELS)
-    ap.add_argument(
-        "--occurrence",
-        type=Path,
-        nargs="+",
-        default=occurrence_files(),
-        help="default: data/commodity_code_occurrence_*.csv",
-    )
-    args = ap.parse_args(argv)
+def main(
+    *,
+    extracted: Path = EXTRACTED,
+    out: Path = CORRECTED,
+    corrections: Path = CORRECTIONS,
+    labels: Path = LABELS,
+    check: bool = False,
+    occurrence: Annotated[list[Path] | None, Parameter(consume_multiple=True)] = None,
+) -> int:
+    """Apply curated/2_corrected/ to output/1_extracted/ -> output/2_corrected/.
+
+    Parameters
+    ----------
+    extracted
+        The questionnaires as printed.
+    out
+        Where the corrected questionnaires go.
+    corrections
+        The row corrections.
+    labels
+        The label fixes.
+    check
+        Also compare with the household occurrence tables; fails when the raw data
+        contradicts a correction or a corrected questionnaire.
+    occurrence
+        The household occurrence tables (default: data/commodity_code_occurrence_*.csv).
+    """
+    occurrence = occurrence or occurrence_files()
     hits: dict[str, int] = {}
-    counts = correct(SUPPORTED_YEARS, args.extracted, args.out, args.corrections, args.labels, hits)
+    counts = correct(SUPPORTED_YEARS, extracted, out, corrections, labels, hits)
     print(
         f"{sum(counts.values())} row corrections applied: "
         + ", ".join(f"{y}: {n}" for y, n in counts.items() if n)
     )
-    label_fixes = load_label_fixes(args.labels)
+    label_fixes = load_label_fixes(labels)
     print(f"{len(label_fixes)} label fixes changed {sum(hits.values())} descriptions")
     unused = [fx.find for fx in label_fixes if fx.find not in hits]
-    if args.check:
+    if check:
         for fx in label_fixes:
             print(f"    {hits.get(fx.find, 0):4}  {fx.find} -> {fx.replace}")
     if unused:
         print("label fixes that matched nothing: " + ", ".join(unused))
-    if args.check:
-        years = SUPPORTED_YEARS
-        print("\nEvidence for each correction (households reporting the code):")
-        contradicted = verify(load_corrections(args.corrections), args.extracted, args.occurrence)
-        print("\nCorrected questionnaires against the raw data:")
-        failed = check_occurrence(years, args.out, args.occurrence)
-        raise SystemExit(1 if contradicted or failed else 0)
-
-
-if __name__ == "__main__":
-    main()
+    if not check:
+        return 0
+    print("\nEvidence for each correction (households reporting the code):")
+    contradicted = verify(load_corrections(corrections), extracted, occurrence)
+    print("\nCorrected questionnaires against the raw data:")
+    failed = check_occurrence(SUPPORTED_YEARS, out, occurrence)
+    return 1 if contradicted or failed else 0

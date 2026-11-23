@@ -120,8 +120,8 @@
 اصلاح خودکار را با داده hazm دانلودشده دوباره بسازید؛ اجرای دوم همان را می‌یابد که اجرای اول:
 
 ```bash
-uv run python -m hiesir_codebook.correction.canonical
-uv run python -m hiesir_codebook.correction.autocorrect
+uv run hiesir-codebook canonical
+uv run hiesir-codebook autocorrect
 ```
 
 سپس واژه‌ها: `output/2_corrected/autocorrect/canonical_words.csv` آنچه را گروه‌ها
@@ -172,7 +172,7 @@ uv run python -m hiesir_codebook.correction.autocorrect
 باشد، به‌روز بودن آن را بررسی می‌کند:
 
 ```bash
-uv run python -m hiesir_codebook.correction.autocorrect
+uv run hiesir-codebook autocorrect
 ```
 
 `--check` هر دو را با جدول تعداد خانوارهای گزارش‌دهنده هر کد می‌آزماید:
@@ -187,7 +187,7 @@ uv run python -m hiesir_codebook.correction.autocorrect
 عبور می‌کنند. جدول‌های تعداد خانوار در git هستند، پس یک آزمون این بررسی را در CI
 اجرا می‌کند.
 
-بررسی ساختار (`python -m hiesir_codebook.correction.corrections`) به داده نیازی
+بررسی ساختار (`hiesir-codebook check-structure`) به داده نیازی
 ندارد: فقط از روی CSVها کد دو بار چاپ‌شده، زیرکد یا بخش بی‌ترتیب، سرگروه یا قلم
 بی‌شرح، کد نادرست و قلمی را که کد سرگروهش آن را نمی‌پوشاند پیدا می‌کند.
 پرسشنامه‌های اصلاح‌شده هیچ‌کدام را ندارند. برخی سرگروه‌ها همین‌طور چاپ شده‌اند: زیر
@@ -205,8 +205,8 @@ uv run python -m hiesir_codebook.correction.autocorrect
 کند، کدش عوض شود یا در سالی پرسیده نشود.
 
 ```bash
-uv run python -m hiesir_codebook.linking.chains      # stage 1: output/2_corrected/ -> output/3_items/chains.csv
-uv run python -m hiesir_codebook.linking.relations   # stage 2: chains.csv -> output/3_items/links.csv, relations.csv
+uv run hiesir-codebook chains      # stage 1: output/2_corrected/ -> output/3_items/chains.csv
+uv run hiesir-codebook relations   # stage 2: chains.csv -> output/3_items/links.csv, relations.csv
 ```
 
 تطبیق در دو مرحله انجام می‌شود.
@@ -557,7 +557,7 @@ flowchart RL
   تکه همانی است که برای گلیف‌هایش طرح دارد. پایگاه شکل هر گلیف را همان‌گونه که قلم‌های
   شکل‌دار PDFهای سالم نگاشته‌اند نگه می‌دارد (ﻬ میانی، ﻪ پایانی، ه تنها)، پس
   بازیابی نیم‌فاصله در سال‌های ترمیم‌شده هم کار می‌کند (میوه‌گیری). برای ساختن دوباره پایگاه:
-  `uv run python -m hiesir_codebook.extraction.build_glyph_db`.
+  `uv run hiesir-codebook glyph-db`.
   اگر پایگاه نباشد یا کمتر از ۵۰٪ طرح گلیف‌های یک PDF را بشناسد (در ۱۳۸۳ تا ۱۴۰۳
   بین ۰٫۹۴ و ۱، در ۱۳۸۲ ۰٫۸۲)، استخراج با خطا می‌ایستد: در این حالت هش‌ها دیگر
   جور نیستند (مثلاً پس از تغییری در fontTools) و قلم‌های خراب دیده نمی‌شدند. یک

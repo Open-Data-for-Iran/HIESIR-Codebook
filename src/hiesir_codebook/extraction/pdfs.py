@@ -20,13 +20,14 @@ questionnaires data/pdf/<name> --clobber``) and commit ``data/pdfs.csv``.
 
 from __future__ import annotations
 
-import argparse
 import hashlib
 import re
 import time
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
+
+from cyclopts import App
 
 from .. import DATA_DIR, SUPPORTED_YEARS, csv_io
 
@@ -204,50 +205,92 @@ def rename(folder: Path = PDF_DIR) -> list[tuple[Path, Path]]:
     return done
 
 
-def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(
-        prog="hiesir-codebook pdfs", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    ap.add_argument("action", choices=["download", "verify", "list", "manifest", "rename"])
-    ap.add_argument("years", nargs="*", type=int, help="download: only these years")
-    ap.add_argument("--extracted", action="store_true", help="download: only the years that are extracted")
-    ap.add_argument("--dir", type=Path, default=PDF_DIR, help=f"default: {PDF_DIR.as_posix()}/")
-    ap.add_argument("--manifest", type=Path, default=MANIFEST, help=f"default: {MANIFEST.as_posix()}")
-    args = ap.parse_args(argv)
+cli = App(name="pdfs", help="Download, verify or list the questionnaire PDFs.")
 
-    if args.action == "list":
-        for f in find(args.dir):
-            print(
-                f"{f.year} {f.area or '-':5} {f.kind:10} {f.path.stat().st_size / 2**20:5.1f} MB"
-                f"  {f.path.name}"
-            )
-        return 0
-    if args.action == "rename":
-        for src, dst in rename(args.dir):
-            print(f"{src.name} -> {dst.name}")
-        return 0
-    if args.action == "manifest":
-        entries = write_manifest(args.dir, args.manifest)
-        print(
-            f"{len(entries)} PDFs ({sum(e.bytes for e in entries) / 2**20:.0f} MB)"
-            f" -> {args.manifest.as_posix()}"
-        )
-        return 0
-    entries = load_manifest(args.manifest)
-    if args.action == "verify":
-        problems = verify(args.dir, entries)
-        for p in problems:
-            print(f"    {p}")
-        print(f"{len(entries)} PDFs listed, {len(problems)} problems in {args.dir.as_posix()}/")
-        return 1 if problems else 0
-    if args.years:
-        entries = [e for e in entries if e.year in args.years]
-    if args.extracted:
+
+@cli.command(name="download")
+def download_command(
+    years: list[int] | None = None, *, extracted: bool = False, dir: Path = PDF_DIR, manifest: Path = MANIFEST
+) -> None:
+    """Download the PDFs the list names, each checked against its size and SHA-256.
+
+    Parameters
+    ----------
+    years
+        Only these years.
+    extracted
+        Only the years that are extracted (small).
+    dir
+        Where the PDFs go.
+    manifest
+        The list of the PDFs.
+    """
+    entries = load_manifest(manifest)
+    if years:
+        entries = [e for e in entries if e.year in years]
+    if extracted:
         entries = [e for e in entries if e.kind == "extracted"]
-    fetched = download(entries, args.dir)
-    print(f"{len(fetched)} downloaded, {len(entries) - len(fetched)} already there -> {args.dir.as_posix()}/")
-    return 0
+    fetched = download(entries, dir)
+    print(f"{len(fetched)} downloaded, {len(entries) - len(fetched)} already there -> {dir.as_posix()}/")
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+@cli.command(name="verify")
+def verify_command(*, dir: Path = PDF_DIR, manifest: Path = MANIFEST) -> int:
+    """Check data/pdf/ against the list.
+
+    Parameters
+    ----------
+    dir
+        The folder of PDFs.
+    manifest
+        The list of the PDFs.
+    """
+    entries = load_manifest(manifest)
+    problems = verify(dir, entries)
+    for p in problems:
+        print(f"    {p}")
+    print(f"{len(entries)} PDFs listed, {len(problems)} problems in {dir.as_posix()}/")
+    return 1 if problems else 0
+
+
+@cli.command(name="list")
+def list_command(*, dir: Path = PDF_DIR) -> None:
+    """What data/pdf/ holds.
+
+    Parameters
+    ----------
+    dir
+        The folder of PDFs.
+    """
+    for f in find(dir):
+        print(
+            f"{f.year} {f.area or '-':5} {f.kind:10} {f.path.stat().st_size / 2**20:5.1f} MB  {f.path.name}"
+        )
+
+
+@cli.command(name="manifest")
+def manifest_command(*, dir: Path = PDF_DIR, manifest: Path = MANIFEST) -> None:
+    """Rewrite the list from data/pdf/ (after adding a PDF).
+
+    Parameters
+    ----------
+    dir
+        The folder of PDFs.
+    manifest
+        The list of the PDFs.
+    """
+    entries = write_manifest(dir, manifest)
+    print(f"{len(entries)} PDFs ({sum(e.bytes for e in entries) / 2**20:.0f} MB) -> {manifest.as_posix()}")
+
+
+@cli.command(name="rename")
+def rename_command(*, dir: Path = PDF_DIR) -> None:
+    """Old names ("Questionnaire 1386.pdf") -> release names.
+
+    Parameters
+    ----------
+    dir
+        The folder of PDFs.
+    """
+    for src, dst in rename(dir):
+        print(f"{src.name} -> {dst.name}")

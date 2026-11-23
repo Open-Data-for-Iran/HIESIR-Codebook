@@ -6,12 +6,11 @@ read by the documentation (``scripts/mkdocs_hooks.py``), which writes
 ``{{ links.confirmed }}`` for the number of confirmed links, so the pages
 never quote an out-of-date figure.
 
-    uv run python -m hiesir_codebook.metrics
+    uv run hiesir-codebook metrics
 """
 
 from __future__ import annotations
 
-import argparse
 import json
 import re
 from collections import Counter
@@ -200,12 +199,12 @@ def build(out: Path = OUT, **kwargs) -> Path:
     return out
 
 
-def main(argv: list[str] | None = None) -> None:
-    ap = argparse.ArgumentParser(prog="python -m hiesir_codebook.metrics", description=__doc__)
-    ap.add_argument("--out", type=Path, default=OUT)
-    args = ap.parse_args(argv)
-    print(f"metrics -> {build(args.out).as_posix()}")
+def main(*, out: Path = OUT) -> None:
+    """The figures of the build -> output/metrics.json.
 
-
-if __name__ == "__main__":
-    main()
+    Parameters
+    ----------
+    out
+        Where the figures go.
+    """
+    print(f"metrics -> {build(out).as_posix()}")

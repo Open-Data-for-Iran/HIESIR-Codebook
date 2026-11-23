@@ -85,7 +85,6 @@ already exists or names unknown chains) is reported as stale.
 
 from __future__ import annotations
 
-import argparse
 import difflib
 import itertools
 from collections import Counter
@@ -765,32 +764,52 @@ def write_evidence(relations: list[Relation], chains: list[Chain], occ: Occurren
     return todo
 
 
-def main(argv: list[str] | None = None) -> None:
-    ap = argparse.ArgumentParser(
-        prog="python -m hiesir_codebook.linking.relations",
-        description="Matching stage 2: relations between chains.",
-    )
-    ap.add_argument("--chains", type=Path, default=ITEMS / "chains.csv")
-    ap.add_argument("--out", type=Path, default=ITEMS / "relations.csv")
-    ap.add_argument("--links-out", type=Path, default=ITEMS / "links.csv")
-    ap.add_argument("--decisions", type=Path, default=DECISIONS)
-    ap.add_argument("--link-decisions", type=Path, default=LINK_DECISIONS)
-    ap.add_argument("--reuse-report", type=Path, default=REPORTS / "code_reuse.csv")
-    ap.add_argument("--evidence-report", type=Path, default=REPORTS / "relation_evidence.csv")
-    ap.add_argument("--occurrence", type=Path, default=OCCURRENCE)
-    ap.add_argument("--max-gap", type=int, default=MAX_GAP)
-    args = ap.parse_args(argv)
-    chains = read_chains(args.chains)
-    decisions = load_decisions(args.link_decisions, links=True) + load_decisions(args.decisions, links=False)
-    relations, stale = build_relations(chains, decisions, YEARS, args.max_gap)
-    write_links(relations, args.links_out)
-    write_relations(relations, args.out)
+def main(
+    *,
+    chains: Path = ITEMS / "chains.csv",
+    out: Path = ITEMS / "relations.csv",
+    links_out: Path = ITEMS / "links.csv",
+    decisions: Path = DECISIONS,
+    link_decisions: Path = LINK_DECISIONS,
+    reuse_report: Path = REPORTS / "code_reuse.csv",
+    evidence_report: Path = REPORTS / "relation_evidence.csv",
+    occurrence: Path = OCCURRENCE,
+    max_gap: int = MAX_GAP,
+) -> None:
+    """Matching stage 2: chains.csv -> output/3_items/links.csv and relations.csv.
+
+    Parameters
+    ----------
+    chains
+        The chains of stage 1.
+    out
+        Where the relations go.
+    links_out
+        Where the links go.
+    decisions
+        The curated relation decisions.
+    link_decisions
+        The curated link decisions.
+    reuse_report
+        Codes reused for an unrelated item.
+    evidence_report
+        Household evidence for the relations still to verify.
+    occurrence
+        The household occurrence table (skipped when missing).
+    max_gap
+        Questionnaires a relation may skip.
+    """
+    chain_list = read_chains(chains)
+    curated = load_decisions(link_decisions, links=True) + load_decisions(decisions, links=False)
+    relations, stale = build_relations(chain_list, curated, YEARS, max_gap)
+    write_links(relations, links_out)
+    write_relations(relations, out)
     linked = {(a.id, b.id) for r in relations for a in r.sources for b in r.targets}
-    reused = [p for p in code_reuse(chains, YEARS, args.max_gap) if (p[0].id, p[1].id) not in linked]
-    write_code_reuse(reused, args.reuse_report)
+    reused = [p for p in code_reuse(chain_list, YEARS, max_gap) if (p[0].id, p[1].id) not in linked]
+    write_code_reuse(reused, reuse_report)
     for name, rs, path in (
-        ("links", [r for r in relations if r.is_link], args.link_decisions),
-        ("relations", [r for r in relations if not r.is_link], args.decisions),
+        ("links", [r for r in relations if r.is_link], link_decisions),
+        ("relations", [r for r in relations if not r.is_link], decisions),
     ):
         kinds = Counter(r.relation for r in rs)
         verified = Counter(r.verified for r in rs if r.verified)
@@ -802,19 +821,15 @@ def main(argv: list[str] | None = None) -> None:
             + (", ".join(f"{k} {v}" for k, v in verified.items()) or "0")
             + f", open: {sum(r.decided_by == 'open' for r in rs)}"
         )
-    print(f"code reused for an unrelated item (no relation): {len(reused)} -> {args.reuse_report.as_posix()}")
-    if args.occurrence.exists():
-        todo_ev = write_evidence(relations, chains, load_occurrence(args.occurrence), args.evidence_report)
+    print(f"code reused for an unrelated item (no relation): {len(reused)} -> {reuse_report.as_posix()}")
+    if occurrence.exists():
+        todo_ev = write_evidence(relations, chain_list, load_occurrence(occurrence), evidence_report)
         print(
             "household evidence for those still to verify: "
             + (", ".join(f"{k} {v}" for k, v in todo_ev.most_common()) or "none")
-            + f" -> {args.evidence_report.as_posix()}"
+            + f" -> {evidence_report.as_posix()}"
         )
     for d in stale:
         print(f"stale decision: {d}")
     for problem in conflicts(relations):
         print(f"links and relations disagree: {problem}")
-
-
-if __name__ == "__main__":
-    main()

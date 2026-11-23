@@ -23,14 +23,15 @@ flowchart RL
 GitHub این فایل‌ها را در نمایش تفاوت‌ها جمع می‌کند (`.gitattributes`).
 
 ```bash
+uv run hiesir-codebook --help                # every command, each with its own --help
 uv run hiesir-codebook build                 # regenerate every stage of output/
 uv run hiesir-codebook build --no-extract    # keep 1_extracted/ (no PDFs needed)
-uv run hiesir-codebook pdfs download        # the PDFs from the release, checked against data/pdfs.csv
-uv run hiesir-codebook hazm download        # hazm's word list and data files -> data/hazm/, checked
+uv run hiesir-codebook pdfs download         # the PDFs from the release, checked against data/pdfs.csv
+uv run hiesir-codebook hazm download         # hazm's word list and data files -> data/hazm/, checked
 uv run hiesir-codebook extract               # just extract: PDFs -> output/1_extracted/ (reports in reports/)
 uv run hiesir-codebook extract 1383 1403     # or just some years
-uv run python -m hiesir_codebook.correction.correct --check   # correct and check against the raw data
-uv run python -m hiesir_codebook.correction.corrections         # check the corrected CSVs from the CSVs alone
+uv run hiesir-codebook correct --check       # correct and check against the raw data
+uv run hiesir-codebook check-structure       # check the corrected CSVs from the CSVs alone
 ```
 
 ## اصلاح داده‌ها {#fixing-the-data}
@@ -68,7 +69,7 @@ uv run ruff check . && uv run ruff format --check .
 کد، `uv run hiesir-codebook build --no-extract` را اجرا و تفاوت‌ها را بازبینی
 کنید. آزمون‌هایی که به PDFها نیاز دارند، وقتی `data/pdf/` نباشد رد می‌شوند؛ در
 GitHub گردش‌کار آن‌ها را از انتشار دانلود می‌کند و جدول‌های تعداد خانوار در git
-هستند، پس همه آزمون‌ها آنجا اجرا می‌شوند. `python -m hiesir_codebook.correction.corrections`
+هستند، پس همه آزمون‌ها آنجا اجرا می‌شوند. `hiesir-codebook check-structure`
 ساختار CSVهای اصلاح‌شده را فقط از خود CSVها بررسی می‌کند (کد تکراری، ترتیب
 زیرکد و بخش، شرح خالی، قلم بیرون از سرگروهش؛ یک آزمون هم آن را اجرا می‌کند).
 

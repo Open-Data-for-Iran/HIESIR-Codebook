@@ -125,8 +125,8 @@ printed one way. It holds {{ canonical.total }} variants, which change
 with hazm's data downloaded; a second run finds what the first did:
 
 ```bash
-uv run python -m hiesir_codebook.correction.canonical
-uv run python -m hiesir_codebook.correction.autocorrect
+uv run hiesir-codebook canonical
+uv run hiesir-codebook autocorrect
 ```
 
 Then the words: `output/2_corrected/autocorrect/canonical_words.csv` applies to
@@ -180,7 +180,7 @@ downloaded (`uv run hiesir-codebook hazm download`); a test checks it is up to
 date where the data is there:
 
 ```bash
-uv run python -m hiesir_codebook.correction.autocorrect
+uv run hiesir-codebook autocorrect
 ```
 
 `--check` tests both against the household occurrence table:
@@ -195,7 +195,7 @@ uv run python -m hiesir_codebook.correction.autocorrect
 All corrections are backed by the data, and every year from 1383 to 1403
 passes. The occurrence tables are in git, so a test runs this check in CI.
 
-The structure check (`python -m hiesir_codebook.correction.corrections`) needs
+The structure check (`hiesir-codebook check-structure`) needs
 no data: from the CSVs alone it finds codes printed twice, sub-codes or
 sections out of order, headers or items without text, malformed codes, and
 items that their header's code does not cover. The corrected questionnaires
@@ -214,8 +214,8 @@ twice, the header 062 M; 1384: 102216).
 changes slightly, its code changes, or it is missing from a year.
 
 ```bash
-uv run python -m hiesir_codebook.linking.chains      # stage 1: output/2_corrected/ -> output/3_items/chains.csv
-uv run python -m hiesir_codebook.linking.relations   # stage 2: chains.csv -> output/3_items/links.csv, relations.csv
+uv run hiesir-codebook chains      # stage 1: output/2_corrected/ -> output/3_items/chains.csv
+uv run hiesir-codebook relations   # stage 2: chains.csv -> output/3_items/links.csv, relations.csv
 ```
 
 Matching runs in two stages.
@@ -585,7 +585,7 @@ across years, to `output/3_items/` and `output/4_groups/`).
   outlines for its glyphs. The database keeps each glyph's
   form as the clean PDFs' shaped fonts map it (ﻬ medial, ﻪ final, ه isolated), so
   the ZWNJ recovery works in the repaired years too (میوه‌گیری). To rebuild the database:
-  `uv run python -m hiesir_codebook.extraction.build_glyph_db`. The extraction
+  `uv run hiesir-codebook glyph-db`. The extraction
   stops with an error when the database is missing, or knows under 50% of a
   PDF's glyph outlines (0.94–1.0 in 1383–1403, 0.82 in 1382): then the hashes no
   longer match, for example after a fontTools change, and broken fonts would go

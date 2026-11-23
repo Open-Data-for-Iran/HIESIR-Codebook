@@ -23,14 +23,15 @@ that each change shows up as a diff, and the tests fail when a stage is out
 of date; GitHub folds these files in diffs (`.gitattributes`).
 
 ```bash
+uv run hiesir-codebook --help                # every command, each with its own --help
 uv run hiesir-codebook build                 # regenerate every stage of output/
 uv run hiesir-codebook build --no-extract    # keep 1_extracted/ (no PDFs needed)
-uv run hiesir-codebook pdfs download        # the PDFs from the release, checked against data/pdfs.csv
-uv run hiesir-codebook hazm download        # hazm's word list and data files -> data/hazm/, checked
+uv run hiesir-codebook pdfs download         # the PDFs from the release, checked against data/pdfs.csv
+uv run hiesir-codebook hazm download         # hazm's word list and data files -> data/hazm/, checked
 uv run hiesir-codebook extract               # just extract: PDFs -> output/1_extracted/ (reports in reports/)
 uv run hiesir-codebook extract 1383 1403     # or just some years
-uv run python -m hiesir_codebook.correction.correct --check   # correct and check against the raw data
-uv run python -m hiesir_codebook.correction.corrections         # check the corrected CSVs from the CSVs alone
+uv run hiesir-codebook correct --check       # correct and check against the raw data
+uv run hiesir-codebook check-structure       # check the corrected CSVs from the CSVs alone
 ```
 
 ## Fixing the data
@@ -67,7 +68,7 @@ and `output/4_groups/` are up to date; after changing `curated/` or the code, ru
 `uv run hiesir-codebook build --no-extract` and review the diff. Tests that
 need the PDFs are skipped when `data/pdf/` is missing; on GitHub the workflow
 downloads them from the release, and the occurrence tables are in git, so
-every test runs there. `python -m hiesir_codebook.correction.corrections`
+every test runs there. `hiesir-codebook check-structure`
 checks the corrected CSVs from the CSVs alone (duplicate codes, sub-code and
 section order, empty texts, items outside their header; a test runs it too).
 

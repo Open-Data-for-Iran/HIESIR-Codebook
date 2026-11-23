@@ -48,7 +48,6 @@ Output (``output/4_groups/``):
 
 from __future__ import annotations
 
-import argparse
 import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
@@ -407,44 +406,49 @@ def write_links(links: list[GroupLink], path: Path) -> None:
             )
 
 
-def main(argv: list[str] | None = None) -> None:
-    ap = argparse.ArgumentParser(
-        prog="python -m hiesir_codebook.linking.groups", description="Group headers across years."
-    )
-    ap.add_argument(
-        "--source", type=Path, default=CORRECTED, help="yearly CSVs (default: output/2_corrected/)"
-    )
-    ap.add_argument(
-        "--items", type=Path, default=ITEMS, help="chains, links, relations (default: output/3_items/)"
-    )
-    ap.add_argument("--out", type=Path, default=GROUPS, help="output folder (default: output/4_groups/)")
-    ap.add_argument("--decisions", type=Path, default=DECISIONS)
-    ap.add_argument("--max-gap", type=int, default=MAX_GAP)
-    args = ap.parse_args(argv)
-    rows = {y: _read(args.source / f"questionnaire_{y}.csv") for y in YEARS}
-    groups, placement = build_groups(rows, args.max_gap)
+def main(
+    *,
+    source: Path = CORRECTED,
+    items: Path = ITEMS,
+    out: Path = GROUPS,
+    decisions: Path = DECISIONS,
+    max_gap: int = MAX_GAP,
+) -> None:
+    """Group headers across years -> output/4_groups/.
+
+    Parameters
+    ----------
+    source
+        The yearly CSVs.
+    items
+        The folder with chains.csv, links.csv and relations.csv.
+    out
+        Where groups.csv, members.csv and links.csv go.
+    decisions
+        The curated group decisions.
+    max_gap
+        Questionnaires a group may skip.
+    """
+    rows = {y: _read(source / f"questionnaire_{y}.csv") for y in YEARS}
+    groups, placement = build_groups(rows, max_gap)
     steps = item_steps(
-        read_chains(args.items / "chains.csv"),
-        read_links(args.items / "links.csv"),
-        read_relations(args.items / "relations.csv"),
+        read_chains(items / "chains.csv"),
+        read_links(items / "links.csv"),
+        read_relations(items / "relations.csv"),
     )
-    links, stale = build_links(groups, placement, steps, load_decisions(args.decisions))
-    write_groups(groups, args.out / "groups.csv")
-    write_members(placement, args.out / "members.csv")
-    write_links(links, args.out / "links.csv")
+    links, stale = build_links(groups, placement, steps, load_decisions(decisions))
+    write_groups(groups, out / "groups.csv")
+    write_members(placement, out / "members.csv")
+    write_links(links, out / "links.csv")
     kinds = Counter(lk.relation for lk in links)
     verified = Counter(lk.verified for lk in links if lk.verified)
     print(
         f"{len(groups)} groups, {len(links)} group links ("
         + ", ".join(f"{k} {v}" for k, v in kinds.most_common())
         + f"): decided by the code {sum(lk.decided_by == 'code' for lk in links)}, "
-        + f"in {args.decisions.as_posix()}: "
+        + f"in {decisions.as_posix()}: "
         + (", ".join(f"{k} {v}" for k, v in verified.items()) or "0")
         + f", open: {sum(lk.decided_by == 'open' for lk in links)}"
     )
     for d in stale:
         print(f"stale group decision: {d}")
-
-
-if __name__ == "__main__":
-    main()

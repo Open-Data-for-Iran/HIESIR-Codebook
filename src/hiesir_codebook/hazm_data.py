@@ -29,13 +29,13 @@ and put their sizes and hashes in ``FILES`` (``hazm list`` prints them).
 
 from __future__ import annotations
 
-import argparse
 import time
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
 import polars as pl
+from cyclopts import App
 
 from . import DATA_DIR
 from .extraction.pdfs import sha256
@@ -213,38 +213,56 @@ def verbs_list(folder: Path = HAZM_DIR) -> list[str]:
     return _lines("verbs.dat", folder)
 
 
-def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(
-        prog="hiesir-codebook hazm", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    ap.add_argument("action", choices=["download", "verify", "list"])
-    ap.add_argument("--dir", type=Path, default=HAZM_DIR, help=f"default: {HAZM_DIR.as_posix()}/")
-    args = ap.parse_args(argv)
+cli = App(name="hazm", help="Download, verify or list hazm's word list and data.")
 
-    if args.action == "list":
-        for f in FILES:
-            path = args.dir / f.name
-            state = check(f, path) or "ok"
-            print(f"{f.name:18} {f.bytes:>9} bytes  {f.sha256}  {state:8} {f.what}")
-        print(f"hazm {HAZM_VERSION}: {HAZM_URL}")
-        return 0
-    if args.action == "verify":
-        problems = verify(args.dir)
-        for p in problems:
-            print(f"    {p}")
-        print(f"{len(FILES)} hazm files listed, {len(problems)} problems in {args.dir.as_posix()}/")
-        return 1 if problems else 0
+
+@cli.command(name="download")
+def download_command(*, dir: Path = HAZM_DIR) -> int:
+    """Download hazm's data files, each checked against its size and SHA-256.
+
+    Parameters
+    ----------
+    dir
+        Where the files go.
+    """
     try:
-        fetched = download(args.dir)
+        fetched = download(dir)
     except HazmDataError as e:
         print(e)
         return 1
     print(
         f"hazm {HAZM_VERSION}: {len(fetched)} downloaded, {len(FILES) - len(fetched)} already there"
-        f" -> {args.dir.as_posix()}/"
+        f" -> {dir.as_posix()}/"
     )
     return 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+@cli.command(name="verify")
+def verify_command(*, dir: Path = HAZM_DIR) -> int:
+    """Check data/hazm/ against the list.
+
+    Parameters
+    ----------
+    dir
+        The folder of hazm's files.
+    """
+    problems = verify(dir)
+    for p in problems:
+        print(f"    {p}")
+    print(f"{len(FILES)} hazm files listed, {len(problems)} problems in {dir.as_posix()}/")
+    return 1 if problems else 0
+
+
+@cli.command(name="list")
+def list_command(*, dir: Path = HAZM_DIR) -> None:
+    """What each file holds, with its size, hash and state.
+
+    Parameters
+    ----------
+    dir
+        The folder of hazm's files.
+    """
+    for f in FILES:
+        state = check(f, dir / f.name) or "ok"
+        print(f"{f.name:18} {f.bytes:>9} bytes  {f.sha256}  {state:8} {f.what}")
+    print(f"hazm {HAZM_VERSION}: {HAZM_URL}")
