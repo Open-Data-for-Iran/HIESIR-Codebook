@@ -59,7 +59,7 @@ Fast tests also check that `output/2_corrected/`, `output/3_items/`,
 and `output/4_groups/` are up to date; after changing `curated/` or the code, run
 `uv run hiesir-codebook build --no-extract` and review the diff. Tests that
 need the PDFs are skipped when `data/pdf/` is missing; on GitHub the workflow
-downloads them from the release, and the occurrence tables are in git, so
+downloads them from the release, and the code usage table is in git, so
 every test runs there. `hiesir-codebook check-structure`
 checks the corrected CSVs from the CSVs alone (duplicate codes, sub-code and
 section order, empty texts, items outside their header; a test runs it too).

@@ -11,9 +11,9 @@ wheels/
 
 # Input data: the PDFs are not in git (a GitHub release holds them, and
 # data/pdfs.csv lists them with their size and hash); the household
-# occurrence tables are, so the raw-data checks run in CI
+# code usage table is, so the raw-data checks run in CI
 /data/*
-!/data/commodity_code_occurrence_*.csv
+!/data/code_usage.csv
 !/data/pdfs.csv
 
 # review aids written by the build (label check, code reuse, relation evidence)

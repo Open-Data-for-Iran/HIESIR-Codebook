@@ -195,13 +195,15 @@ def test_curated_notes_match_evidence():
 
     from hiesir_codebook.linking.chains import read_chains
     from hiesir_codebook.linking.relations import build_relations, evidence, load_decisions
-    from hiesir_codebook.occurrence import load_occurrence
+    from hiesir_codebook.usage import load_occurrence
 
     root = Path(__file__).resolve().parents[1]
-    path = root / "data" / "commodity_code_occurrence_1383-1403.csv"
+    path = root / "data" / "code_usage.csv"
     if not path.exists():
         pytest.skip(f"no {path.name} in data/ (not in git)")
-    occ = load_occurrence(path)
+    from hiesir_codebook.linking.compare import YEARS as SURVEY_YEARS
+
+    occ = {y: v for y, v in load_occurrence(path).items() if y in SURVEY_YEARS}  # as relations reads it
     chains = read_chains(root / "output" / "3_items" / "chains.csv")
     curated = root / "curated" / "3_items"
     decisions = load_decisions(curated / "links.csv") + load_decisions(curated / "relations.csv")

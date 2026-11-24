@@ -232,14 +232,13 @@ def test_spelling_rows_need_a_reason_and_a_known_match(tmp_path):
 
 def test_corrected_codes_agree_with_the_raw_data(capsys):
     """Every code households report (5 or more) is printed, none twice, and
-    the raw data supports every code-level correction.  Needs the occurrence
-    table (data/, downloaded in CI)."""
+    the raw data supports every code-level correction.  Needs the code
+    usage table (data/code_usage.csv, in git)."""
     from hiesir_codebook.correction.corrections import check_occurrence, load_corrections, verify
-    from hiesir_codebook.occurrence import occurrence_files
 
-    path = occurrence_files(ROOT / "data")
-    if len(path) < 2:
-        pytest.skip("no occurrence tables in data/")
+    path = ROOT / "data" / "code_usage.csv"
+    if not path.exists():
+        pytest.skip("no data/code_usage.csv")
     years = SUPPORTED_YEARS
     contradicted = verify(
         load_corrections(ROOT / "curated" / "2_corrected" / "corrections.csv"),

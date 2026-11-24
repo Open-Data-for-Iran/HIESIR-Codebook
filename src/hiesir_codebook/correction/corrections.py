@@ -50,7 +50,7 @@ checks it.  In ``output/1_extracted/`` the findings are the print errors that
 ``corrections.csv`` fixes (1386: 041211-041213 and 073611 printed twice, the
 header 062 M; 1384: 102216), which a test checks too.
 
-Against the household occurrence tables (``data/commodity_code_occurrence_*.csv``),
+Against the code usage table (``data/code_usage.csv``),
 :func:`verify` gives the evidence for each correction and
 :func:`check_occurrence` the codes that households report but the
 questionnaire lacks, or the reverse (``correct --check``).
@@ -66,7 +66,7 @@ import polars as pl
 
 from .. import CORRECTED, CURATED_CORRECTED, SUPPORTED_YEARS, csv_io
 from ..extraction.parse import LAST_OLD_SCHEME_YEAR, header_level
-from ..occurrence import load_occurrence
+from ..usage import load_occurrence
 from ..utils import collapse_whitespace, parse_years
 
 CORRECTIONS = CURATED_CORRECTED / "corrections.csv"
@@ -353,9 +353,7 @@ def check_structure(
 # --- against the raw data --------------------------------------------------------
 
 
-def check_occurrence(
-    years: Iterable[int], corrected: Path, occurrence: Path | list[Path], min_households: int = 5
-) -> int:
+def check_occurrence(years: Iterable[int], corrected: Path, occurrence: Path, min_households: int = 5) -> int:
     """Print codes that disagree with the raw data; return the number of
     years with a code reported by households but missing from the
     questionnaire (the strong signal of a typo or an extraction miss)."""
@@ -388,7 +386,7 @@ def check_occurrence(
     return bad
 
 
-def verify(corrections: list[Correction], extracted: Path, occurrence: Path | list[Path]) -> int:
+def verify(corrections: list[Correction], extracted: Path, occurrence: Path) -> int:
     """Print the household evidence for each code-level correction; return
     the number that the raw data contradicts (a recode to a code nobody
     reports, a deleted or copied item that households do / do not report)."""

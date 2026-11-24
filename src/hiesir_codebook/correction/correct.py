@@ -30,8 +30,8 @@ decision always wins.
 The ``autocorrect`` command (:mod:`.words`) writes ``canonical.csv`` and
 ``words.csv`` from this same table; ``metrics`` counts what each column changes.
 
-``--check`` adds the household occurrence tables
-(``data/commodity_code_occurrence_*.csv``, 1383-1403): the evidence for each
+``--check`` adds the code usage table
+(``data/code_usage.csv``): the evidence for each
 correction, and the codes reported by households but missing from the
 questionnaire, or printed but never reported.
 """
@@ -40,13 +40,12 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import Annotated, NamedTuple
+from typing import NamedTuple
 
 import polars as pl
-from cyclopts import Parameter
 
 from .. import CORRECTED, CSV_COLUMNS, EXTRACTED, SUPPORTED_YEARS, csv_io
-from ..occurrence import occurrence_files
+from ..usage import CODE_USAGE
 from .corrections import CORRECTIONS, check_occurrence, corrected_questionnaires, load_corrections, verify
 from .fixes import CANONICAL, SPELLING, WORDS, Fix, Fixes, read_spelling
 from .rules import house_style
@@ -166,7 +165,7 @@ def main(
     corrections: Path = CORRECTIONS,
     spelling: Path = SPELLING,
     check: bool = False,
-    occurrence: Annotated[list[Path] | None, Parameter(consume_multiple=True)] = None,
+    usage: Path = CODE_USAGE,
 ) -> int:
     """Apply curated/2_corrected/ to output/1_extracted/ -> output/2_corrected/.
 
@@ -181,12 +180,11 @@ def main(
     spelling
         The spelling fixes.
     check
-        Also compare with the household occurrence tables; fails when the raw data
+        Also compare with the code usage table; fails when the raw data
         contradicts a correction or a corrected questionnaire.
-    occurrence
-        The household occurrence tables (default: data/commodity_code_occurrence_*.csv).
+    usage
+        The code usage table.
     """
-    occurrence = occurrence or occurrence_files()
     df = correct(SUPPORTED_YEARS, extracted, out, corrections, spelling)
     fixes = load_corrections(corrections)
     by_year = {y: sum(c.year == y for c in fixes) for y in SUPPORTED_YEARS}
@@ -208,7 +206,7 @@ def main(
     if not check:
         return 0
     print("\nEvidence for each correction (households reporting the code):")
-    contradicted = verify(fixes, extracted, occurrence)
+    contradicted = verify(fixes, extracted, usage)
     print("\nCorrected questionnaires against the raw data:")
-    failed = check_occurrence(SUPPORTED_YEARS, out, occurrence)
+    failed = check_occurrence(SUPPORTED_YEARS, out, usage)
     return 1 if contradicted or failed else 0

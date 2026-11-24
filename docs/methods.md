@@ -211,7 +211,7 @@ uv run hiesir-codebook autocorrect
 ```
 
 `hiesir-codebook correct --check` tests the corrections and the corrected
-questionnaires against the household occurrence table:
+questionnaires against the code usage table:
 
 - each correction: a recoded item's new code must be reported by households
   that year, a deleted item's code must not be, and every item copied into a
@@ -221,7 +221,7 @@ questionnaires against the household occurrence table:
   extraction miss.
 
 All corrections are backed by the data, and every year from 1383 to 1403
-passes. The occurrence tables are in git, so a test runs this check in CI.
+passes. The code usage table is in git, so a test runs this check in CI.
 
 The structure check (`hiesir-codebook check-structure`) needs
 no data: from the CSVs alone it finds codes printed twice, sub-codes or
@@ -359,8 +359,8 @@ link or relation, named by its chains:
 | `note` | why |
 | `agent` | who decided: the person, or the AI model and its effort |
 
-The 1 → 1 decisions were checked against the household occurrence table
-(`data/commodity_code_occurrence_1383-1403.csv`). The note gives the
+The 1 → 1 decisions were checked against the code usage table
+(`data/code_usage.csv`). The note gives the
 households reporting the old code in the year before the change and the new
 code in the year of the change, as a ratio relative to the other codes of the
 same group, so that survey-wide swings such as 1387 or the 1399 COVID year
@@ -613,8 +613,8 @@ across years, to `output/3_items/` and `output/4_groups/`).
   apart into letters. In every year they are the landscape income tables after
   the expenditure part.
 - `correct.py` reads every questionnaire of `output/1_extracted/` into one
-  polars table and, with `--check`, tests the result against the household
-  occurrence table. `corrections.py` first applies
+  polars table and, with `--check`, tests the result against the code
+  usage table. `corrections.py` first applies
   `curated/2_corrected/corrections.csv` (codes, rows, sections) and holds the
   structure check, with `curated/2_corrected/header_exceptions.csv` (see
   [Corrections](#corrections)). Then each description goes through the label
@@ -641,8 +641,8 @@ across years, to `output/3_items/` and `output/4_groups/`).
   follows the group headers.
 - `pdfs.py` lists the PDFs in `data/pdfs.csv` (name, year, form, size,
   SHA-256), downloads them from the release and checks a copy against it.
-- `occurrence.py` reads the household occurrence tables
-  (`data/commodity_code_occurrence_*.csv`) for `correct.py` and `relations.py`.
+- `usage.py` reads the code usage table
+  (`data/code_usage.csv`) for `correct.py` and `relations.py`.
 - `csv_io.py` reads and writes every CSV the same way: UTF-8 with a BOM (so
   Excel shows the Persian text), LF line endings, every field a string (so a
   code keeps its leading zero).

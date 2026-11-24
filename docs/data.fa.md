@@ -49,7 +49,7 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 
 | پوشه | محتوا | در git | ویرایش توسط |
 |---|---|---|---|
-| `data/` | ورودی‌های بیرونی: فایل‌های PDF و جدول‌های تعداد خانوارهای گزارش‌دهنده هر کد | جدول‌های تعداد خانوار و `pdfs.csv` (PDFها در یک انتشار GitHub‌اند) | هیچ‌کس (فقط جایگزین می‌شود) |
+| `data/` | ورودی‌های بیرونی: فایل‌های PDF و جدول تعداد خانوارهای گزارش‌دهنده هر کد | جدول تعداد خانوار و `pdfs.csv` (PDFها در یک انتشار GitHub‌اند) | هیچ‌کس (فقط جایگزین می‌شود) |
 | `curated/` | تصمیم‌های دستی: `2_corrected/` (`corrections.csv`: اصلاح اقلام و سرگروه‌ها؛ `spelling.csv`؛ `words.csv`: واژه‌هایی که hazm ندارد؛ `header_exceptions.csv`)، `3_items/` (`links.csv`، `relations.csv`) و `4_groups/` (`links.csv`): تصمیم‌های پوشه هم‌نام در `output/` | بله | افراد |
 | `output/` | خروجی همه مراحل: `1_extracted/`، `2_corrected/`، `3_items/`، `4_groups/` و `metrics.json` (اعداد ساخت، که همین صفحه‌ها نقل می‌کنند) | بله | فقط برنامه |
 | `reports/` | کمک‌های بازبینی: `relation_evidence.csv` (تعداد خانوارهای پشت هر پیوند و رابطه) و `code_reuse.csv` (کدهایی که برای قلم دیگری به کار رفته‌اند) | خیر | فقط برنامه |
@@ -107,14 +107,18 @@ Data → From Text/CSV استفاده کنید و نوع این ستون‌ها 
 
 فایل‌های PDF در git نیستند (`.gitignore` را ببینید؛ انتشار `questionnaires` آن‌ها را نگه می‌دارد،
 `data/pdfs.csv` آن‌ها را با حجم و SHA-256 فهرست می‌کند و `hiesir-codebook pdfs download`
-آن‌ها را دانلود و بررسی می‌کند) و دو جدول تعداد خانوار در git هستند. همه انتظار می‌رود در `data/` باشند:
+آن‌ها را دانلود و بررسی می‌کند) و جدول تعداد خانوار در git است. همه انتظار می‌رود در `data/` باشند:
 
 ```
 data/
   pdf/questionnaire_<year>[_urban|_rural].pdf
   pdfs.csv
-  commodity_code_occurrence_1363-1382.csv
-  commodity_code_occurrence_1383-1403.csv
+  code_usage.csv
 ```
+
+جدول تعداد خانوار در قالب بلند است، یک سطر برای هر سال و کد (۱۳۶۳ تا ۱۴۰۳):
+`year`، `expenditure_code` (عدد، همان‌طور که داده‌های خام ذخیره می‌کنند: `11111`)،
+`occurrence` (تعداد خانوارهایی که آن را گزارش کرده‌اند) و `expenditure_share` (درصد آن از
+هزینه‌های آن سال؛ ممکن است خالی باشد).
 
 با `--data <folder>` می‌توانید پوشه دیگری را به برنامه معرفی کنید.

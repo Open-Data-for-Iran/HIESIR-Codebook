@@ -23,9 +23,9 @@ def test_options_reach_the_function():
     from pathlib import Path
 
     _, bound, _ = app.parse_args(
-        ["correct", "--check", "--occurrence", "a.csv", "b.csv"], print_error=False, exit_on_error=False
+        ["correct", "--check", "--usage", "a.csv"], print_error=False, exit_on_error=False
     )
-    assert bound.kwargs == {"check": True, "occurrence": [Path("a.csv"), Path("b.csv")]}
+    assert bound.kwargs == {"check": True, "usage": Path("a.csv")}
     _, bound, _ = app.parse_args(["build", "--no-extract"], print_error=False, exit_on_error=False)
     assert bound.kwargs == {"no_extract": True}
     _, bound, _ = app.parse_args(["pdfs", "download", "1386", "1390"], print_error=False, exit_on_error=False)

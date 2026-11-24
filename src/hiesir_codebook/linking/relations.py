@@ -102,7 +102,7 @@ from functools import cache
 from pathlib import Path
 
 from .. import CURATED_ITEMS, ITEMS, REPORTS, csv_io
-from ..occurrence import OCCURRENCE, Occurrence, load_occurrence
+from ..usage import CODE_USAGE, Occurrence, load_occurrence
 from ..utils import loose_key, words
 from .chains import Chain, read_chains
 from .compare import MAX_GAP, YEARS, compare, contained, is_etc, relate, split_qualifier
@@ -807,7 +807,7 @@ def main(
     link_decisions: Path = LINK_DECISIONS,
     reuse_report: Path = REPORTS / "code_reuse.csv",
     evidence_report: Path = REPORTS / "relation_evidence.csv",
-    occurrence: Path = OCCURRENCE,
+    usage: Path = CODE_USAGE,
     max_gap: int = MAX_GAP,
 ) -> None:
     """Matching stage 2: chains.csv -> output/3_items/links.csv and relations.csv.
@@ -830,8 +830,8 @@ def main(
         Codes reused for an unrelated item.
     evidence_report
         Household evidence for the relations still to verify.
-    occurrence
-        The household occurrence table (skipped when missing).
+    usage
+        The code usage table (skipped when missing).
     max_gap
         Questionnaires a relation may skip.
     """
@@ -861,8 +861,10 @@ def main(
         )
     print(f"the code's suggestions, before the decisions -> {suggested.as_posix()}/")
     print(f"code reused for an unrelated item (no relation): {len(reused)} -> {reuse_report.as_posix()}")
-    if occurrence.exists():
-        todo_ev = write_evidence(relations, chain_list, load_occurrence(occurrence), evidence_report)
+    if usage.exists():
+        # only the years compared: 1382 is no year before 1383 (other codes)
+        occ = {y: v for y, v in load_occurrence(usage).items() if y in YEARS}
+        todo_ev = write_evidence(relations, chain_list, occ, evidence_report)
         print(
             "household evidence for those still to verify: "
             + (", ".join(f"{k} {v}" for k, v in todo_ev.most_common()) or "none")
