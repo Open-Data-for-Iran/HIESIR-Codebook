@@ -1,7 +1,14 @@
 import polars as pl
 import pytest
 
-from hiesir_codebook.usage import SCHEMA, load_occurrence, load_share, read_usage
+from hiesir_codebook.usage import (
+    SCHEMA,
+    correct_codes,
+    load_code_corrections,
+    load_occurrence,
+    load_share,
+    read_usage,
+)
 
 HEADER = "year,expenditure_code,occurrence,expenditure_share\n"
 
@@ -47,3 +54,18 @@ def test_a_count_that_is_not_a_whole_number_is_refused(tmp_path):
     path = _table(tmp_path, HEADER + "1383,11111,12.5,\n")
     with pytest.raises(pl.exceptions.ComputeError):
         read_usage(path)
+
+
+def test_wrong_data_codes_move_their_households(tmp_path):
+    path = tmp_path / "code_corrections.csv"
+    text = "year,data_code,expenditure_code,reason\n1383,231,023111,group code 0231\n1388,45415,,noise\n"
+    path.write_text(text, encoding="utf-8")
+    fixes = load_code_corrections(path)
+    assert fixes == {1383: {231: 23111}, 1388: {45415: None}}
+    occ = {1383: {231: 172, 22111: 2449}, 1384: {231: 5, 23111: 429}, 1388: {45414: 83, 45415: 1}}
+    assert correct_codes(occ, fixes) == {
+        1383: {22111: 2449, 23111: 172},
+        1384: {231: 5, 23111: 429},
+        1388: {45414: 83},
+    }
+    assert load_code_corrections(tmp_path / "none.csv") == {}

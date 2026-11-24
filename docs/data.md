@@ -50,7 +50,7 @@ suggested before any decision is in `suggested/`, with the same ids.
 | Folder | Content | In git | Edited by |
 |---|---|---|---|
 | `data/` | external inputs: the PDFs, the code usage table | the code usage table and `pdfs.csv` (the PDFs are in a GitHub release) | nobody (only replaced) |
-| `curated/` | hand-kept decisions: `2_corrected/` (`corrections.csv`: item and header fixes; `spelling.csv`; `words.csv`: words hazm lacks; `header_exceptions.csv`), `3_items/` (`links.csv`, `relations.csv`) and `4_groups/` (`links.csv`): the decisions for the `output/` folder of the same name | yes | people |
+| `curated/` | hand-kept decisions: `2_corrected/` (`corrections.csv`: item and header fixes; `spelling.csv`; `words.csv`: words hazm lacks; `header_exceptions.csv`), `3_items/` (`links.csv`, `relations.csv`), `4_groups/` (`links.csv`): the decisions for the `output/` folder of the same name; `data/` (`code_corrections.csv`): wrong codes in the raw data, kept for later | yes | people |
 | `output/` | every stage's result: `1_extracted/`, `2_corrected/`, `3_items/`, `4_groups/` and `metrics.json` (the figures of the build, which these pages quote) | yes | the pipeline only |
 | `reports/` | review aids: `relation_evidence.csv` (household counts behind each link and relation) and `code_reuse.csv` (codes reused for another item) | no | the pipeline only |
 

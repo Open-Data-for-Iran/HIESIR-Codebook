@@ -66,7 +66,7 @@ import polars as pl
 
 from .. import CORRECTED, CURATED_CORRECTED, SUPPORTED_YEARS, csv_io
 from ..extraction.parse import LAST_OLD_SCHEME_YEAR, header_level
-from ..usage import load_occurrence
+from ..usage import correct_codes, load_code_corrections, load_occurrence
 from ..utils import collapse_whitespace, parse_years
 
 CORRECTIONS = CURATED_CORRECTED / "corrections.csv"
@@ -357,7 +357,7 @@ def check_occurrence(years: Iterable[int], corrected: Path, occurrence: Path, mi
     """Print codes that disagree with the raw data; return the number of
     years with a code reported by households but missing from the
     questionnaire (the strong signal of a typo or an extraction miss)."""
-    occ = load_occurrence(occurrence)
+    occ = correct_codes(load_occurrence(occurrence), load_code_corrections())
     bad = 0
     for year in years:
         if year not in occ:
@@ -390,7 +390,7 @@ def verify(corrections: list[Correction], extracted: Path, occurrence: Path) -> 
     """Print the household evidence for each code-level correction; return
     the number that the raw data contradicts (a recode to a code nobody
     reports, a deleted or copied item that households do / do not report)."""
-    occ = load_occurrence(occurrence)
+    occ = correct_codes(load_occurrence(occurrence), load_code_corrections())
 
     def n(year: int, code: str) -> int:
         return occ.get(year, {}).get(int(code), 0)

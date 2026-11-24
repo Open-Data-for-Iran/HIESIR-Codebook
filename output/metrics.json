@@ -1,9 +1,9 @@
 {
   "questionnaires": {
     "years": 20,
-    "items": 21821,
+    "items": 21822,
     "items_by_year": {
-      "1383": 1238,
+      "1383": 1239,
       "1384": 1281,
       "1385": 1286,
       "1386": 1083,
@@ -26,17 +26,16 @@
     }
   },
   "corrections": {
-    "total": 29,
+    "total": 28,
     "years": "1383–1390",
     "add_section": 1,
-    "delete": 1,
     "recode": 10,
     "recode_header": 4,
     "retext": 12,
     "retext_header": 1
   },
   "labels": {
-    "total": 26961,
+    "total": 26964,
     "canonical": 3179,
     "punctuation": 2874,
     "spelling": 255,

@@ -25,6 +25,7 @@ GROUPS = OUTPUT / "4_groups"  # group headers across years (+ curated/4_groups/)
 CURATED_CORRECTED = CURATED / "2_corrected"  # corrections.csv, spelling.csv
 CURATED_ITEMS = CURATED / "3_items"  # links.csv, relations.csv
 CURATED_GROUPS = CURATED / "4_groups"  # links.csv
+CURATED_DATA = CURATED / "data"  # code_corrections.csv: wrong codes in the raw data
 
 # the years in the codebook: those whose PDF has a usable text layer (1363-1381
 # are scans; the 1401 PDF is a data dictionary, not the questionnaire), but 1382,

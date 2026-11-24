@@ -43,8 +43,9 @@ The {{ corrections.total }} corrections, all in {{ corrections.years }}, are of 
 - **Cut-off endings:** three section 14 labels (34170, 34250, 34261) in
   1383–1384.
 - **A missing section:** section 2 (tobacco), whose page is blank in the
-  1383 PDF, is copied from 1384 without 023111, which no household reports
-  in 1383.
+  1383 PDF, is copied from 1384. The 1383 raw data stores 023111 as 231
+  (its group code 0231 without the leading zero), a wrong code in the data
+  kept in `curated/data/code_corrections.csv`.
 - **Group headers:** `062 M` printed for `0562 M` (1386), the dental header
   0622 printed with the label of 0621 (1386), and `124 M` printed as
   `1241 M` (1388–1390).

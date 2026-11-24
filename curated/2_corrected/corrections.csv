@@ -1,6 +1,5 @@
 ﻿year,action,expenditure_code,description,value,reason
 1383,add_section,,2,1384,Page 14 of the 1383 PDF (section 2: other beverages and tobacco) is blank. Copied from 1384; the raw data has 021111 and 022111-022115 in 1383 at levels close to 1384.
-1383,delete,023111,سایر انواع مواد دخانی که در بالا اشاره نشده,,"Part of the section copied from 1384, but no household reports 023111 in 1383 (429 in 1384), so it was most likely not asked in 1383."
 1384,recode,102216,کمک های نقدی به مدارس پیش دانشگاهی( انجمن اولیا ومربیان ...),103116,"Printed as 1022 16, but it is a pre-university item (group 1031, as in 1385); the raw data has 103116 in 1384 and no 102216."
 1386,recode,014413,اجاره‌بهای یک اتاق در هتل یا پانسیون شبانه‌روزی,041113,"Printed as 0144 13; 1385 and 1387 have this item as 041113, and so does the 1386 raw data."
 1386,recode,041211,براورد اجاره‌بهای مسکن شخصی,042111,"1386 page 27 prints group 0412 for the imputed-rent items of groups 0421/0422; 1385 and 1387 have them under 0421/0422, and so does the 1386 raw data."

@@ -1,0 +1,8 @@
+﻿year,data_code,expenditure_code,reason
+1383,231,023111,"The raw data stores the item under its group code 0231 without the leading zero (172 households); group 0231 has this one item, and 1384 has 023111 with 429 households."
+1388,45415,,"Not an item code: the questionnaire ends group 0454 at 045414 in every year; one household each for 045415-045419, most likely data-entry errors."
+1388,45416,,"Not an item code: the questionnaire ends group 0454 at 045414 in every year; one household each for 045415-045419, most likely data-entry errors."
+1388,45417,,"Not an item code: the questionnaire ends group 0454 at 045414 in every year; one household each for 045415-045419, most likely data-entry errors."
+1388,45418,,"Not an item code: the questionnaire ends group 0454 at 045414 in every year; one household each for 045415-045419, most likely data-entry errors."
+1388,45419,,"Not an item code: the questionnaire ends group 0454 at 045414 in every year; one household each for 045415-045419, most likely data-entry errors."
+1389,33226,,"Not an item code: never printed (group 332 has 33225 and 33236 around it); 2 households, most likely a typo for one of them, which cannot be told apart."

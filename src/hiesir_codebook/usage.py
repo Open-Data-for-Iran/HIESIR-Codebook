@@ -17,6 +17,14 @@
 and :func:`load_share` as ``{year: {code: value}}`` for lookups.  It is the
 evidence for corrections and for the corrected codes (``correct --check``)
 and for links between items (``relations``).
+
+Some codes in the raw data are wrong: ``curated/data/code_corrections.csv``
+(``year``, ``data_code`` as the data stores it, the ``expenditure_code`` it
+stands for, ``reason``) lists them; an empty ``expenditure_code`` marks a
+code that stands for no item (noise: a few households under a code the
+questionnaire never printed).  :func:`correct_codes` moves their households to
+the right code, or drops them; for now only the household checks of
+``correct`` use it (1383 stores 023111 as 231, the group code 0231).
 """
 
 from __future__ import annotations
@@ -25,7 +33,7 @@ from pathlib import Path
 
 import polars as pl
 
-from . import DATA_DIR, csv_io
+from . import CURATED_DATA, DATA_DIR, csv_io
 
 Occurrence = dict[int, dict[int, int]]  # {year: {code: households}}
 Share = dict[int, dict[int, float]]  # {year: {code: percent of expenditure}}
@@ -38,6 +46,7 @@ SCHEMA = {
 }
 COLUMNS = tuple(SCHEMA)
 CODE_USAGE = DATA_DIR / "code_usage.csv"
+CODE_CORRECTIONS = CURATED_DATA / "code_corrections.csv"
 
 
 def read_usage(path: Path = CODE_USAGE) -> pl.DataFrame:
@@ -69,3 +78,35 @@ def load_occurrence(path: Path = CODE_USAGE) -> Occurrence:
 def load_share(path: Path = CODE_USAGE) -> Share:
     """{year: {code: percent of expenditure}}."""
     return _nested(read_usage(path), "expenditure_share")
+
+
+CodeCorrections = dict[int, dict[int, int | None]]  # {year: {code in the data: right code or None}}
+
+
+def load_code_corrections(path: Path = CODE_CORRECTIONS) -> CodeCorrections:
+    """{year: {code in the data: the code it stands for, None for noise}};
+    none without the file."""
+    if not path.exists():
+        return {}
+    out: CodeCorrections = {}
+    for r in csv_io.read_frame(path).iter_rows(named=True):
+        right = r["expenditure_code"].strip()
+        out.setdefault(int(r["year"]), {})[int(r["data_code"])] = int(right) if right else None
+    return out
+
+
+def correct_codes(occ: Occurrence, corrections: CodeCorrections) -> Occurrence:
+    """``occ`` with each wrong code's households added to the code it stands
+    for, or dropped when it stands for none."""
+    out = {y: dict(codes) for y, codes in occ.items()}
+    for y, fixes in corrections.items():
+        codes = out.get(y)
+        if codes is None:
+            continue
+        for wrong, right in fixes.items():
+            if wrong not in codes:
+                continue
+            n = codes.pop(wrong)
+            if right is not None:
+                codes[right] = codes.get(right, 0) + n
+    return out
