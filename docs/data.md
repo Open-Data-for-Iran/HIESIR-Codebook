@@ -15,8 +15,8 @@ q = pd.read_csv("output/2_corrected/questionnaire_1403.csv", dtype=TEXT)
 items = q[q.kind == "item"]
 
 chains = pd.read_csv("output/3_items/chains.csv", dtype={"expenditure_code": str})
-links = pd.read_csv("output/3_items/links.csv")
-relations = pd.read_csv("output/3_items/relations.csv")
+links = pd.read_csv("output/3_items/links.csv")  # same, recoded, merged, split, regrouped
+series = pd.read_csv("output/3_items/series.csv", dtype={"codes": str})  # chains that links join
 
 # join with the raw data, which stores codes as numbers
 items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
@@ -24,7 +24,7 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 
 The same files can be downloaded from this site:
 [2_corrected/questionnaire_1403.csv](2_corrected/questionnaire_1403.csv) (any year in place of 1403),
-[3_items/chains.csv](3_items/chains.csv), [3_items/links.csv](3_items/links.csv), [3_items/relations.csv](3_items/relations.csv),
+[3_items/chains.csv](3_items/chains.csv), [3_items/links.csv](3_items/links.csv), [3_items/series.csv](3_items/series.csv),
 [4_groups/groups.csv](4_groups/groups.csv), [4_groups/members.csv](4_groups/members.csv) and [4_groups/links.csv](4_groups/links.csv).
 
 | File | One row per | Details |
@@ -33,15 +33,15 @@ The same files can be downloaded from this site:
 | `2_corrected/autocorrect/canonical.csv` | label printed in several ways, with the one wording its group gets and why | [Corrections](methods.md#corrections) |
 | `2_corrected/autocorrect/words.csv` | word fixed automatically: learned from the groups of labels, folded (ی, ک, hamza), one form of a word an item prints two ways, or found with hazm's word list, with its kind, uses and evidence | [Corrections](methods.md#corrections) |
 | `3_items/chains.csv` | item: one code with one label, followed while both stay the same | [Stage 1](methods.md#matching-items-across-years) |
-| `3_items/links.csv` | 1 → 1 link that continues an item: same, recoded | [Stage 2](methods.md#matching-items-across-years) |
-| `3_items/relations.csv` | relation between sets of items: merged, split, regrouped | [Stage 2](methods.md#matching-items-across-years) |
-| `3_items/suggested/links.csv`, `relations.csv` | link or relation the code found, as it found it, with who decided it and how; rejected and open ones are only here | [Who decides](methods.md#matching-items-across-years) |
+| `3_items/links.csv` | link between chains: one that continues an item (same, recoded, 1 → 1), or a merge, split or regrouping between sets of chains | [Stage 2](methods.md#matching-items-across-years) |
+| `3_items/series.csv` | series: the chains that links join, one item followed while it can be compared on its own | [Stage 3](methods.md#matching-items-across-years) |
+| `3_items/suggested/links.csv` | link the code found, as it found it, with who decided it and how; rejected and open ones are only here | [Who decides](methods.md#matching-items-across-years) |
 | `4_groups/groups.csv` | group header: one printed code, followed while it is printed | [Groups](methods.md#groups-across-years) |
 | `4_groups/members.csv` | item and year: its group at levels 2, 3 and 4 | [Groups](methods.md#groups-across-years) |
 | `4_groups/links.csv` | pair of groups that items moved between: continued, split, merged, regrouped, moved | [Groups](methods.md#groups-across-years) |
 | `4_groups/suggested/links.csv` | group link the code found, as it found it, with who decided it and how | [Groups](methods.md#groups-across-years) |
 
-`links.csv` and `relations.csv` are the results: every row in them was
+The `links.csv` files outside `suggested/` are the results: every row in them was
 decided, by the code or in `curated/`, and none is rejected. What the code
 suggested before any decision is in `suggested/`, with the same ids.
 
@@ -50,9 +50,9 @@ suggested before any decision is in `suggested/`, with the same ids.
 | Folder | Content | In git | Edited by |
 |---|---|---|---|
 | `data/` | external inputs: the PDFs, the code usage table | the code usage table and `pdfs.csv` (the PDFs are in a GitHub release) | nobody (only replaced) |
-| `curated/` | hand-kept decisions: `2_corrected/` (`corrections.csv`: item and header fixes; `spelling.csv`; `words.csv`: words hazm lacks; `header_exceptions.csv`), `3_items/` (`links.csv`, `relations.csv`), `4_groups/` (`links.csv`): the decisions for the `output/` folder of the same name; `data/` (`code_corrections.csv`): wrong codes in the raw data, kept for later | yes | people |
+| `curated/` | hand-kept decisions: `2_corrected/` (`corrections.csv`: item and header fixes; `spelling.csv`; `words.csv`: words hazm lacks; `header_exceptions.csv`), `3_items/` (`links.csv`), `4_groups/` (`links.csv`): the decisions for the `output/` folder of the same name; `data/` (`code_corrections.csv`): wrong codes in the raw data, kept for later | yes | people |
 | `output/` | every stage's result: `1_extracted/`, `2_corrected/`, `3_items/`, `4_groups/` and `metrics.json` (the figures of the build, which these pages quote) | yes | the pipeline only |
-| `reports/` | review aids: `relation_evidence.csv` (household counts behind each link and relation) and `code_reuse.csv` (codes reused for another item) | no | the pipeline only |
+| `reports/` | review aids: `relation_evidence.csv` (household counts behind each link) and `code_reuse.csv` (codes reused for another item) | no | the pipeline only |
 
 ## CSV columns
 

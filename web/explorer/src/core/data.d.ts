@@ -11,7 +11,7 @@
 export type Year = number;
 /** "011111": a six-digit expenditure code, kept as text (leading zero). */
 export type Code = string;
-/** "011111-1383": an expenditure code and the first year it is asked under it. */
+/** "C-011111-1383": an expenditure code and the first year it is asked under it. */
 export type ChainId = string;
 
 export interface HxData {
@@ -25,10 +25,10 @@ export interface HxData {
   groups: Group[];
   /** links between groups, except the rejected ones */
   groupLinks: GroupLink[];
-  /** groupIds[i]: the id of group i ("0111-1383": code and first year, as in output/4_groups/) */
+  /** groupIds[i]: the id of group i ("G-0111-1383": code and first year, as in output/4_groups/) */
   groupIds: string[];
   chains: Chain[];
-  /** links between chains (output/3_items/links.csv and relations.csv), except the rejected ones */
+  /** links between chains (output/3_items/links.csv), except the rejected ones */
   relations: Relation[];
   /** the hand corrections to the printed questionnaires (curated/2_corrected/corrections.csv) */
   corrections: Correction[];

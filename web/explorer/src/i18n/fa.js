@@ -35,7 +35,7 @@ export const fa = {
   pick: "یک قلم را برای دیدن تاریخچه‌اش انتخاب کنید",
   summary: (n, y, r) => `${n} قلم در ${y} پرسشنامه، با ${r} پیوند میان آن‌ها.`,
   tryThese: "امتحان کنید:", or: "یا",
-  section: s => `بخش ${s}`, chainId: "شناسه زنجیره",
+  section: s => `بخش ${s}`, seriesId: "شناسه سری", groupId: "شناسه گروه",
   timeline: "خط زمانی", cameFrom: "از کجا آمده", wentInto: "به کجا رفته",
   otherUnder: c => `اقلام دیگر با کد ${c}`, corrections: "اصلاحات پرسشنامه چاپی", evidence: "شاهد",
   openPdf: (y, p) => `${y}: صفحه ${p}، باز کردن فرم چاپی`,

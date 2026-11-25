@@ -36,9 +36,8 @@ each with its reason:
 | `2_corrected/spelling.csv` | the misspellings no rule settles: typos, truncated words, glued words, text the PDF reading mangled | `correct` |
 | `2_corrected/words.csv` | correct words that hazm's word list lacks, so the automatic fixes leave them alone | `autocorrect` |
 | `2_corrected/header_exceptions.csv` | items printed under a header whose code does not cover them, accepted as printed (a check, it changes nothing) | `check-structure` |
-| `3_items/links.csv` | decisions on 1 → 1 links between chains (`from_chain` → `to_chain`, same or recoded): confirm, reject, change, add | `relations` |
-| `3_items/relations.csv` | decisions on merges, splits and regroupings between chain sets (`from_chains` → `to_chains`): confirm, reject, change, add | `relations` |
-| `4_groups/links.csv` | decisions on links between group headers (`from_group` → `to_group`: continued, split, merged, regrouped, moved): confirm, reject, change, add | `groups` |
+| `3_items/links.csv` | decisions on links between chains (`from_chains` → `to_chains`: same, recoded, merged, split, regrouped): add, reject, change on top, confirm below | `relations` |
+| `4_groups/links.csv` | decisions on links between group headers (`from_group` → `to_group`: continued, split, merged, regrouped, moved): add, reject, change on top, confirm below | `groups` |
 
 The columns of each are described in [Methods](methods.md): [corrections](methods.md#corrections)
 and [matching decisions](methods.md#matching-items-across-years). After editing,

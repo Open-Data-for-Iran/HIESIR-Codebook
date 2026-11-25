@@ -37,7 +37,7 @@ export const en = {
   pick: "Pick an item to see its history",
   summary: (n, y, r) => `${n} items across ${y} questionnaires, ${r} links between them.`,
   tryThese: "Try", or: "or",
-  section: s => `section ${s}`, chainId: "chain id",
+  section: s => `section ${s}`, seriesId: "series id", groupId: "group id",
   timeline: "Timeline", cameFrom: "Came from", wentInto: "Went into",
   otherUnder: c => `Other items under code ${c}`, corrections: "Corrections to the printed questionnaire", evidence: "Evidence",
   openPdf: (y, p) => `${y}: page ${p}, open the printed form`,

@@ -32,7 +32,7 @@ export function createItemCard(ctx) {
       if (p && p.code === x.code) p.b = x.last; else periods.push({ code: x.code, a: x.first, b: x.last });
     }
     h += `<div class="ids">${periods.map(p => `${code(p.code)} <span class="yrs">${span(p.a, p.b)}</span>`).join(` <span class="arrow">${ARROW}</span> `)}` +
-      ` <span class="pill">${t.section(yr(c.secAt(R)))}</span> <span class="pill" title="${t.chainId}">${esc(s.id)}</span></div>`;
+      ` <span class="pill">${t.section(yr(c.secAt(R)))}</span> <span class="pill" title="${t.seriesId}">${esc(s.id)}</span></div>`;
     if (S.ref && !s.years.includes(S.ref)) h += `<div class="note">${t.cm.notInRef(yr(S.ref))}</div>`;
 
     // years asked but on no printed page: the codes come from a correction

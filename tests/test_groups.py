@@ -63,15 +63,15 @@ def test_a_reused_header_starts_a_new_group():
         2: _q(("s", 6, "x"), ("h", 6, 3, "0631 A", "خدمات بیمارستانی"), ("i", 6, "063141")),
     }
     groups, _ = build_groups(rows)
-    assert [g.id for g in groups] == ["0631A-1", "0631A-2"]
+    assert [g.id for g in groups] == ["G-0631A-1", "G-0631A-2"]
     # an item that goes on under it, here through a relation, keeps one group
     steps = item_steps([_chain("063117", 1), _chain("063141", 2)], [], [(["063117-1"], ["063141-2"], 2)])
     groups, _ = build_groups(rows, steps=steps)
-    assert [g.id for g in groups] == ["0631A-1"]
+    assert [g.id for g in groups] == ["G-0631A-1"]
     # and so does a label that changes while the items stay
     rows[2] = _q(("s", 6, "x"), ("h", 6, 3, "0631 A", "خدمات بیمارستانی"), ("i", 6, "063117"))
     groups, _ = build_groups(rows)
-    assert [g.id for g in groups] == ["0631A-1"]
+    assert [g.id for g in groups] == ["G-0631A-1"]
 
 
 def test_groups_and_members():
@@ -91,11 +91,11 @@ def test_groups_and_members():
     }
     groups, placement = build_groups(rows)
     assert [(g.id, g.years, g.label) for g in groups] == [
-        ("011-1", [1, 2], "مواد خوراکی"),
-        ("0111-1", [1, 2], "غلات و نان"),  # a new label keeps the group; the latest is shown
+        ("G-011-1", [1, 2], "مواد خوراکی"),
+        ("G-0111-1", [1, 2], "غلات و نان"),  # a new label keeps the group; the latest is shown
     ]
-    assert groups[1].parents == {1: "011-1", 2: "011-1"}
-    assert placement[(2, "011111")] == {2: "011-1", 3: "0111-1"}
+    assert groups[1].parents == {1: "G-011-1", 2: "G-011-1"}
+    assert placement[(2, "011111")] == {2: "G-011-1", 3: "G-0111-1"}
 
 
 def test_links_from_item_flows():
@@ -133,12 +133,12 @@ def test_links_from_item_flows():
     assert not stale
     got = {(lk.source.id, lk.target.id): (lk.relation, lk.decided_by) for lk in links}
     assert got == {
-        ("0313-1", "0313M-2"): ("continued", "code"),
-        ("0314-1", "0314M-2"): ("split", "code"),
-        ("0314-1", "0314A-2"): ("split", "code"),
-        ("0315-1", "0316-1"): ("moved", "open"),
+        ("G-0313-1", "G-0313M-2"): ("continued", "code"),
+        ("G-0314-1", "G-0314M-2"): ("split", "code"),
+        ("G-0314-1", "G-0314A-2"): ("split", "code"),
+        ("G-0315-1", "G-0316-1"): ("moved", "open"),
     }
-    assert [lk.id for lk in links] == ["G0001", "G0002", "G0003", "G0004"]
+    assert [lk.id for lk in links] == ["GL0001", "GL0002", "GL0003", "GL0004"]
 
 
 def test_item_links_carry_items_across_codes():
@@ -151,9 +151,9 @@ def test_item_links_carry_items_across_codes():
     steps = item_steps(chains, [("056211-1", "056311-2")], [])
     links, _ = build_links(groups, placement, steps, [])
     (lk,) = links
-    assert (lk.key, lk.relation, lk.decided_by) == (("0562M-1", "0563M-2"), "continued", "open")
+    assert (lk.key, lk.relation, lk.decided_by) == (("G-0562M-1", "G-0563M-2"), "continued", "open")
     links, stale = build_links(
-        groups, placement, steps, [Decision("0562M-1", "0563M-2", "confirm", "", "same services")]
+        groups, placement, steps, [Decision("G-0562M-1", "G-0563M-2", "confirm", "", "same services")]
     )
     assert not stale and (links[0].verified, links[0].decided_by) == ("confirmed", "curated")
 

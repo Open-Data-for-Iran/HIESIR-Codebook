@@ -1,7 +1,7 @@
 """The explorer's data and component, for the documentation site.
 
 :func:`collect` reads ``output/2_corrected/``, ``output/3_items/chains.csv``,
-``links.csv``, ``relations.csv``, ``output/4_groups/groups.csv``, ``members.csv``
+``links.csv``, ``output/4_groups/groups.csv``, ``members.csv``
 and ``curated/2_corrected/corrections.csv``; :func:`bundle_js` and
 :func:`bundle_css` join the component of ``web/explorer/`` into one script and
 one stylesheet. Nothing is written to ``output/``: ``scripts/mkdocs_hooks.py``
@@ -156,9 +156,9 @@ def collect(
         )
     relations = [
         {
-            "id": r[cols[0]],
-            "from": r[cols[1]].split(),
-            "to": r[cols[2]].split(),
+            "id": r["link_id"],
+            "from": r["from_chains"].split(),
+            "to": r["to_chains"].split(),
             "rel": r["relation"],
             "detail": r["detail"],
             "year": int(r["year"]),
@@ -166,11 +166,7 @@ def collect(
             "verified": r["verified"],
             "note": r["note"],
         }
-        for name, cols in (
-            ("links.csv", ("link_id", "from_chain", "to_chain")),
-            ("relations.csv", ("relation_id", "from_chains", "to_chains")),
-        )
-        for r in _read(items / name)
+        for r in _read(items / "links.csv")
     ]
     corrections = [
         {k: r[k] for k in ("year", "action", "expenditure_code", "description", "value", "reason")}
@@ -183,7 +179,7 @@ def collect(
         "sectionYears": {k: _runs(v) for k, v in sorted(section_years.items()) if len(set(v.values())) > 1},
         "groups": group_list,
         "groupLinks": group_links,
-        # the id of each group (code and first year, as in output/4_groups/), for links to its page
+        # the id of each group (G-, code and first year, as in output/4_groups/), for links to its page
         "groupIds": group_ids,
         "chains": chains,
         "relations": relations,

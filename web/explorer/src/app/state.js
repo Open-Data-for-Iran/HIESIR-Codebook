@@ -1,8 +1,8 @@
 /* The URL scheme: what the page shows lives in the location hash, so a link,
  * a reload or the language menu opens the same view. No DOM.
  *
- *   #item=011111-1383&ref=1390&q=برنج&sec=1&partial=1   an item (any chain of its series)
- *   #group=0111-1383 / #group=s1                          a heading's page (a group, a section)
+ *   #item=I-011111-1383&ref=1390&q=برنج&sec=1&partial=1   an item (its series, or any chain of it)
+ *   #group=G-0111-1383 / #group=s1                        a heading's page (a group, a section)
  *   #changes&year=1386&section=1&kinds=merged,split        changes by year
  *   #about
  * ref: the year compared with ("all": every item, any year; none: the latest).
@@ -35,7 +35,7 @@ export function changesHash(ch) {
 /* "#..." -> the view, checked against the data:
      { view: "years", y, sec, kinds } | { view: "about" } |
      { view: "items", q, sec, partial, ref, id, series, group }
-   (id: the chain id asked for, series: its series, group: a heading node) */
+   (id: the series or chain id asked for, series: its series, group: a heading node) */
 export function parseHash(M, hash) {
   const raw = hash.replace(/^#/, ""), p = new URLSearchParams(raw);
   if (p.has("changes") || p.has("year")) {

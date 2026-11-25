@@ -27,13 +27,13 @@ def test_every_chain_and_kept_relation_is_embedded():
         assert set(r["from"]) | set(r["to"]) <= ids, r["id"]
         assert r["verified"] != "rejected"
     # the group headers of an item come from the corrected questionnaire, outermost first
-    rice = next(c for c in data["chains"] if c["id"] == "011111-1383")
+    rice = next(c for c in data["chains"] if c["id"] == "C-011111-1383")
     assert [p[0] for p in rice["path"]] == ["011", "0111", "01111, 01112"]
     assert set(data["sections"]) == set(range(1, 15))
     # and its groups in each year, from output/4_groups/ (indexes into data["groups"])
     (y0, path), *_ = rice["gp"]
     assert y0 == 1383 and [data["groups"][i][0] for i in path] == ["011", "0111", "01111, 01112"]
-    assert [data["groupIds"][i] for i in path] == ["011-1383", "0111-1383", "01111+01112-1383"]
+    assert [data["groupIds"][i] for i in path] == ["G-011-1383", "G-0111-1383", "G-01111+01112-1383"]
     for c in data["chains"]:
         assert [y for y, _ in c["gp"]] == sorted({y for y, _ in c["gp"]}), c["id"]
     # a group's wording by year, for the list under a picked year, the latest last
@@ -120,19 +120,19 @@ import { makeFormat } from "SRC/i18n/format.js";
 
 const M = model(JSON.parse(readFileSync(process.argv[2], "utf8")));
 const fa = makeFormat("fa", M.YEARS);
-const v = { item: "011111-1383", ref: 1390, q: "برنج", sec: "1", partial: true };
+const v = { item: "I-011111-1383", ref: 1390, q: "برنج", sec: "1", partial: true };
 const item = parseHash(M, itemsHash(M, v));
 const ch = parseHash(M, changesHash({ y: 1386, sec: 2, kinds: new Set(["merged", "split"]) }));
 const ids = res => res.map(([s, rank, hit]) => [hit.id, rank]);
-const rice = M.serOf.get("011111-1383");
+const rice = M.serOf.get("I-011111-1383");
 const st = cmp => Object.fromEntries([...cmp].map(([y, e]) => [y, e.st]));
 console.log(JSON.stringify({
   norm: norm("كتاب‌ها ۱۲"),
   code: ids(search(M, "011111")).slice(0, 1),
-  short: ids(search(M, "11114")).map(([id]) => id.slice(0, 6)),
+  short: ids(search(M, "11114")).map(([id]) => id.slice(2, 8)),
   text: search(M, "برنج").length,
   rice: st(compare(M, rice, 1403)),
-  cereals: st(gcompare(M, M.NODES.get("0111-1383"), 1403))[1403],
+  cereals: st(gcompare(M, M.NODES.get("G-0111-1383"), 1403))[1403],
   kinds: [...new Set(events(M).map(e => e.kind))].every(k => KINDS.includes(k)),
   events: events(M).length,
   snippet: codesSnippet(M.YEARS, compare(M, rice, 1403), "# rice").split("\\n").slice(0, 4),
@@ -159,7 +159,7 @@ def test_core_runs_on_its_own(tmp_path):
     assert r.returncode == 0, r.stderr
     out = json.loads(r.stdout)
     assert out["norm"] == "کتابها12"  # Arabic letter forms, ZWNJ, Persian digits
-    assert out["code"] == [["011111-1383", 0]]
+    assert out["code"] == [["C-011111-1383", 0]]
     assert "011114" in out["short"]  # the raw data's 5-digit code finds the 6-digit one
     assert out["text"] > 0
     assert out["rice"]["1403"] == "ref" and set(out["rice"].values()) == {"ref", 0}
@@ -172,7 +172,7 @@ def test_core_runs_on_its_own(tmp_path):
         "    1383: [11111],",
     ]
     # the URL scheme (app/state.js) reads back what it writes
-    assert out["item"] == ["items", "011111-1383", 1390, "برنج", "1", True]
+    assert out["item"] == ["items", "I-011111-1383", 1390, "برنج", "1", True]
     assert out["changes"] == ["years", 1386, 2, ["merged", "split"]]
     assert out["oldGroup"] is None
     assert out["ranges"] == "۱۳۸۳–۱۳۸۵، ۱۳۹۰"  # i18n/format.js, in Persian digits

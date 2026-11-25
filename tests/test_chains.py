@@ -21,14 +21,14 @@ DATA = {
 
 def test_one_code_and_one_label_per_chain():
     chains = {c.id: c for c in build_chains(DATA, max_gap=2)}
-    assert chains["011-1"].years == [1, 2, 4]  # trivial differences, missing in year 3
-    assert chains["012-1"].years == [1]
-    assert chains["012-2"].years == [2, 3, 4]  # "کولرگازی" / "کولر گازی": same label
-    assert chains["013-1"].years == [1]
-    assert chains["013-2"].years == [2, 3]  # broadened label: a new chain
+    assert chains["C-011-1"].years == [1, 2, 4]  # trivial differences, missing in year 3
+    assert chains["C-012-1"].years == [1]
+    assert chains["C-012-2"].years == [2, 3, 4]  # "کولرگازی" / "کولر گازی": same label
+    assert chains["C-013-1"].years == [1]
+    assert chains["C-013-2"].years == [2, 3]  # broadened label: a new chain
     # missing from three questionnaires: more than the gap allows
-    assert chains["014-1"].years == [1]
-    assert chains["014-5"].years == [5]
+    assert chains["C-014-1"].years == [1]
+    assert chains["C-014-5"].years == [5]
 
 
 def test_code_printed_twice_is_refused():
@@ -53,7 +53,7 @@ def test_chains_round_trip(tmp_path):
 
 
 def test_matched_is_up_to_date(tmp_path):
-    """output/3_items/chains.csv, links.csv and relations.csv must match output/2_corrected/;
+    """output/3_items/chains.csv and links.csv must match output/2_corrected/;
     if this fails, run `uv run hiesir-codebook build --no-extract`."""
     from pathlib import Path
 
@@ -64,7 +64,6 @@ def test_matched_is_up_to_date(tmp_path):
         conflicts,
         load_decisions,
         write_links,
-        write_relations,
         write_suggested,
     )
 
@@ -72,20 +71,11 @@ def test_matched_is_up_to_date(tmp_path):
     matched = root / "output" / "3_items"
     chains = build_chains({y: load_year(y, root / "output" / "2_corrected") for y in ALL_YEARS})
     write_chains(chains, tmp_path / "chains.csv", ALL_YEARS)
-    decisions = load_decisions(root / "curated" / "3_items" / "links.csv") + load_decisions(
-        root / "curated" / "3_items" / "relations.csv"
-    )
+    decisions = load_decisions(root / "curated" / "3_items" / "links.csv")
     relations, stale = build_relations(chains, decisions, ALL_YEARS)
     assert not stale, [str(d) for d in stale]
     assert not conflicts(relations), conflicts(relations)
     write_links(relations, tmp_path / "links.csv")
-    write_relations(relations, tmp_path / "relations.csv")
     write_suggested(relations, tmp_path / "suggested")
-    for name in (
-        "chains.csv",
-        "links.csv",
-        "relations.csv",
-        "suggested/links.csv",
-        "suggested/relations.csv",
-    ):
+    for name in ("chains.csv", "links.csv", "suggested/links.csv"):
         assert (tmp_path / name).read_bytes() == (matched / name).read_bytes(), name

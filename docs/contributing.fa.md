@@ -36,9 +36,8 @@ uv run hiesir-codebook check-structure       # check the corrected CSVs from the
 | `2_corrected/spelling.csv` | غلط‌های املایی‌ای که هیچ قاعده‌ای حل نمی‌کند: غلط تایپی، واژه‌های بریده، واژه‌های چسبیده، متنی که خواندن PDF خراب کرده | `correct` |
 | `2_corrected/words.csv` | واژه‌های درستی که در فهرست hazm نیستند، تا اصلاح خودکار به آن‌ها دست نزند | `autocorrect` |
 | `2_corrected/header_exceptions.csv` | اقلامی که زیر سرگروهی چاپ شده‌اند که کدش آن‌ها را در بر نمی‌گیرد، پذیرفته همان‌طور که چاپ شده‌اند (فقط بررسی، چیزی را تغییر نمی‌دهد) | `check-structure` |
-| `3_items/links.csv` | تصمیم درباره پیوند یک‌به‌یک میان زنجیره‌ها (`from_chain` ← `to_chain`، همان قلم یا تغییر کد): تأیید، رد، تغییر، افزودن | `relations` |
-| `3_items/relations.csv` | تصمیم درباره ادغام، تفکیک و بازگروه‌بندی میان مجموعه زنجیره‌ها (`from_chains` ← `to_chains`): تأیید، رد، تغییر، افزودن | `relations` |
-| `4_groups/links.csv` | تصمیم درباره پیوند میان سرگروه‌ها (`from_group` ← `to_group`: ادامه، تفکیک، ادغام، بازگروه‌بندی، جابه‌جایی): تأیید، رد، تغییر، افزودن | `groups` |
+| `3_items/links.csv` | تصمیم درباره پیوند میان زنجیره‌ها (`from_chains` ← `to_chains`: همان قلم، تغییر کد، ادغام، تفکیک، بازگروه‌بندی): افزودن، رد و تغییر در بالا، تأیید در پایین | `relations` |
+| `4_groups/links.csv` | تصمیم درباره پیوند میان سرگروه‌ها (`from_group` ← `to_group`: ادامه، تفکیک، ادغام، بازگروه‌بندی، جابه‌جایی): افزودن، رد و تغییر در بالا، تأیید در پایین | `groups` |
 
 ستون‌های هر فایل در [روش کار](methods.md) آمده‌اند: [اصلاحات](methods.md#corrections)
 و [تصمیم‌های پیوند](methods.md#matching-items-across-years). پس از ویرایش،

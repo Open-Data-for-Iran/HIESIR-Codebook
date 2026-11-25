@@ -23,7 +23,7 @@ from .correction import corrections as step1
 from .correction.fixes import Fixes, read_spelling
 from .linking.chains import read_chains
 from .linking.compare import YEARS
-from .linking.relations import code_reuse
+from .linking.relations import GROUP_KINDS, LINK_KINDS, code_reuse
 
 OUT = OUTPUT / "metrics.json"
 DECIDED_BY = ("code", "curated", "open")
@@ -46,6 +46,13 @@ def _all(folder: Path, name: str) -> tuple[list[dict[str, str]], list[dict[str, 
     ids = {next(iter(r.values())) for r in final}
     rest = [r for r in _read(folder / "suggested" / name) if next(iter(r.values())) not in ids]
     return final, final + rest
+
+
+def _kinds(
+    final: list[dict[str, str]], rows: list[dict[str, str]], kinds: tuple[str, ...]
+) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """``final`` and ``rows`` (as from :func:`_all`) of the relations ``kinds`` only."""
+    return [r for r in final if r["relation"] in kinds], [r for r in rows if r["relation"] in kinds]
 
 
 def _decisions(
@@ -109,12 +116,9 @@ def compute(
         item_years[str(y)] = sum(r["kind"] == "item" for r in rows)
 
     chains = read_chains(items / "chains.csv")
-    link_final, link_rows = _all(items, "links.csv")
-    relation_final, relation_rows = _all(items, "relations.csv")
-    # as relations.main: a pair already related in any way is no reuse
-    linked = {(r["from_chain"], r["to_chain"]) for r in link_rows} | {
-        (a, b) for r in relation_rows for a in r["from_chains"].split() for b in r["to_chains"].split()
-    }
+    final, rows = _all(items, "links.csv")
+    # as relations.main: a pair already linked in any way is no reuse
+    linked = {(a, b) for r in rows for a in r["from_chains"].split() for b in r["to_chains"].split()}
     reused = [p for p in code_reuse(chains, YEARS) if (p[0].id, p[1].id) not in linked]
 
     return {
@@ -145,8 +149,8 @@ def compute(
             "total": len(chains),
             "asked_last_year": sum(c.years[-1] == YEARS[-1] for c in chains),
         },
-        "links": _decisions(link_final, link_rows, ("same", "recoded")),
-        "relations": _decisions(relation_final, relation_rows, ("merged", "split", "regrouped")),
+        "links": _decisions(*_kinds(final, rows, LINK_KINDS), LINK_KINDS),
+        "relations": _decisions(*_kinds(final, rows, GROUP_KINDS), GROUP_KINDS),
         "code_reuse": len(reused),
         "groups": {
             "total": len(_read(groups / "groups.csv")),

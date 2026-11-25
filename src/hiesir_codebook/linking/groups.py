@@ -9,8 +9,9 @@ starts a new group (:func:`reused`).  Every item of every year sits under the gr
 headers are above it, one per level (2-4).
 
 Where the items go tells how the groups relate.  When an item continues
-from one year to the next (inside its chain, through a link, or through a
-merge, split or regrouping that is not rejected) and the group above it at
+from one year to the next (inside its chain, or through a link of
+``output/3_items/links.csv``: one that continues it, or a merge, split or
+regrouping) and the group above it at
 some level is a different one, the item *flows* from the old group to the
 new one.  Every pair of groups with a flow is a group link; its shape gives
 its relation:
@@ -37,7 +38,11 @@ punctuation, the conjunction (``،`` / ``و``), word order, generic words or
 row in ``curated/4_groups/links.csv`` decides it (``curated``), with the
 columns and decisions of ``curated/3_items/links.csv``: ``from_group``,
 ``to_group``, ``decision`` (confirm, reject, change, add), ``relation`` (for
-change and add), ``note`` (why) and ``agent`` (who decided).
+change and add), ``note`` (why) and ``agent`` (who decided), with the
+additions, rejections and changes on top, as there.
+
+A group's id is ``G-``, its code and its first year (``G-0111-1383``,
+``G-01121+01122-1383``, ``G-0314M-1389``); a group link's is ``GL0001``.
 
 Output (``output/4_groups/``):
 
@@ -60,7 +65,7 @@ from pathlib import Path
 from .. import CORRECTED, CURATED_GROUPS, GROUPS, ITEMS, csv_io
 from .chains import Chain, read_chains
 from .compare import MAX_GAP, YEARS, compare
-from .relations import DECISION_KINDS, VERIFIED, decided_by, definite
+from .relations import DECISION_KINDS, LINK_KINDS, VERIFIED, decided_by, definite
 
 DECISIONS = CURATED_GROUPS / "links.csv"
 RELATIONS = ("continued", "split", "merged", "regrouped", "moved")
@@ -131,7 +136,7 @@ def reused(g: Group, year: int, label: str, items: set[str], onward: dict[tuple[
     """Is the header of ``g`` printed again in ``year`` for something else?
     Its label changes beyond a minor, broadened or narrowed wording, and none
     of the items it had the last time goes on under it: by its code, or
-    through an item link or relation (``onward``: (year, code) -> the codes it
+    through an item link (``onward``: (year, code) -> the codes it
     continues as in ``year``).  0631 A, «خدمات پزشکی» to 1394 and
     «خدمات بیمارستانی» from 1395, is *not* reused: its surgery items go on
     in the hospital services through a regrouping."""
@@ -176,9 +181,9 @@ def build_groups(
                     or g.years[-1] not in window
                     or (year not in g.labels and reused(g, year, r["description"], below[i], onward))
                 ):
-                    gid, n = f"{_slug(r['code'])}-{year}", 2
+                    gid, n = f"G-{_slug(r['code'])}-{year}", 2
                     while gid in ids:  # the same code in another section
-                        gid, n = f"{_slug(r['code'])}-{year}-{n}", n + 1
+                        gid, n = f"G-{_slug(r['code'])}-{year}-{n}", n + 1
                     ids.add(gid)
                     g = current[key] = Group(gid, key[0], r["code"], level)
                     groups.append(g)
@@ -367,7 +372,7 @@ def build_links(
     links, stale = apply_decisions(find_links(groups, placement, steps), decisions, groups)
     links.sort(key=lambda lk: (lk.year, lk.source.section, lk.source.code, lk.target.code))
     for i, lk in enumerate(links, 1):
-        lk.id = f"G{i:04d}"
+        lk.id = f"GL{i:04d}"
     return links, stale
 
 
@@ -378,15 +383,18 @@ def _read(path: Path) -> list[dict[str, str]]:
     return csv_io.read(path)
 
 
-def read_links(path: Path) -> list[tuple[str, str]]:
-    """The final item links of ``links.csv``."""
-    return [(r["from_chain"], r["to_chain"]) for r in _read(path)]
-
-
-def read_relations(path: Path) -> list[tuple[list[str], list[str], int]]:
-    """The final merges, splits and regroupings of ``relations.csv``, with the
-    year of each change."""
-    return [(r["from_chains"].split(), r["to_chains"].split(), int(r["year"])) for r in _read(path)]
+def read_links(path: Path) -> tuple[list[tuple[str, str]], list[tuple[list[str], list[str], int]]]:
+    """The final item links of ``output/3_items/links.csv``: those that
+    continue an item (from chain, to chain), and the merges, splits and
+    regroupings, with the year of each change."""
+    rows = _read(path)
+    links = [(r["from_chains"], r["to_chains"]) for r in rows if r["relation"] in LINK_KINDS]
+    others = [
+        (r["from_chains"].split(), r["to_chains"].split(), int(r["year"]))
+        for r in rows
+        if r["relation"] not in LINK_KINDS
+    ]
+    return links, others
 
 
 def write_groups(groups: list[Group], path: Path, years: list[int] = YEARS) -> None:
@@ -491,7 +499,7 @@ def main(
     source
         The yearly CSVs.
     items
-        The folder with chains.csv, links.csv and relations.csv.
+        The folder with chains.csv and links.csv.
     out
         Where groups.csv, members.csv and links.csv go (the code's
         suggestions, before the decisions, in suggested/links.csv).
@@ -501,11 +509,7 @@ def main(
         Questionnaires a group may skip.
     """
     rows = {y: _read(source / f"questionnaire_{y}.csv") for y in YEARS}
-    steps = item_steps(
-        read_chains(items / "chains.csv"),
-        read_links(items / "links.csv"),
-        read_relations(items / "relations.csv"),
-    )
+    steps = item_steps(read_chains(items / "chains.csv"), *read_links(items / "links.csv"))
     groups, placement = build_groups(rows, max_gap, steps)
     links, stale = build_links(groups, placement, steps, load_decisions(decisions))
     write_groups(groups, out / "groups.csv")

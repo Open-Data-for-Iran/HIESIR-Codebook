@@ -37,18 +37,18 @@ def test_same_code_and_code_reuse():
         ),
     }
     chains, _, shape = _find(data, [1, 2])
-    r = shape[("011-1", "011-2")]
+    r = shape[("C-011-1", "C-011-2")]
     assert (r.relation, r.detail, r.decided_by) == ("same", "minor", "code")  # definite
-    r = shape[("012-1", "012-2")]
+    r = shape[("C-012-1", "C-012-2")]
     assert (r.relation, r.detail, r.decided_by) == ("same", "label_broadened", "open")
-    assert ("013-1", "013-2") not in shape  # a reused code is no relation
-    assert [(a.id, b.id) for a, b, _ in code_reuse(chains, [1, 2])] == [("013-1", "013-2")]
+    assert ("C-013-1", "C-013-2") not in shape  # a reused code is no relation
+    assert [(a.id, b.id) for a, b, _ in code_reuse(chains, [1, 2])] == [("C-013-1", "C-013-2")]
 
 
 def test_recoded():
     data = {1: _items(1, ("021", "میز و صندلی")), 2: _items(2, ("022", "میز و صندلی"))}
     _, _, shape = _find(data, [1, 2])
-    r = shape[("021-1", "022-2")]
+    r = shape[("C-021-1", "C-022-2")]
     assert (r.relation, r.detail, r.needs_verification) == ("recoded", "", False)
 
 
@@ -71,11 +71,11 @@ def test_merged_and_split():
         ),
     }
     _, _, shape = _find(data, [1, 2])
-    assert shape[("031-1 032-1", "031-2")].relation == "merged"
+    assert shape[("C-031-1 C-032-1", "C-031-2")].relation == "merged"
     # the source goes on with its label unchanged, so it is also a target
-    assert shape[("041-1", "041-1 042-2")].relation == "split"
-    assert shape[("041-1", "041-1 042-2")].year == 2
-    assert shape[("051-1", "052-2 053-2")].relation == "split"  # public / private pair
+    assert shape[("C-041-1", "C-041-1 C-042-2")].relation == "split"
+    assert shape[("C-041-1", "C-041-1 C-042-2")].year == 2
+    assert shape[("C-051-1", "C-052-2 C-053-2")].relation == "split"  # public / private pair
     assert all(r.needs_verification for r in shape.values())
 
 
@@ -90,7 +90,7 @@ def test_collapsed_group():
         2: _items(2, ("01128", "انواع تلویزیون رنگی داخلی")),
     }
     _, _, shape = _find(data, [1, 2])
-    assert shape[("01112-1 01114-1", "01128-2")].relation == "merged"
+    assert shape[("C-01112-1 C-01114-1", "C-01128-2")].relation == "merged"
 
 
 def test_decisions():
@@ -114,17 +114,17 @@ def test_decisions():
     rels = find_relations(chains, [1, 2])
     f = frozenset
     decisions = [
-        Decision(f({"012-1"}), f({"012-2"}), "confirm", "", "", "checked"),
-        Decision(f({"013-1"}), f({"013-2"}), "add", "same", "label_reworded", "code reuse judged wrongly"),
-        Decision(f({"014-1", "015-1"}), f({"016-2", "017-2"}), "add", "regrouped", "", "1395 dental"),
-        Decision(f({"012-1"}), f({"999-1"}), "reject", "", "", "no such relation"),
+        Decision(f({"C-012-1"}), f({"C-012-2"}), "confirm", "", "", "checked"),
+        Decision(f({"C-013-1"}), f({"C-013-2"}), "add", "same", "label_reworded", "code reuse misjudged"),
+        Decision(f({"C-014-1", "C-015-1"}), f({"C-016-2", "C-017-2"}), "add", "regrouped", "", "1395 dental"),
+        Decision(f({"C-012-1"}), f({"C-999-1"}), "reject", "", "", "no such relation"),
     ]
     rels, stale = apply_decisions(rels, decisions, chains)
     got = {r.key: (r.relation, r.detail, r.verified, r.needs_verification) for r in rels}
-    assert got[(f({"012-1"}), f({"012-2"}))] == ("same", "label_broadened", "confirmed", False)
-    assert got[(f({"013-1"}), f({"013-2"}))] == ("same", "label_reworded", "added", False)
-    assert got[(f({"014-1", "015-1"}), f({"016-2", "017-2"}))] == ("regrouped", "", "added", False)
-    assert [str(d) for d in stale] == ["012-1 -> 999-1 reject"]
+    assert got[(f({"C-012-1"}), f({"C-012-2"}))] == ("same", "label_broadened", "confirmed", False)
+    assert got[(f({"C-013-1"}), f({"C-013-2"}))] == ("same", "label_reworded", "added", False)
+    assert got[(f({"C-014-1", "C-015-1"}), f({"C-016-2", "C-017-2"}))] == ("regrouped", "", "added", False)
+    assert [str(d) for d in stale] == ["C-012-1 -> C-999-1 reject"]
 
 
 def test_change_decision():
@@ -133,7 +133,7 @@ def test_change_decision():
     f = frozenset
     rels, stale = apply_decisions(
         find_relations(chains, [1, 2]),
-        [Decision(f({"012-1"}), f({"012-2"}), "change", "same", "minor", "only packaging added")],
+        [Decision(f({"C-012-1"}), f({"C-012-2"}), "change", "same", "minor", "only packaging added")],
         chains,
     )
     (r,) = rels
@@ -206,7 +206,7 @@ def test_curated_notes_match_evidence():
     occ = {y: v for y, v in load_occurrence(path).items() if y in SURVEY_YEARS}  # as relations reads it
     chains = read_chains(root / "output" / "3_items" / "chains.csv")
     curated = root / "curated" / "3_items"
-    decisions = load_decisions(curated / "links.csv") + load_decisions(curated / "relations.csv")
+    decisions = load_decisions(curated / "links.csv")
     relations, _ = build_relations(chains, decisions)
     checked = 0
     for r in relations:
@@ -245,28 +245,42 @@ def test_evidence_ignores_reused_sibling_codes():
     assert e.group is None and e.ratio == 1.0 and e.verdict == "fits"
 
 
-def test_decisions_go_in_their_own_file(tmp_path):
+def test_decisions_of_every_kind_in_one_file(tmp_path):
     import pytest
 
     from hiesir_codebook.linking.relations import load_decisions
 
-    link_head = "from_chain,to_chain,decision,relation,detail,note\n"
+    head = "from_chains,to_chains,decision,relation,detail,note\n"
     links = tmp_path / "links.csv"
-    links.write_text(link_head + "011-1,011-3,change,same,minor,x\n", encoding="utf-8")
-    [d] = load_decisions(links)
-    assert (d.from_chains, d.to_chains, d.detail) == ({"011-1"}, {"011-3"}, "minor")
-    links.write_text(link_head + "011-1,011-3,add,merged,,x\n", encoding="utf-8")
-    with pytest.raises(ValueError, match=r"belongs in relations.csv"):
-        load_decisions(links)
-    links.write_text(link_head + "011-1 012-1,011-3,add,same,,x\n", encoding="utf-8")
+    links.write_text(
+        head + "011-1,011-3,change,same,minor,x\n011-1 012-1,011-3,add,merged,,x\n", encoding="utf-8"
+    )
+    one, merge = load_decisions(links)
+    assert (one.from_chains, one.to_chains, one.detail) == ({"011-1"}, {"011-3"}, "minor")
+    assert (merge.from_chains, merge.relation) == ({"011-1", "012-1"}, "merged")
+    links.write_text(head + "011-1 012-1,011-3,add,same,,x\n", encoding="utf-8")
     with pytest.raises(ValueError, match="one chain to one chain"):
         load_decisions(links)
-    rels = tmp_path / "relations.csv"
-    rels.write_text(
-        "from_chains,to_chains,decision,relation,detail,note\n011-1,011-3,add,recoded,,x\n", encoding="utf-8"
-    )
-    with pytest.raises(ValueError, match=r"belongs in links.csv"):
-        load_decisions(rels)
+    links.write_text(head + "011-1,011-3,add,moved,,x\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="needs a relation"):
+        load_decisions(links)
+
+
+def test_curated_decisions_in_order():
+    """In curated/, what the code would not do on its own comes first (add,
+    reject, change), the confirmations last, each block in id order."""
+    from pathlib import Path
+
+    from hiesir_codebook import csv_io
+    from hiesir_codebook.linking.relations import decision_order
+
+    root = Path(__file__).resolve().parents[1] / "curated"
+    for path, key in (
+        (root / "3_items" / "links.csv", ("from_chains", "to_chains")),
+        (root / "4_groups" / "links.csv", ("from_group", "to_group")),
+    ):
+        rows = csv_io.read(path)
+        assert rows == decision_order(rows, key), f"{path}: rows out of order"
 
 
 def test_suggestions_apart_from_results(tmp_path):
@@ -299,9 +313,9 @@ def test_suggestions_apart_from_results(tmp_path):
     final = csv_io.read(tmp_path / "links.csv")
     found = csv_io.read(tmp_path / "suggested" / "links.csv")
     # the results: only what was decided and not rejected, with the decision's detail
-    assert [(r["from_chain"], r["verified"], r["detail"]) for r in final] == [("011-1", "changed", "")]
+    assert [(r["from_chains"], r["verified"], r["detail"]) for r in final] == [("011-1", "changed", "")]
     # the suggestions: everything the code found, as found, and how it was decided
-    assert [(r["from_chain"], r["decided_by"], r["verified"]) for r in found] == [
+    assert [(r["from_chains"], r["decided_by"], r["verified"]) for r in found] == [
         ("011-1", "curated", "changed"),
         ("012-1", "curated", "rejected"),
         ("013-1", "open", ""),
@@ -309,18 +323,18 @@ def test_suggestions_apart_from_results(tmp_path):
     assert found[0]["detail"] == "label_broadened" and "note" not in found[0]
 
 
-def test_conflicts_between_links_and_relations():
+def test_conflicts_between_links():
     from hiesir_codebook.linking.chains import Chain
     from hiesir_codebook.linking.relations import Relation, conflicts
 
     a, b, c = (Chain(i, 1, i[:3], "x", [y]) for i, y in (("011-1", 1), ("012-1", 1), ("011-2", 2)))
     link = Relation([a], [c], "same", id="L0001")
-    merge = Relation([a, b], [c], "merged", id="R0001")
+    merge = Relation([a, b], [c], "merged", id="L0002")
     assert link.is_link and not merge.is_link
     # a ends in the merge yet continues; c starts in it yet continues a
     assert len(conflicts([link, merge])) == 2
     link.verified = "rejected"
     assert conflicts([link, merge]) == []
     # a chain that goes on with its label on both sides of a merge keeps its link
-    keep = Relation([a, b], [a], "merged", id="R0002")
-    assert conflicts([Relation([a], [c], "same", id="L0002"), keep]) == []
+    keep = Relation([a, b], [a], "merged", id="L0003")
+    assert conflicts([Relation([a], [c], "same", id="L0004"), keep]) == []

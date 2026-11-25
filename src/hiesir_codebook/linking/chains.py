@@ -16,7 +16,8 @@ That needs each code printed once a year, which the structure check of
 How chains relate to each other (a reworded label, a new code, a merge) is
 the job of the next stage, :mod:`hiesir_codebook.linking.relations`.
 
-Output: ``chains.csv``, one row per chain.
+Output: ``chains.csv``, one row per chain.  A chain's id is ``C-``, its code
+and its first year: ``C-011111-1383``.
 """
 
 from __future__ import annotations
@@ -56,7 +57,7 @@ def build_chains(items_by_year: dict[int, list[Item]], max_gap: int = MAX_GAP) -
                 c.years.append(year)
                 c.text = it.text
             else:
-                current[it.code] = Chain(f"{it.code}-{year}", it.section, it.code, it.text, [year])
+                current[it.code] = Chain(f"C-{it.code}-{year}", it.section, it.code, it.text, [year])
                 chains.append(current[it.code])
     return chains
 

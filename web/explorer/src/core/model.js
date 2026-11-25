@@ -50,11 +50,13 @@ export function model(DATA) {
       }
     }
     comp.sort((a, b) => a.first - b.first || a.last - b.last);
-    const s = { id: comp[0].id, chains: comp, years: [...new Set(comp.flatMap(x => x.years))].sort((a, b) => a - b) };
+    // its id, as in output/3_items/series.csv: I-, the code and first year of its first chain
+    const s = { id: `I-${comp[0].code}-${comp[0].first}`, chains: comp, years: [...new Set(comp.flatMap(x => x.years))].sort((a, b) => a - b) };
     s.last = s.years[s.years.length - 1];
     s.key = comp.map(x => x.key).join(" ");
     s.at = y => s.chains.find(x => x.years.includes(y));
     comp.forEach(x => serOf.set(x.id, s));
+    serOf.set(s.id, s);
     SER.push(s);
   }
   const RELS = DATA.relations.slice().sort((a, b) => a.year - b.year);

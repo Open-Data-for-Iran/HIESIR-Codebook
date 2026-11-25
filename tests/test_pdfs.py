@@ -156,7 +156,7 @@ def test_explorer_knows_the_printed_page():
         asked = [y for y in data["years"] if c["first"] <= y <= c["last"] and y not in c["miss"]]
         assert len(c["pg"]) == len(asked), c["id"]  # one page per year asked, in order
         assert len(c["bx"]) == len(asked), c["id"]  # and one box per year asked
-    rice = next(c for c in data["chains"] if c["id"] == "011111-1383")
+    rice = next(c for c in data["chains"] if c["id"] == "C-011111-1383")
     assert all(isinstance(p, int) and p > 0 for p in rice["pg"])
     assert all(
         0 < b[0] < b[1] < 900 and 0 <= b[2] < b[3] < 650 for b in rice["bx"]

@@ -1,7 +1,8 @@
-"""Matching, stage 2: links and relations between chains.
+"""Matching, stage 2: links between chains.
 
-Reads ``output/3_items/chains.csv`` (stage 1).  A relation links a *set*
-of earlier chains to a *set* of later chains; its shape gives its kind:
+Reads ``output/3_items/chains.csv`` (stage 1).  A link joins a *set* of
+earlier chains to a *set* of later chains; its shape gives its kind, the
+``relation``:
 
 ========== ======== =========================================================
 relation   shape    meaning
@@ -13,25 +14,22 @@ split      1 -> n   one item divided into several
 regrouped  n -> m   items reorganised (only from curated decisions so far)
 ========== ======== =========================================================
 
-For 1 -> 1 relations ``detail`` says how the label changed: ``minor``
+For 1 -> 1 links ``detail`` says how the label changed: ``minor``
 (wording only), ``label_broadened``, ``label_narrowed``, ``label_reworded``,
 or empty when the label is the same.
 
-The two families do different jobs and are kept apart:
+The relation says what a link does, and all links share one table
+(``output/3_items/links.csv``, decided in ``curated/3_items/links.csv``):
 
-* a *link* (``same`` or ``recoded``, always 1 -> 1) continues an item: the
-  chains it joins form one series (stage 3).  Written to
-  ``output/3_items/links.csv``, decided in ``curated/3_items/links.csv``.
-* a *relation* (``merged``, ``split``, ``regrouped``) ends series and starts
-  others.  Written to ``output/3_items/relations.csv``, decided in
-  ``curated/3_items/relations.csv``.
+* ``same`` and ``recoded`` (always 1 -> 1) continue an item: the chains
+  they join form one series (stage 3);
+* ``merged``, ``split`` and ``regrouped`` end series and start others.
 
-Suggestions and results are kept apart.  ``output/3_items/suggested/``
-(``links.csv``, ``relations.csv``) holds every link and relation the code
-found, as it found it, with who decided it and how (``open``: not yet);
-``output/3_items/links.csv`` and ``relations.csv`` hold only the final
+Suggestions and results are kept apart.  ``output/3_items/suggested/links.csv``
+holds every link the code found, as it found it, with who decided it and
+how (``open``: not yet); ``output/3_items/links.csv`` holds only the final
 ones: decided by the code or in ``curated/``, and not rejected.  The two
-share ids (``L0001``, ``R0001``).
+share ids (``L0001``).
 
 They are found together, since a merge is found by extending a link.  A
 chain continues through at most one link each way, and a chain that goes
@@ -66,14 +64,11 @@ labels carry the same content words: only punctuation, the conjunction
 (و نظایر آن، و ...، غیره) differ.  Every other relation, and every merge,
 split or regrouping, needs a human decision.
 
-Decisions are kept in ``curated/3_items/links.csv`` (columns ``from_chain``,
-``to_chain``: one chain id each) and ``curated/3_items/relations.csv`` (columns
-``from_chains``, ``to_chains``: chain ids separated by spaces), one row per
-link or relation:
+Decisions are kept in ``curated/3_items/links.csv``, one row per link:
 
 ============ ================================================================
-from_chains  the earlier chains (``from_chain`` in links.csv)
-to_chains    the later chains (``to_chain`` in links.csv)
+from_chains  the earlier chains, ids separated by spaces
+to_chains    the later chains
 decision     ``confirm``: the relation is right as found
              ``reject``: the chains are not related this way
              ``change``: right chains, but use ``relation``/``detail``
@@ -90,6 +85,11 @@ output records each decision in ``verified`` (``confirmed``, ``rejected``,
 Rejected and open relations are only in ``suggested/``, where the decision
 on each suggestion stays visible.  A decision whose relation was not found (or, for ``add``,
 already exists or names unknown chains) is reported as stale.
+
+The rows that do what the code would not do on its own come first, in
+the order of :data:`DECISION_ORDER` (``add``, ``reject``, ``change``), and
+the confirmations last; inside each block the rows follow the chain ids
+(:func:`decision_order`).
 """
 
 from __future__ import annotations
@@ -107,11 +107,12 @@ from ..utils import loose_key, words
 from .chains import Chain, read_chains
 from .compare import MAX_GAP, YEARS, compare, contained, is_etc, relate, split_qualifier
 
-DECISIONS = CURATED_ITEMS / "relations.csv"
-LINK_DECISIONS = CURATED_ITEMS / "links.csv"
-LINK_KINDS = ("same", "recoded")
-GROUP_KINDS = ("merged", "split", "regrouped")
+DECISIONS = CURATED_ITEMS / "links.csv"
+LINK_KINDS = ("same", "recoded")  # continue an item
+GROUP_KINDS = ("merged", "split", "regrouped")  # end some items and start others
+KINDS = LINK_KINDS + GROUP_KINDS
 DECISION_KINDS = ("confirm", "reject", "change", "add")
+DECISION_ORDER = ("add", "reject", "change", "confirm")  # the order of the blocks in curated/
 VERIFIED = {"confirm": "confirmed", "reject": "rejected", "change": "changed", "add": "added"}
 DETAILS = {
     "same": "",
@@ -122,6 +123,13 @@ DETAILS = {
 }
 CONTINUES = ("same", "minor", "broadened", "narrowed", "reworded")
 DECIDED_BY = ("code", "curated", "open")
+
+
+def decision_order(rows: list[dict[str, str]], key: tuple[str, ...]) -> list[dict[str, str]]:
+    """Curated decision rows in their order: the blocks of
+    :data:`DECISION_ORDER` (what the code would not do on its own on top),
+    and inside each block by the ``key`` columns (the ids it decides on)."""
+    return sorted(rows, key=lambda r: (DECISION_ORDER.index(r["decision"]), *(r[k] for k in key)))
 
 
 def decided_by(needs_verification: bool, verified: str) -> str:
@@ -475,18 +483,14 @@ class Decision:
         return f"{' '.join(sorted(self.from_chains))} -> {' '.join(sorted(self.to_chains))} {self.decision}"
 
 
-def load_decisions(path: Path = DECISIONS, links: bool | None = None) -> list[Decision]:
-    """Decisions from ``curated/3_items/relations.csv`` or, with ``links``, from
-    ``curated/3_items/links.csv`` (guessed from the header when None)."""
+def load_decisions(path: Path = DECISIONS) -> list[Decision]:
+    """Decisions from ``curated/3_items/links.csv``."""
     if not path.exists():
         return []
-    if links is None:
-        links = "from_chain" in csv_io.columns(path)
-    cols = ("from_chain", "to_chain") if links else ("from_chains", "to_chains")
     out = [
         Decision(
-            frozenset(r[cols[0]].split()),
-            frozenset(r[cols[1]].split()),
+            frozenset(r["from_chains"].split()),
+            frozenset(r["to_chains"].split()),
             r["decision"],
             r["relation"],
             r["detail"],
@@ -494,24 +498,20 @@ def load_decisions(path: Path = DECISIONS, links: bool | None = None) -> list[De
         )
         for r in csv_io.read(path)
     ]
-    kinds = LINK_KINDS if links else GROUP_KINDS
-    other = "relations.csv" if links else "links.csv"
     for d in out:
         if d.decision not in DECISION_KINDS:
             raise ValueError(f"{path}: unknown decision {d.decision!r} ({d})")
-        if d.decision in ("change", "add") and not d.relation:
-            raise ValueError(f"{path}: {d.decision} needs a relation ({d})")
+        if d.decision in ("change", "add") and d.relation not in KINDS:
+            raise ValueError(f"{path}: {d.decision} needs a relation, one of {', '.join(KINDS)} ({d})")
         if not d.from_chains or not d.to_chains:
-            raise ValueError(f"{path}: {cols[0]} and {cols[1]} are required ({d})")
-        if links and not len(d.from_chains) == len(d.to_chains) == 1:
-            raise ValueError(f"{path}: a link joins one chain to one chain ({d})")
-        if d.decision in ("change", "add") and d.relation not in kinds:
-            raise ValueError(f"{path}: {d.relation!r} belongs in {other} ({d})")
+            raise ValueError(f"{path}: from_chains and to_chains are required ({d})")
+        if d.relation in LINK_KINDS and not len(d.from_chains) == len(d.to_chains) == 1:
+            raise ValueError(f"{path}: {d.relation} joins one chain to one chain ({d})")
     return out
 
 
 def conflicts(relations: list[Relation]) -> list[str]:
-    """Breaches of the rule that keeps links and relations consistent: a chain
+    """Breaches of the rule that keeps the links consistent: a chain
     has at most one link each way, and no link onward from (or into) a chain
     that a merge, split or regrouping ends (or starts)."""
     live = [r for r in relations if not r.rejected]
@@ -600,11 +600,8 @@ def build_relations(
         r.sources.sort(key=lambda c: (c.code, c.years[0]))
         r.targets.sort(key=lambda c: (c.code, c.years[0]))
     relations.sort(key=lambda r: (r.section, r.sources[0].code, r.sources[0].years[0], r.year))
-    numbers: Counter = Counter()
-    for r in relations:
-        prefix = "L" if r.is_link else "R"
-        numbers[prefix] += 1
-        r.id = f"{prefix}{numbers[prefix]:04d}"
+    for i, r in enumerate(relations, 1):
+        r.id = f"L{i:04d}"
     return relations, stale
 
 
@@ -704,33 +701,32 @@ def evidence(
 # --- output -------------------------------------------------------------------
 
 
-LINK_HEAD = ("link_id", "from_chain", "to_chain")
-RELATION_HEAD = ("relation_id", "from_chains", "to_chains")
-
-
 def write_links(relations: list[Relation], path: Path) -> None:
-    """The final links (1 -> 1 continuations) among ``relations``."""
-    _write([r for r in relations if r.is_link and r.final], path, LINK_HEAD)
-
-
-def write_relations(relations: list[Relation], path: Path) -> None:
-    """The final merges, splits and regroupings among ``relations``."""
-    _write([r for r in relations if not r.is_link and r.final], path, RELATION_HEAD)
+    """The final links among ``relations``: decided and not rejected."""
+    _write([r for r in relations if r.final], path)
 
 
 def write_suggested(relations: list[Relation], folder: Path) -> None:
-    """What the code found, as it found it, in ``folder``: ``links.csv`` and
-    ``relations.csv``, with who decided each and how (``open``: not yet)."""
-    found = [r for r in relations if r.found is not None]
-    _write([r for r in found if r.found.is_link], folder / "links.csv", LINK_HEAD, suggested=True)
-    _write([r for r in found if not r.found.is_link], folder / "relations.csv", RELATION_HEAD, suggested=True)
+    """What the code found, as it found it, in ``folder/links.csv``, with who
+    decided each and how (``open``: not yet)."""
+    _write([r for r in relations if r.found is not None], folder / "links.csv", suggested=True)
 
 
-def _write(rows: list[Relation], path: Path, head: tuple[str, str, str], suggested: bool = False) -> None:
+def _write(rows: list[Relation], path: Path, suggested: bool = False) -> None:
     """``rows``; with ``suggested``, the relation, detail and score as the
     code found them, and no note (the note is a decision's)."""
-    middle = ["relation", "detail", "year", "score", "decided_by", "verified"]
-    with csv_io.writer(path, [*head, *middle, *([] if suggested else ["note"]), "from_text", "to_text"]) as w:
+    head = [
+        "link_id",
+        "from_chains",
+        "to_chains",
+        "relation",
+        "detail",
+        "year",
+        "score",
+        "decided_by",
+        "verified",
+    ]
+    with csv_io.writer(path, [*head, *([] if suggested else ["note"]), "from_text", "to_text"]) as w:
         for r in rows:
             f = r.found if suggested and r.found is not None else r
             w.writerow(
@@ -800,31 +796,25 @@ def write_evidence(relations: list[Relation], chains: list[Chain], occ: Occurren
 def main(
     *,
     chains: Path = ITEMS / "chains.csv",
-    out: Path = ITEMS / "relations.csv",
-    links_out: Path = ITEMS / "links.csv",
+    out: Path = ITEMS / "links.csv",
     suggested: Path = ITEMS / "suggested",
     decisions: Path = DECISIONS,
-    link_decisions: Path = LINK_DECISIONS,
     reuse_report: Path = REPORTS / "code_reuse.csv",
     evidence_report: Path = REPORTS / "relation_evidence.csv",
     usage: Path = CODE_USAGE,
     max_gap: int = MAX_GAP,
 ) -> None:
-    """Matching stage 2: chains.csv -> output/3_items/links.csv and relations.csv.
+    """Matching stage 2: chains.csv -> output/3_items/links.csv.
 
     Parameters
     ----------
     chains
         The chains of stage 1.
     out
-        Where the relations go.
-    links_out
         Where the links go.
     suggested
         Where the code's suggestions go, before the decisions.
     decisions
-        The curated relation decisions.
-    link_decisions
         The curated link decisions.
     reuse_report
         Codes reused for an unrelated item.
@@ -836,17 +826,15 @@ def main(
         Questionnaires a relation may skip.
     """
     chain_list = read_chains(chains)
-    curated = load_decisions(link_decisions, links=True) + load_decisions(decisions, links=False)
-    relations, stale = build_relations(chain_list, curated, YEARS, max_gap)
-    write_links(relations, links_out)
-    write_relations(relations, out)
+    relations, stale = build_relations(chain_list, load_decisions(decisions), YEARS, max_gap)
+    write_links(relations, out)
     write_suggested(relations, suggested)
     linked = {(a.id, b.id) for r in relations for a in r.sources for b in r.targets}
     reused = [p for p in code_reuse(chain_list, YEARS, max_gap) if (p[0].id, p[1].id) not in linked]
     write_code_reuse(reused, reuse_report)
-    for name, rs, path in (
-        ("links", [r for r in relations if r.is_link], link_decisions),
-        ("relations", [r for r in relations if not r.is_link], decisions),
+    for name, rs in (
+        ("links that continue an item", [r for r in relations if r.is_link]),
+        ("merges, splits and regroupings", [r for r in relations if not r.is_link]),
     ):
         kinds = Counter(r.relation for r in rs)
         verified = Counter(r.verified for r in rs if r.verified)
@@ -854,7 +842,7 @@ def main(
             f"{len(rs)} {name} ("
             + ", ".join(f"{k} {v}" for k, v in kinds.most_common())
             + f"): decided by the code {sum(r.decided_by == 'code' for r in rs)}, "
-            + f"in {path.as_posix()}: "
+            + f"in {decisions.as_posix()}: "
             + (", ".join(f"{k} {v}" for k, v in verified.items()) or "0")
             + f", open: {sum(r.decided_by == 'open' for r in rs)}"
             + f"; final {sum(r.final for r in rs)}"
@@ -873,4 +861,4 @@ def main(
     for d in stale:
         print(f"stale decision: {d}")
     for problem in conflicts(relations):
-        print(f"links and relations disagree: {problem}")
+        print(f"links disagree: {problem}")

@@ -35,7 +35,7 @@ export function createGroupCard(ctx) {
     h += `<div class="ids">${periods.map(p => `${code(p.code)} <span class="yrs">${span(p.a, p.b)}</span>`).join(` <span class="arrow">${ARROW}</span> `)}` +
       ` <span class="pill">${n.kind === "g" ? t.g.kind.g(yr(M.G[gi][2])) : t.g.kind.s}</span>` +
       (n.kind === "g" ? ` <span class="pill">${t.section(yr(sec))}</span>` : "") +
-      ` <span class="pill">${t.g.items(num(memR.length))}</span>` + (n.kind === "g" ? ` <span class="pill" title="${t.chainId}">${esc(n.id)}</span>` : "") + `</div>`;
+      ` <span class="pill">${t.g.items(num(memR.length))}</span>` + (n.kind === "g" ? ` <span class="pill" title="${t.groupId}">${esc(n.id)}</span>` : "") + `</div>`;
     if (S.ref && !n.years.includes(S.ref)) h += `<div class="note">${t.cm.notInRef(yr(S.ref))}</div>`;
 
     h += verdictHtml(cmp, R, t.g.seenFrom, t.g.st);
