@@ -54,13 +54,13 @@ LEFT_OUT = (1382,)
 
 
 def kind(year: int) -> str:
-    """``extracted`` (in output/), ``text`` (a text layer, left out: 1382),
-    ``dictionary`` (1401) or ``scan`` (image only)."""
+    """``extracted`` (in output/), ``text`` (a text layer, left out: 1382)
+    or ``scan`` (image only)."""
     if year in SUPPORTED_YEARS:
         return "extracted"
     if year in LEFT_OUT:
         return "text"
-    return "dictionary" if year == 1401 else "scan"
+    return "scan"
 
 
 @dataclass(frozen=True)

@@ -129,7 +129,6 @@ TABLE = {
         "kind": {
             "extracted": "extracted: see the explorer",
             "text": "text layer, left out (older code scheme)",
-            "dictionary": "data dictionary, not a questionnaire",
             "scan": "scanned images only",
         },
         "missing": "!!! note\n    The PDFs were not available when this copy of the site was built.",
@@ -144,7 +143,6 @@ TABLE = {
         "kind": {
             "extracted": "استخراج‌شده: در جست‌وجوی اقلام",
             "text": "لایه متنی دارد، کنار گذاشته شده (نظام کدگذاری قدیمی)",
-            "dictionary": "راهنمای داده، نه پرسشنامه",
             "scan": "فقط تصویر اسکن‌شده",
         },
         "missing": "!!! note\n    فایل‌های PDF هنگام ساختن این نسخه از سایت در دسترس نبودند.",

@@ -1,7 +1,7 @@
 {
   "questionnaires": {
-    "years": 20,
-    "items": 21822,
+    "years": 21,
+    "items": 22864,
     "items_by_year": {
       "1383": 1239,
       "1384": 1281,
@@ -21,6 +21,7 @@
       "1398": 1042,
       "1399": 1042,
       "1400": 1042,
+      "1401": 1042,
       "1402": 1042,
       "1403": 1042
     }
@@ -35,11 +36,11 @@
     "retext_header": 1
   },
   "labels": {
-    "total": 26964,
-    "canonical": 3179,
-    "punctuation": 2874,
-    "spelling": 255,
-    "autocorrect": 3979
+    "total": 28261,
+    "canonical": 3213,
+    "punctuation": 2994,
+    "spelling": 265,
+    "autocorrect": 4144
   },
   "spelling": {
     "total": 53

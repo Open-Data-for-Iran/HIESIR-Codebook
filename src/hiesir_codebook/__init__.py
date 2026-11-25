@@ -28,9 +28,9 @@ CURATED_GROUPS = CURATED / "4_groups"  # links.csv
 CURATED_DATA = CURATED / "data"  # code_corrections.csv: wrong codes in the raw data
 
 # the years in the codebook: those whose PDF has a usable text layer (1363-1381
-# are scans; the 1401 PDF is a data dictionary, not the questionnaire), but 1382,
-# whose older 3+2 digit code scheme the matching across years does not cover
-SUPPORTED_YEARS = [*range(1383, 1401), 1402, 1403]
+# are scans), but 1382, whose older 3+2 digit code scheme the matching across
+# years does not cover
+SUPPORTED_YEARS = list(range(1383, 1404))
 
 # the extraction code lives in extraction/ (after the paths and years it uses)
 from .extraction import CSV_COLUMNS, Row, build, extract, extract_year, write_csv  # noqa: E402

@@ -94,8 +94,7 @@ not in the questionnaire, before → after the corrections.
 | 1385 | 0 | |
 | 1386 | 9 → 0 | Code typos on page 27 and elsewhere |
 | 1387–1389 | 0, 5, 1 | The ones left are reported by 1–2 households each |
-| 1390–1400, 1402, 1403 | 0 | 1395, 1396, 1399 and 1402 go through the glyph repair |
-| 1401 | n/a | The PDF is a data dictionary, not a questionnaire |
+| 1390–1403 | 0 | 1395, 1396, 1399 and 1402 go through the glyph repair |
 | 1363–1381 | n/a | Scanned images only; needs OCR |
 
 During development the extracts were also checked against the earlier

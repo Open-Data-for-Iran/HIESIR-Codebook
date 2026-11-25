@@ -35,8 +35,8 @@ from pathlib import Path
 from .. import csv_io
 from ..utils import loose_key, words
 
-# questionnaires with COICOP-based codes (the 1401 PDF is not a questionnaire)
-YEARS = [*range(1383, 1401), 1402, 1403]
+# questionnaires with COICOP-based codes
+YEARS = list(range(1383, 1404))
 MAX_GAP = 2  # how many questionnaires a series may skip
 
 #: provider qualifier at the end of a description

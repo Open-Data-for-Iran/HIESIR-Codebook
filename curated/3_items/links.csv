@@ -69,7 +69,7 @@
 055215-1384,055215-1386,confirm,,,"households 1385: 438 -> 1386: 476, x1.14 relative to the group (x0.96); fits",Claude Opus 5.5 Medium
 055218-1383,055218-1384,change,same,label_broadened,"door fittings -> all hinges, handles and locks, with و نظایر آن; households 1383: 447 -> 1384: 762, x1.62 relative to the group (x1.05); fits",Claude Opus 5.5 Medium
 055226-1383,055226-1386,reject,,,"replaced by the merge with 055219 (added in relations.csv); was: households 1385: 24 -> 1386: 39, x1.7 relative to the group (x0.96); too few",Claude Opus 5.5 Medium
-056111-1383,056111-1402,confirm,,,"households 1400: 7280 -> 1402: 8456, x1.29 relative to the group (x0.9); fits",Claude Opus 5.5 Medium
+056111-1383,056111-1402,confirm,,,"households 1401: 6850 -> 1402: 8456, x1.28 relative to the group (x0.97); fits",Claude Opus 5.5 Medium
 056114-1383,056114-1387,confirm,,,"households 1386: 10384 -> 1387: 13569, x1.15 relative to the group (x1.13); fits",Claude Opus 5.5 Medium
 056131-1383,056131-1384,confirm,,,"households 1383: 2814 -> 1384: 2767, x0.93 relative to the group (x1.05); fits",Claude Opus 5.5 Medium
 056131-1384,056131-1385,confirm,,,"households 1384: 2767 -> 1385: 2464, x0.85 relative to the group (x1.05); fits",Claude Opus 5.5 Medium
@@ -230,17 +230,17 @@
 093416-1383,093416-1387,confirm,,,"households 1386: 504 -> 1387: 561, x1.11; fits",Claude Opus 5.5 Medium
 093416-1387,093416-1392,confirm,,,"households 1391: 767 -> 1392: 559, x0.8 relative to the group (x0.91); fits",Claude Opus 5.5 Medium
 093417-1383,093417-1387,confirm,,,"households 1386: 72 -> 1387: 65, x0.9; too few",Claude Opus 5.5 Medium
-095112-1383,095112-1402,confirm,,,"households 1400: 5182 -> 1402: 5569, x1.12 relative to the group (x0.96); fits",Claude Opus 5.5 Medium
-095113-1383,095113-1402,confirm,,,"households 1400: 4959 -> 1402: 4690, x0.98 relative to the group (x0.96); fits",Claude Opus 5.5 Medium
-102111-1383,102111-1402,confirm,,,"households 1400: 1544 -> 1402: 2058, x1.33; fits",Claude Opus 5.5 Medium
-102112-1383,102112-1402,confirm,,,"households 1400: 188 -> 1402: 239, x1.27; fits",Claude Opus 5.5 Medium
-102113-1383,102113-1402,confirm,,,"households 1400: 9 -> 1402: 23, x2.56; too few",Claude Opus 5.5 Medium
-102114-1383,102114-1402,confirm,,,"households 1400: 78 -> 1402: 158, x2.03; fits",Claude Opus 5.5 Medium
-102211-1383,102211-1402,confirm,,,"households 1400: 1563 -> 1402: 1742, x1.11; fits",Claude Opus 5.5 Medium
-102212-1383,102212-1402,confirm,,,"households 1400: 196 -> 1402: 211, x1.08; fits",Claude Opus 5.5 Medium
-102213-1383,102213-1402,confirm,,,"households 1400: 27 -> 1402: 32, x1.19; too few",Claude Opus 5.5 Medium
-102214-1383,102214-1402,confirm,,,"households 1400: 80 -> 1402: 111, x1.39; fits",Claude Opus 5.5 Medium
-102215-1384,102215-1402,confirm,,,"households 1400: 2487 -> 1402: 3005, x1.21; fits",Claude Opus 5.5 Medium
+095112-1383,095112-1401,confirm,,,"households 1400: 5182 -> 1401: 5599, x1.11 relative to the group (x0.97); fits",Claude Opus 5.5 Medium
+095113-1383,095113-1401,confirm,,,"households 1400: 4959 -> 1401: 4573, x0.95 relative to the group (x0.97); fits",Claude Opus 5.5 Medium
+102111-1383,102111-1401,confirm,,,"households 1400: 1544 -> 1401: 1945, x1.26; fits",Claude Opus 5.5 Medium
+102112-1383,102112-1401,confirm,,,"households 1400: 188 -> 1401: 199, x1.06; fits",Claude Opus 5.5 Medium
+102113-1383,102113-1401,confirm,,,"households 1400: 9 -> 1401: 27, x3.0; too few",Claude Opus 5.5 Medium
+102114-1383,102114-1401,confirm,,,"households 1400: 78 -> 1401: 161, x2.06; fits",Claude Opus 5.5 Medium
+102211-1383,102211-1401,confirm,,,"households 1400: 1563 -> 1401: 1645, x1.05; fits",Claude Opus 5.5 Medium
+102212-1383,102212-1401,confirm,,,"households 1400: 196 -> 1401: 215, x1.1; fits",Claude Opus 5.5 Medium
+102213-1383,102213-1401,confirm,,,"households 1400: 27 -> 1401: 20, x0.74; too few",Claude Opus 5.5 Medium
+102214-1383,102214-1401,confirm,,,"households 1400: 80 -> 1401: 91, x1.14; too few",Claude Opus 5.5 Medium
+102215-1384,102215-1401,confirm,,,"households 1400: 2487 -> 1401: 2806, x1.13; fits",Claude Opus 5.5 Medium
 123134-1384,123134-1391,confirm,,,"households 1390: 529 -> 1391: 366, x0.8 relative to the group (x0.87); fits",Claude Opus 5.5 Medium
 123225-1383,123225-1384,change,same,label_broadened,"هزینه خرید آرامگاه -> هزینه آرامگاه: not only purchase; households 1383: 76 -> 1384: 207, x2.68 relative to the group (x1.02); fits",Claude Opus 5.5 Medium
 125211-1383,125211-1388,confirm,,,"households 1387: 723 -> 1388: 542, x0.75; fits",Claude Opus 5.5 Medium

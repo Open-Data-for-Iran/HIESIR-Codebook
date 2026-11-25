@@ -21,7 +21,7 @@ def test_published_names(tmp_path):
     assert [(f.year, f.area, f.name, f.kind) for f in found] == [
         (1363, "urban", "questionnaire_1363_urban.pdf", "scan"),
         (1386, "", "questionnaire_1386.pdf", "extracted"),
-        (1401, "", "questionnaire_1401.pdf", "dictionary"),
+        (1401, "", "questionnaire_1401.pdf", "extracted"),
     ]
     renamed = pdfs.rename(tmp_path)
     assert sorted(dst.name for _src, dst in renamed) == [

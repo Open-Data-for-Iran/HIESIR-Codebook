@@ -75,7 +75,7 @@ QUIRKS = {
     ),
     "code_tail": Quirk(
         "repaired: a header code list wrapped onto the next line (و01184), joined",
-        _years("1386-1400 1402-1403"),
+        _years("1386-1403"),
     ),
     "code_head": Quirk(
         "repaired: a header code list split around its text (06312 و / 06313 M), joined",
@@ -96,10 +96,10 @@ QUIRKS = {
     ),
     "source_note": Quirk(
         "left out: a note of the allowed source codes (3 یا 4)",
-        _years("1382 1386-1400 1402-1403"),
+        _years("1382 1386-1403"),
     ),
     "cell_label": Quirk(
         "left out: a field label inside a description cell",
-        _years("1386-1400 1402-1403"),
+        _years("1386-1403"),
     ),
 }
