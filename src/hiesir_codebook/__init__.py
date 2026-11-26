@@ -22,9 +22,10 @@ EXTRACTED = OUTPUT / "1_extracted"  # PDFs -> CSV, as printed
 CORRECTED = OUTPUT / "2_corrected"  # + curated/2_corrected/
 ITEMS = OUTPUT / "3_items"  # chains, changes and series across years (+ curated/3_items/)
 GROUPS = OUTPUT / "4_groups"  # group headers across years (+ curated/4_groups/)
+RESULTS = OUTPUT / "5_results"  # one flat table per thing, with the English labels
 CURATED_CORRECTED = CURATED / "2_corrected"  # corrections.csv, spelling.csv
-CURATED_ITEMS = CURATED / "3_items"  # changes.csv
-CURATED_GROUPS = CURATED / "4_groups"  # changes.csv
+CURATED_ITEMS = CURATED / "3_items"  # changes.csv, labels_en.csv
+CURATED_GROUPS = CURATED / "4_groups"  # changes.csv, labels_en.csv
 CURATED_DATA = CURATED / "data"  # code_corrections.csv: wrong codes in the raw data
 
 # the years in the codebook: those whose PDF has a usable text layer (1363-1381
@@ -41,11 +42,12 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
 
     extract (PDFs -> 1_extracted, skipped when the PDFs are not available)
     -> correct (+ curated/2_corrected -> 2_corrected) -> chains, changes and series
-    (-> 3_items) -> the groups (-> 4_groups) -> the figures of it all
-    (-> metrics.json). The explorer is not in output/: the site build makes its
-    data from these CSVs (scripts/mkdocs_hooks.py).
+    (-> 3_items) -> the groups (-> 4_groups) -> the results, with the English
+    labels (-> 5_results) -> the figures of it all (-> metrics.json). The
+    explorer is not in output/: the site build makes its data from these CSVs
+    (scripts/mkdocs_hooks.py).
     """
-    from . import metrics
+    from . import metrics, results
     from .correction import correct, corrections
     from .linking import chains, changes, groups, series
 
@@ -64,6 +66,7 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
     changes.main()
     series.main()
     groups.main()
+    results.main()
     metrics.main()
 
 

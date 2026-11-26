@@ -44,7 +44,7 @@ def build(*, no_extract: bool = False, data: Path = DATA_DIR) -> None:
 
     extract (PDFs -> 1_extracted, skipped when the PDFs are not there) -> correct
     (-> 2_corrected) -> chains, changes and series (-> 3_items) -> groups (-> 4_groups)
-    -> metrics (-> metrics.json).
+    -> results (-> 5_results) -> metrics (-> metrics.json).
 
     Parameters
     ----------
@@ -91,6 +91,7 @@ LAZY = [
     ),
     ("series", "linking.series:main", STAGES, "Matching stage 3: series and their codes -> output/3_items/."),
     ("groups", "linking.groups:main", STAGES, "Group headers across years -> output/4_groups/."),
+    ("results", "results:main", STAGES, "One table per thing, with English labels -> output/5_results/."),
     ("metrics", "metrics:main", STAGES, "The figures of the build -> output/metrics.json."),
     ("autocorrect", "correction.words:main", WORDS, "Write canonical.csv and words.csv with hazm's words."),
     ("excel", "excel:main", RELEASE, "The corrected questionnaires as Excel workbooks -> dist/excel/."),

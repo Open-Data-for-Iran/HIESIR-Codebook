@@ -1,0 +1,310 @@
+﻿group_id,section,level,code,parent_id,first_year,last_year,missing_years,items,label_fa,label_en
+G-011-1383,1,2,011,,1383,1403,,212,مواد خوراکی,Food
+G-0111-1383,1,3,0111,G-011-1383,1383,1403,,34,غلات، نان، آرد، رشته و فراورده‌های آن,"Cereals, bread, flour, noodles and their products"
+G-01111+01112-1383,1,4,"01111, 01112",G-0111-1383,1383,1403,,13,غلات,Cereals
+G-01114+01115-1383,1,4,"01114, 01115",G-0111-1383,1383,1403,,10,انواع نان,Bread
+G-01116-1383,1,4,01116,G-0111-1383,1383,1403,,6,آرد، رشته و فراورده‌های آن,"Flour, noodles and their products"
+G-01117-1383,1,4,01117,G-0111-1383,1383,1403,,5,بیسکویت و کیک,Biscuits and cakes
+G-0112+0113-1383,1,3,"0112, 0113",G-011-1383,1383,1403,,34,گوشت,Meat
+G-01121+01122-1383,1,4,"01121, 01122",G-0112+0113-1383,1383,1403,,12,گوشت دام,Livestock meat
+G-01123-1383,1,4,01123,G-0112+0113-1383,1383,1403,,9,گوشت پرندگان,Poultry meat
+G-01124-1383,1,4,01124,G-0112+0113-1383,1383,1403,,3,گوشت‌های آماده برای طبخ,Ready-to-cook meat
+G-0113-1383,1,3,0113,G-011-1383,1383,1383,,12,ماهی و میگو و فراورده‌های آن,"Fish, shrimp and their products"
+G-0114-1383,1,3,0114,G-011-1383,1383,1403,,20,شیر و فراورده‌های آن (به جز کره) و تخم پرندگان,Milk and milk products (except butter) and eggs
+G-01141-1383,1,4,01141,G-0114-1383,1383,1403,,4,شیر,Milk
+G-01142+01143-1383,1,4,"01142, 01143",G-0114-1383,1383,1403,,13,فراورده‌های شیر (به جز کره),Milk products (except butter)
+G-01144-1383,1,4,01144,G-0114-1383,1383,1403,,3,تخم پرندگان,Eggs
+G-0115-1383,1,3,0115,G-011-1383,1383,1403,,8,روغن‌ها، چربی‌ها و کره,"Oils, fats and butter"
+G-01151-1383,1,4,01151,G-0115-1383,1383,1403,,2,روغن‌ها و چربی‌های حیوانی (به جز کره),Animal oils and fats (except butter)
+G-01152-1383,1,4,01152,G-0115-1383,1383,1403,,3,انواع کره,Butter
+G-01153-1383,1,4,01153,G-0115-1383,1383,1403,,3,روغن‌های نباتی,Vegetable oils
+G-0116-1383,1,3,0116,G-011-1383,1383,1403,,40,میوه‌ها و خشکبار,Fruit and dried fruit and nuts
+G-01161+01162+01163-1383,1,4,"01161, 01162, 01163",G-0116-1383,1383,1403,,19,میوه‌های درختی,Tree fruit
+G-01164-1383,1,4,01164,G-0116-1383,1383,1403,,3,میوه‌های جالیزی,Melons
+G-01165+01166-1383,1,4,"01165, 01166",G-0116-1383,1383,1403,,18,خشکبار,Dried fruit and nuts
+G-0117-1383,1,3,0117,G-011-1383,1383,1403,,33,سبزی‌های تازه، خشک شده و حبوب,"Vegetables, fresh and dried, and pulses"
+G-01171-1383,1,4,01171,G-0117-1383,1383,1403,,6,سبزی‌های برگی,Leafy vegetables
+G-01172-1383,1,4,01172,G-0117-1383,1383,1403,,7,سبزی‌های بوته‌ای,Fruit-bearing vegetables
+G-01173-1383,1,4,01173,G-0117-1383,1383,1403,,5,سبزی‌های ریشه‌ای,Root vegetables
+G-01174-1383,1,4,01174,G-0117-1383,1383,1403,,2,سایر انواع سبزی,Other vegetables
+G-01175-1383,1,4,01175,G-0117-1383,1383,1403,,4,سبزی‌های آماده بسته‌بندی شده,Packaged ready-to-use vegetables
+G-01176-1383,1,4,01176,G-0117-1383,1383,1403,,9,حبوب,Pulses
+G-0118-1383,1,3,0118,G-011-1383,1383,1403,,17,قند، شکر، مرباها و شیرینی‌ها,"Sugar, jams and confectionery"
+G-01181-1383,1,4,01181,G-0118-1383,1383,1403,,2,قند و شکر,Sugar
+G-01182+01183+01184-1383,1,4,"01182, 01183, 01184",G-0118-1383,1383,1403,,15,مرباها و شیرینی‌ها,Jams and confectionery
+G-0119-1383,1,3,0119,G-011-1383,1383,1403,,26,ادویه‌ها، چاشنی‌ها و سایر ترکیب‌های خوراکی,"Spices, condiments and other food preparations"
+G-01191-1383,1,4,01191,G-0119-1383,1383,1403,,9,انواع ادویه,Spices
+G-01192-1383,1,4,01192,G-0119-1383,1383,1383,,12,چاشنی‌ها و سایر ترکیبات خوراکی,Condiments and other food preparations
+G-012-1383,1,2,012,,1383,1403,,11,چای، قهوه، کاکائو و نوشابه‌ها,"Tea, coffee, cocoa and soft drinks"
+G-0121-1383,1,3,0121,G-012-1383,1383,1403,,4,چای، قهوه، کاکائو (خشک),"Tea, coffee, cocoa (dry)"
+G-0122-1383,1,3,0122,G-012-1383,1383,1403,,7,نوشابه‌ها,Soft drinks
+G-021-1383,2,2,021,,1383,1403,,1,نوشیدنی‌های طبقه‌بندی نشده,Beverages not classified elsewhere
+G-0211-1383,2,3,0211,G-021-1383,1383,1403,,1,نوشیدنی‌های طبقه‌بندی نشده,Beverages not classified elsewhere
+G-022-1383,2,2,022,,1383,1403,,3,انواع دخانیات,Tobacco
+G-0221-1383,2,3,0221,G-022-1383,1383,1403,,3,انواع دخانیات,Tobacco
+G-023-1383,2,2,023,,1383,1403,,1,سایر انواع مواد دخانی که در بالا اشاره نشده,Other tobacco products not mentioned above
+G-0231-1383,2,3,0231,G-023-1383,1383,1403,,1,سایر انواع مواد دخانی که در بالا اشاره نشده,Other tobacco products not mentioned above
+G-031-1383,3,2,031,,1383,1388,,72,پوشاک,Clothing
+G-0311-1383,3,3,0311,G-031M-1389,1383,1403,,10,مواد پوشاکی (کم دوام),Clothing materials (semi-durable)
+G-03111+03112-1383,3,4,"03111, 03112",G-0311-1383,1383,1403,,10,انواع پارچه,Fabrics
+G-0312-1383,3,3,0312,G-031-1383,1383,1388,,44,پوشاک (کم دوام),Garments (semi-durable)
+G-03121+03122-1383,3,4,"03121, 03122",G-0312M-1389,1383,1403,,12,پوشاک مردانه,Men's clothing
+G-03123+03124-1383,3,4,"03123, 03124",G-0312-1383,1383,1388,,13,پوشاک زنانه,Women's clothing
+G-03125+03126-1383,3,4,"03125, 03126",G-0312M-1389,1383,1403,,11,پوشاک بچه‌گانه (3 تا 13 ساله),Children's clothing (ages 3 to 13)
+G-03127-1383,3,4,03127,G-0312M-1389,1383,1403,,7,پوشاک اطفال (تا 2 سال),Infants' clothing (up to age 2)
+G-0313-1383,3,3,0313,G-031-1383,1383,1388,,12,سایر انواع پوشاک و لوازم پوشاکی (کم دوام),Other clothing and clothing accessories (semi-durable)
+G-0314-1383,3,3,0314,G-031-1383,1383,1388,,6,هزینه شستشو، اجرت دوخت، تعمیر و کرایه پوشاک (خدمت),"Cleaning, tailoring, repair and hire of clothing (services)"
+G-032-1383,3,2,032,,1383,1403,,16,کفش,Footwear
+G-0321-1383,3,3,0321,G-032-1383,1383,1403,,13,انواع کفش,Shoes
+G-03211-1383,3,4,03211,G-0321-1383,1383,1403,,4,کفش مردانه,Men's shoes
+G-03212-1383,3,4,03212,G-0321-1383,1383,1403,,4,کفش زنانه,Women's shoes
+G-03213-1383,3,4,03213,G-0321-1383,1383,1403,,4,کفش بچه‌گانه (3-13 ساله),Children's shoes (ages 3-13)
+G-03214-1383,3,4,03214,G-0321-1383,1383,1403,,1,کفش اطفال (تا دو ساله),Infants' shoes (up to age 2)
+G-0322-1383,3,3,0322,G-032-1383,1383,1403,,3,تعمیرات و ملزومات کفش,Footwear repair and accessories
+G-03221-1383,3,4,03221,G-0322-1383,1383,1403,,2,تعمیرات کفش,Footwear repair
+G-03222-1383,3,4,03222,G-0322-1383,1383,1403,,1,ملزومات کفش,Footwear accessories
+G-041-1383,4,2,041,,1383,1403,,6,اجاره‌بهای واقعی مسکن,Actual rentals for housing
+G-0411-1383,4,3,0411,G-041-1383,1383,1403,,3,اجاره‌بهای محل سکونت (اقامتگاه اصلی),Rent of dwelling (main residence)
+G-0412-1383,4,3,0412,G-041-1383,1383,1403,,3,اجاره‌بهای محل سکونت (اقامتگاه‌های بعدی),Rent of dwelling (secondary residences)
+G-042-1383,4,2,042,,1383,1403,,6,اجاره‌بهای احتسابی مسکن,Imputed rentals for housing
+G-0421-1383,4,3,0421,G-042-1383,1383,1403,,1,برآورد اجاره‌بهای مسکن شخصی برای اقامتگاه اصلی,Imputed rent of owner-occupied main residence
+G-0422-1383,4,3,0422,G-042-1383,1383,1403,,5,سایر اجاره‌های احتسابی,Other imputed rentals
+G-044M-1383,4,2,044 M,,1383,1384,,14,هزینه آب و فاضلاب و سایر خدمات مربوط به واحد مسکونی,"Water, sewerage and other services relating to the dwelling"
+G-0441-1383,4,3,0441,G-044-1385,1383,1403,,3,هزینه آب,Water supply
+G-0442-1383,4,3,0442,G-044M-1383,1383,1383,,1,هزینه‌های دفع زباله,Refuse collection
+G-0443-1383,4,3,0443,G-044-1385,1383,1403,,2,هزینه‌های جمع‌آوری فاضلاب,Sewage collection
+G-0444M-1383,4,3,0444 M,G-044M-1383,1383,1383,,4,سایر خدمات مربوط به واحد مسکونی,Other services relating to the dwelling
+G-045-1383,4,2,045,,1383,1403,,13,روشنایی و سوخت,"Electricity, gas and other fuels"
+G-0451-1383,4,3,0451,G-045-1383,1383,1403,,2,برق,Electricity
+G-0452-1383,4,3,0452,G-045-1383,1383,1403,,3,گاز,Gas
+G-0453-1383,4,3,0453,G-045-1383,1383,1403,,4,سوخت مایع,Liquid fuels
+G-0454-1383,4,3,0454,G-045-1383,1383,1403,,4,سوخت‌های جامد,Solid fuels
+G-052-1383,5,2,052,,1383,1403,,13,لوازم پارچه‌ای خانگی (کم دوام),Household textiles (semi-durable)
+G-0521-1383,5,3,0521,G-052-1383,1383,1403,,13,لوازم پارچه‌ای خانگی,Household textiles
+G-054M-1383,5,2,054 M,,1383,1403,,23,انواع ظروف غذاخوری و سایر لوازم خانگی,"Glassware, tableware and household utensils"
+G-0540M-1383,5,3,0540 M,G-054M-1383,1383,1403,,23,انواع ظروف غذاخوری و سایر لوازم خانگی,"Glassware, tableware and household utensils"
+G-055M-1383,5,2,055 M,,1383,1403,,12,ابزار و تجهیزات منزل و باغ,Tools and equipment for house and garden
+G-0552-1383,5,3,0552,G-055M-1383,1383,1403,,12,ابزار و تجهیزات کم دوام منزل و باغ,Semi-durable tools and equipment for house and garden
+G-056M-1383,5,2,056 M,,1383,1403,,37,کالاها و خدمات برای منزل,Goods and services for the household
+G-0561-1383,5,3,0561,G-056M-1383,1383,1403,,35,کالاهای بی‌دوام خانگی,Non-durable household goods
+G-0562M-1383,5,3,0562 M,G-056M-1383,1383,1403,,2,خدمات خانگی و مراقبت از منزل,Domestic services and household services
+G-061-1383,6,2,061,,1383,1388,,23,محصولات، وسایل و لوازم پزشکی,"Medical products, appliances and equipment"
+G-0611-1383,6,3,0611,G-061M-1389,1383,1403,,6,محصولات دارویی و درمانی,Pharmaceutical products
+G-0612-1383,6,3,0612,G-061-1383,1383,1388,,6,محصولات پزشکی,Medical products
+G-0613-1383,6,3,0613,G-061M-1389,1383,1403,,6,وسایل و تجهیزات درمانی,Therapeutic appliances and equipment
+G-062-1383,6,2,062,,1383,1394,,32,خدمات طبی سرپایی,Outpatient services
+G-0621-1383,6,3,0621,G-062-1383,1383,1394,,6,خدمات پزشکی,Medical services
+G-0622-1383,6,3,0622,G-062M-1395,1383,1403,,4,خدمات دندان‌پزشکی,Dental services
+G-0623-1383,6,3,0623,G-062M-1395,1383,1403,,16,خدمات پیراپزشکی,Paramedical services
+G-063-1383,6,2,063,,1383,1389,,35,خدمات بیمارستانی,Hospital services
+G-0631-1383,6,3,0631,G-063-1383,1383,1389,,20,خدمات پزشکی,Medical services
+G-06311-1383,6,4,06311,G-0631-1383,1383,1389,,9,خدمات پزشکی بیمارستان‌های عمومی,Medical services of general hospitals
+G-06312-1383,6,4,06312,G-0631-1383,1383,1389,,11,خدمات بیمارستان‌های تخصصی,Services of specialized hospitals
+G-0633-1383,6,3,0633,G-063M-1390,1383,1394,,11,خدمات پیراپزشکی,Paramedical services
+G-0634-1383,6,3,0634,G-063-1383,1383,1389,,4,خدمات اصلی,Core hospital services
+G-06341-1383,6,4,06341,G-0634-1383,1383,1389,,1,خدمات اصلی بیمارستان‌های عمومی,Core services of general hospitals
+G-06342-1383,6,4,06342,G-0634-1383,1383,1389,,1,خدمات اصلی بیمارستان‌های تخصصی,Core services of specialized hospitals
+G-06343-1383,6,4,06343,G-0634-1383,1383,1389,,1,خدمات اصلی بیمارستان‌های روانی,Core services of psychiatric hospitals
+G-06344-1383,6,4,06344,G-0634-1383,1383,1389,,1,خدمات اصلی بیمارستان‌های توانبخشی,Core services of rehabilitation hospitals
+G-072M-1383,7,2,072 M,,1383,1403,,12,تجهیزات حمل و نقل شخصی,Personal transport equipment
+G-0722-1383,7,3,0722,G-072M-1383,1383,1403,,4,انواع سوخت و روان‌ساز برای وسایل حمل و نقل شخصی,Fuels and lubricants for personal transport equipment
+G-0723M-1383,7,3,0723 M,G-072M-1383,1383,1403,,6,نگهداری و تعمیر وسایل نقلیه شخصی,Maintenance and repair of personal vehicles
+G-0724M-1383,7,3,0724 M,G-072M-1383,1383,1403,,2,سایر خدمات مربوط به وسایل و تجهیزات حمل و نقل شخصی,Other services relating to personal transport equipment
+G-073-1383,7,2,073,,1383,1403,,22,خدمات حمل و نقل,Transport services
+G-0731-1383,7,3,0731,G-073-1383,1383,1403,,3,هزینه خدمات حمل و نقل ریلی,Rail transport services
+G-0732-1383,7,3,0732,G-073-1383,1383,1403,,14,هزینه خدمات حمل و نقل جاده‌ای,Road transport services
+G-0733-1383,7,3,0733,G-073-1383,1383,1403,,2,هزینه خدمات حمل و نقل هوایی,Air transport services
+G-0734-1383,7,3,0734,G-073-1383,1383,1403,,1,هزینه خدمات حمل و نقل دریایی و راه آبی داخلی,Sea and inland waterway transport services
+G-0735-1383,7,3,0735,G-073-1383,1383,1403,,1,هزینه خدمات حمل و نقل مختلط,Combined transport services
+G-0736-1383,7,3,0736,G-073-1383,1383,1403,,1,سایر خدمات خریداری شده حمل و نقل,Other purchased transport services
+G-081-1383,8,2,081,,1383,1403,,2,خدمات پستی,Postal services
+G-0811-1383,8,3,0811,G-081-1383,1383,1403,,2,خدمات پستی,Postal services
+G-082M-1383,8,2,082 M,,1383,1403,,1,تجهیزات تلفن و تلفکس,Telephone and telefax equipment
+G-0821M-1383,8,3,0821 M,G-082M-1383,1383,1403,,1,تجهیزات تلفن و تلفکس,Telephone and telefax equipment
+G-083-1383,8,2,083,,1383,1403,,11,خدمات تلفن و فکس,Telephone and fax services
+G-0831-1383,8,3,0831,G-083-1383,1383,1403,,11,خدمات تلفن و فکس,Telephone and fax services
+G-091M-1383,9,2,091 M,,1383,1403,,7,تجهیزات سمعی-بصری، عکاسی، داده‌پردازی و لوازم آن‌ها,"Audio-visual, photographic and information processing equipment and accessories"
+G-0912M-1383,9,3,0912 M,G-091M-1383,1383,1403,,1,وسایل عکاسی، فیلم‌برداری و تجهیزات نور,"Photographic, video and lighting equipment"
+G-0914-1383,9,3,0914,G-091M-1383,1383,1403,,6,وسایل ضبط تصویر و صدا (کم دوام),Recording media (semi-durable)
+G-093M-1383,9,2,093 M,,1383,1403,,10,سایر اقلام و وسایل تفریحی، باغ‌ها و حیوان‌های خانگی,"Other recreational items and equipment, gardens and pets"
+G-0931M-1383,9,3,0931 M,G-093M-1383,1383,1403,,5,لوازم بازی، انواع اسباب‌بازی و وسایل سرگرمی,"Games, toys and hobbies"
+G-0932M-1383,9,3,0932 M,G-093M-1383,1383,1403,,1,لوازم ورزشی و تفریحی در اردوگاه‌ها و فضاهای باز,"Equipment for sport, camping and open-air recreation"
+G-0933M-1383,9,3,0933 M,G-093M-1383,1383,1403,,3,باغ گیاهان و گل‌ها,"Gardens, plants and flowers"
+G-0935-1383,9,3,0935,G-093M-1383,1383,1403,,1,دامپزشکی و سایر خدمات برای حیوان‌های خانگی (خدمت),Veterinary and other services for pets (services)
+G-094-1383,9,2,094,,1383,1403,,19,خدمات فرهنگی و تفریحی,Recreational and cultural services
+G-0941-1383,9,3,0941,G-094-1383,1383,1403,,8,خدمات تفریحی,Recreational services
+G-0942-1383,9,3,0942,G-094-1383,1383,1403,,10,خدمات فرهنگی,Cultural services
+G-0943-1383,9,3,0943,G-094-1383,1383,1403,,1,کلیه بازی‌های شانسی,All games of chance
+G-095M-1383,9,2,095 M,,1383,1403,,25,روزنامه، کتاب و لوازم‌التحریر,"Newspapers, books and stationery"
+G-0951M-1383,9,3,0951 M,G-095M-1383,1383,1403,,4,کتاب,Books
+G-09511M-1383,9,4,09511 M,G-0951M-1383,1383,1403,,1,کتاب‌های درسی,Textbooks
+G-09512M-1383,9,4,09512 M,G-0951M-1383,1383,1403,,3,انواع کتاب‌های غیر درسی,Non-textbooks
+G-0952-1383,9,3,0952,G-095M-1383,1383,1403,,2,روزنامه‌ها، مجلات و سایر نشریات ادواری,"Newspapers, magazines and other periodicals"
+G-0953-1383,9,3,0953,G-095M-1383,1383,1403,,3,موضوعات چاپ شده متفرقه,Miscellaneous printed matter
+G-0954-1383,9,3,0954,G-095M-1383,1383,1403,,16,لوازم‌التحریر، لوازم رسم، نقاشی و لوازم هنری,"Stationery, drawing, painting and art supplies"
+G-105M-1383,10,2,105 M,,1383,1383,,2,هزینه آموزش‌های سطح‌بندی نشده,Education not definable by level
+G-1051M-1383,10,3,1051 M,G-105M-1383,1383,1383,,2,هزینه آموزش‌های سطح‌بندی نشده,Education not definable by level
+G-111-1383,11,2,111,,1383,1403,,34,خدمات تهیه و ارائه غذا,Catering services
+G-1111-1383,11,3,1111,G-111-1383,1383,1403,,33,هزینه غذا در رستوران‌ها، کافه‌ها و نظایر آن,"Food in restaurants, cafés and the like"
+G-1112-1383,11,3,1112,G-111-1383,1383,1403,,1,غذا خوری‌ها و سلف‌سرویس,Canteens and self-service eateries
+G-112-1383,11,2,112,,1383,1396,,6,خدمات تامین جا (مهمانسراها، هتل و مسافرخانه ...),"Accommodation services (guesthouses, hotels, inns, etc.)"
+G-1120-1383,11,3,1120,G-112-1383,1383,1396,,6,خدمات تامین جا (مهمانسراها، هتل و مسافرخانه ...),"Accommodation services (guesthouses, hotels, inns, etc.)"
+G-121-1383,12,2,121,,1383,1403,,30,خدمات شخصی,Personal care
+G-1211-1383,12,3,1211,G-121-1383,1383,1403,,8,خدمات آرایش و پیرایش شخصی,Hairdressing and personal grooming services
+G-1212-1383,12,3,1212,G-121-1383,1383,1403,,2,لوازم برقی برای خدمات شخصی (کم دوام),Electric appliances for personal care (semi-durable)
+G-1213-1383,12,3,1213,G-121-1383,1383,1403,,20,لوازم و کالاهای شخصی بی‌دوام,Other articles and products for personal care (non-durable)
+G-123M-1383,12,2,123 M,,1383,1403,,13,لوازم شخصی طبقه‌بندی نشده در جای دیگر,Personal effects not classified elsewhere
+G-1232M-1383,12,3,1232 M,G-123M-1383,1383,1403,,13,سایر لوازم شخصی,Other personal effects
+G-124-1383,12,2,124,,1383,1383,,6,حمایت اجتماعی و خدمات مشاوره‌ای,Social protection and counselling services
+G-1241-1383,12,3,1241,G-124-1383,1383,1383,,6,حمایت اجتماعی,Social protection
+G-125M-1383,12,2,125 M,,1383,1383,,11,بیمه,Insurance
+G-1251M-1383,12,3,1251 M,G-125M-1383,1383,1383,,2,بیمه عمر (خدمت),Life insurance (services)
+G-1253-1383,12,3,1253,G-125M-1383,1383,1383,,5,بیمه‌های مربوط به بهداشت و درمان (خدمت),Insurance connected with health (services)
+G-1254-1383,12,3,1254,G-125M-1383,1383,1383,,3,بیمه مرتبط با حمل و نقل,Insurance connected with transport
+G-1255M-1383,12,3,1255 M,G-125M-1383,1383,1383,,1,سایر انواع بیمه (خدمت),Other insurance (services)
+G-043-1383,13,2,043,,1383,1403,,30,نگهداری و تعمیر واحد مسکونی (اقامتگاه اول و بعدی),Maintenance and repair of the dwelling (main and secondary residences)
+G-0431-1383,13,3,0431,G-043-1383,1383,1403,,17,مواد و مصالح برای نگهداری و تعمیر واحد مسکونی,Materials for the maintenance and repair of the dwelling
+G-0432-1383,13,3,0432,G-043-1383,1383,1403,,13,خدمات نگهداری و تعمیر واحد مسکونی,Services for the maintenance and repair of the dwelling
+G-044A-1383,13,2,044 A,,1383,1383,,3,هزینه آب و فاضلاب و سایر خدمات مربوط به واحد مسکونی,"Water, sewerage and other services relating to the dwelling"
+G-0444A-1383,13,3,0444 A,G-044A-1383,1383,1383,,3,سایر خدمات مربوط به واحد مسکونی,Other services relating to the dwelling
+G-051-1383,13,2,051,,1383,1403,,21,مبلمان و اثاث، فرش و سایر کفپوش‌ها,"Furniture and furnishings, carpets and other floor coverings"
+G-0511-1383,13,3,0511,G-051-1383,1383,1403,,14,مبلمان و اثاث,Furniture and furnishings
+G-05111-1383,13,4,05111,G-0511-1383,1383,1385,,4,مبلمان و اثاث چوبی,Wooden furniture and furnishings
+G-05112-1383,13,4,05112,G-0511-1383,1383,1385,,4,مبلمان و اثاث فلزی,Metal furniture and furnishings
+G-05113-1383,13,4,05113,G-0511-1383,1383,1385,,5,مبلمان و اثاث پلاستیکی (فایبر گلاس),Plastic (fibreglass) furniture and furnishings
+G-05114-1383,13,4,05114,G-0511-1383,1383,1390,,9,سایر اثاث,Other furnishings
+G-0512-1383,13,3,0512,G-051-1383,1383,1403,,5,فرش و سایر کفپوش‌ها,Carpets and other floor coverings
+G-0513-1383,13,3,0513,G-051-1383,1383,1403,,2,تعمیر مبلمان، اثاث و کفپوش‌ها,"Repair of furniture, furnishings and floor coverings"
+G-053-1383,13,2,053,,1383,1403,,25,وسایل خانگی,Household appliances
+G-0531-1383,13,3,0531,G-053-1383,1383,1403,,17,وسایل اصلی برقی و غیر برقی (بادوام),"Major household appliances, electric or not (durable)"
+G-0532-1383,13,3,0532,G-053-1383,1383,1403,,6,وسایل کوچک برقی (کم دوام),Small electric appliances (semi-durable)
+G-0533-1383,13,3,0533,G-053-1383,1383,1403,,2,هزینه تعمیر، نصب و اجاره وسایل اصلی برقی و غیر برقی,"Repair, installation and hire of major household appliances"
+G-054A-1383,13,2,054 A,,1383,1403,,5,انواع ظروف غذاخوری و سایر لوازم خانگی,"Glassware, tableware and household utensils"
+G-0540A-1383,13,3,0540 A,G-054A-1383,1383,1403,,5,انواع ظروف غذاخوری و سایر لوازم خانگی,"Glassware, tableware and household utensils"
+G-055A-1383,13,2,055 A,,1383,1403,,3,ابزار و تجهیزات منزل و باغ,Tools and equipment for house and garden
+G-0551-1383,13,3,0551,G-055A-1383,1383,1403,,3,ابزار و تجهیزات بادوام,Durable tools and equipment
+G-056A-1383,13,2,056 A,,1383,1403,,1,کالاها و خدمات برای منزل,Goods and services for the household
+G-0562A-1383,13,3,0562 A,G-056A-1383,1383,1403,,1,خدمات خانگی و مراقبت از منزل,Domestic services and household services
+G-071-1383,13,2,071,,1383,1403,,8,خرید وسایل نقلیه,Purchase of vehicles
+G-0711-1383,13,3,0711,G-071-1383,1383,1403,,4,خرید انواع خودرو,Purchase of motor cars
+G-0712-1383,13,3,0712,G-071-1383,1383,1403,,1,انواع موتور,Motorcycles
+G-0713-1383,13,3,0713,G-071-1383,1383,1403,,3,انواع دوچرخه,Bicycles
+G-0714-1383,13,3,0714,G-071-1383,1383,1385,,2,وسایل نقلیه که توسط چهارپایان کشیده می‌شود,Animal-drawn vehicles
+G-072A-1383,13,2,072 A,,1383,1403,,27,تجهیزات حمل و نقل شخصی,Personal transport equipment
+G-0721-1383,13,3,0721,G-072A-1383,1383,1403,,16,لوازم و قطعات یدکی,Accessories and spare parts
+G-0723A-1383,13,3,0723 A,G-072A-1383,1383,1403,,4,نگهداری و تعمیر وسایل نقلیه شخصی,Maintenance and repair of personal vehicles
+G-0724A-1383,13,3,0724 A,G-072A-1383,1383,1403,,7,سایر خدمات مربوط به تجهیزات حمل و نقل شخصی,Other services relating to personal transport equipment
+G-082A-1383,13,2,082 A,,1383,1403,,4,تجهیزات تلفن و تلفکس,Telephone and telefax equipment
+G-0821A-1383,13,3,0821 A,G-082A-1383,1383,1403,,4,تجهیزات تلفن و تلفکس,Telephone and telefax equipment
+G-091A-1383,13,2,091 A,,1383,1403,,25,تجهیزات سمعی-بصری، عکاسی، داده‌پردازی و لوازم آن‌ها,"Audio-visual, photographic and information processing equipment and accessories"
+G-0911-1383,13,3,0911,G-091A-1383,1383,1403,,10,تجهیزات ویژه دریافت، ضبط و تکثیر صدا و تصویر,"Equipment for the reception, recording and reproduction of sound and pictures"
+G-09111-1383,13,4,09111,G-0911-1383,1383,1383,,15,انواع تلویزیون,Televisions
+G-0912A-1383,13,3,0912 A,G-091A-1383,1383,1403,,4,وسایل عکاسی، فیلم‌برداری و تجهیزات نور,"Photographic, video and lighting equipment"
+G-0913-1383,13,3,0913,G-091A-1383,1383,1403,,8,تجهیزات رایانه,Computer equipment
+G-0915-1383,13,3,0915,G-091A-1383,1383,1403,,3,اجرت تعمیر تجهیزات صوتی و تصویری، عکاسی، رایانه‌ای و لوازم آن,"Repair of audio-visual, photographic and computer equipment and accessories"
+G-092-1383,13,2,092,,1383,1403,,7,سایر وسایل عمده بادوام برای تفریح و فرهنگ,Other major durables for recreation and culture
+G-0921-1383,13,3,0921,G-092-1383,1383,1403,,1,سایر وسایل عمده بادوام برای تفریح و فرهنگ,Other major durables for recreation and culture
+G-0922-1383,13,3,0922,G-092-1383,1383,1403,,3,آلات موسیقی و لوازم عمده بادوام برای تفریح و فرهنگ,Musical instruments and major durables for recreation and culture
+G-0923-1383,13,3,0923,G-092-1383,1383,1403,,3,تعمیر و نگهداری وسایل عمده بادوام تفریح و فرهنگ,Maintenance and repair of major durables for recreation and culture
+G-093A-1383,13,2,093 A,,1383,1403,,29,سایر اقلام و وسایل تفریحی، باغ‌ها و حیوان‌های خانگی,"Other recreational items and equipment, gardens and pets"
+G-0931A-1383,13,3,0931 A,G-093A-1383,1383,1403,,9,لوازم بازی، انواع اسباب‌بازی و وسایل سرگرمی,"Games, toys and hobbies"
+G-0932A-1383,13,3,0932 A,G-093A-1383,1383,1403,,13,لوازم ورزشی و تفریحی در اردوگاه‌ها و فضاهای باز,"Equipment for sport, camping and open-air recreation"
+G-0933A-1383,13,3,0933 A,G-093A-1383,1383,1403,,2,باغ گیاهان و گل‌ها,"Gardens, plants and flowers"
+G-0934-1383,13,3,0934,G-093A-1383,1383,1403,,5,حیوان‌های خانگی و لوازم مربوط,Pets and related products
+G-095A-1383,13,2,095 A,,1383,1403,,7,روزنامه، کتاب و لوازم‌التحریر,"Newspapers, books and stationery"
+G-0951A-1383,13,3,0951 A,G-095A-1383,1383,1403,,7,کتاب,Books
+G-09511A-1383,13,4,09511 A,G-0951A-1383,1383,1403,,5,کتاب‌های درسی,Textbooks
+G-09512A-1383,13,4,09512 A,G-0951A-1383,1383,1403,,2,انواع کتاب‌های غیر درسی,Non-textbooks
+G-096-1383,13,2,096,,1383,1403,,4,هزینه مسافرت‌های دستجمعی (همراه تور),Package holidays (group tours)
+G-101+102+103+104-1383,13,2,"101, 102, 103, 104",,1383,1383,,21,هزینه آموزش,Education
+G-1011+1021+1031+1041-1383,13,3,"1011, 1021, 1031, 1041",G-101+102+103+104-1383,1383,1383,,21,هزینه آموزش,Education
+G-105A-1383,13,2,105 A,,1383,1383,,1,هزینه آموزش‌های سطح‌بندی نشده,Education not definable by level
+G-1051A-1383,13,3,1051 A,G-105A-1383,1383,1383,,1,هزینه آموزش‌های سطح‌بندی نشده,Education not definable by level
+G-123A-1383,13,2,123 A,,1383,1403,,10,لوازم شخصی طبقه‌بندی نشده در جای دیگر,Personal effects not classified elsewhere
+G-1231-1383,13,3,1231,G-123A-1383,1383,1403,,8,جواهرات، ساعت‌های دیواری و مچی بادوام,"Jewellery, clocks and watches (durable)"
+G-1232A-1383,13,3,1232 A,G-123A-1383,1383,1403,,2,سایر لوازم شخصی,Other personal effects
+G-125A-1383,13,2,125 A,,1383,1383,,7,بیمه,Insurance
+G-1251A-1383,13,3,1251 A,G-125A-1383,1383,1383,,4,بیمه عمر (خدمت),Life insurance (services)
+G-1252-1383,13,3,1252,G-125-1384,1383,1403,,2,بیمه‌های مربوط به مسکن (خدمت),Insurance connected with the dwelling (services)
+G-1255A-1383,13,3,1255 A,G-125A-1383,1383,1383,,1,سایر انواع بیمه (خدمت),Other insurance (services)
+G-126-1383,13,2,126,,1383,1403,,4,خدمات مالی طبقه‌بندی نشده در جای دیگر,Financial services not classified elsewhere
+G-1261-1383,13,3,1261,G-126-1383,1383,1403,,2,خدمات واسطه‌گری‌های مالی که غیر مستقیم اندازه‌گیری می‌شوند (خدمت),Financial intermediation services indirectly measured (FISIM)
+G-1262-1383,13,3,1262,G-126-1383,1383,1403,,2,سایر خدمات مالی طبقه‌بندی نشده در جای دیگر,Other financial services not classified elsewhere
+G-127-1383,13,2,127,,1383,1403,,20,سایر خدمات طبقه‌بندی نشده در جای دیگر,Other services not classified elsewhere
+G-1271-1383,13,3,1271,G-127-1383,1383,1403,,20,سایر خدمات طبقه‌بندی نشده در جای دیگر,Other services not classified elsewhere
+G-139-1383,13,2,139,,1383,1403,,13,انتقالات,Transfers
+G-1391-1383,13,3,1391,G-139-1383,1383,1403,,6,هزینه‌های مذهبی,Religious expenditures
+G-1392-1383,13,3,1392,G-139-1383,1383,1403,,7,خسارت و دیه,Compensation and blood money (diyeh)
+G-33-1383,14,2,33,,1383,1403,,33,سرمایه‌گذاری خانوار در ساختمان,Household investment in buildings
+G-331+332-1383,14,3,"331, 332",G-33-1383,1383,1403,,17,سرمایه‌گذاری خانوار در ساختمان به منظور سکونت شخصی (اقامتگاه اصلی و اقامتگاه دوم),Household investment in buildings for own residence (main and second residence)
+G-333+334-1383,14,3,"333, 334",G-33-1383,1383,1403,,16,سرمایه‌گذاری خانوار در ساختمان به منظور کسب درامد,Household investment in buildings for earning income
+G-34-1383,14,2,34,,1383,1403,,18,سرمایه‌گذاری خانوار در بخش کشاورزی و طرح‌های آبادانی و عمرانی,Household investment in agriculture and development projects
+G-341+342-1383,14,3,"341, 342",G-34-1383,1383,1403,,18,سرمایه‌گذاری خانوار در بخش کشاورزی و طرح‌های آبادانی و عمرانی,Household investment in agriculture and development projects
+G-01131+01132-1384,1,4,"01131, 01132",G-0112+0113-1383,1384,1403,,10,ماهی و میگو و فراورده‌های آن,"Fish, shrimp and their products"
+G-01192+01193-1384,1,4,"01192, 01193",G-0119-1383,1384,1390,,17,چاشنی‌ها و سایر ترکیب‌های خوراکی,Condiments and other food preparations
+G-0444-1384,4,3,0444,G-044-1385,1384,1403,,5,سایر خدمات مربوط به واحد مسکونی,Other services relating to the dwelling
+G-064-1384,6,2,064,,1384,1403,,3,هزینه ترک اعتیاد,Addiction treatment
+G-0641-1384,6,3,0641,G-064-1384,1384,1403,,3,هزینه ترک اعتیاد,Addiction treatment
+G-124M-1384,12,2,124 M,,1384,1403,,5,حمایت اجتماعی و خدمات مشاوره‌ای,Social protection and counselling services
+G-1241M-1384,12,3,1241 M,G-124M-1384,1384,1403,,5,حمایت اجتماعی,Social protection
+G-101-1384,13,2,101,,1384,1403,,5,هزینه آموزش ابتدایی و پیش‌دبستانی,Primary and pre-primary education
+G-1011-1384,13,3,1011,G-101-1384,1384,1403,,5,هزینه آموزش ابتدایی و پیش‌دبستانی,Primary and pre-primary education
+G-102-1384,13,2,102,,1384,1403,,9,هزینه آموزش راهنمایی و دبیرستان / متوسطه 1 و 2,Middle and high school / lower and upper secondary education
+G-1021-1384,13,3,1021,G-102-1384,1384,1386,,9,هزینه آموزش راهنمایی و دبیرستان,Middle and high school education
+G-103-1384,13,2,103,,1384,1403,,6,هزینه آموزش پیش‌دانشگاهی و تقویتی,Pre-university and tutoring education
+G-1031-1384,13,3,1031,G-103-1384,1384,1403,,6,هزینه آموزش پیش‌دانشگاهی و تقویتی,Pre-university and tutoring education
+G-104-1384,13,2,104,,1384,1403,,5,هزینه آموزش تحصیلات عالی,Higher education
+G-1041-1384,13,3,1041,G-104-1384,1384,1403,,5,هزینه آموزش تحصیلات عالی,Higher education
+G-105-1384,13,2,105,,1384,1403,,5,هزینه آموزش‌های سطح‌بندی نشده,Education not definable by level
+G-1051-1384,13,3,1051,G-105-1384,1384,1403,,5,هزینه آموزش‌های سطح‌بندی نشده,Education not definable by level
+G-124A-1384,13,2,124 A,,1384,1403,,1,حمایت اجتماعی,Social protection
+G-1241A-1384,13,3,1241 A,G-124A-1384,1384,1403,,1,حمایت اجتماعی,Social protection
+G-125-1384,13,2,125,,1384,1403,,23,بیمه,Insurance
+G-1251-1384,13,3,1251,G-125-1384,1384,1403,,10,بیمه غیر درمانی (بازنشستگی و ...),"Non-health insurance (pension, etc.)"
+G-1253-1384,13,3,1253,G-125-1384,1384,1403,,7,بیمه‌های مربوط به بهداشت و درمان,Insurance connected with health
+G-1254-1384,13,3,1254,G-125-1384,1384,1403,,3,بیمه مرتبط با حمل و نقل,Insurance connected with transport
+G-1255-1384,13,3,1255,G-125-1384,1384,1403,,1,سایر انواع بیمه (خدمت),Other insurance (services)
+G-044-1385,4,2,044,,1385,1403,,10,هزینه آب و فاضلاب و سایر خدمات مربوط به واحد مسکونی,"Water, sewerage and other services relating to the dwelling"
+G-05117-1386,13,4,05117,G-0511-1383,1386,1403,,5,مبلمان و اثاث,Furniture and furnishings
+G-1021+1022-1387,13,3,"1021, 1022",G-102-1384,1387,1403,,9,هزینه آموزش راهنمایی و دبیرستان / متوسطه 1 و 2,Middle and high school / lower and upper secondary education
+G-031M-1389,3,2,031 M,,1389,1403,,66,پوشاک,Clothing
+G-0312M-1389,3,3,0312 M,G-031M-1389,1389,1403,,40,پوشاک (کم دوام),Garments (semi-durable)
+G-03123M+03124M-1389,3,4,"03123 M, 03124 M",G-0312M-1389,1389,1403,,10,پوشاک زنانه,Women's clothing
+G-0313M-1389,3,3,0313 M,G-031M-1389,1389,1403,,11,سایر انواع پوشاک و لوازم پوشاکی (کم دوام),Other clothing and clothing accessories (semi-durable)
+G-0314M-1389,3,3,0314 M,G-031M-1389,1389,1403,,5,هزینه شستشو، اجرت دوخت، تعمیر و کرایه پوشاک (خدمت),"Cleaning, tailoring, repair and hire of clothing (services)"
+G-061M-1389,6,2,061 M,,1389,1403,,15,محصولات، وسایل و لوازم کمک پزشکی,"Medical auxiliary products, appliances and equipment"
+G-0612M-1389,6,3,0612 M,G-061M-1389,1389,1403,,3,محصولات پزشکی,Medical products
+G-031A-1389,13,2,031 A,,1389,1403,,4,پوشاک,Clothing
+G-0312A-1389,13,3,0312 A,G-031A-1389,1389,1403,,2,پوشاک (کم دوام),Garments (semi-durable)
+G-03123A+03124A-1389,13,4,"03123 A, 03124 A",G-0312A-1389,1389,1403,,2,پوشاک زنانه,Women's clothing
+G-0313A-1389,13,3,0313 A,G-031A-1389,1389,1403,,1,سایر انواع پوشاک و لوازم پوشاکی (کم دوام),Other clothing and clothing accessories (semi-durable)
+G-0314A-1389,13,3,0314 A,G-031A-1389,1389,1403,,1,هزینه شستشو، اجرت دوخت، تعمیر و کرایه پوشاک (خدمت),"Cleaning, tailoring, repair and hire of clothing (services)"
+G-061A-1389,13,2,061 A,,1389,1403,,2,محصولات، وسایل و لوازم پزشکی,"Medical products, appliances and equipment"
+G-0612A-1389,13,3,0612 A,G-061A-1389,1389,1403,,2,محصولات پزشکی,Medical products
+G-063M-1390,6,2,063 M,,1390,1394,,27,خدمات بیمارستانی,Hospital services
+G-0631M-1390,6,3,0631 M,G-063M-1390,1390,1394,,16,خدمات پزشکی,Medical services
+G-06311M-1390,6,4,06311 M,G-0631M-1390,1390,1394,,7,خدمات پزشکی بیمارستان‌های عمومی,Medical services of general hospitals
+G-06312M-1390,6,4,06312 M,G-0631M-1390,1390,1390,,9,خدمات بیمارستان‌های تخصصی,Services of specialized hospitals
+G-063A-1390,13,2,063 A,,1390,1395,,11,خدمات بیمارستانی,Hospital services
+G-0631A-1390,13,3,0631 A,G-063A-1390,1390,1395,,11,خدمات بیمارستانی,Hospital services
+G-06311A-1390,13,4,06311 A,G-0631A-1390,1390,1394,,2,خدمات پزشکی بیمارستان‌های عمومی,Medical services of general hospitals
+G-06312A-1390,13,4,06312 A,G-0631A-1390,1390,1390,,2,خدمات بیمارستان‌های تخصصی,Services of specialized hospitals
+G-0634-1390,13,3,0634,G-063A-1390,1390,1394,,4,خدمات اصلی,Core hospital services
+G-06341-1390,13,4,06341,G-0634-1390,1390,1394,,1,خدمات اصلی بیمارستان‌های عمومی,Core services of general hospitals
+G-06342-1390,13,4,06342,G-0634-1390,1390,1394,,1,خدمات اصلی بیمارستان‌های تخصصی,Core services of specialized hospitals
+G-06343-1390,13,4,06343,G-0634-1390,1390,1394,,1,خدمات اصلی بیمارستان‌های روانی,Core services of psychiatric hospitals
+G-06344-1390,13,4,06344,G-0634-1390,1390,1394,,1,خدمات اصلی بیمارستان‌های توانبخشی,Core services of rehabilitation hospitals
+G-01192+01193+01194-1391,1,4,"01192, 01193, 01194",G-0119-1383,1391,1403,,17,چاشنی‌ها و سایر ترکیب‌های خوراکی,Condiments and other food preparations
+G-06312+06313M-1391,6,4,"06312, 06313 M",G-0631M-1390,1391,1394,,9,خدمات بیمارستان‌های تخصصی,Services of specialized hospitals
+G-05114+05115+05116-1391,13,4,"05114, 05115, 05116",G-0511-1383,1391,1403,,9,سایر اثاث,Other furnishings
+G-06313A-1391,13,4,06313 A,G-0631A-1390,1391,1393,,2,خدمات بیمارستان‌های تخصصی,Services of specialized hospitals
+G-06312+06313A-1394,13,4,"06312, 06313 A",G-0631A-1390,1394,1394,,2,خدمات بیمارستان‌های تخصصی,Services of specialized hospitals
+G-062M-1395,6,2,062 M,,1395,1403,,28,خدمات طبی سرپایی,Outpatient services
+G-0621M-1395,6,3,0621 M,G-062M-1395,1395,1403,,8,خدمات پزشکی,Medical services
+G-062A-1395,13,2,062 A,,1395,1403,,4,خدمات طبی سرپایی,Outpatient services
+G-0621A-1395,13,3,0621 A,G-062A-1395,1395,1403,,4,خدمات پزشکی,Medical services
+G-063-1396,13,2,063,,1396,1403,,11,خدمات بیمارستانی,Hospital services
+G-0631-1396,13,3,0631,G-063-1396,1396,1403,,11,خدمات بیمارستانی,Hospital services
+G-112M-1397,11,2,112 M,,1397,1403,,6,خدمات تامین جا (مهمانسراها، هتل و مسافرخانه ...),"Accommodation services (guesthouses, hotels, inns, etc.)"
+G-1120M-1397,11,3,1120 M,G-112M-1397,1397,1403,,6,خدمات تامین جا (مهمانسراها، هتل و مسافرخانه ...),"Accommodation services (guesthouses, hotels, inns, etc.)"
+G-0961-1399,13,3,0961,G-096-1383,1399,1403,,4,هزینه مسافرت‌های دستجمعی (همراه تور),Package holidays (group tours)

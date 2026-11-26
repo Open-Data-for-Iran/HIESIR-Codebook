@@ -11,6 +11,8 @@ holds the decisions applied to the `output/` folder of the same name.
 | `2_corrected/header_exceptions.csv` | items printed under a header whose code does not cover them, accepted as printed | `check-structure` (a check, it changes nothing) |
 | `3_items/changes.csv` | decisions on changes between chains (`from_chains` → `to_chains`: same, recoded, merged, split, regrouped): add, reject, amend on top, confirm below | `changes` |
 | `4_groups/changes.csv` | decisions on changes between group headers (`from_group` → `to_group`: continued, split, merged, regrouped, moved): add, reject, amend on top, confirm below | `groups` |
+| `3_items/labels_en.csv` | the English label of each chain (`chain_id`, `label_en`, `note`: what was checked, `source`); a series takes its last chain's | `results` |
+| `4_groups/labels_en.csv` | the English label of each group (`group_id`, `label_en`, `note`, `source`) | `results` |
 | `data/code_corrections.csv` | wrong codes in the raw data (`data/code_usage.csv`): `year`, `data_code` as the data stores it, the `expenditure_code` it stands for in the codebook (empty: noise, no item), `reason` | the household checks of `correct` (`correct --check`); nothing else yet |
 
 After editing, run `uv run hiesir-codebook build --no-extract` and review

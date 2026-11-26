@@ -56,7 +56,7 @@ from hiesir_codebook.extraction import pdfs
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "output"
-PUBLISH = ["2_corrected/*.csv", "3_items/*.csv", "4_groups/*.csv"]
+PUBLISH = ["2_corrected/*.csv", "3_items/*.csv", "4_groups/*.csv", "5_results/*.csv"]
 MARKER = "<!-- questionnaire-pdfs -->"
 HEAT_MARKER = "<!-- changes-heatmap -->"
 HREFLANG = re.compile(r'[ \t]*<link rel="alternate" href="[^"]*" hreflang="[^"]*">\n?')

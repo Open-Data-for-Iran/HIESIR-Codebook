@@ -18,6 +18,9 @@ chains = pd.read_csv("output/3_items/chains.csv", dtype={"expenditure_code": str
 changes = pd.read_csv("output/3_items/changes.csv")  # same, recoded, merged, split, regrouped
 series = pd.read_csv("output/3_items/series.csv", dtype={"codes": str})  # chains that continuing changes join
 
+# or the results: one table per thing, with English labels
+crosswalk = pd.read_csv("output/5_results/items.csv", dtype={"expenditure_code": str, "code": str, "sub": str})
+
 # join with the raw data, which stores codes as numbers
 items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 ```
@@ -25,7 +28,7 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 همین فایل‌ها را می‌توانید از این سایت دریافت کنید:
 [2_corrected/questionnaire_1403.csv](2_corrected/questionnaire_1403.csv) (هر سال دیگری را به جای ۱۴۰۳ بگذارید)،
 [3_items/chains.csv](3_items/chains.csv)، [3_items/changes.csv](3_items/changes.csv)، [3_items/series.csv](3_items/series.csv)،
-[4_groups/groups.csv](4_groups/groups.csv)، [4_groups/members.csv](4_groups/members.csv) و [4_groups/changes.csv](4_groups/changes.csv).
+[4_groups/groups.csv](4_groups/groups.csv)، [4_groups/members.csv](4_groups/members.csv) [4_groups/changes.csv](4_groups/changes.csv)، و نتیجه‌ها: [5_results/items.csv](5_results/items.csv)، [5_results/chains.csv](5_results/chains.csv)، [5_results/series.csv](5_results/series.csv)، [5_results/groups.csv](5_results/groups.csv)، [5_results/changes.csv](5_results/changes.csv)، [5_results/change_chains.csv](5_results/change_chains.csv) و [5_results/group_changes.csv](5_results/group_changes.csv).
 
 | فایل | هر سطر یعنی | جزئیات |
 |---|---|---|
@@ -40,18 +43,40 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 | `4_groups/members.csv` | یک قلم در یک سال: گروه آن در سطح ۲، ۳ و ۴ | [سرگروه‌ها](methods.md#groups-across-years) |
 | `4_groups/changes.csv` | دو گروهی که اقلامی میانشان جابه‌جا شده: ادامه، تفکیک، ادغام، بازگروه‌بندی، جابه‌جایی | [سرگروه‌ها](methods.md#groups-across-years) |
 | `4_groups/suggested/changes.csv` | تغییر گروهی که برنامه پیدا کرده، همان‌گونه که پیدا کرده، با این‌که چه کسی و چگونه درباره‌اش تصمیم گرفته | [سرگروه‌ها](methods.md#groups-across-years) |
+| `5_results/items.csv` | یک قلم در یک سال: عبارت فارسی و انگلیسی، زنجیره، سری، گروه در سطح ۲، ۳ و ۴، و جای چاپ آن: جدول پیوند با داده‌های خانوار | [نتیجه‌ها](#results) |
+| `5_results/chains.csv`، `series.csv`، `groups.csv` | یک زنجیره، سری یا گروه، با `label_fa` و `label_en` (برچسب سری همان برچسب آخرین زنجیره آن است) | [نتیجه‌ها](#results) |
+| `5_results/changes.csv`، `group_changes.csv` | یک تغییر میان زنجیره‌ها یا میان گروه‌ها، مانند `3_items/` و `4_groups/`، با ستون‌های متنی `from_label_fa` / `to_label_fa` | [نتیجه‌ها](#results) |
+| `5_results/change_chains.csv` | زنجیره‌ای در یک سوی یک تغییر: `from_chains` / `to_chains` به شکل بلند | [نتیجه‌ها](#results) |
 
 فایل‌های `changes.csv` بیرون از `suggested/` نتیجه‌اند: درباره هر سطرشان، برنامه یا `curated/`
 تصمیم گرفته و هیچ‌کدام رد نشده. پیشنهادهای برنامه پیش از هر تصمیم در `suggested/`
 هستند، با همان شناسه‌ها.
+
+## نتیجه‌ها {#results}
+
+`output/5_results/` آنچه کاربر دفترچه کد لازم دارد را در یک پوشه تخت جمع
+می‌کند، بی‌آن‌که لازم باشد مرحله‌ها را بشناسد. در آن هیچ تصمیم تازه‌ای گرفته
+نمی‌شود: `2_corrected/`، `3_items/` و `4_groups/` را با برچسب‌های انگلیسی
+پیوند می‌دهد که دستی نگه داشته می‌شوند: `curated/3_items/labels_en.csv` (یکی
+برای هر زنجیره) و `curated/4_groups/labels_en.csv` (یکی برای هر گروه). هر
+ستون متنی `label_fa` یا `label_en` است.
+
+برچسب‌های انگلیسی هرجا که با فارسی جور باشند واژه‌هایشان را از عنوان‌های
+انگلیسی COICOP گرفته‌اند؛ طبقه‌بندی COICOP نیستند. واژه‌ای که نام انگلیسی
+درستی ندارد با حروف انگلیسی نوشته می‌شود (`Charghad`، `Kalbas`). در هر فایل
+برچسب، ستون `note` می‌گوید چه بررسی شده و ستون `source` کجا.
+
+ساخت بررسی می‌کند که هر قلم یک زنجیره، یک سری و یک گروه داشته باشد، و هر
+زنجیره و گروه برچسب انگلیسی داشته باشد و هیچ برچسبی به زنجیره یا گروهی که
+دیگر نیست اشاره نکند.
 
 ## پوشه‌ها {#folders}
 
 | پوشه | محتوا | در git | ویرایش توسط |
 |---|---|---|---|
 | `data/` | ورودی‌های بیرونی: فایل‌های PDF و جدول تعداد خانوارهای گزارش‌دهنده هر کد | جدول تعداد خانوار و `pdfs.csv` (PDFها در یک انتشار GitHub‌اند) | هیچ‌کس (فقط جایگزین می‌شود) |
-| `curated/` | تصمیم‌های دستی: `2_corrected/` (`corrections.csv`: اصلاح اقلام و سرگروه‌ها؛ `spelling.csv`؛ `words.csv`: واژه‌هایی که hazm ندارد؛ `header_exceptions.csv`)، `3_items/` (`changes.csv`)، `4_groups/` (`changes.csv`): تصمیم‌های پوشه هم‌نام در `output/`؛ `data/` (`code_corrections.csv`): کدهای اشتباه داده خام، برای بعد | بله | افراد |
-| `output/` | خروجی همه مراحل: `1_extracted/`، `2_corrected/`، `3_items/`، `4_groups/` و `metrics.json` (اعداد ساخت، که همین صفحه‌ها نقل می‌کنند) | بله | فقط برنامه |
+| `curated/` | تصمیم‌های دستی: `2_corrected/` (`corrections.csv`: اصلاح اقلام و سرگروه‌ها؛ `spelling.csv`؛ `words.csv`: واژه‌هایی که hazm ندارد؛ `header_exceptions.csv`)، `3_items/` (`changes.csv`؛ `labels_en.csv`: برچسب انگلیسی زنجیره‌ها)، `4_groups/` (`changes.csv`؛ `labels_en.csv`: برچسب انگلیسی گروه‌ها): تصمیم‌های پوشه هم‌نام در `output/`؛ `data/` (`code_corrections.csv`): کدهای اشتباه داده خام، برای بعد | بله | افراد |
+| `output/` | خروجی همه مراحل: `1_extracted/`، `2_corrected/`، `3_items/`، `4_groups/`، `5_results/` و `metrics.json` (اعداد ساخت، که همین صفحه‌ها نقل می‌کنند) | بله | فقط برنامه |
 | `reports/` | کمک‌های بازبینی: `change_evidence.csv` (تعداد خانوارهای پشت هر تغییر) و `code_reuse.csv` (کدهایی که برای قلم دیگری به کار رفته‌اند) | خیر | فقط برنامه |
 
 ## ستون‌های CSV {#csv-columns}

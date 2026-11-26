@@ -16,10 +16,11 @@ code scheme is not covered, so it is left out.)
   [contributing](docs/contributing.md).
 
 ```
-data/pdf ─extract─▶ 1_extracted ─correct─▶ 2_corrected ─match─▶ 3_items ─group─▶ 4_groups
+data/pdf ─extract─▶ 1_extracted ─correct─▶ 2_corrected ─match─▶ 3_items ─group─▶ 4_groups ─join─▶ 5_results
                     as printed             as intended
                                      ▲                     ▲                ▲
                            curated/2_corrected/    curated/3_items/ curated/4_groups/
+                                                                            (+ labels_en.csv)
 ```
 
 | Folder | Content | Edited by |

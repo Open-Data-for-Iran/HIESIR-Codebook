@@ -18,6 +18,9 @@ chains = pd.read_csv("output/3_items/chains.csv", dtype={"expenditure_code": str
 changes = pd.read_csv("output/3_items/changes.csv")  # same, recoded, merged, split, regrouped
 series = pd.read_csv("output/3_items/series.csv", dtype={"codes": str})  # chains that continuing changes join
 
+# or the results: one table per thing, with English labels
+crosswalk = pd.read_csv("output/5_results/items.csv", dtype={"expenditure_code": str, "code": str, "sub": str})
+
 # join with the raw data, which stores codes as numbers
 items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 ```
@@ -25,7 +28,7 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 The same files can be downloaded from this site:
 [2_corrected/questionnaire_1403.csv](2_corrected/questionnaire_1403.csv) (any year in place of 1403),
 [3_items/chains.csv](3_items/chains.csv), [3_items/changes.csv](3_items/changes.csv), [3_items/series.csv](3_items/series.csv),
-[4_groups/groups.csv](4_groups/groups.csv), [4_groups/members.csv](4_groups/members.csv) and [4_groups/changes.csv](4_groups/changes.csv).
+[4_groups/groups.csv](4_groups/groups.csv), [4_groups/members.csv](4_groups/members.csv) [4_groups/changes.csv](4_groups/changes.csv), and the results: [5_results/items.csv](5_results/items.csv), [5_results/chains.csv](5_results/chains.csv), [5_results/series.csv](5_results/series.csv), [5_results/groups.csv](5_results/groups.csv), [5_results/changes.csv](5_results/changes.csv), [5_results/change_chains.csv](5_results/change_chains.csv) and [5_results/group_changes.csv](5_results/group_changes.csv).
 
 | File | One row per | Details |
 |---|---|---|
@@ -40,18 +43,40 @@ The same files can be downloaded from this site:
 | `4_groups/members.csv` | item and year: its group at levels 2, 3 and 4 | [Groups](methods.md#groups-across-years) |
 | `4_groups/changes.csv` | pair of groups that items moved between: continued, split, merged, regrouped, moved | [Groups](methods.md#groups-across-years) |
 | `4_groups/suggested/changes.csv` | group change the code found, as it found it, with who decided it and how | [Groups](methods.md#groups-across-years) |
+| `5_results/items.csv` | item and year: its Persian and English label, chain, series and group at levels 2, 3 and 4, and where it is printed: the crosswalk to join with the household data | [Results](#results) |
+| `5_results/chains.csv`, `series.csv`, `groups.csv` | chain, series or group, with `label_fa` and `label_en` (a series is labelled by its last chain) | [Results](#results) |
+| `5_results/changes.csv`, `group_changes.csv` | change between chains or between groups, as in `3_items/` and `4_groups/`, text columns named `from_label_fa` / `to_label_fa` | [Results](#results) |
+| `5_results/change_chains.csv` | chain on one side of a change: `from_chains` / `to_chains` in long form | [Results](#results) |
 
 The `changes.csv` files outside `suggested/` are the results: every row in them was
 decided, by the code or in `curated/`, and none is rejected. What the code
 suggested before any decision is in `suggested/`, with the same ids.
+
+## Results
+
+`output/5_results/` gathers what a user of the codebook needs into one flat
+folder, without knowing the stages. Nothing in it is decided anew: it joins
+`2_corrected/`, `3_items/` and `4_groups/` with the English labels kept by
+hand in `curated/3_items/labels_en.csv` (one per chain) and
+`curated/4_groups/labels_en.csv` (one per group). Every text column is
+`label_fa` or `label_en`.
+
+The English labels take their wording from COICOP's English titles where
+those fit the Persian; they are not a COICOP classification. A term with no
+proper English name stays in English letters (`Charghad`, `Kalbas`). Each
+label file has a `note` with what was checked and a `source` with where.
+
+The build checks that every item has one chain, one series and a group, and
+that every chain and group has an English label and no label names one that
+is gone.
 
 ## Folders
 
 | Folder | Content | In git | Edited by |
 |---|---|---|---|
 | `data/` | external inputs: the PDFs, the code usage table | the code usage table and `pdfs.csv` (the PDFs are in a GitHub release) | nobody (only replaced) |
-| `curated/` | hand-kept decisions: `2_corrected/` (`corrections.csv`: item and header fixes; `spelling.csv`; `words.csv`: words hazm lacks; `header_exceptions.csv`), `3_items/` (`changes.csv`), `4_groups/` (`changes.csv`): the decisions for the `output/` folder of the same name; `data/` (`code_corrections.csv`): wrong codes in the raw data, kept for later | yes | people |
-| `output/` | every stage's result: `1_extracted/`, `2_corrected/`, `3_items/`, `4_groups/` and `metrics.json` (the figures of the build, which these pages quote) | yes | the pipeline only |
+| `curated/` | hand-kept decisions: `2_corrected/` (`corrections.csv`: item and header fixes; `spelling.csv`; `words.csv`: words hazm lacks; `header_exceptions.csv`), `3_items/` (`changes.csv`; `labels_en.csv`: English labels of chains), `4_groups/` (`changes.csv`; `labels_en.csv`: English labels of groups): the decisions for the `output/` folder of the same name; `data/` (`code_corrections.csv`): wrong codes in the raw data, kept for later | yes | people |
+| `output/` | every stage's result: `1_extracted/`, `2_corrected/`, `3_items/`, `4_groups/`, `5_results/` and `metrics.json` (the figures of the build, which these pages quote) | yes | the pipeline only |
 | `reports/` | review aids: `change_evidence.csv` (household counts behind each change) and `code_reuse.csv` (codes reused for another item) | no | the pipeline only |
 
 ## CSV columns

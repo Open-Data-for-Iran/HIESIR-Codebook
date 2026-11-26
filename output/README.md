@@ -13,6 +13,7 @@ uv run hiesir-codebook build --no-extract   # keep 1_extracted/, rebuild the res
 | `2_corrected/` | `hiesir-codebook correct`; `autocorrect/` (canonical.csv, words.csv) by `hiesir-codebook autocorrect` | `1_extracted/` + `curated/2_corrected/` |
 | `3_items/` | `hiesir-codebook chains` (chains.csv), `changes` (changes.csv; the code's suggestions in suggested/), `series` (series.csv) | `2_corrected/` + `curated/3_items/` |
 | `4_groups/` | `hiesir-codebook groups` (groups.csv, members.csv, changes.csv; the code's suggestions in suggested/) | `2_corrected/`, `3_items/` + `curated/4_groups/` |
+| `5_results/` | `hiesir-codebook results` (items.csv, chains.csv, series.csv, groups.csv, changes.csv, change_chains.csv, group_changes.csv: one flat table per thing, with English labels) | `2_corrected/`, `3_items/`, `4_groups/` + `curated/*/labels_en.csv` |
 | `metrics.json` | `hiesir-codebook metrics` | every folder above: the figures the documentation quotes |
 
 `suggested/` holds every change the code found, before any
