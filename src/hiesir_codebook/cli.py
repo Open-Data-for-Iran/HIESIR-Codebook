@@ -43,7 +43,7 @@ def build(*, no_extract: bool = False, data: Path = DATA_DIR) -> None:
     """Regenerate every stage of output/, in order.
 
     extract (PDFs -> 1_extracted, skipped when the PDFs are not there) -> correct
-    (-> 2_corrected) -> chains, links and series (-> 3_items) -> groups (-> 4_groups)
+    (-> 2_corrected) -> chains, changes and series (-> 3_items) -> groups (-> 4_groups)
     -> metrics (-> metrics.json).
 
     Parameters
@@ -84,10 +84,10 @@ LAZY = [
     ("check-structure", "correction.corrections:main", STAGES, "What must hold in every questionnaire CSV."),
     ("chains", "linking.chains:main", STAGES, "Matching stage 1: chains -> output/3_items/chains.csv."),
     (
-        "relations",
-        "linking.relations:main",
+        "changes",
+        "linking.changes:main",
         STAGES,
-        "Matching stage 2: links between chains -> output/3_items/links.csv.",
+        "Matching stage 2: changes between chains -> output/3_items/changes.csv.",
     ),
     ("series", "linking.series:main", STAGES, "Matching stage 3: series and their codes -> output/3_items/."),
     ("groups", "linking.groups:main", STAGES, "Group headers across years -> output/4_groups/."),

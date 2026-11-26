@@ -53,29 +53,29 @@ def test_chains_round_trip(tmp_path):
 
 
 def test_matched_is_up_to_date(tmp_path):
-    """output/3_items/chains.csv and links.csv must match output/2_corrected/;
+    """output/3_items/chains.csv and changes.csv must match output/2_corrected/;
     if this fails, run `uv run hiesir-codebook build --no-extract`."""
     from pathlib import Path
 
-    from hiesir_codebook.linking.compare import YEARS as ALL_YEARS
-    from hiesir_codebook.linking.compare import load_year
-    from hiesir_codebook.linking.relations import (
-        build_relations,
+    from hiesir_codebook.linking.changes import (
+        build_changes,
         conflicts,
         load_decisions,
-        write_links,
+        write_changes,
         write_suggested,
     )
+    from hiesir_codebook.linking.compare import YEARS as ALL_YEARS
+    from hiesir_codebook.linking.compare import load_year
 
     root = Path(__file__).resolve().parents[1]
     matched = root / "output" / "3_items"
     chains = build_chains({y: load_year(y, root / "output" / "2_corrected") for y in ALL_YEARS})
     write_chains(chains, tmp_path / "chains.csv", ALL_YEARS)
-    decisions = load_decisions(root / "curated" / "3_items" / "links.csv")
-    relations, stale = build_relations(chains, decisions, ALL_YEARS)
+    decisions = load_decisions(root / "curated" / "3_items" / "changes.csv")
+    changes, stale = build_changes(chains, decisions, ALL_YEARS)
     assert not stale, [str(d) for d in stale]
-    assert not conflicts(relations), conflicts(relations)
-    write_links(relations, tmp_path / "links.csv")
-    write_suggested(relations, tmp_path / "suggested")
-    for name in ("chains.csv", "links.csv", "suggested/links.csv"):
+    assert not conflicts(changes), conflicts(changes)
+    write_changes(changes, tmp_path / "changes.csv")
+    write_suggested(changes, tmp_path / "suggested")
+    for name in ("chains.csv", "changes.csv", "suggested/changes.csv"):
         assert (tmp_path / name).read_bytes() == (matched / name).read_bytes(), name

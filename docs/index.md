@@ -46,7 +46,7 @@ wording change.
     ---
 
     How printing errors were corrected, how items are linked across years,
-    and how each link was verified against household counts.
+    and how each change was verified against household counts.
 
     [Methods](methods.md)
 
@@ -58,7 +58,7 @@ wording change.
 |---|---|
 | Questionnaires | {{ questionnaires.years }} years: 1383–1403 (1382, with its older code scheme, is left out; 1363–1381 are scans) |
 | Items | {{ chains.total }} chains: one code with one label, followed while both stay the same |
-| Links between them | {{ links.kept }} links that continue an item (reworded or recoded) and {{ relations.kept }} merges, splits and regroupings; every one verified |
+| Changes between them | {{ changes.continuing.kept }} continuing changes (reworded or recoded) and {{ changes.breaking.kept }} merges, splits and regroupings; every one verified |
 | Corrections | {{ corrections.total }} fixes to the printed questionnaires, plus spelling and punctuation across all years |
 
 ## How it is made

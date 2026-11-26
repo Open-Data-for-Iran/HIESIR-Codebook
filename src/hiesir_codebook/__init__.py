@@ -20,11 +20,11 @@ OUTPUT = Path("output")
 REPORTS = Path("reports")
 EXTRACTED = OUTPUT / "1_extracted"  # PDFs -> CSV, as printed
 CORRECTED = OUTPUT / "2_corrected"  # + curated/2_corrected/
-ITEMS = OUTPUT / "3_items"  # chains, links and series across years (+ curated/3_items/)
+ITEMS = OUTPUT / "3_items"  # chains, changes and series across years (+ curated/3_items/)
 GROUPS = OUTPUT / "4_groups"  # group headers across years (+ curated/4_groups/)
 CURATED_CORRECTED = CURATED / "2_corrected"  # corrections.csv, spelling.csv
-CURATED_ITEMS = CURATED / "3_items"  # links.csv
-CURATED_GROUPS = CURATED / "4_groups"  # links.csv
+CURATED_ITEMS = CURATED / "3_items"  # changes.csv
+CURATED_GROUPS = CURATED / "4_groups"  # changes.csv
 CURATED_DATA = CURATED / "data"  # code_corrections.csv: wrong codes in the raw data
 
 # the years in the codebook: those whose PDF has a usable text layer (1363-1381
@@ -40,14 +40,14 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
     """Regenerate every stage of output/ in order.
 
     extract (PDFs -> 1_extracted, skipped when the PDFs are not available)
-    -> correct (+ curated/2_corrected -> 2_corrected) -> chains, links and series
+    -> correct (+ curated/2_corrected -> 2_corrected) -> chains, changes and series
     (-> 3_items) -> the groups (-> 4_groups) -> the figures of it all
     (-> metrics.json). The explorer is not in output/: the site build makes its
     data from these CSVs (scripts/mkdocs_hooks.py).
     """
     from . import metrics
     from .correction import correct, corrections
-    from .linking import chains, groups, relations, series
+    from .linking import chains, changes, groups, series
 
     if extract_pdfs and (data / "pdf").is_dir():
         for y in SUPPORTED_YEARS:
@@ -61,7 +61,7 @@ def build_all(data: Path = DATA_DIR, extract_pdfs: bool = True) -> None:
     correct.main()
     corrections.main()
     chains.main()
-    relations.main()
+    changes.main()
     series.main()
     groups.main()
     metrics.main()

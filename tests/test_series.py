@@ -38,9 +38,9 @@ def test_merges_start_and_end_series_but_not_one_that_goes_on():
     assert by_chain[goes_on.id].starts == [] and by_chain[goes_on.id].ends == []
 
 
-def test_a_chain_has_one_link_onward():
+def test_a_chain_continues_through_one_change_onward():
     a, b, c = _c("1", [1383]), _c("2", [1384]), _c("3", [1384])
-    with pytest.raises(ValueError, match="one link onward"):
+    with pytest.raises(ValueError, match="one change onward"):
         build_series([a, b, c], [(a.id, b.id), (a.id, c.id)])
 
 
@@ -51,10 +51,10 @@ def test_linked_chains_may_not_overlap():
 
 
 def test_series_are_up_to_date(tmp_path):
-    """output/3_items/series.csv must match chains.csv and links.csv; if this
+    """output/3_items/series.csv must match chains.csv and changes.csv; if this
     fails, run `uv run hiesir-codebook build --no-extract`."""
     items = ROOT / "output" / "3_items"
-    for name in ("chains.csv", "links.csv"):
+    for name in ("chains.csv", "changes.csv"):
         (tmp_path / name).write_bytes((items / name).read_bytes())
     main(items=tmp_path)
     assert (tmp_path / "series.csv").read_bytes() == (items / "series.csv").read_bytes()

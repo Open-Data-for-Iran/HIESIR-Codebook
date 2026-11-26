@@ -25,12 +25,13 @@ def test_metrics_are_up_to_date():
 
 def test_metrics_add_up():
     m = _compute()
-    for name in ("links", "relations"):
-        d = m[name]
+    changes = m["changes"]
+    for d in (changes["continuing"], changes["breaking"], m["groups"]["changes"]):
         assert d["code"] + d["curated"] + d["open"] == d["total"]
         assert d["total"] - d["rejected"] - d["open"] == d["kept"]
-    assert m["links"]["same"] + m["links"]["recoded"] == m["links"]["kept"]
-    assert sum(m["relations"][k] for k in ("merged", "split", "regrouped")) == m["relations"]["kept"]
+    continuing, breaking = changes["continuing"], changes["breaking"]
+    assert continuing["same"] + continuing["recoded"] == continuing["kept"]
+    assert sum(breaking[k] for k in ("merged", "split", "regrouped")) == breaking["kept"]
     assert sum(m["questionnaires"]["items_by_year"].values()) == m["questionnaires"]["items"]
     assert m["labels"]["spelling"] <= m["labels"]["total"]
 

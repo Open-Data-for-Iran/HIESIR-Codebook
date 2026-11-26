@@ -3,7 +3,7 @@
  * Every change is one event: its kind, year, section (where its items sit
  * that year) and the number of items it involves: 1 for a new, dropped,
  * recoded or reworded item, the larger side of a merge, split or regrouping
- * (99 merges that took in 261 items count 261), one per link between group
+ * (99 merges that took in 261 items count 261), one per change between group
  * headings and one per correction.
  */
 
@@ -35,7 +35,7 @@ export function corrSec(M, k) {
 export function events(M) {
   if (M.events) return M.events;
   const EV = (M.events = []);
-  for (const r of M.DATA.relations) {
+  for (const r of M.DATA.changes) {
     const kind = r.rel === "same" ? (isScope(r) ? "scope" : null) : r.rel;
     if (!kind) continue;
     const tgt = M.CH.get(r.to[0]), src = M.CH.get(r.from[0]);
@@ -47,7 +47,7 @@ export function events(M) {
     const next = M.YEARS[M.YEARS.indexOf(last) + 1];
     if (next && !c.outs.some(r => r.year === next)) EV.push({ kind: "dropped", y: next, sec: c.secAt(last), n: 1, c });
   }
-  for (const g of M.DATA.groupLinks || []) EV.push({ kind: "groups", y: g[3], sec: M.G[g[1]][3], n: 1, g });
+  for (const g of M.DATA.groupChanges || []) EV.push({ kind: "groups", y: g[3], sec: M.G[g[1]][3], n: 1, g });
   for (const k of M.DATA.corrections) EV.push({ kind: "corr", y: +k.year, sec: corrSec(M, k), n: 1, k });
   return EV;
 }

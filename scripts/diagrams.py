@@ -181,7 +181,7 @@ def bus(
     d: Drawing, x: float, sources: list[tuple[float, float]], targets: list[tuple[float, float]], kind=""
 ):
     """Sources joined at a vertical bar at x, which goes on to the targets: the shape
-    of a relation between sets of items (a merge, a split, a regrouping)."""
+    of a change between sets of items (a merge, a split, a regrouping)."""
     ys = [y for _, y in sources + targets]
     for sx, sy in sources:
         d.edge([(sx, sy), (x, sy)], head=False)
@@ -238,13 +238,13 @@ def pipeline(lang: str) -> Drawing:
     return d
 
 
-def relation_shapes(lang: str) -> Drawing:
-    """One example of each relation between sets of chains, codes and labels as printed."""
+def change_shapes(lang: str) -> Drawing:
+    """One example of each change between sets of chains, codes and labels as printed."""
     d = Drawing(
-        "relation-shapes",
+        "change-shapes",
         lang,
         336,
-        d_t(lang, "The shapes of a relation", "شکل‌های یک رابطه"),
+        d_t(lang, "The shapes of a change", "شکل‌های یک تغییر"),
         d_t(
             lang,
             "Four examples: 011837 recoded as 011174 in 1386; two cigarette items merged into one in 1390;"
@@ -323,7 +323,7 @@ def relation_shapes(lang: str) -> Drawing:
 
 
 def hamburger(lang: str) -> Drawing:
-    """A link keeps one series; a merge ends three series and starts one."""
+    """A continuing change keeps one series; a merge ends three series and starts one."""
     d = Drawing(
         "hamburger",
         lang,
@@ -331,10 +331,10 @@ def hamburger(lang: str) -> Drawing:
         d_t(lang, "The ready-to-cook hamburger, 1383–1403", "همبرگر آماده برای طبخ، ۱۳۸۳ تا ۱۴۰۳"),
         d_t(
             lang,
-            "The hamburger item's label broadens in 1384, a link that keeps one series; in 1389 it absorbs"
+            "The hamburger item's label broadens in 1384, a change that keeps one series; in 1389 it absorbs"
             " the cutlet"
             " and steak items, a merge that ends three series and starts one.",
-            "عنوان قلم همبرگر در ۱۳۸۴ گسترده‌تر می‌شود، پیوندی که یک سری را نگه می‌دارد؛ در ۱۳۸۹ اقلام کتلت"
+            "عنوان قلم همبرگر در ۱۳۸۴ گسترده‌تر می‌شود، تغییری که یک سری را نگه می‌دارد؛ در ۱۳۸۹ اقلام کتلت"
             " و استیک"
             " را در بر می‌گیرد، ادغامی که سه سری را پایان می‌دهد و یکی را آغاز می‌کند.",
         ),
@@ -456,7 +456,7 @@ def d_t(lang: str, en: str, fa: str) -> str:
 
 DIAGRAMS = {
     "pipeline": pipeline,
-    "relation-shapes": relation_shapes,
+    "change-shapes": change_shapes,
     "hamburger": hamburger,
     "header-levels": header_levels,
     "clothing-split": clothing_split,

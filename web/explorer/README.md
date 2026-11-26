@@ -33,7 +33,7 @@ src/i18n/              the words and numbers, no DOM
   format.js            makeFormat(lang, years): numbers, years, ranges
 src/ui/                the views: createX(ctx) factories returning HTML strings
   html.js              esc, code, fat (Persian text), links, the locate buttons
-  labels.js            section titles and periods, heading names, a link's pills
+  labels.js            section titles and periods, heading names, a change's pills
   timeline.js          the states' colours, the strip, the verdict, the timeline
   layout.js            the skeleton (tabs, search bar, list, card); the empty card
   tree.js              the list as a tree: folding, sticky headings, the dot's popover

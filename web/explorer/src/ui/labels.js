@@ -27,7 +27,7 @@ export function createLabels(ctx) {
   }
   function verifPill(r) {
     if (r.verified === "confirmed") return `<span class="pill ok" title="${t.v.confirmedTip}">${t.v.confirmed}</span>`;
-    if (r.verified === "changed") return `<span class="pill info" title="${t.v.changedTip}">${t.v.changed}</span>`;
+    if (r.verified === "amended") return `<span class="pill info" title="${t.v.amendedTip}">${t.v.amended}</span>`;
     if (r.verified === "added") return `<span class="pill info" title="${t.v.addedTip}">${t.v.added}</span>`;
     if (!r.check) return `<span class="pill ok" title="${t.v.definiteTip}">${t.v.definite}</span>`;
     return `<span class="pill bad">${t.v.unverified}</span>`;

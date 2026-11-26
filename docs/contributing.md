@@ -36,8 +36,8 @@ each with its reason:
 | `2_corrected/spelling.csv` | the misspellings no rule settles: typos, truncated words, glued words, text the PDF reading mangled | `correct` |
 | `2_corrected/words.csv` | correct words that hazm's word list lacks, so the automatic fixes leave them alone | `autocorrect` |
 | `2_corrected/header_exceptions.csv` | items printed under a header whose code does not cover them, accepted as printed (a check, it changes nothing) | `check-structure` |
-| `3_items/links.csv` | decisions on links between chains (`from_chains` → `to_chains`: same, recoded, merged, split, regrouped): add, reject, change on top, confirm below | `relations` |
-| `4_groups/links.csv` | decisions on links between group headers (`from_group` → `to_group`: continued, split, merged, regrouped, moved): add, reject, change on top, confirm below | `groups` |
+| `3_items/changes.csv` | decisions on changes between chains (`from_chains` → `to_chains`: same, recoded, merged, split, regrouped): add, reject, amend on top, confirm below | `changes` |
+| `4_groups/changes.csv` | decisions on changes between group headers (`from_group` → `to_group`: continued, split, merged, regrouped, moved): add, reject, amend on top, confirm below | `groups` |
 
 The columns of each are described in [Methods](methods.md): [corrections](methods.md#corrections)
 and [matching decisions](methods.md#matching-items-across-years). After editing,
@@ -90,7 +90,7 @@ styled in `docs/assets/extra.css` with the theme's colours, so a diagram takes
 the site's light or dark scheme. An unknown name stops the site build.
 
 Counts are never typed into a page: write the name of a figure in
-`output/metrics.json` between double curly braces, such as `links.confirmed`,
+`output/metrics.json` between double curly braces, such as `changes.continuing.confirmed`,
 and the build writes the number (in Persian digits on Farsi pages). Each build
 rewrites the file, so its diff shows what a change did; an unknown name
 stops the site build and fails a test.

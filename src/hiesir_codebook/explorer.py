@@ -1,7 +1,7 @@
 """The explorer's data and component, for the documentation site.
 
 :func:`collect` reads ``output/2_corrected/``, ``output/3_items/chains.csv``,
-``links.csv``, ``output/4_groups/groups.csv``, ``members.csv``
+``changes.csv``, ``output/4_groups/groups.csv``, ``members.csv``
 and ``curated/2_corrected/corrections.csv``; :func:`bundle_js` and
 :func:`bundle_css` join the component of ``web/explorer/`` into one script and
 one stylesheet. Nothing is written to ``output/``: ``scripts/mkdocs_hooks.py``
@@ -77,8 +77,8 @@ def _groups(path: Path) -> tuple[list[list], dict[tuple[int, str], list[int]], l
     """The groups as [code, label, level, section] (a fifth entry, the
     wordings by year, is added by collect() when the label changed); for
     every (year, expenditure code) the indexes of its groups, outermost first
-    (level 2, 3, 4 when printed); and the final group links,
-    as [from index, to index, relation, year, items]; and the group ids."""
+    (level 2, 3, 4 when printed); and the final group changes,
+    as [from index, to index, type, year, items]; and the group ids."""
     rows = _read(path / "groups.csv")
     index = {r["group_id"]: i for i, r in enumerate(rows)}
     groups = [[r["code"], r["label"], int(r["level"]), int(r["section"])] for r in rows]
@@ -88,11 +88,11 @@ def _groups(path: Path) -> tuple[list[list], dict[tuple[int, str], list[int]], l
         ]
         for m in _read(path / "members.csv")
     }
-    links = [
-        [index[r["from_group"]], index[r["to_group"]], r["relation"], int(r["year"]), int(r["items"] or 0)]
-        for r in _read(path / "links.csv")
+    changes = [
+        [index[r["from_group"]], index[r["to_group"]], r["type"], int(r["year"]), int(r["items"] or 0)]
+        for r in _read(path / "changes.csv")
     ]
-    return groups, members, links, [r["group_id"] for r in rows]
+    return groups, members, changes, [r["group_id"] for r in rows]
 
 
 def collect(
@@ -113,7 +113,7 @@ def collect(
         sections.update(s)  # the latest year's title wins
         for k, v in s.items():
             section_years.setdefault(int(k), {})[y] = v
-    group_list, members, group_links, group_ids = _groups(groups)
+    group_list, members, group_changes, group_ids = _groups(groups)
     # the wording of each group in each year, read from the header printed
     # above its items, so the page can show the words of the year picked
     group_years: dict[int, dict[int, str]] = {}
@@ -154,19 +154,19 @@ def collect(
                 "gp": gp,
             }
         )
-    relations = [
+    changes = [
         {
-            "id": r["link_id"],
+            "id": r["change_id"],
             "from": r["from_chains"].split(),
             "to": r["to_chains"].split(),
-            "rel": r["relation"],
+            "rel": r["type"],
             "detail": r["detail"],
             "year": int(r["year"]),
             "check": r["decided_by"] == "open",
             "verified": r["verified"],
             "note": r["note"],
         }
-        for r in _read(items / "links.csv")
+        for r in _read(items / "changes.csv")
     ]
     corrections = [
         {k: r[k] for k in ("year", "action", "expenditure_code", "description", "value", "reason")}
@@ -178,11 +178,11 @@ def collect(
         # section titles that changed: {section: [[first year, title], ...]}
         "sectionYears": {k: _runs(v) for k, v in sorted(section_years.items()) if len(set(v.values())) > 1},
         "groups": group_list,
-        "groupLinks": group_links,
+        "groupChanges": group_changes,
         # the id of each group (G-, code and first year, as in output/4_groups/), for links to its page
         "groupIds": group_ids,
         "chains": chains,
-        "relations": relations,
+        "changes": changes,
         "corrections": corrections,
     }
 

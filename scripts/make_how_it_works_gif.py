@@ -389,7 +389,7 @@ def s_explore(c, t, a0, b0):
     lt = t - a0
     cards = [
         ("Explorer", "search a code or label,", "see its whole history", ROSE),
-        ("CSV tables", "chains · links · groups,", "tracked as diffs in git", TEAL),
+        ("CSV tables", "chains · changes · groups,", "tracked as diffs in git", TEAL),
         ("Excel", "the corrected questionnaire", "for any year", SKY),
     ]
     cw, gap = 220, 20

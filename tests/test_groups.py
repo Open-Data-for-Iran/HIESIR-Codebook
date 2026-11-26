@@ -5,8 +5,8 @@ import pytest
 from hiesir_codebook.linking.chains import Chain
 from hiesir_codebook.linking.groups import (
     Decision,
+    build_changes,
     build_groups,
-    build_links,
     item_steps,
     load_decisions,
     related_codes,
@@ -64,7 +64,7 @@ def test_a_reused_header_starts_a_new_group():
     }
     groups, _ = build_groups(rows)
     assert [g.id for g in groups] == ["G-0631A-1", "G-0631A-2"]
-    # an item that goes on under it, here through a relation, keeps one group
+    # an item that goes on under it, here through a breaking change, keeps one group
     steps = item_steps([_chain("063117", 1), _chain("063141", 2)], [], [(["063117-1"], ["063141-2"], 2)])
     groups, _ = build_groups(rows, steps=steps)
     assert [g.id for g in groups] == ["G-0631A-1"]
@@ -98,7 +98,7 @@ def test_groups_and_members():
     assert placement[(2, "011111")] == {2: "G-011-1", 3: "G-0111-1"}
 
 
-def test_links_from_item_flows():
+def test_group_changes_from_item_flows():
     # year 2: 0313 becomes 0313 M (same items) and 0314 is split into 0314 M and 0314 A;
     # item 031411 also moves between two groups printed in both years
     rows = {
@@ -129,19 +129,19 @@ def test_links_from_item_flows():
     }
     groups, placement = build_groups(rows)
     chains = [_chain(c, 1, 2) for c in ("031311", "031421", "031422", "031511")]
-    links, stale = build_links(groups, placement, item_steps(chains, [], []), [])
+    changes, stale = build_changes(groups, placement, item_steps(chains, [], []), [])
     assert not stale
-    got = {(lk.source.id, lk.target.id): (lk.relation, lk.decided_by) for lk in links}
+    got = {(ch.source.id, ch.target.id): (ch.type, ch.decided_by) for ch in changes}
     assert got == {
         ("G-0313-1", "G-0313M-2"): ("continued", "code"),
         ("G-0314-1", "G-0314M-2"): ("split", "code"),
         ("G-0314-1", "G-0314A-2"): ("split", "code"),
         ("G-0315-1", "G-0316-1"): ("moved", "open"),
     }
-    assert [lk.id for lk in links] == ["GL0001", "GL0002", "GL0003", "GL0004"]
+    assert [ch.id for ch in changes] == ["GL0001", "GL0002", "GL0003", "GL0004"]
 
 
-def test_item_links_carry_items_across_codes():
+def test_item_changes_carry_items_across_codes():
     rows = {
         1: _q(("s", 5, "x"), ("h", 5, 3, "0562 M", "خدمات خانگی"), ("i", 5, "056211")),
         2: _q(("s", 5, "x"), ("h", 5, 3, "0563 M", "خدمات خانگی"), ("i", 5, "056311")),
@@ -149,13 +149,13 @@ def test_item_links_carry_items_across_codes():
     groups, placement = build_groups(rows)
     chains = [_chain("056211", 1), _chain("056311", 2)]
     steps = item_steps(chains, [("056211-1", "056311-2")], [])
-    links, _ = build_links(groups, placement, steps, [])
-    (lk,) = links
-    assert (lk.key, lk.relation, lk.decided_by) == (("G-0562M-1", "G-0563M-2"), "continued", "open")
-    links, stale = build_links(
+    changes, _ = build_changes(groups, placement, steps, [])
+    (ch,) = changes
+    assert (ch.key, ch.type, ch.decided_by) == (("G-0562M-1", "G-0563M-2"), "continued", "open")
+    changes, stale = build_changes(
         groups, placement, steps, [Decision("G-0562M-1", "G-0563M-2", "confirm", "", "same services")]
     )
-    assert not stale and (links[0].verified, links[0].decided_by) == ("confirmed", "curated")
+    assert not stale and (changes[0].verified, changes[0].decided_by) == ("confirmed", "curated")
 
 
 @pytest.mark.parametrize(
@@ -171,20 +171,20 @@ def test_related_codes_still_need_matching_labels(new_label, decided_by):
         2: _q(("s", 1, "x"), ("h", 1, 3, "0115 M", new_label), ("i", 1, "011511")),
     }
     groups, placement = build_groups(rows)
-    links, _ = build_links(groups, placement, item_steps([_chain("011511", 1, 2)], [], []), [])
-    assert [(lk.relation, lk.decided_by) for lk in links] == [("continued", decided_by)]
+    changes, _ = build_changes(groups, placement, item_steps([_chain("011511", 1, 2)], [], []), [])
+    assert [(ch.type, ch.decided_by) for ch in changes] == [("continued", decided_by)]
 
 
 def test_decisions_need_a_note(tmp_path):
     path = tmp_path / "groups.csv"
-    path.write_text("from_group,to_group,decision,relation,note\na-1,b-2,confirm,,\n", encoding="utf-8")
+    path.write_text("from_group,to_group,decision,type,note\na-1,b-2,confirm,,\n", encoding="utf-8")
     with pytest.raises(ValueError, match="note"):
         load_decisions(path)
 
 
 def test_groups_are_up_to_date(tmp_path):
-    """output/4_groups/groups.csv, members.csv and links.csv must
-    match output/2_corrected/ and the item links; if this fails, run
+    """output/4_groups/groups.csv, members.csv and changes.csv must
+    match output/2_corrected/ and the item changes; if this fails, run
     `uv run hiesir-codebook build --no-extract`."""
     from hiesir_codebook.linking import groups
 
@@ -193,7 +193,7 @@ def test_groups_are_up_to_date(tmp_path):
         source=root / "output" / "2_corrected",
         items=root / "output" / "3_items",
         out=tmp_path,
-        decisions=root / "curated" / "4_groups" / "links.csv",
+        decisions=root / "curated" / "4_groups" / "changes.csv",
     )
-    for name in ("groups.csv", "members.csv", "links.csv", "suggested/links.csv"):
+    for name in ("groups.csv", "members.csv", "changes.csv", "suggested/changes.csv"):
         assert (tmp_path / name).read_bytes() == (root / "output" / "4_groups" / name).read_bytes(), name

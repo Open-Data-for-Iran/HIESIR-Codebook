@@ -15,8 +15,8 @@ q = pd.read_csv("output/2_corrected/questionnaire_1403.csv", dtype=TEXT)
 items = q[q.kind == "item"]
 
 chains = pd.read_csv("output/3_items/chains.csv", dtype={"expenditure_code": str})
-links = pd.read_csv("output/3_items/links.csv")  # same, recoded, merged, split, regrouped
-series = pd.read_csv("output/3_items/series.csv", dtype={"codes": str})  # chains that links join
+changes = pd.read_csv("output/3_items/changes.csv")  # same, recoded, merged, split, regrouped
+series = pd.read_csv("output/3_items/series.csv", dtype={"codes": str})  # chains that continuing changes join
 
 # join with the raw data, which stores codes as numbers
 items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
@@ -24,8 +24,8 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 
 همین فایل‌ها را می‌توانید از این سایت دریافت کنید:
 [2_corrected/questionnaire_1403.csv](2_corrected/questionnaire_1403.csv) (هر سال دیگری را به جای ۱۴۰۳ بگذارید)،
-[3_items/chains.csv](3_items/chains.csv)، [3_items/links.csv](3_items/links.csv)، [3_items/series.csv](3_items/series.csv)،
-[4_groups/groups.csv](4_groups/groups.csv)، [4_groups/members.csv](4_groups/members.csv) و [4_groups/links.csv](4_groups/links.csv).
+[3_items/chains.csv](3_items/chains.csv)، [3_items/changes.csv](3_items/changes.csv)، [3_items/series.csv](3_items/series.csv)،
+[4_groups/groups.csv](4_groups/groups.csv)، [4_groups/members.csv](4_groups/members.csv) و [4_groups/changes.csv](4_groups/changes.csv).
 
 | فایل | هر سطر یعنی | جزئیات |
 |---|---|---|
@@ -33,15 +33,15 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 | `2_corrected/autocorrect/canonical.csv` | عبارتی که به چند شکل چاپ شده، با نوشتاری که گروهش می‌گیرد و دلیل آن | [اصلاحات](methods.md#corrections) |
 | `2_corrected/autocorrect/words.csv` | واژه‌ای که به‌طور خودکار اصلاح شده: آموخته از گروه‌های عبارت‌ها، یکی‌شده (ی، ک، همزه)، یک شکل برای واژه‌ای که یک قلم به دو شکل چاپ کرده، یا یافته با فهرست واژه‌های hazm، با نوع، شمار کاربرد و شاهد آن | [اصلاحات](methods.md#corrections) |
 | `3_items/chains.csv` | یک قلم (زنجیره): یک کد با یک عبارت، تا زمانی که هر دو ثابت بمانند | [مرحله ۱](methods.md#matching-items-across-years) |
-| `3_items/links.csv` | یک پیوند میان زنجیره‌ها: پیوندی که قلمی را ادامه می‌دهد (همان قلم، تغییر کد، ۱ ← ۱)، یا ادغام، تفکیک یا بازگروه‌بندی میان مجموعه‌هایی از زنجیره‌ها | [مرحله ۲](methods.md#matching-items-across-years) |
-| `3_items/series.csv` | یک سری: زنجیره‌هایی که پیوندها به هم وصل می‌کنند، قلمی که تا زمانی که به‌تنهایی مقایسه‌پذیر است دنبال می‌شود | [مرحله ۳](methods.md#matching-items-across-years) |
-| `3_items/suggested/links.csv` | پیوندی که برنامه پیدا کرده، همان‌گونه که پیدا کرده، با این‌که چه کسی و چگونه درباره‌اش تصمیم گرفته؛ ردشده‌ها و تصمیم‌نگرفته‌ها فقط این‌جا هستند | [مرحله ۲](methods.md#matching-items-across-years) |
+| `3_items/changes.csv` | یک تغییر میان زنجیره‌ها: تغییری پیوسته که قلمی را ادامه می‌دهد (همان قلم، تغییر کد، ۱ ← ۱)، یا ادغام، تفکیک یا بازگروه‌بندی میان مجموعه‌هایی از زنجیره‌ها | [مرحله ۲](methods.md#matching-items-across-years) |
+| `3_items/series.csv` | یک سری: زنجیره‌هایی که تغییرهای پیوسته به هم وصل می‌کنند، یک کالا یا خدمت که تا ادغام، تفکیک یا بازگروه‌بندی دنبال می‌شود | [مرحله ۳](methods.md#matching-items-across-years) |
+| `3_items/suggested/changes.csv` | تغییری که برنامه پیدا کرده، همان‌گونه که پیدا کرده، با این‌که چه کسی و چگونه درباره‌اش تصمیم گرفته؛ ردشده‌ها و تصمیم‌نگرفته‌ها فقط این‌جا هستند | [مرحله ۲](methods.md#matching-items-across-years) |
 | `4_groups/groups.csv` | یک سرگروه: یک کد چاپی، تا زمانی که چاپ می‌شود | [سرگروه‌ها](methods.md#groups-across-years) |
 | `4_groups/members.csv` | یک قلم در یک سال: گروه آن در سطح ۲، ۳ و ۴ | [سرگروه‌ها](methods.md#groups-across-years) |
-| `4_groups/links.csv` | دو گروهی که اقلامی میانشان جابه‌جا شده: ادامه، تفکیک، ادغام، بازگروه‌بندی، جابه‌جایی | [سرگروه‌ها](methods.md#groups-across-years) |
-| `4_groups/suggested/links.csv` | پیوند گروهی که برنامه پیدا کرده، همان‌گونه که پیدا کرده، با این‌که چه کسی و چگونه درباره‌اش تصمیم گرفته | [سرگروه‌ها](methods.md#groups-across-years) |
+| `4_groups/changes.csv` | دو گروهی که اقلامی میانشان جابه‌جا شده: ادامه، تفکیک، ادغام، بازگروه‌بندی، جابه‌جایی | [سرگروه‌ها](methods.md#groups-across-years) |
+| `4_groups/suggested/changes.csv` | تغییر گروهی که برنامه پیدا کرده، همان‌گونه که پیدا کرده، با این‌که چه کسی و چگونه درباره‌اش تصمیم گرفته | [سرگروه‌ها](methods.md#groups-across-years) |
 
-فایل‌های `links.csv` بیرون از `suggested/` نتیجه‌اند: درباره هر سطرشان، برنامه یا `curated/`
+فایل‌های `changes.csv` بیرون از `suggested/` نتیجه‌اند: درباره هر سطرشان، برنامه یا `curated/`
 تصمیم گرفته و هیچ‌کدام رد نشده. پیشنهادهای برنامه پیش از هر تصمیم در `suggested/`
 هستند، با همان شناسه‌ها.
 
@@ -50,9 +50,9 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 | پوشه | محتوا | در git | ویرایش توسط |
 |---|---|---|---|
 | `data/` | ورودی‌های بیرونی: فایل‌های PDF و جدول تعداد خانوارهای گزارش‌دهنده هر کد | جدول تعداد خانوار و `pdfs.csv` (PDFها در یک انتشار GitHub‌اند) | هیچ‌کس (فقط جایگزین می‌شود) |
-| `curated/` | تصمیم‌های دستی: `2_corrected/` (`corrections.csv`: اصلاح اقلام و سرگروه‌ها؛ `spelling.csv`؛ `words.csv`: واژه‌هایی که hazm ندارد؛ `header_exceptions.csv`)، `3_items/` (`links.csv`)، `4_groups/` (`links.csv`): تصمیم‌های پوشه هم‌نام در `output/`؛ `data/` (`code_corrections.csv`): کدهای اشتباه داده خام، برای بعد | بله | افراد |
+| `curated/` | تصمیم‌های دستی: `2_corrected/` (`corrections.csv`: اصلاح اقلام و سرگروه‌ها؛ `spelling.csv`؛ `words.csv`: واژه‌هایی که hazm ندارد؛ `header_exceptions.csv`)، `3_items/` (`changes.csv`)، `4_groups/` (`changes.csv`): تصمیم‌های پوشه هم‌نام در `output/`؛ `data/` (`code_corrections.csv`): کدهای اشتباه داده خام، برای بعد | بله | افراد |
 | `output/` | خروجی همه مراحل: `1_extracted/`، `2_corrected/`، `3_items/`، `4_groups/` و `metrics.json` (اعداد ساخت، که همین صفحه‌ها نقل می‌کنند) | بله | فقط برنامه |
-| `reports/` | کمک‌های بازبینی: `relation_evidence.csv` (تعداد خانوارهای پشت هر پیوند) و `code_reuse.csv` (کدهایی که برای قلم دیگری به کار رفته‌اند) | خیر | فقط برنامه |
+| `reports/` | کمک‌های بازبینی: `change_evidence.csv` (تعداد خانوارهای پشت هر تغییر) و `code_reuse.csv` (کدهایی که برای قلم دیگری به کار رفته‌اند) | خیر | فقط برنامه |
 
 ## ستون‌های CSV {#csv-columns}
 

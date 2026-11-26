@@ -36,6 +36,6 @@ export function emptyHtml(ctx) {
   const { num } = ctx.fmt;
   const ex = ["برنج", "11114", "تلویزیون", "دندان"].map(q => `<a data-q="${q}">${q}</a>`);
   return `<div class="empty"><div class="big">${t.pick}</div>
-      ${t.summary(num(M.SER.length), num(M.YEARS.length), num(M.DATA.relations.length))}<br>
+      ${t.summary(num(M.SER.length), num(M.YEARS.length), num(M.DATA.changes.length))}<br>
       ${t.tryThese} ${ex.slice(0, 3).join(fa ? "، " : ", ")} ${t.or} ${ex[3]}</div>`;
 }

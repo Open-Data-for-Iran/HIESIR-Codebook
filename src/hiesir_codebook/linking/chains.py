@@ -14,7 +14,7 @@ That needs each code printed once a year, which the structure check of
 ``output/2_corrected/`` guarantees; a code printed twice is an error.
 
 How chains relate to each other (a reworded label, a new code, a merge) is
-the job of the next stage, :mod:`hiesir_codebook.linking.relations`.
+the job of the next stage, :mod:`hiesir_codebook.linking.changes`.
 
 Output: ``chains.csv``, one row per chain.  A chain's id is ``C-``, its code
 and its first year: ``C-011111-1383``.

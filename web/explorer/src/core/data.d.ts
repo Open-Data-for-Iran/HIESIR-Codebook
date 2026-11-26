@@ -4,8 +4,8 @@
  * contract, for editors and for any other site or service that reads it.
  *
  * Years are Iranian (Solar Hijri) survey years, such as 1383. A "chain" is
- * one item under one code over a run of years; links join chains across
- * years (the same item reworded or recoded, a merge, a split ...).
+ * one item under one code over a run of years; a change is what happened
+ * between chains (the same item reworded or recoded, a merge, a split ...).
  */
 
 export type Year = number;
@@ -23,13 +23,13 @@ export interface HxData {
   sectionYears: Record<string, [Year, string][]>;
   /** the printed group headers across years; DATA.groups[i] is group i */
   groups: Group[];
-  /** links between groups, except the rejected ones */
-  groupLinks: GroupLink[];
+  /** changes between groups, except the rejected ones */
+  groupChanges: GroupChange[];
   /** groupIds[i]: the id of group i ("G-0111-1383": code and first year, as in output/4_groups/) */
   groupIds: string[];
   chains: Chain[];
-  /** links between chains (output/3_items/links.csv), except the rejected ones */
-  relations: Relation[];
+  /** changes between chains (output/3_items/changes.csv), except the rejected ones */
+  changes: Change[];
   /** the hand corrections to the printed questionnaires (curated/2_corrected/corrections.csv) */
   corrections: Correction[];
 }
@@ -43,8 +43,8 @@ export type Group =
   | [code: string, label: string, level: number, section: number]
   | [code: string, label: string, level: number, section: number, wordings: [Year, string][]];
 
-/** [from group, to group, relation, year, number of items it moved]: group indexes into groups */
-export type GroupLink = [from: number, to: number, rel: "continued" | "moved" | "merged" | "split" | "regrouped", year: Year, items: number];
+/** [from group, to group, type, year, number of items it moved]: group indexes into groups */
+export type GroupChange = [from: number, to: number, rel: "continued" | "moved" | "merged" | "split" | "regrouped", year: Year, items: number];
 
 export interface Chain {
   id: ChainId;
@@ -67,7 +67,7 @@ export interface Chain {
   gp: [Year, number[]][];
 }
 
-export interface Relation {
+export interface Change {
   id: string;
   from: ChainId[];
   to: ChainId[];
@@ -80,7 +80,7 @@ export interface Relation {
   /** decided by no rule and not yet reviewed */
   check: boolean;
   /** the review: "" none */
-  verified: "" | "confirmed" | "changed" | "added";
+  verified: "" | "confirmed" | "amended" | "added";
   /** the evidence */
   note: string;
 }

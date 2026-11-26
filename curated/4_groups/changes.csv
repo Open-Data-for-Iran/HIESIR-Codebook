@@ -1,9 +1,9 @@
-﻿from_group,to_group,decision,relation,note,agent
+﻿from_group,to_group,decision,type,note,agent
 G-071-1383,G-123M-1383,reject,,"an artefact of the 1384 regrouping (071312, 093115, 123215 -> 071312, 123215), which links every source with every target: the baby gear stays under 1232 M and the 16-inch bicycle under 0713",Claude Opus 5.5 Medium
 G-0713-1383,G-1232M-1383,reject,,"an artefact of the 1384 regrouping (071312, 093115, 123215 -> 071312, 123215), which links every source with every target: the baby gear stays under 1232 M and the 16-inch bicycle under 0713",Claude Opus 5.5 Medium
 G-1232M-1383,G-0713-1383,reject,,"an artefact of the 1384 regrouping (071312, 093115, 123215 -> 071312, 123215), which links every source with every target: the baby gear stays under 1232 M and the 16-inch bicycle under 0713",Claude Opus 5.5 Medium
 G-123M-1383,G-071-1383,reject,,"an artefact of the 1384 regrouping (071312, 093115, 123215 -> 071312, 123215), which links every source with every target: the baby gear stays under 1232 M and the 16-inch bicycle under 0713",Claude Opus 5.5 Medium
-G-01192-1383,G-01192+01193-1384,change,continued,"the same condiments group under the code 01192, 01193: 11 of its 12 items go there; the 12th, cake powder, moved to the sweets (the link 01192 -> 01182, 01183, 01184)",Claude Opus 5.5 Medium
+G-01192-1383,G-01192+01193-1384,amend,continued,"the same condiments group under the code 01192, 01193: 11 of its 12 items go there; the 12th, cake powder, moved to the sweets (the link 01192 -> 01182, 01183, 01184)",Claude Opus 5.5 Medium
 G-0112+0113-1383,G-0119-1383,confirm,,"bouillon-type protein (011246, نظیر گالینا) moved from ready-to-cook meat to condiments in 1386",Claude Opus 5.5 Medium
 G-01124-1383,G-01192+01193-1384,confirm,,"bouillon-type protein (011246, نظیر گالینا) moved from ready-to-cook meat to condiments in 1386",Claude Opus 5.5 Medium
 G-0113-1383,G-0112+0113-1383,confirm,,"1384 prints fish as the level-4 group 01131, 01132 under 0112, 0113 (meat), not as its own level-3 group 0113; all 12 fish items moved there",Claude Opus 5.5 Medium
@@ -28,13 +28,13 @@ G-062-1383,G-063A-1390,confirm,,"dialysis (062324) joined chemotherapy as one in
 G-0622-1383,G-0621M-1395,confirm,,"orthodontics (062215, 062216) became orthodontic specialists G / NG (062128, 062129) under medical services in the 1395 health redesign",Claude Opus 5.5 Medium
 G-0623-1383,G-0631A-1390,confirm,,"dialysis (062324) joined chemotherapy as one inpatient item by provider (063141, 063142) in the 1395 health redesign",Claude Opus 5.5 Medium
 G-06312A-1390,G-06313A-1391,confirm,,"the same specialised-hospital group: 1391 prints the monthly header as 06312 and 06313 M and the annual one as 06313 A, with the same label and the same two items",Claude Opus 5.5 Medium
-G-0631M-1390,G-0621A-1395,confirm,,part of the 1395 regrouping of outpatient and hospital care (relations.csv): the cosmetic surgery and beauty rows 062124-062127 are printed in section 13,Claude Opus 5.5 Medium
+G-0631M-1390,G-0621A-1395,confirm,,part of the 1395 regrouping of outpatient and hospital care: the cosmetic surgery and beauty rows 062124-062127 are printed in section 13,Claude Opus 5.5 Medium
 G-0631M-1390,G-0621M-1395,confirm,,the 1395 health redesign moved the hospital doctor visits asked for the last month (0631 M) into medical services (0621 M),Claude Opus 5.5 Medium
 G-0631M-1390,G-0631A-1390,confirm,,"chemotherapy (063119, 063138) went to the inpatient services asked for the last 12 months in the 1395 health redesign",Claude Opus 5.5 Medium
 G-0633-1383,G-0623-1383,confirm,,the 1395 health redesign moved hospital paramedical services (0633) into outpatient paramedical services (0623),Claude Opus 5.5 Medium
 G-0633-1383,G-0631A-1390,confirm,,private nursing in hospital (063321) went to the inpatient services asked for the last 12 months in the 1395 health redesign,Claude Opus 5.5 Medium
 G-0634-1390,G-0631A-1390,confirm,,the hospital service items by hospital type (063418-063448) went to the inpatient services asked for the last 12 months in the 1395 health redesign,Claude Opus 5.5 Medium
-G-063M-1390,G-062A-1395,confirm,,part of the 1395 regrouping of outpatient and hospital care (relations.csv): the cosmetic surgery and beauty rows 062124-062127 are printed in section 13,Claude Opus 5.5 Medium
+G-063M-1390,G-062A-1395,confirm,,part of the 1395 regrouping of outpatient and hospital care: the cosmetic surgery and beauty rows 062124-062127 are printed in section 13,Claude Opus 5.5 Medium
 G-063M-1390,G-062M-1395,confirm,,the 1395 health redesign moved the doctor visits and paramedical services asked for the last month (063 M) into outpatient services (062 M); the inpatient items went to 063 A,Claude Opus 5.5 Medium
 G-063M-1390,G-063A-1390,confirm,,"chemotherapy and private nursing in hospital (063119, 063138, 063321) went to the inpatient services asked for the last 12 months in the 1395 health redesign",Claude Opus 5.5 Medium
 G-071-1383,G-092-1383,confirm,,motor boats (071214) left vehicles for the major recreational durables (092122) in 1386,Claude Opus 5.5 Medium

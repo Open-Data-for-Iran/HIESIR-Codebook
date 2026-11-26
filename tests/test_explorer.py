@@ -19,11 +19,11 @@ def _collect():
     )
 
 
-def test_every_chain_and_kept_relation_is_embedded():
+def test_every_chain_and_kept_change_is_embedded():
     data = _collect()
     ids = {c["id"] for c in data["chains"]}
     assert len(ids) == len(data["chains"])
-    for r in data["relations"]:
+    for r in data["changes"]:
         assert set(r["from"]) | set(r["to"]) <= ids, r["id"]
         assert r["verified"] != "rejected"
     # the group headers of an item come from the corrected questionnaire, outermost first

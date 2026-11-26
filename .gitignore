@@ -16,7 +16,7 @@ wheels/
 !/data/code_usage.csv
 !/data/pdfs.csv
 
-# review aids written by the build (label check, code reuse, relation evidence)
+# review aids written by the build (label check, code reuse, change evidence)
 /reports/
 /site/
 

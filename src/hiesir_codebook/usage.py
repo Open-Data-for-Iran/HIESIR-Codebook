@@ -16,7 +16,7 @@
 :func:`read_usage` gives it as a typed polars table; :func:`load_occurrence`
 and :func:`load_share` as ``{year: {code: value}}`` for lookups.  It is the
 evidence for corrections and for the corrected codes (``correct --check``)
-and for links between items (``relations``).
+and for the changes between items (``changes``).
 
 Some codes in the raw data are wrong: ``curated/data/code_corrections.csv``
 (``year``, ``data_code`` as the data stores it, the ``expenditure_code`` it

@@ -3,8 +3,8 @@
 import { is11 } from "./model.js";
 
 /* How each year can express the target: the series' item as asked in year R.
-   Every relation says its two sides cover the same ground. Walking away from
-   R, a relation whose whole near side is in the target set swaps it for the
+   Every change says its two sides cover the same ground. Walking away from
+   R, a change whose whole near side is in the target set swaps it for the
    far side (exact: add those codes up); one that takes only part of it buries
    the target inside items that also hold other things (not recoverable).
    st: "ref" | 0 strictly comparable | 1 scope changed | 2 recoverable by adding
@@ -14,8 +14,8 @@ const LEVEL = r => is11(r) ? (r.detail === "label_broadened" || r.detail === "la
 const byCodeOrder = (a, b) => a.code.localeCompare(b.code);
 /* the chains ids (asked in year R) followed to every other year: for each
    year the set that covers the same ground (set), those asked that year
-   (asked), the worst link crossed (lvl), the links that changed the scope
-   (via) and the first link that took only part of the set (broken) */
+   (asked), the worst change crossed (lvl), the changes that changed the scope
+   (via) and the first change that took only part of the set (broken) */
 export function trace(M, ids, R) {
   const out = new Map(), start = ids.map(id => M.CH.get(id)).filter(Boolean).sort(byCodeOrder);
   out.set(R, { set: start, asked: start, lvl: 0, via: [], broken: null });
@@ -56,7 +56,7 @@ export function compare(M, s, R) {
 }
 
 /* How each year can express a heading (a group or a section) as printed
-   in year R: its items that year are followed through the relations to
+   in year R: its items that year are followed through the changes to
    every other year. Merges and splits inside the heading keep its total;
    what differs is the items asked that year under other headings (plus,
    to add), those under it that the reference year has elsewhere (moved)

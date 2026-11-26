@@ -1,14 +1,14 @@
 /* The data model: data.json (see data.d.ts) indexed for the views. No DOM.
  *
  * model(DATA) adds to each chain its years, pages and boxes by year, its
- * groups and section by year, its links in and out and its search keys;
- * joins chains linked one to one into series (an item reworded or recoded)
+ * groups and section by year, its changes in and out and its search keys;
+ * joins chains that continuing changes link into series (an item reworded or recoded)
  * and groups continued under another code into heading nodes; and returns
  * the indexes the views use, with caches for compare() and gcompare().
  */
 import { norm } from "./text.js";
 
-/* a one-to-one link: the same item, maybe reworded or recoded */
+/* a continuing change: the same item, maybe reworded or recoded */
 export const is11 = r => (r.rel === "same" || r.rel === "recoded") && r.from.length === 1 && r.to.length === 1;
 
 export function model(DATA) {
@@ -28,13 +28,13 @@ export function model(DATA) {
     c.key = norm(c.text + " " + c.path.map(p => p[1]).join(" "));
     c.key0 = norm(c.text);
   }
-  for (const r of DATA.relations) {
+  for (const r of DATA.changes) {
     for (const id of r.to) CH.get(id)?.ins.push(r);
     for (const id of r.from) CH.get(id)?.outs.push(r);
   }
   const byCode = new Map();
   for (const c of DATA.chains) (byCode.get(c.code) || byCode.set(c.code, []).get(c.code)).push(c);
-  // series: chains joined by one-to-one links (the same item reworded, or recoded)
+  // series: chains joined by continuing changes (the same item reworded, or recoded)
   const serOf = new Map(), SER = [];
   for (const c of DATA.chains) {
     if (serOf.has(c.id)) continue;
@@ -59,13 +59,13 @@ export function model(DATA) {
     serOf.set(s.id, s);
     SER.push(s);
   }
-  const RELS = DATA.relations.slice().sort((a, b) => a.year - b.year);
+  const RELS = DATA.changes.slice().sort((a, b) => a.year - b.year);
   // the wording printed in year y (y null: the latest)
   const runAt = (runs, y, latest) => { if (!runs || y == null) return latest; let l = runs[0][1]; for (const [y0, v] of runs) if (y0 <= y) l = v; return l; };
   const groupLabel = (gi, y) => runAt(G[gi] && G[gi][4], y, G[gi] ? G[gi][1] : "");
   const sectionTitle = (n, y) => runAt((DATA.sectionYears || {})[n], y, DATA.sections[n] || "");
   /* heading pages: a group joined with the groups it continues as (a
-     "continued" link: the same heading recoded or reworded), and each
+     "continued" change: the same heading recoded or reworded), and each
      section; members(y): the chains printed under it in year y */
   const GIDS = DATA.groupIds || [];
   const MEM = G.map(() => new Map()), SMEM = new Map();
@@ -81,7 +81,7 @@ export function model(DATA) {
   const union = (ms, y) => { const u = new Set(); for (const m of ms) for (const id of m.get(y) || []) u.add(id); return u; };
   const GY = MEM.map(m => yearsOf([m]));
   const up = G.map((_, i) => i), root = i => (up[i] === i ? i : (up[i] = root(up[i])));
-  for (const [a, b, rel] of DATA.groupLinks || []) if (rel === "continued") up[root(b)] = root(a);
+  for (const [a, b, rel] of DATA.groupChanges || []) if (rel === "continued") up[root(b)] = root(a);
   const byRoot = new Map();
   G.forEach((_, i) => { const r = root(i); (byRoot.get(r) || byRoot.set(r, []).get(r)).push(i); });
   const NODES = new Map(), nodeOfG = [];

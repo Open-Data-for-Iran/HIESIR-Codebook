@@ -63,44 +63,46 @@
     "total": 1798,
     "asked_last_year": 1042
   },
-  "links": {
-    "total": 333,
-    "kept": 300,
-    "code": 61,
-    "curated": 272,
-    "open": 0,
-    "confirmed": 175,
-    "changed": 61,
-    "rejected": 33,
-    "added": 3,
-    "same": 289,
-    "recoded": 11
-  },
-  "relations": {
-    "total": 172,
-    "kept": 153,
-    "code": 0,
-    "curated": 172,
-    "open": 0,
-    "confirmed": 89,
-    "changed": 0,
-    "rejected": 19,
-    "added": 64,
-    "merged": 132,
-    "split": 8,
-    "regrouped": 13
+  "changes": {
+    "continuing": {
+      "total": 333,
+      "kept": 300,
+      "code": 61,
+      "curated": 272,
+      "open": 0,
+      "confirmed": 175,
+      "amended": 61,
+      "rejected": 33,
+      "added": 3,
+      "same": 289,
+      "recoded": 11
+    },
+    "breaking": {
+      "total": 172,
+      "kept": 153,
+      "code": 0,
+      "curated": 172,
+      "open": 0,
+      "confirmed": 89,
+      "amended": 0,
+      "rejected": 19,
+      "added": 64,
+      "merged": 132,
+      "split": 8,
+      "regrouped": 13
+    }
   },
   "code_reuse": 6,
   "groups": {
     "total": 309,
-    "links": {
+    "changes": {
       "total": 118,
       "kept": 114,
       "code": 56,
       "curated": 62,
       "open": 0,
       "confirmed": 57,
-      "changed": 1,
+      "amended": 1,
       "rejected": 4,
       "added": 0,
       "continued": 18,

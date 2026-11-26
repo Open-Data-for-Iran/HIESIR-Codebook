@@ -3,7 +3,8 @@
 Written at the end of every ``hiesir-codebook build``, so any change to the
 curated decisions or the code shows its effect as a diff of this file, and
 read by the documentation (``scripts/mkdocs_hooks.py``), which writes
-``{{ links.confirmed }}`` for the number of confirmed links, so the pages
+``{{ changes.continuing.confirmed }}`` for the number of confirmed continuing
+changes, so the pages
 never quote an out-of-date figure.
 
     uv run hiesir-codebook metrics
@@ -22,12 +23,12 @@ from . import CORRECTED, CURATED_CORRECTED, EXTRACTED, GROUPS, ITEMS, OUTPUT, SU
 from .correction import corrections as step1
 from .correction.fixes import Fixes, read_spelling
 from .linking.chains import read_chains
+from .linking.changes import BREAKING, CONTINUING, code_reuse
 from .linking.compare import YEARS
-from .linking.relations import GROUP_KINDS, LINK_KINDS, code_reuse
 
 OUT = OUTPUT / "metrics.json"
 DECIDED_BY = ("code", "curated", "open")
-VERIFIED = ("confirmed", "changed", "rejected", "added")
+VERIFIED = ("confirmed", "amended", "rejected", "added")
 
 
 def _read(path: Path) -> list[dict[str, str]]:
@@ -51,23 +52,23 @@ def _all(folder: Path, name: str) -> tuple[list[dict[str, str]], list[dict[str, 
 def _kinds(
     final: list[dict[str, str]], rows: list[dict[str, str]], kinds: tuple[str, ...]
 ) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
-    """``final`` and ``rows`` (as from :func:`_all`) of the relations ``kinds`` only."""
-    return [r for r in final if r["relation"] in kinds], [r for r in rows if r["relation"] in kinds]
+    """``final`` and ``rows`` (as from :func:`_all`) of the types ``kinds`` only."""
+    return [r for r in final if r["type"] in kinds], [r for r in rows if r["type"] in kinds]
 
 
 def _decisions(
     final: list[dict[str, str]], rows: list[dict[str, str]], kinds: tuple[str, ...] = ()
 ) -> dict[str, int]:
     """How many rows (suggested or added), how many are kept (final), who
-    decided them and how; with ``kinds``, the kept rows of each relation."""
+    decided them and how; with ``kinds``, the kept rows of each type."""
     by = Counter(r["decided_by"] for r in rows)
     how = Counter(r["verified"] for r in rows)
     kept = final
     out = {"total": len(rows), "kept": len(kept)}
     out |= {k: by[k] for k in DECIDED_BY}
     out |= {k: how[k] for k in VERIFIED}
-    rel = Counter(r["relation"] for r in kept)
-    out |= {k: rel[k] for k in kinds}
+    types = Counter(r["type"] for r in kept)
+    out |= {k: types[k] for k in kinds}
     return out
 
 
@@ -116,8 +117,8 @@ def compute(
         item_years[str(y)] = sum(r["kind"] == "item" for r in rows)
 
     chains = read_chains(items / "chains.csv")
-    final, rows = _all(items, "links.csv")
-    # as relations.main: a pair already linked in any way is no reuse
+    final, rows = _all(items, "changes.csv")
+    # as changes.main: a pair already related by any change is no reuse
     linked = {(a, b) for r in rows for a in r["from_chains"].split() for b in r["to_chains"].split()}
     reused = [p for p in code_reuse(chains, YEARS) if (p[0].id, p[1].id) not in linked]
 
@@ -149,13 +150,15 @@ def compute(
             "total": len(chains),
             "asked_last_year": sum(c.years[-1] == YEARS[-1] for c in chains),
         },
-        "links": _decisions(*_kinds(final, rows, LINK_KINDS), LINK_KINDS),
-        "relations": _decisions(*_kinds(final, rows, GROUP_KINDS), GROUP_KINDS),
+        "changes": {
+            "continuing": _decisions(*_kinds(final, rows, CONTINUING), CONTINUING),
+            "breaking": _decisions(*_kinds(final, rows, BREAKING), BREAKING),
+        },
         "code_reuse": len(reused),
         "groups": {
             "total": len(_read(groups / "groups.csv")),
-            "links": _decisions(
-                *_all(groups, "links.csv"), ("continued", "split", "merged", "regrouped", "moved")
+            "changes": _decisions(
+                *_all(groups, "changes.csv"), ("continued", "split", "merged", "regrouped", "moved")
             ),
         },
     }
@@ -166,7 +169,7 @@ def to_json(metrics: dict) -> str:
 
 
 def lookup(metrics: dict, key: str):
-    """``lookup(m, "links.confirmed")``: one figure by its dotted name."""
+    """``lookup(m, "changes.continuing.confirmed")``: one figure by its dotted name."""
     value = metrics
     for part in key.split("."):
         if not isinstance(value, dict) or part not in value:

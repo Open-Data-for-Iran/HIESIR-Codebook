@@ -98,7 +98,7 @@ export function createGroupCard(ctx) {
     // links with other headings
     if (n.kind === "g") {
       const mine = new Set(n.gis);
-      const gl = (M.DATA.groupLinks || []).filter(l => mine.has(l[0]) || mine.has(l[1])).sort((a, b) => a[3] - b[3]);
+      const gl = (M.DATA.groupChanges || []).filter(l => mine.has(l[0]) || mine.has(l[1])).sort((a, b) => a[3] - b[3]);
       if (gl.length) {
         const side = (i, y) => { const id = M.nodeOfG[i]?.id, lab = `${code(M.G[i][0])} ${fat(M.groupLabel(i, y))}`; return mine.has(i) || !id ? `<div class="me">${lab}</div>` : `<div>${gLink(id, lab)}</div>`; };
         h += `<h3>${t.g.links}</h3>` + gl.map(([a, b, rel, y, k]) => `<div class="rel"><div class="hd"><b>${yr(y)}</b> <span class="pill ${rel === "continued" ? "info" : "bad"}">${t.ch.grel[rel] || rel}</span>` +

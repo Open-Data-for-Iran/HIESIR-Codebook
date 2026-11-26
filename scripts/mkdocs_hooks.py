@@ -198,8 +198,8 @@ def pdf_table(found: list[pdfs.Pdf], lang: str, books: dict[int, Path] | None = 
 # --- the home page's heatmap: items changed by section and year -------------------
 # The same count as the explorer's Changes by year with its default kinds
 # (web/explorer/src/core/changes.js, events()): a new or dropped chain counts 1,
-# a merge, split or regrouping its larger side, a reworded link (wording or
-# scope) 1; group-heading links and PDF corrections are left out. Ported here so
+# a merge, split or regrouping its larger side, a reworded item (wording or
+# scope) 1; group-heading changes and PDF corrections are left out. Ported here so
 # the home page needs no script and not the explorer's data.json.
 
 HEAT_KINDS = {"added", "dropped", "recoded", "merged", "split", "regrouped", "scope"}
@@ -213,7 +213,7 @@ def year_changes(data: dict) -> dict:
     chains = {c["id"]: c for c in data["chains"]}
     ins: dict[str, list[dict]] = {}
     outs: dict[str, list[dict]] = {}
-    for r in data["relations"]:
+    for r in data["changes"]:
         for i in r["to"]:
             ins.setdefault(i, []).append(r)
         for i in r["from"]:
@@ -235,7 +235,7 @@ def year_changes(data: dict) -> dict:
         return years[i - 1] if i > 0 else None
 
     events: list[tuple[str, int, int | None, int]] = []
-    for r in data["relations"]:
+    for r in data["changes"]:
         if r["rel"] == "same":
             kind = "scope" if r.get("detail") and r["detail"] != "minor" else None
         else:

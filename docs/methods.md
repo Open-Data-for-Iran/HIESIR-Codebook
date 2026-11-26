@@ -7,14 +7,16 @@ The stages run in the order shown on the [home page](index.md#how-it-is-made).
 
 | Term | Meaning |
 |---|---|
-| **item** | one printed row of one questionnaire: an expenditure code and its description, e.g. `011241` همبرگر آماده برای طبخ in 1383 |
+| **item** | one row of one year's questionnaire: an expenditure code and its label, e.g. `011241` «همبرگر آماده برای طبخ» in 1383; identified by year and code |
 | **section** | a numbered part of the questionnaire, e.g. section 1, food bought in the past month; section 13, purchases in the past 12 months |
-| **group** | a header printed above items (levels 2–4), followed across years; its id is `G-`, its code and first year, e.g. `G-01124-1383` |
-| **chain** | one code with one label, followed while both stay the same; its id is `C-`, its code and first year, e.g. `C-011241-1384` |
-| **link** | joins earlier chains to later ones; its `relation` says how: `same` (reworded) and `recoded` (new code) join one chain to one, the same item; `merged`, `split` and `regrouped` end a set of series and start another |
-| **series** | chains joined by `same` and `recoded` links: one item followed for as long as it can be compared on its own; its id is `I-` and the code and first year of its first chain, e.g. `I-011241-1383` |
-| **group link** | how two groups relate, read from where their items went (`continued`, `split`, `merged`, …) |
-| **decision** | who settled a link, relation or group link (`decided_by`): the code, a row in `curated/`, or nobody yet (`open`) |
+| **group** | a header printed above items (levels 2–4), followed across years while its code is printed, skipping at most two questionnaires; unlike a chain, a reworded label keeps the group, and only a header reused for something else starts a new one; its id is `G-`, its code and first year, e.g. `G-01124-1383` |
+| **chain** | an item followed across years while its code and label stay the same (differences only in spacing, ZWNJ, punctuation, hamza or digits do not count; any other change, or a gap of more than two questionnaires, starts a new chain); its id is `C-`, its code and first year, e.g. `C-011241-1384` |
+| **change** | what happened to an item between two years; its `type` says what: `same` (reworded) and `recoded` (new code) are *continuing* changes, one chain to one, and the series goes on; `merged`, `split` and `regrouped` are *breaking* changes: they end a set of series and start another |
+| **series** | chains joined by continuing changes: one good or service followed through rewording and recoding, until a merge, split or regrouping ends it; the unit for time series; its id is `I-` and the code and first year of its first chain, e.g. `I-011241-1383` |
+| **group change** | how two groups relate, read from where their items went (`continued`, `moved`, `merged`, `split`, `regrouped`) |
+| **decision** | who settled a change or group change (`decided_by`): the code, a row in `curated/`, or nobody yet (`open`) |
+
+Every item belongs to exactly one chain, every chain to exactly one series, and every item sits under one group at each level.
 
 ## Corrections
 
@@ -237,14 +239,14 @@ twice, the header 062 M; 1384: 102216).
 
 ## Matching items across years
 
-`output/3_items/` links each item through the 1383–1403 questionnaires as a
+`output/3_items/` follows each item through the 1383–1403 questionnaires as a
 *series*: the same thing asked about year after year, even when its wording
 changes slightly, its code changes, or it is missing from a year.
 
 ```bash
 uv run hiesir-codebook chains      # stage 1: output/2_corrected/ -> output/3_items/chains.csv
-uv run hiesir-codebook relations   # stage 2: chains.csv -> output/3_items/links.csv
-uv run hiesir-codebook series      # stage 3: chains.csv + links.csv -> output/3_items/series.csv
+uv run hiesir-codebook changes     # stage 2: chains.csv -> output/3_items/changes.csv
+uv run hiesir-codebook series      # stage 3: chains.csv + changes.csv -> output/3_items/series.csv
 ```
 
 Matching runs in three stages.
@@ -259,10 +261,11 @@ text, and every item of every year belongs to exactly one chain.
 `C-011114-1387`), `section`, `expenditure_code`, `first_year`, `last_year`,
 `missing_years`, `text`.
 
-**Stage 2, links.** A link joins a *set* of earlier chains to a *set* of
-later chains; the shape gives the kind, its `relation`:
+**Stage 2, changes.** A change is what happened to an item between two
+years. It joins a *set* of earlier chains to a *set* of later chains, and
+the shape gives its `type`:
 
-| `relation` | Shape | Example |
+| `type` | Shape | Example |
 |---|---|---|
 | `same` | 1 → 1, same code | برنج چمپا و آشی → برنج آشی |
 | `recoded` | 1 → 1, new code | شیرینی خشک: 011837 → 011174 (1386) |
@@ -272,26 +275,26 @@ later chains; the shape gives the kind, its `relation`:
 
 One example of each shape (codes and labels as printed):
 
-<!-- diagram: relation-shapes -->
+<!-- diagram: change-shapes -->
 
-The relation says what a link does:
+The type says what a change does:
 
-- `same` and `recoded` (always 1 → 1) *continue* an item. The chains such a
-  link joins are one series, and the question to verify is how the label's
+- `same` and `recoded` (always 1 → 1) are *continuing* changes. The chains
+  such a change joins are one series, and the question to verify is how the label's
   scope changed.
-- `merged`, `split` and `regrouped` *end* series and start others. The
+- `merged`, `split` and `regrouped` are *breaking* changes: they *end* series and start others. The
   question is which chains belong on each side. A chain that goes on with
   its label unchanged can appear on both sides of a merge or split.
 
-All links are in one table, `links.csv`: `link_id` (`L0001`…),
+All changes are in one table, `changes.csv`: `change_id` (`L0001`…),
 `from_chains` and `to_chains` (chain ids separated by spaces; one each for
-`same` and `recoded`), `relation`, `detail` (for `same` and `recoded`:
+`same` and `recoded`), `type`, `detail` (for `same` and `recoded`:
 `minor`, `label_broadened`, `label_narrowed`, `label_reworded`, or empty
 when the label is the same), `year` (of the change), `score`, `decided_by`,
 `verified`, `note`, and both texts for reading.
 
 The ready-to-cook hamburger shows both at work. Its first label is printed
-only in 1383; in 1384 it adds کباب لقمه, a link (`same`, broadened) that
+only in 1383; in 1384 it adds کباب لقمه, a continuing change (`same`, broadened) that
 keeps one series. In 1389 the cutlet and steak items stop and the hamburger
 label takes them in: a merge (`L0021`) ends three series and starts one.
 From 1389 the hamburger alone has no match in 1388; the sum of the three
@@ -299,14 +302,14 @@ does.
 
 <!-- diagram: hamburger -->
 
-All links are found in one pass, because a merge is found by extending a
-`same` link. They must agree: a chain has at most one `same` or `recoded`
-link onward and one into it,
-and a chain that a merge, split or regrouping ends (or starts) has no link
-onward from it (or into it), unless it appears on both sides. The build
+All changes are found in one pass, because a merge is found by extending a
+`same` change. They must agree: a chain has at most one continuing change
+onward and one into it,
+and a chain that a merge, split or regrouping ends (or starts) has no
+continuing change onward from it (or into it), unless it appears on both sides. The build
 reports any breach, and a test fails on it.
 
-The code finds the 1 → 1 links within a code, recodings (a chain that
+The code finds the 1 → 1 changes within a code, recodings (a chain that
 ends and a similar one that starts the next year under a new code, in the same
 section, or in another section with the same label: رفتگر 056215 → 044418 in
 1384), merges
@@ -316,11 +319,11 @@ whose label was part of an older one; an item asked for all providers that
 becomes a G / NG pair).
 
 When a code's new label is unrelated, the code was reused for another
-item. That is no link, so nothing goes into `links.csv`; the {{ code_reuse }}
+item. That is no change, so nothing goes into `changes.csv`; the {{ code_reuse }}
 pairs (for example 053125: انواع آبگرمکن گازی → کولرگازی) are listed in
 `reports/code_reuse.csv` for review.
 
-**Stage 3, series.** The chains that links join are one series, so a series
+**Stage 3, series.** The chains that continuing changes join are one series, so a series
 has one code in each year it is asked. `series.csv` has one row per series:
 `series_id` (`I-` and the code and first year of its first chain), `section`, `first_year`,
 `last_year`, `missing_years`, `codes` (in the order it used them: two or
@@ -330,43 +333,43 @@ a new item) and its latest `text`. The ready-to-cook
 hamburger is two series: `I-011241-1383` (1383–1388) and `I-011241-1389`, which
 `L0021` ends and starts.
 
-**Who decides.** Every link and group link has a `decided_by`
+**Who decides.** Every change and group change has a `decided_by`
 column:
 
 | `decided_by` | Meaning |
 |---|---|
 | `code` | the code finds it and is sure: no row in `curated/` |
-| `curated` | a row in `curated/` decided it; `verified` says how (`confirmed`, `changed`, `added`, `rejected`) |
+| `curated` | a row in `curated/` decided it; `verified` says how (`confirmed`, `amended`, `added`, `rejected`) |
 | `open` | the code found it but is not sure, and nobody has decided yet |
 
 **Suggestions and results.** The code's suggestions and the results are
-kept in separate files. `output/3_items/suggested/links.csv` and
-`output/4_groups/suggested/links.csv` list everything
-the code found, as it found it (its relation and detail, before any
-`change`), with `decided_by` and `verified`; the rows with `open` are the
-ones still to review. `output/3_items/links.csv` and
-`output/4_groups/links.csv` hold only the results: decided by the code or
+kept in separate files. `output/3_items/suggested/changes.csv` and
+`output/4_groups/suggested/changes.csv` list everything
+the code found, as it found it (its type and detail, before any
+`amend`), with `decided_by` and `verified`; the rows with `open` are the
+ones still to review. `output/3_items/changes.csv` and
+`output/4_groups/changes.csv` hold only the results: decided by the code or
 in `curated/`, not rejected, with the decision's `note`. A suggestion and
 its result share an id (`L0001`, `GL0001`); an added one is only in
 the results, a rejected one only in the suggestions.
 
-A 1 → 1 link is *definite* (`decided_by` `code`) when both labels carry the same content words, so only punctuation,
+A 1 → 1 change is *definite* (`decided_by` `code`) when both labels carry the same content words, so only punctuation,
 the conjunction (`،` / `و`), word order, spacing, generic words (`انواع`)
 or "etc." markers (`و نظایر آن` / `و ...`) differ: `جگر، دل، قلوه` →
-`جگر، دل و قلوه`. Every other 1 → 1 link, and every merge, split or
-regrouping, needs a check. Everything is now settled: of {{ links.total }} 1 → 1 links, {{ links.code }} are
-definite and `curated/3_items/links.csv` decides the rest ({{ links.confirmed }} confirmed, {{ links.changed }}
-changed, {{ links.rejected }} rejected, {{ links.added }} added), and all {{ relations.total }}
-merges, splits and regroupings ({{ relations.confirmed }} confirmed, {{ relations.rejected }} rejected, {{ relations.added }} added).
+`جگر، دل و قلوه`. Every other 1 → 1 change, and every merge, split or
+regrouping, needs a check. Everything is now settled: of {{ changes.continuing.total }} 1 → 1 changes, {{ changes.continuing.code }} are
+definite and `curated/3_items/changes.csv` decides the rest ({{ changes.continuing.confirmed }} confirmed, {{ changes.continuing.amended }}
+amended, {{ changes.continuing.rejected }} rejected, {{ changes.continuing.added }} added), and all {{ changes.breaking.total }}
+merges, splits and regroupings ({{ changes.breaking.confirmed }} confirmed, {{ changes.breaking.rejected }} rejected, {{ changes.breaking.added }} added).
 
-Decisions go in `curated/3_items/links.csv`, one row per link, named by
+Decisions go in `curated/3_items/changes.csv`, one row per change, named by
 its chains:
 
 | Column | Meaning |
 |---|---|
 | `from_chains`, `to_chains` | the chains of each side, ids separated by spaces (one each for `same` and `recoded`) |
-| `decision` | `confirm` (right as found), `reject` (not related this way), `change` (right chains, use `relation`/`detail` instead), or `add` (a link the code missed, e.g. a regrouping) |
-| `relation`, `detail` | for `change` and `add` |
+| `decision` | `confirm` (right as found), `reject` (not related this way), `amend` (right chains, use `type`/`detail` instead), or `add` (a change the code missed, e.g. a regrouping) |
+| `type`, `detail` | for `amend` and `add` |
 | `note` | why |
 | `agent` | who decided: the person, or the AI model and its effort |
 
@@ -378,16 +381,16 @@ same group, so that survey-wide swings such as 1387 or the 1399 COVID year
 cancel out. It also says whether that ratio fits the scope change: a
 broadened label should not lose many households, and a narrowed one should
 not gain many. Counts under 100 are too few to tell. Where the
-label reading was wrong, the row is a `change`. Dropping a qualifier or an
+label reading was wrong, the row is an `amend`. Dropping a qualifier or an
 exclusion (`در منزل`, `ساخت داخل`, `به جز بهمن`) broadens an item, and
 adding one (`ذرت` → `ذرت شیرین`) narrows it. The comparison counts words, so
 it reads these the other way round.
 
-`relations` computes this evidence for every relation on each build and
-writes it to `reports/relation_evidence.csv`, with the columns
+`changes` computes this evidence for every change on each build and
+writes it to `reports/change_evidence.csv`, with the columns
 `before_year`, `before`, `after`, `group`, `ratio` and `verdict` (`fits`,
 `does not fit`, `too few`, `no data`). It also prints the verdicts of the
-links and relations still to verify. A test checks that the evidence quoted
+changes still to verify. A test checks that the evidence quoted
 in the curated notes is still what the code computes.
 
 Merges and splits need a different yardstick, because the table counts
@@ -402,8 +405,8 @@ another item does not distort it.
 What the verification found:
 
 - **Wrong direction.** Dropping a qualifier broadens an item, adding one
-  narrows it, and compare reads both the other way round (22 of the {{ links.changed }}
-  changed links, see above).
+  narrows it, and compare reads both the other way round (22 of the {{ changes.continuing.amended }}
+  amended changes, see above).
 - **"Outside the home" items (1386).** 062315, 062321, 062323, 062328 and
   062331 ended when their "at home" twins dropped `در منزل`. These are
   merges, not broadenings: vaccination at home (233 households) plus
@@ -432,7 +435,7 @@ What the verification found:
   foreign-made toothbrushes, toothpaste and face cream joined the domestic
   ones, filming joined photography, recorded tapes and CDs joined the blank
   ones, and in 1392 outpatient surgery added «کاشت مو» as the hair-transplant
-  item of section 12 ended. 21 links read as broadenings were such merges
+  item of section 12 ended. 21 changes read as broadenings were such merges
   (18 merges and two regroupings of three items into two: the 1390 bicycles,
   and in 1384 the toy bicycles, tricycles and walkers of 093115, whose
   tricycles went to the 16-inch bicycle and whose walkers to the baby gear
@@ -443,7 +446,7 @@ What the verification found:
   as «کرایه سواری داخل شهری (مسافرکش شخصی)» started (1385), and the
   electric-blanket item dropped the thermometer and hot-water bottle as
   «تب‌سنج، کیسه آبجوش، کیسه یخ» started (1389). A search of every broadened
-  or narrowed link for an item that ended or started beside it, under words
+  or narrowed change for an item that ended or started beside it, under words
   the label gained or lost, finds no others in its group; the 1384
   regrouping crosses groups and sections, and was found by reading the labels.
 
@@ -455,15 +458,15 @@ cause open: 053312 halving in 1390, the 1386 public surgery fees halving, and
 dialysis and chemotherapy rising from 36 to 207 households in 1395.
 
 The rows that do what the code would not do on its own come first:
-`add`, then `reject`, then `change`; the confirmations follow, and each
-block is in chain-id order (`curated/4_groups/links.csv` is kept the same
+`add`, then `reject`, then `amend`; the confirmations follow, and each
+block is in chain-id order (`curated/4_groups/changes.csv` is kept the same
 way, and a test checks both). A `same` or `recoded` decision joins one
-chain to one; any other is an error. To change the chains of a link,
-reject it and add the right one; when a merge replaces a `same` link (the
-"outside the home" items), reject that link. `links.csv` records each
-decision in `verified` (`confirmed`, `rejected`, `changed`, `added`) and
-the `note`; rejected links are left out of it and stay visible in
-`suggested/`. A decision whose link is not
+chain to one; any other is an error. To correct the chains of a change,
+reject it and add the right one; when a merge replaces a `same` change (the
+"outside the home" items), reject that change. `changes.csv` records each
+decision in `verified` (`confirmed`, `rejected`, `amended`, `added`) and
+the `note`; rejected changes are left out of it and stay visible in
+`suggested/`. A decision whose change is not
 found (for example after a label correction merged two chains) is reported
 as stale, and the tests fail until it is updated. The rows still to check
 are those with `decided_by` `open` in `suggested/`.
@@ -491,7 +494,7 @@ of its code group vanish that year, they are all merged into the new chain
 centres owned by the medical universities and NG all other providers,
 including social security, the armed forces, private and charity, so NG
 covers more than خصوصی did. The qualifier stays in the text but is left out
-of the comparison, and a chain only links to an item for the same provider:
+of the comparison, and a chain only continues as an item for the same provider:
 دولتی → G, خصوصی → NG. An item asked for all providers that becomes a G/NG
 pair is a split (e.g. خدمات آمبولانس in 1395).
 
@@ -510,50 +513,50 @@ way the chains follow items:
   two questionnaires. A changed label keeps the group; `groups.csv` shows
   the latest. Only a header printed again for something else starts a new
   group: its label changes beyond a minor, broader or narrower wording, and
-  none of its items goes on under it, by code or through an item link
+  none of its items goes on under it, by code or through an item change
   (none does so today; 0631 A, «خدمات پزشکی» → «خدمات بیمارستانی» in
   1395, keeps its group because its surgery items go on through a regrouping). A group is identified by `G-`, its code and first year:
-  `G-0111-1383`, `G-01121+01122-1383`, `G-0314M-1389`; a group link by `GL0001`….
+  `G-0111-1383`, `G-01121+01122-1383`, `G-0314M-1389`; a group change by `GL0001`….
 - Every item of every year sits under one group per level.
   `4_groups/members.csv` (`year`, `expenditure_code`, `level_2`, `level_3`,
   `level_4`) is the crosswalk for summing items into groups.
 - Where the items go tells how groups relate. When an item continues to the
-  next year (in its chain, through a link, or through a merge, split or
-  regrouping that is not rejected) under another group at the same level,
-  the two groups are linked in `4_groups/links.csv`:
+  next year (in its chain, through a continuing change, or through a merge,
+  split or regrouping that is not rejected) under another group at the same
+  level, the two groups get a group change in `4_groups/changes.csv`:
 
-| Relation | Meaning |
+| Type | Meaning |
 |---|---|
 | `continued` | the old group ends, the new one starts and takes its items: the same group under another code (`112` → `112 M` in 1397, `01192, 01193` → `01192, 01193, 01194`) |
 | `split` | the old group ends and its items go to several new ones (`0314` → `0314 M` and `0314 A` in 1389) |
 | `merged` | several old groups end in one new group (`05111`, `05112`, `05113` → `05117` in 1386) |
 | `regrouped` | both at once |
-| `moved` | items moved between groups printed before and after: a reorganisation, or a wrong item link |
+| `moved` | items moved between groups printed before and after: a reorganisation, or a wrong item change |
 
 For example, in 1389 the semi-durable clothing group `0313` is printed in two
 parts, and the items say which went where (see the `M` and `A` suffixes below):
 
 <!-- diagram: clothing-split -->
 
-The code decides a group link (`decided_by` `code`) when three things hold:
+The code decides a group change (`decided_by` `code`) when three things hold:
 it is not `moved`; the codes are related (one shares a code with the other,
 or starts it: `0313` → `0313 M`, `096` → `0961`); and the labels match the
-way item links must: identical, or differing only in spacing, ZWNJ,
+way item changes must: identical, or differing only in spacing, ZWNJ,
 punctuation, the conjunction (`،` / `و`), word order, generic words or
 "etc." markers (`روغن‌ها و چربی‌ها و کره` → `روغن‌ها، چربی‌ها و کره`). The
-others are `open` until a row in `curated/4_groups/links.csv` decides
-them (`from_group`, `to_group`, `decision`, `relation`, `note`, `agent`; the
-decisions of `links.csv`). The 1384 split of `هزینه آموزش` into
+others are `open` until a row in `curated/4_groups/changes.csv` decides
+them (`from_group`, `to_group`, `decision`, `type`, `note`, `agent`; the
+decisions of `curated/3_items/changes.csv`). The 1384 split of `هزینه آموزش` into
 `هزینه آموزش ابتدایی و پیش دبستانی` and the other levels is one of them:
-the codes are related but the labels narrowed. All {{ groups.links.curated }} such links are
-decided ({{ groups.links.confirmed }} confirmed; one `split` changed to `continued`, as only one of
-its items left for another group; {{ groups.links.rejected }} rejected: a regrouping links every
+the codes are related but the labels narrowed. All {{ groups.changes.curated }} such changes are
+decided ({{ groups.changes.confirmed }} confirmed; one `split` amended to `continued`, as only one of
+its items left for another group; {{ groups.changes.rejected }} rejected: a regrouping joins every
 source with every target, so the 1384 baby gear and 16-inch bicycle seemed
-to swap groups). Two more `moved` links came from the
+to swap groups). Two more `moved` changes came from the
 1388–1390 questionnaires, which print the level-2 header `124 M` as
 `1241 M`; `curated/2_corrected/corrections.csv` restores the code.
-A `moved` link that comes from a wrong item link is fixed in
-`curated/3_items/links.csv`, not here. `items` counts the item chains that moved,
+A `moved` change that comes from a wrong item change is fixed in
+`curated/3_items/changes.csv`, not here. `items` counts the item chains that moved,
 `from_items` and `to_items` the items under each group that year, and
 `item_chains` lists the chains.
 
@@ -577,7 +580,7 @@ a `split` (`0313` → `0313 M` and `0313 A` in 1389).
 
 The code lives in three folders under `src/hiesir_codebook/`, one per kind of
 work: `extraction/` (PDFs to `output/1_extracted/`), `correction/` (to
-`output/2_corrected/`) and `linking/` (chains, links, relations and groups
+`output/2_corrected/`) and `linking/` (chains, changes, series and groups
 across years, to `output/3_items/` and `output/4_groups/`).
 
 - `pdf_text.py` rebuilds right-to-left text from glyph positions. Glyphs without
@@ -650,13 +653,14 @@ across years, to `output/3_items/` and `output/4_groups/`).
   column alike.
 - `compare.py` compares two descriptions (`same`, `minor`, `broadened`, ...)
   and handles provider qualifiers; shared by the matching stages.
-- `chains.py` builds the chains (matching stage 1), `relations.py` links them
-  (stage 2), and `groups.py`
+- `chains.py` builds the chains (matching stage 1), `changes.py` finds the
+  changes between them (stage 2), `series.py` joins them into series
+  (stage 3), and `groups.py`
   follows the group headers.
 - `pdfs.py` lists the PDFs in `data/pdfs.csv` (name, year, form, size,
   SHA-256), downloads them from the release and checks a copy against it.
 - `usage.py` reads the code usage table
-  (`data/code_usage.csv`) for `correct.py` and `relations.py`.
+  (`data/code_usage.csv`) for `correct.py` and `changes.py`.
 - `csv_io.py` reads and writes every CSV the same way: UTF-8 with a BOM (so
   Excel shows the Persian text), LF line endings, every field a string (so a
   code keeps its leading zero).
