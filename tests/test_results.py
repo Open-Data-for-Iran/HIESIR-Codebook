@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from hiesir_codebook import csv_io, results
+from hiesir_codebook import SUPPORTED_YEARS, csv_io, results
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "output" / "5_results"
@@ -29,6 +29,23 @@ def test_two_labels_for_one_id_is_an_error(tmp_path):
     path = _labels(tmp_path / "l.csv", "group_id", [("G-011-1383", "Food"), ("G-011-1383", "Foods")])
     with pytest.raises(ValueError, match="two English labels"):
         results.read_labels(path, "group_id", ["G-011-1383"])
+
+
+def test_labels_may_have_a_key_of_several_columns(tmp_path):
+    path = tmp_path / "l.csv"
+    csv_io.write(
+        path,
+        ["section", "label_fa", "label_en"],
+        [{"section": "10", "label_fa": "آموزش", "label_en": "Education"}],
+    )
+    key = ("section", "label_fa")
+    assert results.read_labels(path, key, [("10", "آموزش")]) == {("10", "آموزش"): "Education"}
+    with pytest.raises(ValueError, match="no English label for 1: 10/آموزش در ماه گذشته"):
+        results.read_labels(path, key, [("10", "آموزش"), ("10", "آموزش در ماه گذشته")])
+
+
+def test_every_section_has_an_english_label():
+    assert all(r["label_en"] for r in csv_io.read(OUT / "sections.csv"))
 
 
 def test_every_item_has_one_chain_series_and_group():
@@ -67,6 +84,29 @@ def test_change_chains_is_the_long_form_of_changes():
     assert long == wide
 
 
+def test_every_header_has_its_group():
+    groups = {r["group_id"]: r for r in csv_io.read(OUT / "groups.csv")}
+    for h in csv_io.read(OUT / "headers.csv"):
+        g = groups[h["group_id"]]
+        assert (g["section"], g["code"]) == (h["section"], h["code"])
+        assert int(g["first_year"]) <= int(h["year"]) <= int(g["last_year"])
+        assert h["year"] not in g["missing_years"].split()
+
+
+def test_recall_period():
+    assert results.recall_period("سرمایه‌گذاری خانوار در 12 ماه گذشته") == "12_months"
+    assert results.recall_period("هزینه‌های خوراکی خانوار در ماه گذشته") == "month"
+    assert results.recall_period("هزینه‌های آموزش و تحصیل خانوار") == ""
+
+
+def test_years_cover_the_codebook():
+    years = {int(r["year"]): r for r in csv_io.read(OUT / "years.csv")}
+    covered = [y for y, r in years.items() if r["status"] == "covered"]
+    assert covered == SUPPORTED_YEARS
+    items = csv_io.read(OUT / "items.csv")
+    assert sum(int(years[y]["items"]) for y in covered) == len(items)
+
+
 def test_results_are_up_to_date(tmp_path):
     """output/5_results/ must match stages 2 to 4 and the English labels in
     curated/; if this fails, run `uv run hiesir-codebook build --no-extract`."""
@@ -74,8 +114,11 @@ def test_results_are_up_to_date(tmp_path):
         corrected=ROOT / "output" / "2_corrected",
         items=ROOT / "output" / "3_items",
         groups=ROOT / "output" / "4_groups",
+        curated_corrected=ROOT / "curated" / "2_corrected",
         curated_items=ROOT / "curated" / "3_items",
         curated_groups=ROOT / "curated" / "4_groups",
+        curated_data=ROOT / "curated" / "data",
+        data=ROOT / "data",
         out=tmp_path,
     )
     names = sorted(p.name for p in OUT.glob("*.csv"))

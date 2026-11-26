@@ -95,6 +95,7 @@ LAZY = [
     ("metrics", "metrics:main", STAGES, "The figures of the build -> output/metrics.json."),
     ("autocorrect", "correction.words:main", WORDS, "Write canonical.csv and words.csv with hazm's words."),
     ("excel", "excel:main", RELEASE, "The corrected questionnaires as Excel workbooks -> dist/excel/."),
+    ("bundle", "bundle:main", RELEASE, "output/5_results/ as a data package, without BOM -> dist/bundle/."),
     ("pdfs", "extraction.pdfs:cli", DATA, "Download, verify or list the questionnaire PDFs."),
     ("hazm", "hazm_data:cli", DATA, "Download, verify or list hazm's word list and data."),
     ("glyph-db", "extraction.build_glyph_db:main", DATA, "Rebuild the glyph database from good PDFs."),

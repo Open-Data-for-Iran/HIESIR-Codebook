@@ -1,0 +1,42 @@
+﻿year,status,pdfs,items,note
+1363,scan_only,2,,"the PDF is a scan, without a text layer to extract"
+1364,scan_only,2,,"the PDF is a scan, without a text layer to extract"
+1365,scan_only,2,,"the PDF is a scan, without a text layer to extract"
+1366,scan_only,2,,"the PDF is a scan, without a text layer to extract"
+1367,scan_only,2,,"the PDF is a scan, without a text layer to extract"
+1368,no_pdf,0,,no questionnaire PDF in the collection
+1369,scan_only,1,,"the PDF is a scan, without a text layer to extract"
+1370,no_pdf,0,,no questionnaire PDF in the collection
+1371,scan_only,1,,"the PDF is a scan, without a text layer to extract"
+1372,scan_only,1,,"the PDF is a scan, without a text layer to extract"
+1373,scan_only,1,,"the PDF is a scan, without a text layer to extract"
+1374,scan_only,1,,"the PDF is a scan, without a text layer to extract"
+1375,scan_only,1,,"the PDF is a scan, without a text layer to extract"
+1376,scan_only,1,,"the PDF is a scan, without a text layer to extract"
+1377,scan_only,1,,"the PDF is a scan, without a text layer to extract"
+1378,scan_only,1,,"the PDF is a scan, without a text layer to extract"
+1379,scan_only,1,,"the PDF is a scan, without a text layer to extract"
+1380,scan_only,1,,"the PDF is a scan, without a text layer to extract"
+1381,scan_only,1,,"the PDF is a scan, without a text layer to extract"
+1382,old_code_scheme,1,,"a text PDF, but its 3+2 digit codes are not matched across years"
+1383,covered,1,1239,
+1384,covered,1,1281,
+1385,covered,1,1286,
+1386,covered,1,1083,
+1387,covered,1,1083,
+1388,covered,1,1084,
+1389,covered,1,1076,
+1390,covered,1,1071,
+1391,covered,1,1071,
+1392,covered,1,1071,
+1393,covered,1,1071,
+1394,covered,1,1071,
+1395,covered,1,1041,
+1396,covered,1,1042,
+1397,covered,1,1042,
+1398,covered,1,1042,
+1399,covered,1,1042,
+1400,covered,1,1042,
+1401,covered,1,1042,
+1402,covered,1,1042,
+1403,covered,1,1042,

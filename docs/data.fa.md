@@ -28,7 +28,7 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 همین فایل‌ها را می‌توانید از این سایت دریافت کنید:
 [2_corrected/questionnaire_1403.csv](2_corrected/questionnaire_1403.csv) (هر سال دیگری را به جای ۱۴۰۳ بگذارید)،
 [3_items/chains.csv](3_items/chains.csv)، [3_items/changes.csv](3_items/changes.csv)، [3_items/series.csv](3_items/series.csv)،
-[4_groups/groups.csv](4_groups/groups.csv)، [4_groups/members.csv](4_groups/members.csv) [4_groups/changes.csv](4_groups/changes.csv)، و نتیجه‌ها: [5_results/items.csv](5_results/items.csv)، [5_results/chains.csv](5_results/chains.csv)، [5_results/series.csv](5_results/series.csv)، [5_results/groups.csv](5_results/groups.csv)، [5_results/changes.csv](5_results/changes.csv)، [5_results/change_chains.csv](5_results/change_chains.csv) و [5_results/group_changes.csv](5_results/group_changes.csv).
+[4_groups/groups.csv](4_groups/groups.csv)، [4_groups/members.csv](4_groups/members.csv) و [4_groups/changes.csv](4_groups/changes.csv)؛ نتیجه‌ها: [5_results/years.csv](5_results/years.csv)، [5_results/pdfs.csv](5_results/pdfs.csv)، [5_results/sections.csv](5_results/sections.csv)، [5_results/headers.csv](5_results/headers.csv)، [5_results/items.csv](5_results/items.csv)، [5_results/chains.csv](5_results/chains.csv)، [5_results/series.csv](5_results/series.csv)، [5_results/groups.csv](5_results/groups.csv)، [5_results/changes.csv](5_results/changes.csv)، [5_results/change_chains.csv](5_results/change_chains.csv)، [5_results/group_changes.csv](5_results/group_changes.csv)، [5_results/code_corrections.csv](5_results/code_corrections.csv) و [5_results/code_usage.csv](5_results/code_usage.csv).
 
 | فایل | هر سطر یعنی | جزئیات |
 |---|---|---|
@@ -47,6 +47,10 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 | `5_results/chains.csv`، `series.csv`، `groups.csv` | یک زنجیره، سری یا گروه، با `label_fa` و `label_en` (برچسب سری همان برچسب آخرین زنجیره آن است) | [نتیجه‌ها](#results) |
 | `5_results/changes.csv`، `group_changes.csv` | یک تغییر میان زنجیره‌ها یا میان گروه‌ها، مانند `3_items/` و `4_groups/`، با ستون‌های متنی `from_label_fa` / `to_label_fa` | [نتیجه‌ها](#results) |
 | `5_results/change_chains.csv` | زنجیره‌ای در یک سوی یک تغییر: `from_chains` / `to_chains` به شکل بلند | [نتیجه‌ها](#results) |
+| `5_results/years.csv` | یک سال از ۱۳۶۳ تا ۱۴۰۳: `covered`، `old_code_scheme` (۱۳۸۲)، `scan_only` یا `no_pdf`، با شمار PDFها و اقلامش | [نتیجه‌ها](#results) |
+| `5_results/pdfs.csv` | یک PDF پرسشنامه: `data/pdfs.csv` با نشانی دریافت آن (`url`) | [نتیجه‌ها](#results) |
+| `5_results/sections.csv`، `headers.csv` | یک بخش یا سرگروه، همان‌گونه که آن سال چاپ شده؛ بخش با `label_en` و دوره یادآوری‌اش (`recall_period`: `month`، `12_months`)، سرگروه با `group_id` آن؛ جایی که چیزی چاپ نشده `page` و کادر خالی است (بخش ۲ سال ۱۳۸۳: صفحه ۱۴ آن PDF سفید است و بخش از ۱۳۸۴ رونویسی شده) | [نتیجه‌ها](#results) |
+| `5_results/code_corrections.csv`، `code_usage.csv` | `curated/data/code_corrections.csv` و `data/code_usage.csv`، با کد داده خام به نام `raw_code` و `occurrence` به نام `households` | [نتیجه‌ها](#results) |
 
 فایل‌های `changes.csv` بیرون از `suggested/` نتیجه‌اند: درباره هر سطرشان، برنامه یا `curated/`
 تصمیم گرفته و هیچ‌کدام رد نشده. پیشنهادهای برنامه پیش از هر تصمیم در `suggested/`
@@ -57,7 +61,8 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 `output/5_results/` آنچه کاربر دفترچه کد لازم دارد را در یک پوشه تخت جمع
 می‌کند، بی‌آن‌که لازم باشد مرحله‌ها را بشناسد. در آن هیچ تصمیم تازه‌ای گرفته
 نمی‌شود: `2_corrected/`، `3_items/` و `4_groups/` را با برچسب‌های انگلیسی
-پیوند می‌دهد که دستی نگه داشته می‌شوند: `curated/3_items/labels_en.csv` (یکی
+پیوند می‌دهد که دستی نگه داشته می‌شوند: `curated/2_corrected/labels_en.csv` (یکی برای هر عبارت بخش)،
+`curated/3_items/labels_en.csv` (یکی
 برای هر زنجیره) و `curated/4_groups/labels_en.csv` (یکی برای هر گروه). هر
 ستون متنی `label_fa` یا `label_en` است.
 
@@ -70,12 +75,19 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 زنجیره و گروه برچسب انگلیسی داشته باشد و هیچ برچسبی به زنجیره یا گروهی که
 دیگر نیست اشاره نکند.
 
+همین فایل‌ها، بدون BOM، به شکل یک بسته داده منتشر می‌شوند: یک فایل zip با
+`datapackage.json` که نوع، معنی و مقدارهای مجاز هر ستون و کلیدهای میان
+فایل‌ها را می‌گوید. `uv run hiesir-codebook bundle` آن را در `dist/bundle/`
+می‌سازد و با طرح خودش بررسی می‌کند؛ برچسب انتشارش `data-v<version>` است.
+نسخه patch داده را اصلاح می‌کند، نسخه minor سال، تغییر، ستون یا فایل تازه
+می‌افزاید، و نسخه major ستونی را تغییر نام می‌دهد یا برمی‌دارد.
+
 ## پوشه‌ها {#folders}
 
 | پوشه | محتوا | در git | ویرایش توسط |
 |---|---|---|---|
 | `data/` | ورودی‌های بیرونی: فایل‌های PDF و جدول تعداد خانوارهای گزارش‌دهنده هر کد | جدول تعداد خانوار و `pdfs.csv` (PDFها در یک انتشار GitHub‌اند) | هیچ‌کس (فقط جایگزین می‌شود) |
-| `curated/` | تصمیم‌های دستی: `2_corrected/` (`corrections.csv`: اصلاح اقلام و سرگروه‌ها؛ `spelling.csv`؛ `words.csv`: واژه‌هایی که hazm ندارد؛ `header_exceptions.csv`)، `3_items/` (`changes.csv`؛ `labels_en.csv`: برچسب انگلیسی زنجیره‌ها)، `4_groups/` (`changes.csv`؛ `labels_en.csv`: برچسب انگلیسی گروه‌ها): تصمیم‌های پوشه هم‌نام در `output/`؛ `data/` (`code_corrections.csv`): کدهای اشتباه داده خام، برای بعد | بله | افراد |
+| `curated/` | تصمیم‌های دستی: `2_corrected/` (`corrections.csv`: اصلاح اقلام و سرگروه‌ها؛ `spelling.csv`؛ `words.csv`: واژه‌هایی که hazm ندارد؛ `header_exceptions.csv`؛ `labels_en.csv`: برچسب انگلیسی بخش‌ها)، `3_items/` (`changes.csv`؛ `labels_en.csv`: برچسب انگلیسی زنجیره‌ها)، `4_groups/` (`changes.csv`؛ `labels_en.csv`: برچسب انگلیسی گروه‌ها): تصمیم‌های پوشه هم‌نام در `output/`؛ `data/` (`code_corrections.csv`): کدهای اشتباه داده خام، برای بعد | بله | افراد |
 | `output/` | خروجی همه مراحل: `1_extracted/`، `2_corrected/`، `3_items/`، `4_groups/`، `5_results/` و `metrics.json` (اعداد ساخت، که همین صفحه‌ها نقل می‌کنند) | بله | فقط برنامه |
 | `reports/` | کمک‌های بازبینی: `change_evidence.csv` (تعداد خانوارهای پشت هر تغییر) و `code_reuse.csv` (کدهایی که برای قلم دیگری به کار رفته‌اند) | خیر | فقط برنامه |
 

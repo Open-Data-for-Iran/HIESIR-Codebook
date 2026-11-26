@@ -28,7 +28,7 @@ items = items.assign(Commodity_Code=items.expenditure_code.astype(int))
 The same files can be downloaded from this site:
 [2_corrected/questionnaire_1403.csv](2_corrected/questionnaire_1403.csv) (any year in place of 1403),
 [3_items/chains.csv](3_items/chains.csv), [3_items/changes.csv](3_items/changes.csv), [3_items/series.csv](3_items/series.csv),
-[4_groups/groups.csv](4_groups/groups.csv), [4_groups/members.csv](4_groups/members.csv) [4_groups/changes.csv](4_groups/changes.csv), and the results: [5_results/items.csv](5_results/items.csv), [5_results/chains.csv](5_results/chains.csv), [5_results/series.csv](5_results/series.csv), [5_results/groups.csv](5_results/groups.csv), [5_results/changes.csv](5_results/changes.csv), [5_results/change_chains.csv](5_results/change_chains.csv) and [5_results/group_changes.csv](5_results/group_changes.csv).
+[4_groups/groups.csv](4_groups/groups.csv), [4_groups/members.csv](4_groups/members.csv) and [4_groups/changes.csv](4_groups/changes.csv); the results: [5_results/years.csv](5_results/years.csv), [5_results/pdfs.csv](5_results/pdfs.csv), [5_results/sections.csv](5_results/sections.csv), [5_results/headers.csv](5_results/headers.csv), [5_results/items.csv](5_results/items.csv), [5_results/chains.csv](5_results/chains.csv), [5_results/series.csv](5_results/series.csv), [5_results/groups.csv](5_results/groups.csv), [5_results/changes.csv](5_results/changes.csv), [5_results/change_chains.csv](5_results/change_chains.csv), [5_results/group_changes.csv](5_results/group_changes.csv), [5_results/code_corrections.csv](5_results/code_corrections.csv) and [5_results/code_usage.csv](5_results/code_usage.csv).
 
 | File | One row per | Details |
 |---|---|---|
@@ -47,6 +47,10 @@ The same files can be downloaded from this site:
 | `5_results/chains.csv`, `series.csv`, `groups.csv` | chain, series or group, with `label_fa` and `label_en` (a series is labelled by its last chain) | [Results](#results) |
 | `5_results/changes.csv`, `group_changes.csv` | change between chains or between groups, as in `3_items/` and `4_groups/`, text columns named `from_label_fa` / `to_label_fa` | [Results](#results) |
 | `5_results/change_chains.csv` | chain on one side of a change: `from_chains` / `to_chains` in long form | [Results](#results) |
+| `5_results/years.csv` | year from 1363 to 1403: `covered`, `old_code_scheme` (1382), `scan_only` or `no_pdf`, with its PDFs and items | [Results](#results) |
+| `5_results/pdfs.csv` | questionnaire PDF: `data/pdfs.csv` with its download `url` | [Results](#results) |
+| `5_results/sections.csv`, `headers.csv` | section or group header as printed that year; a section with its `label_en` and `recall_period` (`month`, `12_months`), a header with its `group_id`; `page` and the box are empty where nothing was printed (1383 section 2: page 14 of that PDF is blank, the section is copied from 1384) | [Results](#results) |
+| `5_results/code_corrections.csv`, `code_usage.csv` | `curated/data/code_corrections.csv` and `data/code_usage.csv`, the raw data's code as `raw_code`, `occurrence` as `households` | [Results](#results) |
 
 The `changes.csv` files outside `suggested/` are the results: every row in them was
 decided, by the code or in `curated/`, and none is rejected. What the code
@@ -57,7 +61,8 @@ suggested before any decision is in `suggested/`, with the same ids.
 `output/5_results/` gathers what a user of the codebook needs into one flat
 folder, without knowing the stages. Nothing in it is decided anew: it joins
 `2_corrected/`, `3_items/` and `4_groups/` with the English labels kept by
-hand in `curated/3_items/labels_en.csv` (one per chain) and
+hand in `curated/2_corrected/labels_en.csv` (one per section wording),
+`curated/3_items/labels_en.csv` (one per chain) and
 `curated/4_groups/labels_en.csv` (one per group). Every text column is
 `label_fa` or `label_en`.
 
@@ -70,12 +75,20 @@ The build checks that every item has one chain, one series and a group, and
 that every chain and group has an English label and no label names one that
 is gone.
 
+The same files, without the BOM, are released as a data package: a zip
+with a `datapackage.json` that gives every column its type, meaning and
+allowed values, and the keys between the files. `uv run hiesir-codebook
+bundle` makes it in `dist/bundle/` and checks it against its own schema;
+it is tagged `data-v<version>`. A patch version corrects data, a minor one
+adds a year, changes, columns or files, and a major one renames or removes
+a column.
+
 ## Folders
 
 | Folder | Content | In git | Edited by |
 |---|---|---|---|
 | `data/` | external inputs: the PDFs, the code usage table | the code usage table and `pdfs.csv` (the PDFs are in a GitHub release) | nobody (only replaced) |
-| `curated/` | hand-kept decisions: `2_corrected/` (`corrections.csv`: item and header fixes; `spelling.csv`; `words.csv`: words hazm lacks; `header_exceptions.csv`), `3_items/` (`changes.csv`; `labels_en.csv`: English labels of chains), `4_groups/` (`changes.csv`; `labels_en.csv`: English labels of groups): the decisions for the `output/` folder of the same name; `data/` (`code_corrections.csv`): wrong codes in the raw data, kept for later | yes | people |
+| `curated/` | hand-kept decisions: `2_corrected/` (`corrections.csv`: item and header fixes; `spelling.csv`; `words.csv`: words hazm lacks; `header_exceptions.csv`; `labels_en.csv`: English labels of sections), `3_items/` (`changes.csv`; `labels_en.csv`: English labels of chains), `4_groups/` (`changes.csv`; `labels_en.csv`: English labels of groups): the decisions for the `output/` folder of the same name; `data/` (`code_corrections.csv`): wrong codes in the raw data, kept for later | yes | people |
 | `output/` | every stage's result: `1_extracted/`, `2_corrected/`, `3_items/`, `4_groups/`, `5_results/` and `metrics.json` (the figures of the build, which these pages quote) | yes | the pipeline only |
 | `reports/` | review aids: `change_evidence.csv` (household counts behind each change) and `code_reuse.csv` (codes reused for another item) | no | the pipeline only |
 

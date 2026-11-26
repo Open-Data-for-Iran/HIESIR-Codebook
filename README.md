@@ -38,6 +38,7 @@ Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 uv run hiesir-codebook build --no-extract   # rebuild output/ after editing curated/
 uv run pytest -m "not slow"                     # tests, including "output/ is up to date"
 uv run hiesir-codebook excel 1403            # the corrected questionnaire as an Excel workbook -> dist/excel/
+uv run hiesir-codebook bundle                # output/5_results/ as a data package -> dist/bundle/
 uv run --group docs mkdocs serve                # preview the documentation site
 ```
 
